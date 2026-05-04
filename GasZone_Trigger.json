@@ -1,0 +1,33 @@
+{
+    "GasZone_Trigger": [
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\bricksWall4x4.bin",
+            "ObjectID": 1,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                175.38519287109375,
+                10.0,
+                -120.28807067871094
+            ]
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+#include "BackGround.h"
+#include "GuiObject.h"
+#include "NonModel.h"
+#include "GameInstance.h"
+CBackGround::CBackGround(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext):
+CGameObject(pDevice, pContext)
+{
+
+}
+CBackGround::CBackGround(const CBackGround& Prototye):CGameObject(Prototye)
+{
+}
+CBackGround::~CBackGround() {};
+
+
+HRESULT CBackGround::Initialize_Prototype()
+{
+	
+	return S_OK;
+}
+HRESULT CBackGround::Initialize(void* pArg)
+{
+	CTransform::TRANSFORM_DESC desc;
+	desc.m_fRotationPerSec = 0.f;
+	desc.m_fSpeedPerSec = 0.f;
+
+	if (FAILED(__super::Initialize(&desc)))
+		return E_FAIL;
+
+	m_pGuiObj = CGuiObject::Create(m_pDevice, m_pContext);
+
+	if (nullptr == m_pGuiObj)
+		return E_FAIL;
+
+	return S_OK;
+}
+void CBackGround::Priority_Update(_float fTimeDelta)
+{
+	m_pGuiObj->Priority_Update(fTimeDelta);
+}
+void CBackGround::Update(_float fTimeDelta)
+{
+		
+}
+void CBackGround::Late_Update(_float fTimeDelta)
+{
+	string name;
+
+	m_pGuiObj->Enable_GUI(name);
+	
+	if (nullptr != m_pMeshModel)
+		m_pMeshModel->Update(fTimeDelta);
+
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
+
+
+	m_pGuiObj->Late_Update(fTimeDelta);
+}
+HRESULT CBackGround::Render()
+{
+	if (NULL_FALSE(m_pMeshModel))
+		m_pMeshModel->Render();
+
+	return S_OK;
+}
+
+
+unique_ptr<CBackGround> CBackGround::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
+{
+	auto pInstance = unique_ptr<CBackGround>(new CBackGround(pDevice, pContext));
+	if (FAILED(pInstance->Initialize_Prototype()))
+	{
+		MSG_BOX("Create Failed BackGround");
+		return nullptr;
+	}
+	return pInstance;
+}
+shared_ptr<CPrototype> CBackGround::Clone(void* pArg)
+{
+	auto pInstance = shared_ptr <CGameObject>(new CBackGround(*this));
+	
+	if (FAILED(pInstance->Initialize(pArg)))
+	{
+		MSG_BOX("Create Failed BackGround_Clone ");
+		return pInstance;
+	}
+	return pInstance;
+}
