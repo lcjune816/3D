@@ -1,0 +1,28 @@
+{
+    "GasZone_Decal": [
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 3,
+            "Name": "../../DecalResource\\Blood\\T_Blood_Decal_Splatter_03_ORMH.dds",
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                207.0710906982422,
+                10.0,
+                -168.66514587402344
+            ]
+        }
+    ]
+}

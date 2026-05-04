@@ -1,0 +1,265 @@
+{
+    "Triggers": [
+        {
+            "Look": [
+                0.9999985694885254,
+                0.0002110299392370507,
+                -1.82170497282641e-05
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_F_Red.bin",
+            "ObjectID": 1,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -1.8221524442196824e-05,
+                2.1533907784032635e-05,
+                -0.9999947547912598
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                -0.0002110286441165954,
+                0.9999924302101135,
+                2.153770037693903e-05
+            ],
+            "fPos": [
+                555.4852905273438,
+                0.0,
+                184.77113342285156
+            ]
+        },
+        {
+            "Look": [
+                0.9999960064888,
+                0.00036114288377575576,
+                -1.1123716831207275e-05
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_F_Red.bin",
+            "ObjectID": 6,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -1.1205673217773438e-05,
+                -9.428422345081344e-06,
+                -0.999992311000824
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                -0.00036113764508627355,
+                0.9999808669090271,
+                -9.424182280781679e-06
+            ],
+            "fPos": [
+                555.2271728515625,
+                0.0,
+                314.7830810546875
+            ]
+        },
+        {
+            "Look": [
+                1.5944242477416992e-06,
+                0.0,
+                0.9999993443489075
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_A_Blue.bin",
+            "ObjectID": 2,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                0.9999993443489075,
+                0.0,
+                -1.5944242477416992e-06
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                428.3966369628906,
+                0.0,
+                470.3063659667969
+            ]
+        },
+        {
+            "Look": [
+                0.9999977946281433,
+                -2.1049783823553353e-13,
+                1.4588236808776855e-05
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_A_Grey.bin",
+            "ObjectID": 3,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                1.4588236808776855e-05,
+                -1.1337805694289216e-13,
+                -0.9999977946281433
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                2.1049743165971885e-13,
+                0.9999960064888,
+                -1.1337476367879323e-13
+            ],
+            "fPos": [
+                706.037353515625,
+                0.0,
+                529.991455078125
+            ]
+        },
+        {
+            "Look": [
+                0.9999951720237732,
+                6.8843032750010025e-06,
+                -9.553299605613574e-06
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_A_Grey.bin",
+            "ObjectID": 4,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -9.553342351864558e-06,
+                7.832908522686921e-06,
+                -0.9999938607215881
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                -6.884292815811932e-06,
+                0.9999936819076538,
+                7.832973096810747e-06
+            ],
+            "fPos": [
+                586.99072265625,
+                0.0,
+                683.4307861328125
+            ]
+        },
+        {
+            "Look": [
+                4.164873189438367e-06,
+                0.0,
+                0.9999980926513672
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_F_Grey.bin",
+            "ObjectID": 5,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                0.9999980926513672,
+                0.0,
+                -4.164873189438367e-06
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                608.2025146484375,
+                0.0,
+                763.8088989257813
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_RollUpDoor_C_Red.bin",
+            "ObjectID": 7,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                246.3199920654297,
+                57.889678955078125,
+                99.17831420898438
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/Battery.bin",
+            "ObjectID": 9,
+            "ObjectTargetID": 7,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerValue": "OBJ_GreenElectric",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                232.79132080078125,
+                115.74745178222656,
+                242.95266723632813
+            ]
+        },
+        {
+            "Look": [
+                0.9999966025352478,
+                0.00012332158803474158,
+                9.773758392839227e-06
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resoruce/SM_Door_A_Grey.bin",
+            "ObjectID": 8,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                9.774686986929737e-06,
+                -7.554932835773798e-06,
+                -0.9999961853027344
+            ],
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                -0.00012332091864664108,
+                0.9999911189079285,
+                -7.556099717476172e-06
+            ],
+            "fPos": [
+                1111.071044921875,
+                0.20000000298023224,
+                957.2378540039063
+            ]
+        }
+    ]
+}

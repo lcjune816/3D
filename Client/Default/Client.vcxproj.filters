@@ -1,0 +1,267 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="98.Default">
+      <UniqueIdentifier>{9ed060b1-93ef-47e8-aaa9-a91d366d7d2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="99.Defines">
+      <UniqueIdentifier>{616310f1-6f98-4c94-aa03-a86a32faa8dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="00.MainApp">
+      <UniqueIdentifier>{b8d522f2-4ebe-46ce-90d9-c00e7ed66041}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels">
+      <UniqueIdentifier>{ad712f9d-2534-4cac-9ce9-f42d1959e611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\GamePlay">
+      <UniqueIdentifier>{d9f1f888-16b7-426c-874c-2a2b4f3ee390}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\Loading">
+      <UniqueIdentifier>{c13dcdec-4483-4ab3-9f06-68d4c55adafd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\Logo">
+      <UniqueIdentifier>{5b3abbf1-baba-4498-b2b4-c21684f4e2f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\Loading\Loader">
+      <UniqueIdentifier>{4878f727-a3a0-4b6d-a335-18bde01218a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject">
+      <UniqueIdentifier>{f1139e40-c7c3-4e49-8999-f38d2adcc3b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\00.BackGround">
+      <UniqueIdentifier>{ecf6750b-a4be-4329-9440-c91574442066}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\01.Camera">
+      <UniqueIdentifier>{e052f0c5-16ab-4708-bc2d-c7b0d9bedac7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="97.ShaderFiles">
+      <UniqueIdentifier>{4aebf851-f0ff-4a51-829f-cda7f3024a62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\20.WorldObject">
+      <UniqueIdentifier>{943d1fb3-ae19-456e-8fb0-9eecf992f40d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\20.WorldObject\Gui">
+      <UniqueIdentifier>{3530506b-e7c1-442e-80ee-aedbb5c57e0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\21.Trigger_Object">
+      <UniqueIdentifier>{abe69a6f-ca2d-4dc6-b853-792be19b1442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\19.Map">
+      <UniqueIdentifier>{d71ea156-b97d-4d64-ae34-0918cc1223b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02.Player">
+      <UniqueIdentifier>{29f5e6e7-1441-403c-9e2f-a96d5ac403ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02.Player\FSM_IDLE">
+      <UniqueIdentifier>{5571caab-bcbe-4b73-afd8-490c28895938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02.Player\FSM_Move">
+      <UniqueIdentifier>{c6790d93-756d-4601-b86f-13cb1da674fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02.Player\Player_State">
+      <UniqueIdentifier>{c6afe16d-12d3-4f7a-b289-82cb997eded3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\GamePlay\Chapter.02">
+      <UniqueIdentifier>{2eff58b2-2be1-4bf1-994b-c9e11794b51c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObject\02.Player\FSM_Hand">
+      <UniqueIdentifier>{35835915-55f9-48bc-bc4b-6dda1c2c3635}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Client.h">
+      <Filter>98.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>98.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>98.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>98.Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Client_Defines.h">
+      <Filter>99.Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\MainApp.h">
+      <Filter>00.MainApp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Level_Logo.h">
+      <Filter>01.Levels\Logo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Loader.h">
+      <Filter>01.Levels\Loading\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Level_Loading.h">
+      <Filter>01.Levels\Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Level_GamePlay.h">
+      <Filter>01.Levels\GamePlay</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BackGround.h">
+      <Filter>02.GameObject\00.BackGround</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Camera.h">
+      <Filter>02.GameObject\01.Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\WorldObject.h">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\GuiObject.h">
+      <Filter>02.GameObject\20.WorldObject\Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Stageone_Terrain.h">
+      <Filter>02.GameObject\19.Map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\TriggerObject.h">
+      <Filter>02.GameObject\21.Trigger_Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_LeftHand.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_RightHand.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Idle.h">
+      <Filter>02.GameObject\02.Player\FSM_IDLE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Move.h">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_FSM.h">
+      <Filter>02.GameObject\02.Player\Player_State</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Crouch.h">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Jump.h">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\DecalObject.h">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Level_GasProduction.h">
+      <Filter>01.Levels\GamePlay\Chapter.02</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Hand.h">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_RightHand.h">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_LeftHand.h">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Client.ico">
+      <Filter>98.Default</Filter>
+    </Image>
+    <Image Include="small.ico">
+      <Filter>98.Default</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Client.rc">
+      <Filter>98.Default</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Client.cpp">
+      <Filter>98.Default</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\MainApp.cpp">
+      <Filter>00.MainApp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Level_Logo.cpp">
+      <Filter>01.Levels\Logo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Loader.cpp">
+      <Filter>01.Levels\Loading\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Level_Loading.cpp">
+      <Filter>01.Levels\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Level_GamePlay.cpp">
+      <Filter>01.Levels\GamePlay</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\BackGround.cpp">
+      <Filter>02.GameObject\00.BackGround</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Camera.cpp">
+      <Filter>02.GameObject\01.Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WorldObject.cpp">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\GuiObject.cpp">
+      <Filter>02.GameObject\20.WorldObject\Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Stageone_Terrain.cpp">
+      <Filter>02.GameObject\19.Map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\TriggerObject.cpp">
+      <Filter>02.GameObject\21.Trigger_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_LeftHand.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_RightHand.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Idle.cpp">
+      <Filter>02.GameObject\02.Player\FSM_IDLE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Move.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_FSM.cpp">
+      <Filter>02.GameObject\02.Player\Player_State</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Crouch.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Jump.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\DecalObject.cpp">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Level_GasProduction.cpp">
+      <Filter>01.Levels\GamePlay\Chapter.02</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Hand.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_LeftHand.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_RightHand.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\VertexShader.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\BoxShader.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\AnimeShader.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\InstancingTest.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
