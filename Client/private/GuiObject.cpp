@@ -36,6 +36,8 @@ HRESULT CGuiObject::Initialize_Prototype()
 		m_GuiResources.push_back(pTexture);
 
 	}
+	//Layer_GameObject
+
 	m_strGameObjectPath = L"../../GasZone_Objects.json";
 	m_strTriggerPath = L"../../GasZone_Trigger.json";
 	m_strDecalpath = L"../../GasZone_Decal.json";
@@ -44,7 +46,7 @@ HRESULT CGuiObject::Initialize_Prototype()
 	m_strTrigger = "GasZone_Trigger";
 	m_strDecal = "GasZone_Decal";
 
-	m_eLevel = LEVEL::GASZONE;
+	m_eLevel = LEVEL::GAMEPLAY;
 	CGameInstance::Get().Add_Layer(ETOUI(m_eLevel), L"Layer_Temp");
 
 	return S_OK;
@@ -819,7 +821,7 @@ void CGuiObject::Select_Model()
 					break;
 				}
 				 m_bCopy = true;
-				 XMStoreFloat4x4(&m_CopyWorld, pObj->Get_Transform()->Get_World());
+				 XMStoreFloat4x4(&m_CopyWorld, pObj->Get_Transform().lock()->Get_World());
 			}
 			
 			if (m_bCopy)
@@ -956,7 +958,7 @@ void CGuiObject::ImGui_Gizmo()
 	
 	auto pObj = m_pObj.lock();
 	XMMATRIX matRota = XMMatrixIdentity();
-	XMMATRIX matWorld = pObj->Get_Transform()->Get_World();
+	XMMATRIX matWorld = pObj->Get_Transform().lock()->Get_World();
 
 	ImGui::Text(u8"오브젝트 이름 : "); ImGui::SameLine(); ImGui::Text(pObj->Get_PathName().c_str());
 	
@@ -1036,10 +1038,10 @@ void CGuiObject::ImGui_Gizmo()
 		(float*)&matWorld, f3
 	);
 
-	pObj->Get_Transform()->Set_State(STATE::RIGHT, matWorld.r[0]);
-	pObj->Get_Transform()->Set_State(STATE::UP, matWorld.r[1]);
-	pObj->Get_Transform()->Set_State(STATE::LOOK, matWorld.r[2]);
-	pObj->Get_Transform()->Set_State(STATE::POS, matWorld.r[3]);
+	pObj->Get_Transform().lock()->Set_State(STATE::RIGHT, matWorld.r[0]);
+	pObj->Get_Transform().lock()->Set_State(STATE::UP, matWorld.r[1]);
+	pObj->Get_Transform().lock()->Set_State(STATE::LOOK, matWorld.r[2]);
+	pObj->Get_Transform().lock()->Set_State(STATE::POS, matWorld.r[3]);
 	
 }
 
@@ -1411,7 +1413,7 @@ void CGuiObject::Multy_Copy()
 			break;
 		}
 		
-		XMStoreFloat4x4(&m_CopyWorld, pObj->Get_Transform()->Get_World());
+		XMStoreFloat4x4(&m_CopyWorld, pObj->Get_Transform().lock()->Get_World());
 
 		desc.FileName = pObj->Get_PathName();			//매쉬 경로 복사		
 		desc.bCopy = true;						//복사 한다는 뜻

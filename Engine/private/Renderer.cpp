@@ -28,10 +28,11 @@ HRESULT CRenderer::Add_RenderObject(RENDERGROUP eRenderGroup, shared_ptr<CGameOb
 _bool CRenderer::Culling(CGameObject* pObj, _vector* vec)
 {
     //º®´À³¢³×
-    _matrix matrix = pObj->Get_Transform()->Get_World();
+  
+    _matrix matrix = pObj->Get_Transform().lock()->Get_World();
     _vector vPos{};
-    _float3 fMax = pObj->Get_Transform()->Get_Max();
-    _float3 fMin = pObj->Get_Transform()->Get_Min();
+    _float3 fMax = pObj->Get_Transform().lock()->Get_Max();
+    _float3 fMin = pObj->Get_Transform().lock()->Get_Min();
     _vector vCenter =  ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
 
     _float vRadius = XMVectorGetX(XMVector3Length(XMLoadFloat3(&fMax) - vCenter));

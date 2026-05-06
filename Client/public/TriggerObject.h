@@ -46,7 +46,7 @@ public:
 	HRESULT			Ready_Component();
 
 	const TRIGGER_INFO	Get_TriggerInfo() { return m_TriggerInfo; }
-
+	CTrigger*			Get_TriggerPtr() { return m_pTrigger.get(); }
 	void				Set_TargetIDNumber(uint32_t iTargetNumber) { m_TriggerInfo.iTargetObjectID = iTargetNumber; m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID); }
 	void				Set_Trigger(); 
 	
@@ -57,7 +57,7 @@ private:
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 	shared_ptr<Engine::CTrigger>		m_pTrigger = { nullptr };
-	vector<uint32_t>						m_MeshNameList;
+	vector<uint32_t>					m_MeshNameList;
 
 	TRIGGER_INFO						m_TriggerInfo;
 	_float4x4							m_TargetMatrix = {};

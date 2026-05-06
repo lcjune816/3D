@@ -7,7 +7,7 @@ CAnimator::CAnimator(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> p
 }
 CAnimator::CAnimator(const CAnimator& Prototype) : CComponent(Prototype)
 {
-
+	m_PreTransform = Prototype.m_PreTransform;
 }
 
 CAnimator::~CAnimator()
@@ -40,6 +40,7 @@ HRESULT CAnimator::Initialize(void* pArg)
 
 HRESULT CAnimator::Initialize_Prototype()
 {
+	XMStoreFloat4x4(&m_PreTransform, XMMatrixIdentity());
 	return S_OK;
 }
 
@@ -107,7 +108,7 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 	
 	XMMATRIX globalTransform;
 	
-	globalTransform = nodeTransform * parentsTrans ;
+	globalTransform =  nodeTransform * parentsTrans ;
 	
 
 	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();

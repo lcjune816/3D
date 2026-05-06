@@ -19,6 +19,7 @@ HRESULT CRollupDoor::Initialize_Prototype()
 
 HRESULT CRollupDoor::Initialize(void* pArg)
 {
+	m_eEventTrigger = TRIGGER_EVENT::END;
 	m_fRotationArrow = 10.f;
 	return S_OK;
 }

@@ -34,20 +34,21 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 {
 
 	auto Player = m_pPlayer.lock();
+	auto pTransform = Player->Get_Transform().lock();
 	auto Machine = m_pMachine.lock();
 	if (NULL_TRUE(Player)) return;
 	if (NULL_TRUE(Machine)) return;
-
+	if (NULL_TRUE(pTransform)) return;
 
 	MOVE eMove = Player->Get_State();
 
 	_float4 vPos{};
-	XMStoreFloat4(&vPos,Player->Get_Transform()->Get_State(STATE::POS));
+	XMStoreFloat4(&vPos, pTransform->Get_State(STATE::POS));
 	if (!m_bJump && vPos.y <= 0.f)
 	{
 		vPos.y = 0.f;
 
-		Player->Get_Transform()->Set_State(STATE::POS, XMLoadFloat4(&vPos));
+		pTransform->Set_State(STATE::POS, XMLoadFloat4(&vPos));
 
 		if (!m_bReFinished)
 		{
@@ -89,21 +90,21 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 			
 	}
 
-	Player->Get_Transform()->Set_State( STATE::POS, XMLoadFloat4(&vPos));
+	pTransform->Set_State( STATE::POS, XMLoadFloat4(&vPos));
 
 	switch (eMove)
 	{
 	case MOVE::RIGHT:
-		Player->Get_Transform()->Go_Right(fTimeDelta);
+		pTransform->Go_Right(fTimeDelta);
 		break;
 	case MOVE::FORWARD:
-		Player->Get_Transform()->Go_Straight(fTimeDelta);
+		pTransform->Go_Straight(fTimeDelta);
 		break;
 	case MOVE::LEFT:
-		Player->Get_Transform()->Go_Left(fTimeDelta);
+		pTransform->Go_Left(fTimeDelta);
 		break;
 	case MOVE::BACKWARD:
-		Player->Get_Transform()->Go_BackWard(fTimeDelta);
+		pTransform->Go_BackWard(fTimeDelta);
 		break;
 	}
 }

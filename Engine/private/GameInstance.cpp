@@ -346,6 +346,10 @@ _bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransf
 {
 	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform);
 }
+CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
+{
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj, bBack);
+}
 #pragma endregion
 
 #pragma region TRIGGER_MANAGER

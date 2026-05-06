@@ -17,9 +17,11 @@ public:
 	_bool			 ABB_Collision(CGameObject* pObj, _fvector vRayPos, _fvector vRayDir,_float& distance);
 	_bool			 Get_Collision() { return m_bCollision; }
 	
-	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, const weak_ptr<class CTransform>pDstTransform);
+	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, const weak_ptr<class CTransform>pDstTransform, _bool bBack = true);
 
-	void			 Set_Collision(_bool bCollision) { m_bCollision = bCollision; }
+
+	CGameObject*			AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
+	void					Set_Collision(_bool bCollision) { m_bCollision = bCollision; }
 private:
 
 	_bool			m_bCollision;

@@ -74,6 +74,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 
 	if (m_TriggerInfo.iObjectID == 0)
 	{
+		//오브젝트 ID 안겹치게 하는건데 처음부터 순회해서 찾아서함
 		uint32_t iObjectCnt = 0;
 		while (true)
 		{
@@ -109,7 +110,7 @@ void CTriggerObject::Late_Update(_float fTimeDelta)
 			if (static_pointer_cast<CTriggerObject>(iter)->Get_TriggerInfo().iObjectID == m_TriggerInfo.iTargetObjectID)
 			{
 				//오브젝트끼리 선 긋기
-				_vector fSrcPos = iter->Get_Transform()->Get_State(STATE::POS);
+				_vector fSrcPos = iter->Get_Transform().lock()->Get_State(STATE::POS);
 				_vector fDstPos = m_pTransform->Get_State(STATE::POS);
 				_vector centerPos = (fSrcPos + fDstPos) * 0.5f; //위치 중심 잡기
 				_vector Length = XMVector4Length(fSrcPos - fDstPos); // 위치 크기 잡기
@@ -117,7 +118,7 @@ void CTriggerObject::Late_Update(_float fTimeDelta)
 				_float3 fAngle{};
 				XMStoreFloat3(&fAngle, XMVector3Normalize(fSrcPos - fDstPos)); // Look 방향 구하기
 
-				XMStoreFloat4x4(&m_TargetMatrix, iter->Get_Transform()->Get_World());
+				XMStoreFloat4x4(&m_TargetMatrix, iter->Get_Transform().lock()->Get_World());
 				_float3 fRight, fUp, fLook;
 
 				memcpy(&fRight, m_TargetMatrix.m[0], sizeof(_float3));

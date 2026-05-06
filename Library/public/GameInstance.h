@@ -72,9 +72,11 @@ public:
 	weak_ptr<class CGameObject> Check_Ray(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, COLLISION_DESC& tagCollision);
 	_bool			 Get_Collision(); 
 	void			 Set_Collision(_bool bCollision);
-	_bool		     Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform);
-#pragma endregion
+	_bool Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform);
+	class CGameObject* AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
 
+#pragma endregion
+	 
 #pragma region INSTANCING
 
 	HRESULT				   Add_Instancing_Data(const string strName, INSTANCING_DATA Data, vector<string> TextureNames);

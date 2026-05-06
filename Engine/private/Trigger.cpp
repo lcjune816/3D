@@ -26,3 +26,14 @@ HRESULT CTrigger::Initialize(void* pArg)
 }
 
 
+
+_bool				CTrigger::Set_DstTransform(CTransform* pTransform)
+{
+	if (NULL_TRUE(m_pDstTransform))
+	{
+		m_pDstTransform = pTransform;
+		return true;
+	}
+
+	return false;
+}

@@ -49,14 +49,14 @@ weak_ptr<CGameObject>  CCollisionManager::Check_Ray(int32_t iLayerLevelIndex, co
 		//월드로만 비교
 		Worldray    = rayOrigin;
 		WorldrayDir = rayDir;
-		InverseWorld = XMMatrixInverse(nullptr, iter->Get_Transform()->Get_World());
+		InverseWorld = XMMatrixInverse(nullptr, iter->Get_Transform().lock()->Get_World());
 		//대상의 월드 pos를 가져옴
 		
 		Worldray = XMVector3TransformCoord(Worldray, InverseWorld);
 		WorldrayDir = XMVector3Normalize(XMVector3TransformNormal(WorldrayDir, InverseWorld));
 
-		_float3 fMax = iter->Get_Transform()->Get_Max();
-		_float3 fMin = iter->Get_Transform()->Get_Min();
+		_float3 fMax = iter->Get_Transform().lock()->Get_Max();
+		_float3 fMin = iter->Get_Transform().lock()->Get_Min();
 		_vector	vDstPos = ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
 		_vector P = {};
 		//     C
@@ -175,8 +175,8 @@ _bool CCollisionManager::OBB_Collision(FXMMATRIX matSrc, _fvector vRayPos, _fvec
 _bool CCollisionManager::ABB_Collision(CGameObject* pObj, _fvector vRayPos, _fvector vRayDir, _float& distance)
 {
 
-	_float3 vMax = pObj->Get_Transform()->Get_Max();
-	_float3 vMin = pObj->Get_Transform()->Get_Min();
+	_float3 vMax = pObj->Get_Transform().lock()->Get_Max();
+	_float3 vMin = pObj->Get_Transform().lock()->Get_Min();
 	_float3 vDst = { };
 	_float3 fRay = {};
 	_float3 fDir= {};
@@ -221,7 +221,7 @@ _bool CCollisionManager::ABB_Collision(CGameObject* pObj, _fvector vRayPos, _fve
 	return false;
 }
 
-_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform)
+_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform, _bool bBack)
 {
 	auto   SrcTransform = pSrcTransform.lock();
 	auto   DstTransform = pDstTransform.lock();
@@ -230,7 +230,6 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	_matrix DstWorld = DstTransform->Get_World();
 	_float3  SrcMin, SrcMax;
 	_float3  DstMin, DstMax;
-
 
 	SrcMin = SrcTransform->Get_Min();
 	SrcMax = SrcTransform->Get_Max();
@@ -252,7 +251,6 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	SrcMax.y = max(SrcMin.y, SrcMax.y);
 	SrcMax.z = max(SrcMin.z, SrcMax.z);
 
-
 	DstMin.x = min(DstMin.x, DstMax.x);
 	DstMin.y = min(DstMin.y, DstMax.y);
 	DstMin.z = min(DstMin.z, DstMax.z);
@@ -262,6 +260,7 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	DstMax.z = max(DstMin.z, DstMax.z);
 
 
+	// 
 	if (DstMax.x > SrcMin.x &&
 		DstMax.y > SrcMin.y &&
 		DstMax.z > SrcMin.z &&
@@ -269,10 +268,49 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 		DstMin.y < SrcMax.y &&
 		DstMin.z < SrcMax.z)
 	{
+		if (!bBack)
+		{
+			_vector DstCenter = (XMVector3Length(XMLoadFloat3(&DstMax)) + XMVector3Length(XMLoadFloat3(&DstMin)) * 0.5f);
+			_vector SrcCenter = (XMVector3Length(XMLoadFloat3(&SrcMax)) + XMVector3Length(XMLoadFloat3(&SrcMin)) * 0.5f);
+
+			_vector Distance = DstCenter - SrcCenter;
+
+			_vector Pos = DstWorld.r[3] + Distance;
+				
+			DstTransform->Set_State(STATE::POS, Pos);
+		}
+
 		return true;
 	}
 
 	return false;
+}
+
+CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
+{
+	auto SrcObj = pObj.lock();
+	if (NULL_TRUE(SrcObj))
+		return nullptr;
+
+	CLayer* pLayer = nullptr;
+	for (size_t i = 0; i < endLayerIndex; ++i)
+	{
+		pLayer = CGameInstance::Get().Find_Layer(i, LayerName);
+		if (pLayer != nullptr)
+			break;
+	}
+
+	if (NULL_TRUE(pLayer))
+		return nullptr;
+
+	for (auto& Layer : pLayer->Get_ObjectList())
+	{		
+			if (Only_AABB_Collision(Layer->Get_Transform(), SrcObj->Get_Transform(), bBack))
+			return Layer.get();
+	}
+
+	return nullptr;
+
 }
 
 unique_ptr<CCollisionManager> CCollisionManager::Create()

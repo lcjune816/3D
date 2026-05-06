@@ -107,7 +107,7 @@ void CFSM_Hand::Update_State(_float fTimeDelta)
 			++m_fShootTime;
 			m_fShootTimeTick = 0.f;
 		}
-		_vector Look = Player->Get_Transform()->Get_State(STATE::LOOK);
+		_vector Look = Player->Get_Transform().lock()->Get_State(STATE::LOOK);
 		_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
 		_vector startPos = XMLoadFloat4x4(&start).r[3];
 
@@ -176,16 +176,16 @@ void CFSM_Hand::Update_State(_float fTimeDelta)
 	switch (eMove)
 	{
 	case MOVE::RIGHT:
-		Player->Get_Transform()->Go_Right(fTimeDelta);
+		Player->Get_Transform().lock()->Go_Right(fTimeDelta);
 		break;
 	case MOVE::FORWARD:
-		Player->Get_Transform()->Go_Straight(fTimeDelta);
+		Player->Get_Transform().lock()->Go_Straight(fTimeDelta);
 		break;
 	case MOVE::LEFT:
-		Player->Get_Transform()->Go_Left(fTimeDelta);
+		Player->Get_Transform().lock()->Go_Left(fTimeDelta);
 		break;
 	case MOVE::BACKWARD:
-		Player->Get_Transform()->Go_BackWard(fTimeDelta);
+		Player->Get_Transform().lock()->Go_BackWard(fTimeDelta);
 		break;
 	}
 }

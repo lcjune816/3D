@@ -21,6 +21,8 @@ private:
 	void			Action_Trigger();
 private:
 	_float						m_fRotationArrow = {1.f };
+
+	
 public:
 	static unique_ptr<CGreenElectric>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>		 Clone(void* pArg) override;

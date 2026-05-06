@@ -8,13 +8,14 @@ namespace Engine
 NS_BEGIN(Client)
 
 
+
 class CPLayer_RightHand final : public CGameObject
 {
 private:
-	typedef struct PlayerState
+	typedef struct HandState
 	{
-		_bool bRun{ false }, bCrouch{ false }, bIdle{ false }, bMove{ false }, bJump{ false }, bFalling{ false };
-	}PLAYER_STATE;
+		_bool bHandAttached{ false }, bShoot{ false };
+	}HAND_STATE;
 private:
 	CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	CPLayer_RightHand(const CPLayer_RightHand& Prototye);
@@ -29,10 +30,16 @@ public:
 	virtual HRESULT			Render();
 
 public:
-	string					Model_Animation(const vector<string>& pNames);
-	void					Connet_Player(shared_ptr<class CPlayer> pPlayer) { m_pPlayer = pPlayer; }
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
-
+	const PLAYER_HAND		Get_PlayerHand() { return m_eRHand; }
+	HAND_STATE&				Get_HandState() { return m_tagHandState; }
+	void					Connet_Player(shared_ptr<class CPlayer> pPlayer) { m_pPlayer = pPlayer; }
+	const _float4x4         Get_FirstMatrix() {return m_StartMatrix;}
+	const _float4x4			Get_LastMatrix() { return m_LastMatrix; }
+private:
+	void					Hand_Pivot();
+	void					Hand_Collision();
+	void					Hand_Trigger_Event(class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger);
 private:
 	HRESULT					Ready_Component();
 private:
@@ -43,8 +50,11 @@ private:
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
 private:
+	_float4x4							m_LastMatrix;
+	_float4x4							m_StartMatrix;
 	_float4x4							m_bones[BONE_MATRIX];
-
+	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
+	HAND_STATE							m_tagHandState = {};
 public:
 	static unique_ptr<CPLayer_RightHand> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;
