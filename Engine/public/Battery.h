@@ -18,7 +18,6 @@ public:
 	virtual HRESULT Interaction(shared_ptr<class CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger = false);
 			
 private:
-	void			Draw_Line();
 	void			Action_Trigger(shared_ptr<class CTransform> pTransform);
 private:
 	_float						m_fRotationArrow = { 1.f };

@@ -19,6 +19,8 @@ HRESULT CDoor::Initialize_Prototype()
 
 HRESULT CDoor::Initialize(void* pArg)
 {
+
+	m_eEventTrigger = TRIGGER_EVENT::DOOR;
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }

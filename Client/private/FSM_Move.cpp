@@ -20,8 +20,9 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 {
 
 	auto Player = m_pPlayer.lock();
-
+	auto pTransform = Player->Get_Transform().lock();
 	if (NULL_TRUE(Player)) return;
+	if (NULL_TRUE(pTransform)) return;
 
 	MOVE eMove = Player->Get_State();
 	_bool bRun = Player->Get_AnimeState().bRun;
@@ -49,16 +50,16 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 	switch (eMove)
 	{
 	case MOVE::RIGHT:
-		Player->Get_Transform()->Go_Right(fTimeDelta);
+		pTransform->Go_Right(fTimeDelta);
 		break;
 	case MOVE::FORWARD:
-		Player->Get_Transform()->Go_Straight(fTimeDelta);
+		pTransform->Go_Straight(fTimeDelta);
 		break;
 	case MOVE::LEFT:
-		Player->Get_Transform()->Go_Left(fTimeDelta);
+		pTransform->Go_Left(fTimeDelta);
 		break;
 	case MOVE::BACKWARD:
-		Player->Get_Transform()->Go_BackWard(fTimeDelta);
+		pTransform->Go_BackWard(fTimeDelta);
 		break;
 	}
 }

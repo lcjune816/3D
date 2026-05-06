@@ -20,36 +20,54 @@ HRESULT CBattery::Initialize_Prototype()
 
 HRESULT CBattery::Initialize(void* pArg)
 {
+
+	m_eEventTrigger = TRIGGER_EVENT::BATTERY;
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }
 
 HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger)
 {
-	if (m_bTriggerOn) return E_FAIL;
-	_float4 fPos{};
+	if (!m_bTriggerOn) return E_FAIL;
+	_vector vPos{};
 
-	XMStoreFloat4(&fPos, pTransform->Get_State(STATE::POS));
-	_float fY = pTransform->Get_Min().y;
-	//배터리는 자기 Pivot Y축 만큼 땅 위로 올리기
-	m_fDropTime += 9.8f * fTimeDelta;
-	if (fPos.y < -fY)
+	if (m_pDstTransform != nullptr)
 	{
-		fPos.y = -fY;
-		m_fDropTime = 0;
+		vPos = m_pDstTransform->Get_State(STATE::POS);
 	}
-	else if(fPos.y > -fY)
-		fPos.y -= m_fDropTime;
+	else
+	{
+		vPos =  pTransform->Get_State(STATE::POS);
+		_float3 Pos{};
+		XMStoreFloat3(&Pos, vPos);
 
-	pTransform->Set_State(STATE::POS,XMLoadFloat4(&fPos));
+		_float fY = pTransform->Get_Min().y;
+		//배터리는 자기 Pivot Y축 만큼 땅 위로 올리기
+		m_fDropTime += 9.8f * fTimeDelta;
+		if (Pos.y < -fY)
+		{
+			Pos.y = -fY;
+			m_fDropTime = 0;
+		}
+		else if (Pos.y > -fY)
+			Pos.y -= m_fDropTime;
+
+		vPos = XMLoadFloat3(&Pos);
+	}
+
+
+	pTransform->Set_State(STATE::POS, vPos);
 
 	auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
 	if (NULL_TRUE(Target))
 		return E_FAIL;
 
 	if (0 == static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(pTransform))
-		m_bTriggerOn = true;
-
+	{
+		m_pDstTransform = nullptr;
+		m_bTriggerOn = false;
+	}
+		
 	return S_OK;
 }
 

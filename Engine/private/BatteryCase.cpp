@@ -19,6 +19,8 @@ HRESULT CBatteryCase::Initialize_Prototype()
 
 HRESULT CBatteryCase::Initialize(void* pArg)
 {
+
+	m_eEventTrigger = TRIGGER_EVENT::END;
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }

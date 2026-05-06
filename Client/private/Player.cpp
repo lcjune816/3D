@@ -72,6 +72,9 @@ HRESULT CPlayer::Ready_Component()
 	m_pPlayerLHand = LHand;
 	m_pPlayerRHand = RHand;
 
+	FsmRightHand->Set_RightHand(m_pPlayerRHand);
+	FsmLeftHand->Set_LeftHand(m_pPlayerLHand);
+	
 	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
 		m_pStateMachine[i]->Set_Owner(SHARED_THIS(CPlayer));
 
@@ -216,11 +219,13 @@ void CPlayer::Update(_float fTimeDelta)
 
 	State_Move();
  	m_pAnimator->Update(fTimeDelta);
-	for(uint32_t i=0; i< ETOUI(PLAYER_MACHINE::END); ++i)
+
+	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
 		m_pStateMachine[i]->Update_Machine(fTimeDelta);
 
 	m_pAnimator->CalculateFinalBoneMatrices();
 	m_bFinished = m_pAnimator->Animation_End();
+
 	m_pPlayerRHand->Update(fTimeDelta);
 	m_pPlayerLHand->Update(fTimeDelta);
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPlayer));
@@ -332,6 +337,7 @@ string CPlayer::Model_Animation(const vector<string>& pNames)
 
 	return name;
 }
+
 void CPlayer::Change_Animation(PLAYER_ANIME eAnime, _bool bLoop)
 {
 	if (m_bOnlyActionState)
