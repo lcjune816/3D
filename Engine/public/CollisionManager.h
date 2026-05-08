@@ -5,6 +5,11 @@
 NS_BEGIN(Engine)
 class CCollisionManager final
 {
+	typedef struct Edge
+	{
+		_vector start;
+		_vector end;
+	}_Edge;
 private:
 	CCollisionManager();
 public:
@@ -18,12 +23,15 @@ public:
 	_bool			 Get_Collision() { return m_bCollision; }
 	
 	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, const weak_ptr<class CTransform>pDstTransform, _bool bBack = true);
+	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix,_float3* matWorld);
 
 
 	CGameObject*			AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
+	_bool			        AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
+
 	void					Set_Collision(_bool bCollision) { m_bCollision = bCollision; }
 private:
-
+			
 	_bool			m_bCollision;
 public:
 	static unique_ptr<CCollisionManager> Create();

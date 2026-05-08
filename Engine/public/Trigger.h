@@ -23,13 +23,13 @@ public:
 	virtual HRESULT Interaction(shared_ptr<class CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger = false) PURE;
 
 	
-	uint32_t					Get_TargetNumber() { return m_iTargetNumber; }
-	_bool						Set_DstTransform(CTransform* pTransform);
-	void						Set_Trigger() { m_bTriggerOn = true; }
-	void						Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
-	void						Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
-	_bool						Get_OtherTrigger() { return m_bOtherTrigger; }
-	const TRIGGER_EVENT			Get_Trigger_Event() { return m_eEventTrigger; }
+	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }
+	_bool							Set_DstTransform(CTransform* pTransform);
+	void							Set_Trigger() { m_bTriggerOn = true; }
+	void							Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
+	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
+	_bool							Get_OtherTrigger() { return m_bOtherTrigger; }
+	const TRIGGER_EVENT				Get_Trigger_Event() { return m_eEventTrigger; }
 protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
 	_float							m_fFrameTick{}, m_fFrameTime{};

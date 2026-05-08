@@ -13,7 +13,7 @@ class CPlayer_LeftHand final : public CGameObject
 private:
 	typedef struct HandState
 	{
-		_bool bHandAttached{ false };
+		_bool bHandAttached{ false }, bShoot{ false };
 	}HAND_STATE;
 private:
 	CPlayer_LeftHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -30,15 +30,18 @@ public:
 
 public:
 	string					Model_Animation(const vector<string>& pNames);
-	void					Connet_Player(shared_ptr<class CPlayer> pPlayer) { m_pPlayer = pPlayer; }
+	void					Connet_Player(shared_ptr<class CPlayer> pPlayer, int32_t iOffsetIndex) { m_pPlayer = pPlayer; m_iOffsetIndex = iOffsetIndex; }
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 
 	void					Enable_Electric();
 	const PLAYER_HAND		Get_PlayerHand() { return m_eLHand; }
-	HAND_STATE& Get_HandState() { return m_tagHandState; }
+	const _float4x4         Get_FirstMatrix() { return m_StartMatrix; }
+	const _float4x4			Get_LastMatrix() { return m_LastMatrix; }
+	HAND_STATE&			    Get_HandState() { return m_tagHandState; }
 private:
 	void					Hand_Pivot();
 	void					Hand_Collision();
+	void					Hand_Trigger_Event(class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger);
 private:
 	HRESULT					Ready_Component();
 private:
@@ -49,7 +52,12 @@ private:
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
 private:
+	int32_t								m_iOffsetIndex = {};
+
+	_float4x4							m_LastMatrix;
+	_float4x4							m_StartMatrix;
 	_float4x4							m_bones[BONE_MATRIX];
+
 	PLAYER_HAND							m_eLHand = { PLAYER_HAND::END };
 
 	HAND_STATE							m_tagHandState = {};

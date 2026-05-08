@@ -33,7 +33,7 @@ void CPLayer_RightHand::Hand_Pivot()
 	memcpy(&mat.r[3], &PlayerW, sizeof _float3);
 
 	//JNT_L_HandAttachment
-	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix("JNT_R_HandAttachment");
+	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
 
 	_vector x = XMVector3Normalize(XMVectorSet(matPos.m[0][0], matPos.m[0][1], matPos.m[0][2], 0.f));
 	_vector y = XMVector3Normalize(XMVectorSet(matPos.m[1][0], matPos.m[1][1], matPos.m[1][2], 0.f));

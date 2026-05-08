@@ -24,6 +24,7 @@ HRESULT CAnimator::Initialize(void* pArg)
 
 	m_pCurrentAnimation = static_pointer_cast<CAnimation>(Desc->pCurretAnimation);
 	m_iBoneCnt = Desc->iBoneCnt;
+	m_BoneList = Desc->m_BoneList;
 	m_PreTransform = Desc->PreTransform;
 	m_FinalBoneMatrices.reserve(BONE_MATRIX);
 	m_GlobalBoneMatrices.reserve(BONE_MATRIX);
@@ -73,15 +74,6 @@ void CAnimator::Update(_float fTimeDelta)
 
 }
 
-void CAnimator::Update_Socket(const _matrix& fMat)
-{
-	if (NULL_TRUE(m_pCurrentAnimation))
-		return;
-
-
-	CalculateSocketBoneMatrix(&m_pCurrentAnimation->Get_RootNode(), fMat * XMLoadFloat4x4(&m_PreTransform));
-	
-}
 
 vector<string>& CAnimator::Get_NameList()
 {
@@ -96,12 +88,18 @@ void CAnimator::Player_Animation(unique_ptr<CAnimation> pAin)
 void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans)
 {
 	//JNT_R_Grabpack_Tube_01
-	string nodeName = node->name;
-	CBone* Bone = m_pCurrentAnimation->Find_Bone(nodeName,m_iAnimationNumber);
+	uint32_t index = node->index;
+	CBone* Bone = nullptr;
+	if(index != -1)
+		Bone = m_pCurrentAnimation->Find_Bone(index,m_iAnimationNumber);
+
 	XMMATRIX nodeTransform = XMLoadFloat4x4(&node->transformation);
 	
 	if (Bone)
 	{
+		//if(m_bBeforeAnime)
+		//	Bone->
+
 		XMMATRIX nodeAnimation = Bone->Bone_Update(m_fCurrentTime);
 		nodeTransform = nodeAnimation;
 	}
@@ -113,16 +111,16 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 
 	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();
 
-	if (mesh.find(nodeName) != mesh.end())
+	if (index < mesh.size())
 	{
-		uint32_t idex = mesh[nodeName].index;
+		uint32_t idex = mesh[index].index;
 
 		XMStoreFloat4x4(&m_GlobalBoneMatrices[idex],globalTransform);
-		m_GlobalBoneMap[nodeName] = idex;
+		m_GlobalBoneMap[index] = idex;
 
 		_float4x4 insertMatrix;
 		XMStoreFloat4x4(&insertMatrix, globalTransform);
-		m_beforeOffsetMatrix[nodeName] = insertMatrix;
+		m_beforeOffsetMatrix[index] = insertMatrix;
 		
 	}
 	
@@ -133,55 +131,20 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 
 void CAnimator::CalculateFinalBoneMatrices()
 {
-	
-	for (auto& mesh : m_pCurrentAnimation->Get_BoneInfo())
+	auto Boeninfo = m_pCurrentAnimation->Get_BoneInfo();
+	for (size_t i =0 ;i < Boeninfo.size(); ++i)
 	{
-		auto matrix = mesh.second.matBone;
-		auto index = mesh.second.index;
+		auto matrix = Boeninfo[i].matBone;
+		auto index = Boeninfo[i].index;
 		
 		_matrix offset = XMLoadFloat4x4(&matrix);
 
 		XMStoreFloat4x4(&m_FinalBoneMatrices[index], offset * XMLoadFloat4x4(&m_GlobalBoneMatrices[index]));
-		m_beforeOffsetMatrix[mesh.first] = m_FinalBoneMatrices[index];
+		m_beforeOffsetMatrix[i] = m_FinalBoneMatrices[index];
 	}
 
 
 }
-
-void CAnimator::CalculateSocketBoneMatrix(const AssimpNodeData* node, FXMMATRIX parentsTrans)
-{
-	string nodeName =  node->name;
-	Bone* Bone = m_pCurrentAnimation->Find_SocketBone(nodeName);
-
-	XMMATRIX nodeTransform = XMLoadFloat4x4(&node->transformation);
-
-	if (Bone)
-	{
-		XMMATRIX nodeAnimation = XMLoadFloat4x4(&Bone->matBone);
-		nodeTransform = nodeAnimation;
-	}
-
-	XMMATRIX globalTransform;
-
-	globalTransform = nodeTransform * parentsTrans;
-
-	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();
-
-	if (mesh.find(nodeName) != mesh.end())
-	{
-		uint32_t idex = mesh[nodeName].index;
-
-		XMMATRIX offset = XMLoadFloat4x4(&mesh[nodeName].matBone);
-
-		XMMATRIX final =  globalTransform;
-		XMStoreFloat4x4(&m_FinalBoneMatrices[idex], (final));
-
-	}
-
-	for (uint32_t i = 0; i < node->iChildrenCount; ++i)
-		CalculateSocketBoneMatrix(&node->vecChildern[i], globalTransform);
-}
-
 void CAnimator::Change_Animation(const string& name)
 {
 	uint32_t i = 0;
@@ -189,7 +152,17 @@ void CAnimator::Change_Animation(const string& name)
 	{
 		if (name == iter)
 		{
+
+			if (m_iCurrentAnimation != m_iAnimationNumber)
+			{
+				m_iCurrentAnimation = i;
+				m_bBeforeAnime = true;
+			}
+			else m_bBeforeAnime = false;
+
 			m_iAnimationNumber = i;
+
+
 			return;
 		}
 			++i;
@@ -207,7 +180,7 @@ void CAnimator::Change_Animation_Enum(uint32_t iNumber, _bool bLoop)
 	m_bFinished = bLoop;
 }
 
-void CAnimator::Change_Final_BoneMatices(const string& str, _float4x4 boneMatrix)
+void CAnimator::Change_Final_BoneMatices(const uint32_t str, _float4x4 boneMatrix)
 {
 
 	auto Index = m_GlobalBoneMap.find(str);
@@ -218,6 +191,19 @@ void CAnimator::Change_Final_BoneMatices(const string& str, _float4x4 boneMatrix
 	
 	}
 
+}
+
+_matrix CAnimator::Find_ChangeBone(uint32_t index)
+{
+	auto Index = m_GlobalBoneMap.find(index);
+
+	if (Index != m_GlobalBoneMap.end())
+	{
+		return XMLoadFloat4x4(&m_GlobalBoneMatrices[Index->second]);
+
+	}
+
+	return XMMatrixIdentity();
 }
 
 _bool CAnimator::Animation_End()

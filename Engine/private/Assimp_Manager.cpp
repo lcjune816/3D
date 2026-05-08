@@ -59,6 +59,7 @@ HRESULT CAssimp_Manager::ImportModel_Anime(const IMPORTMODEL_DESC& tagModel, vec
 	XMStoreFloat4x4(&m_PreMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_PreMatrix, Premat);
 	m_BoneList.clear();
+	m_Bones.clear();
 	m_iMeshCnt = 0;
 	string strFbx = {}, find{};
 	Check_FileName(strFbx, tagModel.pFile, find);
@@ -101,14 +102,34 @@ HRESULT CAssimp_Manager::ImportModel_Anime(const IMPORTMODEL_DESC& tagModel, vec
 		path.write((char*)(&m_fMin), sizeof(_float3));
 		pAnimatorDesc.iBoneCnt = m_BoneCounter;
 		path.write((char*)(&m_BoneCounter), sizeof(uint32_t));
+
+		size_t iSize = m_Bones.size();
+		path.write((char*)(&iSize), sizeof(size_t));
+		path.write((char*)(m_Bones.data()), sizeof(Bone) * iSize);
+		size_t iArray = m_BoneList.size();
+		path.write((char*)(&iArray), sizeof(size_t));
+
+		for (auto iter = m_BoneList.begin(); iter != m_BoneList.end(); ++iter)
+		{
+			string name = iter->first;
+			size_t iNameSize = name.length();
+			int32_t index = iter->second;
+			path.write((char*)(&iNameSize), sizeof(size_t));
+			path.write((char*)(name.data()), sizeof(char) * iNameSize);
+
+			path.write((char*)(&index), sizeof(int32_t));
+
+		}
 		path.close();
 
-		pAniDesc.BoneInfo = m_BoneList;
-		Save_Binary_Data_Map(m_BoneList, m_strbinary);
-
+		pAniDesc.BoneInfo = m_Bones;
 		Load_Animation(pScene, &pAniDesc);
 
 		pAniDesc.Bones = move(m_CopyBones);
+		pAnimatorDesc.m_BoneList = m_BoneList;
+
+		
+
 		pAnimatorDesc.pCurretAnimation = static_pointer_cast<CAnimation>(m_pAnimation->Clone(&pAniDesc));
 
 		pAnimator = move(static_pointer_cast<CAnimator>(m_pAnimator->Clone(&pAnimatorDesc)));
@@ -249,11 +270,12 @@ void CAssimp_Manager::Read_MissingBones(vector<shared_ptr<class CBone>>& pbone, 
 		auto iter = m_BoneList.find(boneName);
 		if (iter != m_BoneList.end())
 		{
-			desc.ID = m_BoneList[channel->mNodeName.data].index;
-			desc.name = channel->mNodeName.data;
+			desc.ID = m_Bones[iter->second].index;
+			desc.index = iter->second;
 			desc.pChannel = channel;
+			
 
-			Save_Binary_Data_String(desc.name,m_strbinary);
+			Save_Binary_Data_String(boneName, m_strbinary);
 			Save_Binary_Data_SizeT(desc.ID, m_strbinary);
 
 			pbone.push_back(static_pointer_cast<CBone>(m_pBone->Clone(&desc)));
@@ -261,8 +283,8 @@ void CAssimp_Manager::Read_MissingBones(vector<shared_ptr<class CBone>>& pbone, 
 		}
 		else
 		{
-			desc.name = "";
-			Save_Binary_Data_String(desc.name, m_strbinary);
+			string name = "";
+			Save_Binary_Data_String(name, m_strbinary);
 			
 		}
 	}
@@ -274,9 +296,15 @@ void CAssimp_Manager::Read_HeirarchyData(AssimpNodeData& dest, const aiNode* src
 	assert(src);
 
 
-	dest.name = src->mName.data;
+	auto Index = m_BoneList.find(src->mName.data);
+	if (Index == m_BoneList.end())
+		dest.index = -1;
+	else
+		dest.index = Index->second;
+		
 	dest.transformation = mat_Copy(src->mTransformation);
 	dest.iChildrenCount = src->mNumChildren;
+	
 
 	for (int i = 0; i < src->mNumChildren; ++i)
 	{
@@ -333,22 +361,25 @@ shared_ptr<CPrototype> CAssimp_Manager::ProcessMesh(aiMesh* pMesh, const aiScene
 			string  BoneName = pMesh->mBones[i]->mName.C_Str();
 		
 			BONE mat{};
-			uint32_t boneID = -1;
+			int32_t boneID = -1;
 
 			auto& bone = m_BoneList;
 			auto iter = bone.find(BoneName);
 
 			if (iter == m_BoneList.end())
 			{
+				uint32_t i = bone.size();
 				mat.matBone = mat_Copy(pMesh->mBones[i]->mOffsetMatrix);
 				mat.index = m_BoneCounter;
 				boneID = m_BoneCounter;
-				bone.emplace(BoneName, mat);
+				bone.emplace(BoneName, i);
+
+				m_Bones.push_back(mat);
 				++m_BoneCounter;
 			}
 			else
 			{
-				boneID = iter->second.index;
+				boneID = m_Bones[iter->second].index;
 			}
 
 			assert(boneID != -1);
@@ -827,9 +858,9 @@ void CAssimp_Manager::Binary_File_Import(vector<shared_ptr<CVIBuffer>>& pPrototy
 	Binary_File_Import_Bone(readFile);
 
 
-	if (!m_BoneList.empty())
+	if (!m_Bones.empty())
 	{
-		pAniDesc.BoneInfo = m_BoneList;
+		pAniDesc.BoneInfo = m_Bones;
 
 		Binary_File_Import_HeirarachyData(readFile, pAniDesc.RootNode, 0);
 		
@@ -851,7 +882,7 @@ void CAssimp_Manager::Binary_File_Import(vector<shared_ptr<CVIBuffer>>& pPrototy
 			}
 
 		}
-
+		pAnimatorDesc.m_BoneList = m_BoneList;
 		pAniDesc.Bones = move(m_CopyBones);
 		pAnimatorDesc.pCurretAnimation = static_pointer_cast<CAnimation>(m_pAnimation->Clone(&pAniDesc));
 
@@ -887,21 +918,20 @@ void CAssimp_Manager::Binary_File_Import_Mesh(vector<shared_ptr<CVIBuffer>>& pPr
 
 void CAssimp_Manager::Binary_File_Import_Bone(ifstream& readFile)
 {
-	size_t iArraySize = 0;
-	readFile.read((char*)(&iArraySize), sizeof(size_t));
-
-	for (size_t i = 0; i < iArraySize; ++i)
+	Load_Binary_Data_Array(m_Bones, readFile);
+	size_t iArray = {};
+	readFile.read((char*)(&iArray), sizeof(size_t));
+	for (size_t i = 0; i < iArray; ++i)
 	{
-		char	name[256] = "";
-		size_t iNameLength = 0;
-		Bone bone = {};
-		readFile.read((char*)(&iNameLength), sizeof(size_t));
+		size_t iSize = {};
+		string name = "";
+		readFile.read((char*)(&iSize), sizeof(size_t));
+		name.resize(iSize);
+		readFile.read((char*)(name.data()), sizeof(char) * (iSize));
+		int32_t iIndex = { };
+		readFile.read((char*)(&iIndex), sizeof(int32_t));
 
-		readFile.read((char*)(&name), sizeof(char)*iNameLength);
-		string boneName = name;
-
-		readFile.read((char*)(&bone), sizeof(Bone));
-		m_BoneList.emplace(boneName, bone);
+		m_BoneList[name] = iIndex;
 
 	}
 }
@@ -909,16 +939,14 @@ void CAssimp_Manager::Binary_File_Import_Bone(ifstream& readFile)
 void CAssimp_Manager::Binary_File_Import_HeirarachyData(ifstream& readFile, AssimpNodeData& dest, uint32_t iArrayCnt)
 {
 	_float4x4 transform = {};
-	size_t iNameSize = 0;
-	char	Name[256] = "";
+	int32_t iNameSize = 0;
 	uint32_t iChildSize = 0;
 	readFile.read((char*)(&transform), sizeof(_float4x4));
-	readFile.read((char*)(&iNameSize), sizeof(size_t));
-	readFile.read((char*)(&Name), sizeof(char) * iNameSize);
+	readFile.read((char*)(&iNameSize), sizeof(int32_t));
 	readFile.read((char*)(&iChildSize), sizeof(uint32_t));
 
 	dest.transformation = transform;
-	dest.name = Name;
+	dest.index = iNameSize;
 	dest.iChildrenCount = iChildSize;
 
 	for (size_t i = 0; i < dest.iChildrenCount; ++i)
@@ -933,6 +961,7 @@ void CAssimp_Manager::Binary_File_Import_ReadMissingBone(ifstream& readFile, uin
 {
 	uint32_t size = 0;
 	readFile.read((char*)(&size), sizeof(size_t));
+
 	for (size_t i = 0; i < size; ++i)
 	{
 		size_t j = 0;
@@ -954,7 +983,7 @@ void CAssimp_Manager::Binary_File_Import_ReadMissingBone(ifstream& readFile, uin
 			readFile.read((char*)(&desc.iNumScale), sizeof(uint32_t));
 
 			desc.check = false;
-			desc.name = name;
+			desc.index = iter->second;
 			desc.Key.Load_Data(readFile);
 			m_CopyBones[iArrayCnt].emplace_back(static_pointer_cast<CBone>(m_pBone->Clone(&desc)));
 		}

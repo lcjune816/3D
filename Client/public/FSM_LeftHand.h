@@ -25,15 +25,17 @@ public:
 
 	void			Hand_End(CPlayer* Player);
 	void			Hand_Collision_Check(const PLAYER_HAND eHand);
+
+	void			Set_Bone();
 private:
 	_bool			 m_bLeftHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false };
 
 	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 };
-	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{};
+	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{};;
 
-	_char			m_HandName[64]{}, m_FirstHand[64]{}, m_HandAttached[64]{};
+	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
 
-	vector<string>		m_ShootBone{};
+	vector<int32_t>		m_ShootBone{};
 
 	shared_ptr<class CPlayer_LeftHand>		m_pHand;
 public:

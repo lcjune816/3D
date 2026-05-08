@@ -23,16 +23,17 @@ public:
 	
 	void			Hand_End(CPlayer* Player);
 	void			Hand_Collision_Check(const PLAYER_HAND eHand);
+	void			Set_Bone();
 private:
 	_bool			m_bRightHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false };
 
 	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 };
 	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{};
 
-	_char			m_HandName[64]{}, m_FirstHand[64]{}, m_HandAttached[64]{};
+	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
 
-	vector<string>		m_ShootBone{};
-
+	vector<int32_t>		m_ShootBone{};
+	vector<_float3>		m_EdgePoses;
 	shared_ptr<class CPLayer_RightHand>		m_pHand;
 public:
 	static unique_ptr<CFSM_RightHand> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

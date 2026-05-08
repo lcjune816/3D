@@ -83,8 +83,8 @@ void CFSM_Hand::Enter_State()
 	{
 		m_fLook[i] = {};
 	}
-	_float4x4 End = Player->GetAnimator()->Find_Matrix(m_HandName);
-	memcpy(&m_fLastHandPos, End.m[3], sizeof _float3);
+	//_float4x4 End = Player->GetAnimator()->Find_Matrix(m_HandName);
+	//memcpy(&m_fLastHandPos, End.m[3], sizeof _float3);
 }
 
 void CFSM_Hand::Update_State(_float fTimeDelta)
@@ -98,54 +98,54 @@ void CFSM_Hand::Update_State(_float fTimeDelta)
 
 	Mouse_Cal();
 
-	if (!m_bEndHand && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80 || CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80) )
-	{
-		m_fShootTimeTick += fTimeDelta;
+	//if (!m_bEndHand && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80 || CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80) )
+	//{
+	//	m_fShootTimeTick += fTimeDelta;
+	//
+	//	if (m_fShootTimeTick > 0.05f)
+	//	{
+	//		++m_fShootTime;
+	//		m_fShootTimeTick = 0.f;
+	//	}
+	//	_vector Look = Player->Get_Transform().lock()->Get_State(STATE::LOOK);
+	//	_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
+	//	_vector startPos = XMLoadFloat4x4(&start).r[3];
+	//
+	//	XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed ); //마지막 위치 늘려서 보간하기
+	//	Shoot_Hand(startPos, Player);
+	//
+	//	_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
+	//	memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
+	//	Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
+	//
+	//	if (m_fShootTime >= m_fShootMaxTime)
+	//		m_bEndHand = true;
+	//
+	//	if (m_fSpeed >= 40)
+	//		m_fSpeed =40.f;
+	//}
+	//else m_bEndHand = true;
 
-		if (m_fShootTimeTick > 0.05f)
-		{
-			++m_fShootTime;
-			m_fShootTimeTick = 0.f;
-		}
-		_vector Look = Player->Get_Transform().lock()->Get_State(STATE::LOOK);
-		_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
-		_vector startPos = XMLoadFloat4x4(&start).r[3];
-
-		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed ); //마지막 위치 늘려서 보간하기
-		Shoot_Hand(startPos, Player);
-
-		_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
-		memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
-		Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
-
-		if (m_fShootTime >= m_fShootMaxTime)
-			m_bEndHand = true;
-
-		if (m_fSpeed >= 40)
-			m_fSpeed =40.f;
-	}
-	else m_bEndHand = true;
-
-	if (!m_bReFinished && m_bEndHand)
-	{
-		_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
-		_vector startPos = XMLoadFloat4x4(&start).r[3];
-		_vector Look = startPos - XMLoadFloat3(&m_fLastHandPos);
-
-		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * 30.f * fTimeDelta); //위치 줄이기
-		Shoot_Hand(startPos, Player);
-
-		_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
-		memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
-		Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
-
-		_vector CheckPos{};
-		_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - startPos));
-		if (fDis < 0.3f)
-		{
-			m_bEndInHand = true;
-		}
-	}
+//if (!m_bReFinished && m_bEndHand)
+//{
+//	_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
+//	_vector startPos = XMLoadFloat4x4(&start).r[3];
+//	_vector Look = startPos - XMLoadFloat3(&m_fLastHandPos);
+//
+//	XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * 30.f * fTimeDelta); //위치 줄이기
+//	Shoot_Hand(startPos, Player);
+//
+//	_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
+//	memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
+//	Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
+//
+//	_vector CheckPos{};
+//	_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - startPos));
+//	if (fDis < 0.3f)
+//	{
+//		m_bEndInHand = true;
+//	}
+//}
 	if (!m_bReFinished && m_bEndInHand)
 	{
 		m_bReFinished = true;
@@ -200,42 +200,42 @@ void CFSM_Hand::Exit_State()
 void CFSM_Hand::Shoot_Hand(_fvector startPos,  const shared_ptr<CPlayer> pPlayer)
 {
 
-	_float3 LastPos{}, NextPos{}, fLook{};
-
-	for (int32_t i = 0; i < m_ShootBone[m_iArrow].size(); ++i)
-	{
-		_float t = (_float)i / ((_float)m_ShootBone[m_iArrow].size() - 1.f);
-		_float3 LerpPos{}, fRight{}, fUp = { 0,1,0 };
-
-		XMStoreFloat3(&LerpPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), t));
-		_float4x4 matrix = pPlayer->GetAnimator()->Find_Matrix(m_ShootBone[m_iArrow][i]);;
-		if (i + 1 < m_ShootBone[m_iArrow].size())
-		{
-			_float NextT = (_float)(i + 1) / ((_float)m_ShootBone[m_iArrow].size() - 1.f);
-			XMStoreFloat3(&NextPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), NextT));
-			XMStoreFloat3(&fLook, XMVector3Normalize(XMLoadFloat3(&NextPos) - XMLoadFloat3(&LerpPos)));
-			XMStoreFloat3(&fRight, XMVector3Cross(XMLoadFloat3(&fUp), XMLoadFloat3(&fLook)));
-			XMStoreFloat3(&fUp, XMVector3Cross(XMLoadFloat3(&fLook), XMLoadFloat3(&fRight)));
-
-			_float3 Scale[3]{};
-			memcpy(&Scale[0], matrix.m[0], sizeof _float3);
-			memcpy(&Scale[1], matrix.m[1], sizeof _float3);
-			memcpy(&Scale[2], matrix.m[2], sizeof _float3);
-			for (int32_t i = 0; i < 3; ++i)
-				XMStoreFloat3(&Scale[i], XMVector3Length(XMLoadFloat3(&Scale[i])));
-
-			XMStoreFloat3(&fRight, Scale[0].x * XMLoadFloat3(&fRight));
-			XMStoreFloat3(&fUp, Scale[1].x * XMLoadFloat3(&fUp));
-			XMStoreFloat3(&fLook, Scale[2].x * XMLoadFloat3(&fLook));
-
-			memcpy(matrix.m[0], &fRight, sizeof _float3);
-			memcpy(matrix.m[1], &fUp, sizeof _float3);
-			memcpy(matrix.m[2], &fLook, sizeof _float3);
-
-		}
-		memcpy(matrix.m[3], &LerpPos, sizeof _float3);
-		pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[m_iArrow][i], matrix);
-	}
+	//_float3 LastPos{}, NextPos{}, fLook{};
+	//
+	//for (int32_t i = 0; i < m_ShootBone[m_iArrow].size(); ++i)
+	//{
+	//	_float t = (_float)i / ((_float)m_ShootBone[m_iArrow].size() - 1.f);
+	//	_float3 LerpPos{}, fRight{}, fUp = { 0,1,0 };
+	//
+	//	XMStoreFloat3(&LerpPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), t));
+	//	_float4x4 matrix = pPlayer->GetAnimator()->Find_Matrix(m_ShootBone[m_iArrow][i]);;
+	//	if (i + 1 < m_ShootBone[m_iArrow].size())
+	//	{
+	//		_float NextT = (_float)(i + 1) / ((_float)m_ShootBone[m_iArrow].size() - 1.f);
+	//		XMStoreFloat3(&NextPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), NextT));
+	//		XMStoreFloat3(&fLook, XMVector3Normalize(XMLoadFloat3(&NextPos) - XMLoadFloat3(&LerpPos)));
+	//		XMStoreFloat3(&fRight, XMVector3Cross(XMLoadFloat3(&fUp), XMLoadFloat3(&fLook)));
+	//		XMStoreFloat3(&fUp, XMVector3Cross(XMLoadFloat3(&fLook), XMLoadFloat3(&fRight)));
+	//
+	//		_float3 Scale[3]{};
+	//		memcpy(&Scale[0], matrix.m[0], sizeof _float3);
+	//		memcpy(&Scale[1], matrix.m[1], sizeof _float3);
+	//		memcpy(&Scale[2], matrix.m[2], sizeof _float3);
+	//		for (int32_t i = 0; i < 3; ++i)
+	//			XMStoreFloat3(&Scale[i], XMVector3Length(XMLoadFloat3(&Scale[i])));
+	//
+	//		XMStoreFloat3(&fRight, Scale[0].x * XMLoadFloat3(&fRight));
+	//		XMStoreFloat3(&fUp, Scale[1].x * XMLoadFloat3(&fUp));
+	//		XMStoreFloat3(&fLook, Scale[2].x * XMLoadFloat3(&fLook));
+	//
+	//		memcpy(matrix.m[0], &fRight, sizeof _float3);
+	//		memcpy(matrix.m[1], &fUp, sizeof _float3);
+	//		memcpy(matrix.m[2], &fLook, sizeof _float3);
+	//
+	//	}
+	//	memcpy(matrix.m[3], &LerpPos, sizeof _float3);
+	//	pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[m_iArrow][i], matrix);
+	//}
 }
 
 void CFSM_Hand::Mouse_Cal()

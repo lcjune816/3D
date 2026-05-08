@@ -13,7 +13,7 @@ public:
 	{
 		vector<ANITIME>								AniTime;
 		vector<string>								AnimantionName;
-		map<string, Bone>							BoneInfo;
+		vector<Bone>								BoneInfo;
 
 		vector<vector<shared_ptr<class CBone>>>		Bones;
 
@@ -35,8 +35,7 @@ private:
 	HRESULT	Initialize(const string& animationPath, map<string, Bone>& mesh, uint32_t& boneCount);
 
 public:
-	CBone*										Find_Bone(const string& name,uint32_t i);
-	Bone*										Find_SocketBone(const string& name);
+	CBone*										Find_Bone(const uint32_t index,uint32_t i);
 	_float										Get_Duration(uint32_t i) 
 	{ 
 		if (i == m_AniTime.size())
@@ -49,15 +48,17 @@ public:
 
 		return m_AniTime[i].m_iTicksPerSecond; }
 	AssimpNodeData&								Get_RootNode() { return m_RootNode; }
-	map<string, Bone>&							Get_BoneInfo() { return m_BoneInfo; }
+	vector<Bone>&								Get_BoneInfo() { return m_BoneInfo; }
 	vector<string>&								Get_NameList() { return m_AnimantionName; }
+
+
 
 private:
 
 
 	vector<ANITIME>								m_AniTime;
 	vector<string>								m_AnimantionName;
-	map<string, Bone>							m_BoneInfo;
+	vector<Bone>								m_BoneInfo;
 
 
 	vector<vector<shared_ptr<class CBone>>>		m_Bones;

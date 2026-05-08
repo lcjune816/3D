@@ -61,13 +61,15 @@ HRESULT CPlayer::Ready_Component()
 	auto LHand = static_pointer_cast<CPlayer_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_PlayerLeftHand", nullptr));
 	if (NULL_TRUE(LHand)) return E_FAIL;
 
-	LHand->Connet_Player(SHARED_THIS(CPlayer));
-	RHand->Connet_Player(SHARED_THIS(CPlayer));
+
 
 	_matrix mat = XMMatrixIdentity();
 	
 	mat =  XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
+
+	LHand->Connet_Player(SHARED_THIS(CPlayer), GetAnimator()->Find_Key("JNT_L_HandAttachment"));
+	RHand->Connet_Player(SHARED_THIS(CPlayer), GetAnimator()->Find_Key("JNT_R_HandAttachment"));
 
 	m_pPlayerLHand = LHand;
 	m_pPlayerRHand = RHand;
@@ -77,6 +79,7 @@ HRESULT CPlayer::Ready_Component()
 	
 	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
 		m_pStateMachine[i]->Set_Owner(SHARED_THIS(CPlayer));
+
 
 	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::IDLE, Idle);
 	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::MOVE, Move);

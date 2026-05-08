@@ -40,7 +40,7 @@ private:
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 
-	vector<uint32_t>						m_MeshNameList;
+	vector<uint32_t>					m_MeshNameList;
 	int32_t								m_iModeNumber = {0};
 
 public:

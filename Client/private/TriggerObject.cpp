@@ -97,11 +97,12 @@ void CTriggerObject::Priority_Update(_float fTimeDelta)
 }
 void CTriggerObject::Update(_float fTimeDelta)
 {
-	m_pTrigger->Interaction(m_pTransform, fTimeDelta);
 
+	m_pTrigger->Interaction(m_pTransform, fTimeDelta);
 }
 void CTriggerObject::Late_Update(_float fTimeDelta)
 {
+
 	if (0 != m_TriggerInfo.iTargetObjectID)
 	{
 		//타겟이 있는 경우에만

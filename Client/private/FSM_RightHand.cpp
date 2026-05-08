@@ -17,25 +17,18 @@ CFSM_RightHand::~CFSM_RightHand()
 HRESULT CFSM_RightHand::Initialize(void* pArg)
 {
 
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_01");
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_02");
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_03");
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_04");
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_05");
-
-	m_ShootBone.push_back("JNT_R_Grabpack_Tube_06");
 	return S_OK;
 }
 
 void CFSM_RightHand::Enter_State()
 {
 	auto Player = m_pPlayer.lock();
-
+	Set_Bone();
 	if (NULL_TRUE(Player)) return;
 
-	strcpy_s(m_HandName,     sizeof(m_HandName),	 "JNT_R_Grabpack_Tube_06");
-	strcpy_s(m_FirstHand,    sizeof(m_FirstHand),	 "JNT_R_Grabpack_Gun");
-	strcpy_s(m_HandAttached, sizeof(m_HandAttached), "JNT_R_HandAttachment");
+	m_iHandindex = Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_06");
+	m_iFirstHandindex = Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Gun");
+	m_iHandAttachedindex = Player->GetAnimator()->Find_Key("JNT_R_HandAttachment");
 
 	m_bRightHand = Player->Get_AnimeState().bRHand;
 	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_R, true);
@@ -99,7 +92,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		if (m_fShootTime >= m_fShootMaxTime)
 			m_bEndHand = true;
 		
-		Hand_Collision_Check(HandState);    ///////충돌/////////
+		//Hand_Collision_Check(HandState);    ///////충돌/////////
 
 		if (m_fSpeed >= 40)
 			m_fSpeed = 40.f;
@@ -154,19 +147,89 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	_matrix Inverse = pPlayer->Get_Transform().lock()->Get_World();
 	Inverse = XMMatrixInverse(nullptr, Inverse); //뼈 위치를 플레이어 기준 위치로 돌리기 위함
 
-	for (int32_t i = 0; i < m_ShootBone.size(); ++i)
+	_float4x4 startMatrix		= m_pHand->Get_FirstMatrix();
+	_matrix   EndMatrix			= pPlayer->GetAnimator()->Find_ChangeBone(m_ShootBone.back());
+	_float4x4 BoneParentsMatrix = pPlayer->GetAnimator()->Find_Matrix(m_iHandAttachedindex);
+
+	for (size_t i = 0; i < m_ShootBone.size(); ++i)
 	{
-		_float t = (_float)i / ((_float)m_ShootBone.size()-1);
+		_float t = (_float)i / (_float)(m_ShootBone.size() - 1.f);
+		_float t2 = (_float)(i + 1) / (_float)(m_ShootBone.size() - 2.f);
 		_float3 LerpPos{}, fRight{}, fUp = { 0,1,0 };
+		_float3 LerpEnd{};
+		_matrix matStart = XMMatrixIdentity(), matEnd = XMMatrixIdentity();
 
 		XMStoreFloat3(&LerpPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), t));
-		
 		XMStoreFloat3(&LerpPos, XMVector3TransformCoord(XMLoadFloat3(&LerpPos), Inverse));
-		_float4x4 matrix = pPlayer->GetAnimator()->Find_Matrix(m_ShootBone[i]);
 		
+		XMStoreFloat3(&LerpEnd, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), t2));
+		XMStoreFloat3(&LerpEnd, XMVector3TransformCoord(XMLoadFloat3(&LerpEnd), Inverse));
+
+		matStart.r[3] = XMLoadFloat3(&LerpPos);
+		matEnd.r[3]   = XMLoadFloat3(&LerpEnd);
+
+		CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject",
+			XMLoadFloat4x4(&BoneParentsMatrix), matStart, matEnd, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses);
+
+		_float4x4 matrix = pPlayer->GetAnimator()->Find_Matrix(m_ShootBone[i]);
 		memcpy(matrix.m[3], &LerpPos, sizeof _float3);
 		pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[i], matrix);
 	}
+
+	if (m_EdgePoses.size() >= 1) 
+	{
+		int32_t iCnt{ 0 };
+			for (size_t i = 0; i < m_ShootBone.size(); ++i)
+			{
+				for (size_t j = 0; j < m_EdgePoses.size(); ++j)
+				{
+					_float t = (_float)(i + j) / (_float)(m_EdgePoses.size() + m_ShootBone.size() - 2.f);
+
+					_matrix ChangeBone = pPlayer->GetAnimator()->Find_ChangeBone(m_ShootBone[i]);
+					_vector ChangeLerpPos = ChangeBone.r[3];
+					_float3 LerpPos{};
+					_vector vLook{}, vUp{ 0,1,0 }, vRight{}, vPos{};
+					ChangeLerpPos = XMVector3TransformCoord(ChangeLerpPos, pPlayer->Get_Transform().lock()->Get_World());
+
+					if (XMVectorGetX(XMVector3Length(startPos - ChangeLerpPos)) < XMVectorGetX(XMVector3Length(startPos - XMLoadFloat3(&m_EdgePoses[j]))))
+					{
+
+						XMStoreFloat3(&LerpPos, XMVectorLerp(startPos, XMLoadFloat3(&m_EdgePoses[j]), t));
+						XMStoreFloat3(&LerpPos, XMVector3TransformCoord(XMLoadFloat3(&LerpPos), Inverse));
+
+						vPos = XMVectorSetW(XMLoadFloat3(&LerpPos), 1.f);
+						vLook = XMVector3Normalize(ChangeLerpPos - vPos);
+						vRight = XMVector3Cross(vLook, vUp);
+						vUp = XMVector3Cross(vRight, vLook);
+						//memcpy(&ChangeBone.r[0], reinterpret_cast<_float*>(&vRight), sizeof _float3);
+						//memcpy(&ChangeBone.r[1], reinterpret_cast<_float*>(&vUp), sizeof _float3);
+						//memcpy(&ChangeBone.r[2], reinterpret_cast<_float*>(&vLook), sizeof _float3);
+						memcpy(&ChangeBone.r[3], reinterpret_cast<_float*>(&vPos), sizeof _float3);
+						_float4x4 matrix{};
+
+						XMStoreFloat4x4(&matrix, ChangeBone);
+						pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[i], matrix);
+					}
+					else
+					{
+
+						XMStoreFloat3(&LerpPos, XMVectorLerp(XMLoadFloat3(&m_EdgePoses[j]), XMLoadFloat3(&m_fLastHandPos), t));
+						XMStoreFloat3(&LerpPos, XMVector3TransformCoord(XMLoadFloat3(&LerpPos), Inverse));
+
+						vPos = XMVectorSetW(XMLoadFloat3(&LerpPos), 1.f);
+						memcpy(&ChangeBone.r[3], reinterpret_cast<_float*>(&vPos), sizeof _float3);
+						_float4x4 matrix{};
+
+						XMStoreFloat4x4(&matrix, ChangeBone);
+
+						pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[i], matrix);
+					}
+				}
+		
+			}
+		
+	}
+	m_EdgePoses.clear();
 }
 
 void CFSM_RightHand::Mouse_Cal()
@@ -232,6 +295,21 @@ void CFSM_RightHand::Hand_Collision_Check(const PLAYER_HAND eHand)
 		break;
 	}
 		
+}
+
+void CFSM_RightHand::Set_Bone()
+{
+	if (!m_ShootBone.empty())
+		return;
+
+	auto Player = m_pPlayer.lock();
+
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_01"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_02"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_03"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_04"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_05"));
+
 }
 
 

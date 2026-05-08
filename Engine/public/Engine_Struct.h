@@ -199,10 +199,6 @@ namespace Engine
 					tex.path.resize(iLength);
 					fRead.read((char*)(&tex.path[0]), sizeof(char) * (iLength));
 
-					//fRead.read((char*)(&iLength), sizeof(iLength));
-					//tex.type.resize(iLength);
-					//fRead.read((char*)(&tex.type[0]), sizeof(char) * (iLength));
-
 					_wstring PathName(tex.path.begin(), tex.path.end());
 
 					auto iter = TextureMapID.find(tex.path);
@@ -246,13 +242,8 @@ namespace Engine
 				for (size_t j = 0; j < iTextures; ++j)
 				{
 					size_t iLength = _TextureList[i][j].path.length();
-
-
 					file.write((char*)(&iLength), sizeof(size_t));
 					file.write((char*)(_TextureList[i][j].path.data()), sizeof(char) * iLength);
-					//iLength = _TextureList[i][j].type.length();
-					//file.write((char*)(&iLength), sizeof(size_t));
-					//file.write((char*)(_TextureList[i][j].type.data()), sizeof(char) * iLength);
 				}
 			}
 			file.close();
@@ -309,17 +300,15 @@ namespace Engine
 	struct AssimpNodeData
 	{
 		_float4x4 transformation;
-		string name;
+		int32_t	index;
 		uint32_t	iChildrenCount;
 		vector<AssimpNodeData> vecChildern;
 
 		void Save_Data(ofstream& fWrite)
 		{
 			fWrite.write((char*)(&transformation), sizeof(_float4x4));
-			size_t iNameSize = name.length();
-			fWrite.write((char*)(&iNameSize), sizeof(size_t));
-			
-			fWrite.write((char*)(name.data()), sizeof(char) * iNameSize);
+		
+			fWrite.write((char*)(&index), sizeof(int32_t));
 
 			fWrite.write((char*)(&iChildrenCount), sizeof(uint32_t));
 
