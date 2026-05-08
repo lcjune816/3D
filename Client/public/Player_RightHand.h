@@ -31,9 +31,10 @@ public:
 
 public:
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
+	void					Connet_Player(shared_ptr<class CPlayer> pPlayer, int32_t iOffsetIndex) { m_pPlayer = pPlayer; iOffsetIndex = m_iOffsetIndex; }
+
 	const PLAYER_HAND		Get_PlayerHand() { return m_eRHand; }
 	HAND_STATE&				Get_HandState() { return m_tagHandState; }
-	void					Connet_Player(shared_ptr<class CPlayer> pPlayer) { m_pPlayer = pPlayer; }
 	const _float4x4         Get_FirstMatrix() {return m_StartMatrix;}
 	const _float4x4			Get_LastMatrix() { return m_LastMatrix; }
 private:
@@ -50,10 +51,14 @@ private:
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
 private:
+	int32_t								m_iOffsetIndex = {};
+
 	_float4x4							m_LastMatrix;
 	_float4x4							m_StartMatrix;
 	_float4x4							m_bones[BONE_MATRIX];
+
 	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
+
 	HAND_STATE							m_tagHandState = {};
 public:
 	static unique_ptr<CPLayer_RightHand> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

@@ -78,8 +78,8 @@ private:
 	unique_ptr<class CAnimation>				m_pAnimation = { nullptr };
 	unique_ptr<class CBone>						m_pBone		 = { nullptr };
 
-	map<string, Bone>					m_BoneList;
-	
+	map<string, int32_t>						m_BoneList;
+	vector<Bone>								m_Bones;
 	vector<ComPtr<ID3D11ShaderResourceView>>	m_TextureLists = {};
 	map<string,uint32_t>						m_TextureMapIdList = {};
 	

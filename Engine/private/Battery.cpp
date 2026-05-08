@@ -30,10 +30,34 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 {
 	if (!m_bTriggerOn) return E_FAIL;
 	_vector vPos{};
-
 	if (m_pDstTransform != nullptr)
 	{
-		vPos = m_pDstTransform->Get_State(STATE::POS);
+
+		_vector vSrcPos = pTransform->Get_State(STATE::POS);
+		_vector vDstPos = m_pDstTransform->Get_State(STATE::POS);
+
+		_float3 fMax = pTransform->Get_Max();
+		_float3 fMin = pTransform->Get_Min();
+
+		_float3 fCenter{};
+		_vector vLook = m_pDstTransform->Get_State(STATE::LOOK);
+		//스케일 반지름 중심에서 
+		XMStoreFloat3(&fCenter,(XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
+	
+		_float Radius = XMVectorGetX(XMVector3Length(XMLoadFloat3(&fCenter)- (XMLoadFloat3(&fMin))));
+		_vector vCenter{};
+		_float3 vHandPos = {};
+		//원래 플레이어의 손 위치랑 offset만큼 다시 위치에 
+	
+		vCenter = XMVector3TransformCoord(XMLoadFloat3(&fCenter), pTransform->Get_World());
+
+		XMStoreFloat3(&vHandPos, vDstPos - vCenter);
+		//새로구한 좌표 기준으로 원래 dst 위치랑 빼서 차이 구하고
+		//원래 위치에 그만큼 더하기
+
+		//반지름만큼 함 밀고
+		vPos = (vSrcPos + XMLoadFloat3(&vHandPos)) - vLook * Radius * 4.5f;
+
 	}
 	else
 	{
@@ -52,7 +76,7 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 		else if (Pos.y > -fY)
 			Pos.y -= m_fDropTime;
 
-		vPos = XMLoadFloat3(&Pos);
+		vPos = XMVectorSetW(XMLoadFloat3(&Pos),1.f);
 	}
 
 

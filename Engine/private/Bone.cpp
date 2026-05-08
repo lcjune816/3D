@@ -15,7 +15,7 @@ HRESULT CBone::Initialize(void* pArg)
 	if (Desc->check != true)
 	{
 		m_pBoneAnimation = move(Desc->Key);
-		m_strName = Desc->name;
+		m_index = Desc->index;
 		m_iNumPosition = Desc->iNumPosition;
 		m_iNumRotation = Desc->iNumRotation;
 		m_iNumScale = Desc->iNumScale;
@@ -23,7 +23,7 @@ HRESULT CBone::Initialize(void* pArg)
 	}
 
 	if (nullptr != Desc)
-		SetAnimation(Desc->name, Desc->ID, Desc->pChannel);
+		SetAnimation(Desc->index, Desc->ID, Desc->pChannel);
 	else return E_FAIL;
 
 	return S_OK;
@@ -33,9 +33,9 @@ HRESULT CBone::Initialize_Prototype()
 
 	return S_OK;
 }
-void CBone::SetAnimation(const string& name, uint32_t ID, const aiNodeAnim* pChannel)
+void CBone::SetAnimation(const int32_t& index, uint32_t ID, const aiNodeAnim* pChannel)
 {
-	m_strName = name;
+	m_index = index;
 	m_ID = ID;
 	m_iNumPosition = pChannel->mNumPositionKeys;
 	
@@ -86,7 +86,7 @@ uint32_t CBone::Get_PositionIndex(_float fTimeDelta)
 		
 	}
 
-	assert(0);
+	return m_iNumPosition -2;
 }
 uint32_t CBone::Get_RotationIndex(_float fTimeDelta)
 {
@@ -98,7 +98,7 @@ uint32_t CBone::Get_RotationIndex(_float fTimeDelta)
 		
 	}
 
-	assert(0);
+	return m_iNumRotation-2;
 }
 uint32_t CBone::Get_ScaleIndex(_float fTImeDelta)
 {
@@ -111,7 +111,7 @@ uint32_t CBone::Get_ScaleIndex(_float fTImeDelta)
 	}
 
 
-	assert(0);
+	return m_iNumScale-2;
 }
 
 _float CBone::Get_ScaleFactor(_float lastTimeStamp, _float nextTimeStamp, _float fTimeDelta)
@@ -138,7 +138,6 @@ XMMATRIX CBone::InterpolatePosition(_float fTimeDelta)
 
 	 XMVECTOR vPos = XMVectorLerp(XMLoadFloat3(&m_pBoneAnimation.vecPos[p0Index].fPos),
 								  XMLoadFloat3(&m_pBoneAnimation.vecPos[p1Index].fPos), scaleFactor);
-
 	 return  XMMatrixTranslationFromVector(vPos);
 }
 
@@ -157,7 +156,7 @@ XMMATRIX CBone::InterpolateRotation(_float fTimeDelta)
 	
 	XMVECTOR vRot = XMQuaternionSlerp(XMLoadFloat4(&m_pBoneAnimation.vecRot[p0Index].orientation),
 									  XMLoadFloat4(&m_pBoneAnimation.vecRot[p1Index].orientation), fScaleFactor);
-		
+
 	return XMMatrixRotationQuaternion(XMQuaternionNormalize(vRot));
 }
 
@@ -175,8 +174,7 @@ XMMATRIX CBone::InterpolateScale(_float fTimeDelta)
 
 	XMVECTOR vScale = XMVectorLerp(XMLoadFloat3(&m_pBoneAnimation.vecScale[p0Index].fScale),
 						      	   XMLoadFloat3(&m_pBoneAnimation.vecScale[p1Index].fScale), fScaleFactor);
-	
-	return  XMMatrixScalingFromVector(vScale);;
+	return  XMMatrixScalingFromVector(vScale);
 }
 
 XMMATRIX  CBone::Bone_Update(_float fTimeDelta)

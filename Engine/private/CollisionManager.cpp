@@ -286,6 +286,135 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	return false;
 }
 
+_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix , _float3* matWorld)
+{
+
+	auto   SrcTransform = pSrcTransform.lock();
+
+	_matrix SrcWorld = SrcTransform->Get_World();
+	_vector Test = SrcWorld.r[3];
+	//현재 본 행렬에 플레이어 월드 역행렬 해서 플레이어 로컬로 만든 상태
+	_vector startPos = startmat.r[3];
+	_vector endPos = endMat.r[3];
+
+	startPos = XMVector3TransformCoord(startPos, OriginMatrix);
+	endPos = XMVector3TransformCoord(endPos, OriginMatrix);
+	
+	_vector SrcPos = SrcWorld.r[3];
+
+	if (XMVectorGetX(XMVector3Length(startPos - SrcPos)) > 20.f)
+		return false;
+
+	_float3  SrcMin{}, SrcMax{};
+	_float3  DstMin{}, DstMax{};
+
+	//거기서 플레이어 월드로 변경
+	//얘는 월드인데?
+	_vector v = endPos - startPos;
+	_vector w = SrcPos - startPos;
+						//대상이랑 제곱					//내기준 제곱하여서 거리비교
+	_float t = XMVectorGetX(XMVector3Dot(w, v)) / XMVectorGetX(XMVector3Dot(v, v));
+	t = max(0.0f, min(1.0f, t));
+	_vector CheckPoint = startPos + v * t;
+	
+	SrcMin = SrcTransform->Get_Min();
+	SrcMax = SrcTransform->Get_Max();
+	_float3 fmin{}, fmax{};
+	//이거도 그럼 월드로 바꿔야지;
+	XMStoreFloat3(&SrcMin, XMVector3TransformCoord(XMLoadFloat3(&SrcMin), SrcWorld));
+	XMStoreFloat3(&SrcMax, XMVector3TransformCoord(XMLoadFloat3(&SrcMax), SrcWorld));
+
+	fmin.x = min(SrcMin.x, SrcMax.x); fmax.x = max(SrcMin.x, SrcMax.x);
+	fmin.y = min(SrcMin.y, SrcMax.y); fmax.y = max(SrcMin.y, SrcMax.y);
+	fmin.z = min(SrcMin.z, SrcMax.z); fmax.z = max(SrcMin.z, SrcMax.z);
+
+	SrcMin.x = fmin.x;  SrcMax.x = fmax.x;
+	SrcMin.y = fmin.y;  SrcMax.y = fmax.y;
+	SrcMin.z = fmin.z;  SrcMax.z = fmax.z;
+	
+	//부딪힌 오브젝트의 반지름 
+	_float SrcRadius = XMVectorGetX(XMVector3Length(((XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f)-(XMLoadFloat3(&SrcMin))));
+	float dist = XMVectorGetX(XMVector3Length(SrcPos - CheckPoint));
+	float threshold = 1.f + fabsf(SrcRadius);
+	if(XMVectorGetX(XMVector3Length(SrcPos - CheckPoint)) < 1.f + fabsf(SrcRadius))
+	{
+
+
+		_vector  vertex[8]{};
+		vertex[0] = { SrcMin.x, SrcMin.y, SrcMin.z ,1.f };  //좌하
+		vertex[1] = { SrcMin.x, SrcMax.y, SrcMin.z ,1.f };  //좌상
+		vertex[2] = { SrcMax.x, SrcMin.y, SrcMin.z ,1.f };  //우하
+		vertex[3] = { SrcMax.x, SrcMax.y, SrcMin.z ,1.f };  // 우상
+		vertex[4] = { SrcMin.x, SrcMin.y, SrcMax.z ,1.f };  // 좌하
+		vertex[5] = { SrcMin.x, SrcMax.y, SrcMax.z ,1.f };  // 좌상
+		vertex[6] = { SrcMax.x, SrcMin.y, SrcMax.z ,1.f }; // 우하
+		vertex[7] = { SrcMax.x, SrcMax.y, SrcMax.z ,1.f };  // 우상
+
+		_vector vCenter = (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f;
+		_Edge Edge[4] = { {vertex[0],vertex[1]},{vertex[2],vertex[3]},  {vertex[4],vertex[5]},{vertex[6],vertex[7]} };
+
+
+		_vector Player = endPos - startPos;
+		_float Distance = 10000;
+		_float FinalDir = {};
+		_float sDir = {};
+		_float tDir = {};
+		_vector EdgeFinalDir = {};
+		_vector EdgeStartPos = {};
+		for (uint32_t i = 0; i < 4; ++i)
+		{
+			_vector EdgeDir = Edge[i].end - Edge[i].start;
+			//모서리 선분
+			_vector PlayerDir = Player;
+			//팔의 선분
+			_vector PtoEdgeDir = startPos - Edge[i].start;
+			//두 시작점 간격
+			_float pToedgeDistance = XMVectorGetX(XMVector3Length(startPos - Edge[i].start));
+			if (Distance > pToedgeDistance)
+			{
+				Distance = pToedgeDistance;
+				_float a = XMVectorGetX(XMVector3Dot(PlayerDir, PlayerDir));
+				_float b = XMVectorGetX(XMVector3Dot(PlayerDir, EdgeDir));
+				_float c = XMVectorGetX(XMVector3Dot(EdgeDir, EdgeDir));
+				_float d = XMVectorGetX(XMVector3Dot(PlayerDir, PtoEdgeDir));
+				_float e = XMVectorGetX(XMVector3Dot(EdgeDir, PtoEdgeDir));
+				EdgeStartPos = Edge[i].start;
+				FinalDir = a * c - b * b;
+
+				sDir = (b * e - c * d )/ FinalDir;
+				tDir = (a * e - b * d) / FinalDir;
+
+				sDir = max(0.f, min(1.f, sDir));
+				tDir = max(0.f, min(1.f, tDir));
+
+				EdgeFinalDir = Edge[i].end - Edge[i].start;
+
+			}
+		}
+
+		_float3 FinalPos = {};
+		XMStoreFloat3(&FinalPos, EdgeStartPos + EdgeFinalDir * tDir);
+		_vector Pivot = XMVector3Normalize(XMLoadFloat3(&FinalPos) - vCenter);
+		XMStoreFloat3(&FinalPos, XMLoadFloat3(&FinalPos) + Pivot * 0.5f);
+		*matWorld = FinalPos ;
+
+		//두 선분이 공중에 떠잇을떄 팔의 어느지점(s)과 모서리의 어느지점
+		// t에 가까운지 찾아내기
+		
+		//오브젝트의 두 꼭짓점 끼리 - 해서 모서리 구하기
+	
+
+		//손 시작지점과 모서리의 시작지점을 빼서 간격
+	
+		return true;
+	}
+
+	return false;
+}
+
+
+
+
 CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
 {
 	auto SrcObj = pObj.lock();
@@ -310,6 +439,39 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 	}
 
 	return nullptr;
+
+}
+
+_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses)
+{
+	_bool bEnd = false;
+	CLayer* pLayer = nullptr;
+
+	for (size_t i = 0; i < endLayerIndex; ++i)
+	{
+		pLayer = CGameInstance::Get().Find_Layer(i, LayerName);
+		if (pLayer != nullptr)
+			break;
+	}
+
+	if (NULL_TRUE(pLayer))
+		return false;
+
+	for (auto& Layer : pLayer->Get_ObjectList())
+	{
+		_float3 fPos = {};
+		if (EdgePoses.size() >= 1) bEnd ? true : false;
+			
+		if (Only_AABB_Collision(Layer->Get_Transform(), BoneParentsMatrix, startmat, endMat, OriginMatrix, &fPos))
+		{
+			EdgePoses.push_back(fPos);
+			if (EdgePoses.size() > 5)
+				return bEnd;
+		}
+	}
+
+	
+	return bEnd;
 
 }
 

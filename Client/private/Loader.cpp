@@ -197,7 +197,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 		//Load_Data(LEVEL::GAMEPLAY, L"../../Triggers.json", L"Layer_TriggerObject", L"OBJ_Trigger",   "Triggers");
 		//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
 		//m_Objects.clear();
-		
+		//
 		//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
 		//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
 		//m_Objects.clear();

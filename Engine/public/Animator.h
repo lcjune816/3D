@@ -11,6 +11,7 @@ public:
 	{
 		shared_ptr<CAnimation>		pCurretAnimation;
 		uint32_t					iBoneCnt;
+		map<string, int32_t>        m_BoneList;
 		_float4x4					PreTransform;
 	}ANIMATOR_DESC;
 
@@ -26,23 +27,28 @@ private:
 public:
 	void						Update(_float fTimeDelta);
 	
-	void						Update_Socket(const _matrix& fMat);
 
 	void						Player_Animation(unique_ptr<CAnimation> pAin);						 
 	void						CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans);
 	void						CalculateFinalBoneMatrices();
-	void						CalculateSocketBoneMatrix(const AssimpNodeData* node, FXMMATRIX parentsTrans);
 	
 	vector<_float4x4>			Get_FinalBoneMatrix() { return m_FinalBoneMatrices; }
 	vector<string>&				Get_NameList();
 	const uint32_t				Get_BoneCnt() { return m_iBoneCnt; }
 	void						Change_Animation(const string& name);
 	void						Change_Animation_Enum(uint32_t iNumber, _bool bLoop = true);
-	void						Change_Final_BoneMatices(const string& str,_float4x4 boneMatrix);
-
-
-	const _float4x4				Find_Matrix(const string name) {
-		auto find = m_beforeOffsetMatrix.find(name);
+	void						Change_Final_BoneMatices(const  uint32_t str,_float4x4 boneMatrix);
+	_matrix					Find_ChangeBone(uint32_t index);
+	int32_t					Find_Key(const string& str)
+	{
+		auto find = m_BoneList.find(str);
+			if(find != m_BoneList.end())
+				return find->second;
+		
+			return -1;
+	}
+	const _float4x4				Find_Matrix(uint32_t index) {
+		auto find = m_beforeOffsetMatrix.find(index);
 		if (find != m_beforeOffsetMatrix.end())
 			return find->second;
 
@@ -59,9 +65,10 @@ private:
 	vector<uint32_t>			m_IndexNumber		= {};
 	vector<_float4x4>			m_GlobalBoneMatrices = {};
 	vector<_float4x4>			m_FinalBoneMatrices		= {};
-	
-	map<string, uint32_t>		m_GlobalBoneMap;
-	map<string, _float4x4>		m_beforeOffsetMatrix = {};
+	map<string, int32_t>       m_BoneList = {};
+
+	map<uint32_t, uint32_t>		m_GlobalBoneMap;
+	map<uint32_t, _float4x4>		m_beforeOffsetMatrix = {};
 
 	_float						m_fCurrentTime			= { 0 };
 	_float						m_fNoLoopTime			= { 0 };
@@ -74,6 +81,9 @@ private:
 	_float4x4					m_PreTransform;
 	_float4x4					m_matScale;
 	_float4x4					m_RootNode;
+
+	_bool						m_bBeforeAnime = { false };
+	int32_t					m_iCurrentAnimation = {-1};
 public:
 	static unique_ptr<CAnimator> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>Clone(void* pArg) override;

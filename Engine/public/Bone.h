@@ -9,7 +9,7 @@ public:
 	{
 		_bool  check = true;
 		KEYANI Key;
-		string name;
+		int32_t index;
 		uint32_t ID;
 		uint32_t	iNumPosition;
 		uint32_t	iNumRotation;
@@ -27,7 +27,7 @@ public:
 private:
 	virtual HRESULT				Initialize(void* pArg);
 	virtual HRESULT				Initialize_Prototype();
-	void						SetAnimation(const string& name, uint32_t ID, const aiNodeAnim* pChannel);
+	void						SetAnimation(const int32_t& index, uint32_t ID, const aiNodeAnim* pChannel);
 	
 
 private:
@@ -42,7 +42,7 @@ private:
 	XMMATRIX					InterpolateScale(_float fTimeDelta);
 
 public:
-	string						Get_Name()		{ return m_strName; }
+	uint32_t					Get_Index()		{ return m_index; }
 	uint32_t					Get_BoneID()	{ return m_ID; }
 
 
@@ -57,7 +57,8 @@ private:
 	uint32_t				m_ID;
 
 	_float4x4			m_matWorld = {};
-	string				m_strName  = {};
+	int32_t				m_index  = {};
+	int32_t				m_iLastIndex = {};
 public:
 	static unique_ptr<CBone>Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>Clone(void* pArg) override;

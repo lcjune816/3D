@@ -61,7 +61,7 @@ public:
 	void	Move_To_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _wstring& strNextLayerTag, shared_ptr<CGameObject> pObj);
 	void    Move_Tol_AllLayer(uint32_t iLayerCurrentLevelIndex, const _wstring& strNextLayerTag, list<shared_ptr<class CGameObject>> pObj);
 	void	Add_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strLayerTag);
-
+	
 #pragma endregion
 
 #pragma region RENDERER
@@ -74,6 +74,7 @@ public:
 	void			 Set_Collision(_bool bCollision);
 	_bool Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform);
 	class CGameObject* AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
+	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
 
 #pragma endregion
 	 

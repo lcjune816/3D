@@ -16,28 +16,38 @@ CFSM_LeftHand::~CFSM_LeftHand()
 
 HRESULT CFSM_LeftHand::Initialize(void* pArg)
 {
-	m_ShootBone.push_back("JNT_L_Grabpack_Tube_01");
-	m_ShootBone.push_back("JNT_L_Grabpack_Tube_02");
-	m_ShootBone.push_back("JNT_L_Grabpack_Tube_03");
-	m_ShootBone.push_back("JNT_L_Grabpack_Tube_04");
-	m_ShootBone.push_back("JNT_L_Grabpack_Tube_05");
+
 	return S_OK;
 }
+void CFSM_LeftHand::Set_Bone()
+{
+	if (!m_ShootBone.empty())
+		return;
 
+	auto Player = m_pPlayer.lock();
+
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_01"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_02"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_03"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_04"));
+	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_05"));
+
+}
 void CFSM_LeftHand::Enter_State()
 {
 	auto Player = m_pPlayer.lock();
-
+	Set_Bone();
 	if (NULL_TRUE(Player)) return;
 
 
-	m_bLeftHand = Player->Get_AnimeState().bLHand;
-	strcpy_s(m_HandName, sizeof(m_HandName), "JNT_L_Grabpack_Tube_06");
-	strcpy_s(m_FirstHand, sizeof(m_FirstHand), "JNT_L_Grabpack_Gun");
-	strcpy_s(m_HandAttached, sizeof(m_HandAttached), "JNT_L_HandAttachment");
-	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_R, true);
+	m_bLeftHand			 = Player->Get_AnimeState().bLHand;
+	m_iHandindex		 = Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Tube_06");
+	m_iFirstHandindex	 = Player->GetAnimator()->Find_Key("JNT_L_Grabpack_Gun");
+	m_iHandAttachedindex = Player->GetAnimator()->Find_Key("JNT_L_HandAttachment");
+	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_L, true);
 	Player->Get_AnimeState().bLHand = false;
-
+	Player->Set_ActionState(true);
+	m_pHand->Get_HandState().bShoot = true;
 
 	Player->Set_ActionState(true);
 	m_fShootMaxTime = 30.f;
@@ -49,75 +59,101 @@ void CFSM_LeftHand::Enter_State()
 	m_fSpeed = 30.f;
 
 	XMStoreFloat3(&m_fFirstLook, Player->Get_Transform().lock()->Get_State(STATE::LOOK));
-	_float4x4 End = Player->GetAnimator()->Find_Matrix(m_HandName);
-	memcpy(&m_fLastHandPos, End.m[3], sizeof _float3);
+
+	_float4x4 matrix = m_pHand->Get_FirstMatrix();
+	memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
 }
 
 void CFSM_LeftHand::Update_State(_float fTimeDelta)
 {
 
 	auto Player = m_pPlayer.lock();
-
 	if (NULL_TRUE(Player)) return;
-
+	
 	MOVE eMove = Player->Get_State();
-
 	PLAYER_HAND HandState = m_pHand->Get_PlayerHand();
 	Mouse_Cal();
-
-	if (!m_bEndHand && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80 || CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80))
+	
+	if (m_pHand->Get_HandState().bHandAttached)
+	{
+		_float4x4 matrix = m_pHand->Get_LastMatrix();
+		memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
+	}
+	
+	if (!m_bEndHand && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80 || m_pHand->Get_HandState().bHandAttached))
 	{
 		m_fShootTimeTick += fTimeDelta;
-
+	
 		if (m_fShootTimeTick > 0.05f)
 		{
 			++m_fShootTime;
 			m_fShootTimeTick = 0.f;
 		}
-
-		_float4x4 start  = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
-		_vector startPos = XMLoadFloat4x4(&start).r[3];
-		if(!m_pHand->Get_HandState().bHandAttached)
+	
+		_float4x4 matrix = m_pHand->Get_FirstMatrix();
+		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
+		_vector StartPos = XMVectorSet(m_fStartPos.x, m_fStartPos.y, m_fStartPos.z, 1.f);
+	
+		if (!m_pHand->Get_HandState().bHandAttached)
 			XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * m_fSpeed * fTimeDelta); //마지막 위치 늘려서 보간하기
-		
-		Shoot_Hand(startPos, Player);
-
-		_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
-		memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
-		Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
-
+	
+		Shoot_Hand(StartPos, Player); ////손 늘리기//////
+	
+		_vector Pos = XMVectorSet(m_fLastHandPos.x, m_fLastHandPos.y, m_fLastHandPos.z, 1);
+	
+		m_pHand->Get_Transform().lock()->Set_State(STATE::POS, Pos);
+	
 		if (m_fShootTime >= m_fShootMaxTime)
 			m_bEndHand = true;
-
+	
+		Hand_Collision_Check(HandState);    ///////충돌/////////
+	
 		if (m_fSpeed >= 40)
 			m_fSpeed = 40.f;
 	}
 	else m_bEndHand = true;
-
+	
+	if (m_pHand->Get_HandState().bHandAttached)
+		m_bEndHand = false;
+	
 	if (!m_bReFinished && m_bEndHand && !m_pHand->Get_HandState().bHandAttached)
 	{
-		_float4x4 start = Player->GetAnimator()->Find_Matrix(m_FirstHand); //처음위치
-		_vector startPos = XMLoadFloat4x4(&start).r[3];
-		_vector Look = startPos - XMLoadFloat3(&m_fLastHandPos);
-
+		_float4x4 matrix = m_pHand->Get_FirstMatrix();
+		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
+	
+		_vector StartPos = XMVectorSet(m_fStartPos.x, m_fStartPos.y, m_fStartPos.z, 1.f);
+		_vector Look = StartPos - XMLoadFloat3(&m_fLastHandPos);
+	
 		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed * 0.5f * fTimeDelta); //위치 줄이기
-		Shoot_Hand(startPos, Player);
-
-		_float4x4 HandMatrix = Player->GetAnimator()->Find_Matrix(m_HandAttached);
-		memcpy(&HandMatrix.m[3], &m_fLastHandPos, sizeof _float3);
-		Player->GetAnimator()->Change_Final_BoneMatices(m_HandAttached, HandMatrix);
-
-		_vector CheckPos{};
-		_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - startPos));
+		Shoot_Hand(StartPos, Player);
+	
+	
+		_vector Pos = XMVectorSet(m_fLastHandPos.x, m_fLastHandPos.y, m_fLastHandPos.z, 1);
+		m_pHand->Get_Transform().lock()->Set_State(STATE::POS, Pos);
+	
+	
+		_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - StartPos));
 		if (fDis < 0.9f * 0.9f)
 		{
 			m_bEndInHand = true;
 		}
 	}
-
+	
 	Hand_End(Player.get());
 }
+void CFSM_LeftHand::Hand_Collision_Check(const PLAYER_HAND eHand)
+{
+	switch (eHand)
+	{
+	case PLAYER_HAND::WALL:
+		m_bEndHand = true;
+		break;
 
+	case PLAYER_HAND::TRIGGER:
+		break;
+	}
+
+}
 void CFSM_LeftHand::Exit_State()
 {
 	m_bLeftHand = false;
@@ -130,10 +166,11 @@ void CFSM_LeftHand::Set_LeftHand(shared_ptr<CGameObject> pObj)
 	m_pHand = static_pointer_cast<CPlayer_LeftHand>(pObj);
 }
 
-void			CFSM_LeftHand::Hand_End(CPlayer* Player)
+void CFSM_LeftHand::Hand_End(CPlayer* Player)
 {
 	if (!m_bReFinished && m_bEndInHand)
 	{
+		m_pHand->Get_HandState().bShoot = false;
 		m_bReFinished = true;
 		Player->Set_ActionState(false);
 		Player->Change_Animation(PLAYER_ANIME::SHOOT_IN, false);
@@ -155,17 +192,19 @@ void			CFSM_LeftHand::Hand_End(CPlayer* Player)
 }
 void CFSM_LeftHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer)
 {
-
-	_float3 LastPos{}, NextPos{}, fLook{};
+	_matrix Inverse = pPlayer->Get_Transform().lock()->Get_World();
+	Inverse = XMMatrixInverse(nullptr, Inverse); //뼈 위치를 플레이어 기준 위치로 돌리기 위함
 
 	for (int32_t i = 0; i < m_ShootBone.size(); ++i)
 	{
-		_float t = (_float)i / ((_float)m_ShootBone.size() - 1.f);
+		_float t = (_float)i / ((_float)m_ShootBone.size() - 1);
 		_float3 LerpPos{}, fRight{}, fUp = { 0,1,0 };
 
 		XMStoreFloat3(&LerpPos, XMVectorLerp(startPos, XMLoadFloat3(&m_fLastHandPos), t));
+
+		XMStoreFloat3(&LerpPos, XMVector3TransformCoord(XMLoadFloat3(&LerpPos), Inverse));
 		_float4x4 matrix = pPlayer->GetAnimator()->Find_Matrix(m_ShootBone[i]);
-	
+
 		memcpy(matrix.m[3], &LerpPos, sizeof _float3);
 		pPlayer->GetAnimator()->Change_Final_BoneMatices(m_ShootBone[i], matrix);
 	}

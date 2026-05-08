@@ -2,6 +2,7 @@
 #include "TriggerObject.h"
 #include "Player_LeftHand.h"
 #include "Player.h"
+
 CPlayer_LeftHand::CPlayer_LeftHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -69,6 +70,7 @@ void					CPlayer_LeftHand::Hand_Pivot()
 	PlayerY = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::UP));
 	PlayerZ = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::LOOK));
 	PlayerW = pPlayer->Get_Transform().lock()->Get_State(STATE::POS);
+
 	memcpy(&mat.r[0], &PlayerX, sizeof _float3);
 	memcpy(&mat.r[1], &PlayerY, sizeof _float3);
 	memcpy(&mat.r[2], &PlayerZ, sizeof _float3);
@@ -77,7 +79,7 @@ void					CPlayer_LeftHand::Hand_Pivot()
 	_vector Pos = pPlayer->Get_Transform().lock()->Get_State(STATE::POS);
 
 	//JNT_L_HandAttachment
-	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix("JNT_L_HandAttachment");
+	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
 
 	_vector x = XMVector3Normalize(XMVectorSet(matPos.m[0][0], matPos.m[0][1], matPos.m[0][2], 0.f));
 	_vector y = XMVector3Normalize(XMVectorSet(matPos.m[1][0], matPos.m[1][1], matPos.m[1][2], 0.f));
@@ -92,25 +94,37 @@ void					CPlayer_LeftHand::Hand_Pivot()
 	memcpy(&matoffset.r[3], &offsetPos, sizeof _float3);
 	mat = XMMatrixScaling(0.1f, 0.1f, 0.1f) * matoffset * XMLoadFloat4x4(&matPos) * mat;
 
-	m_pTransform->Set_State(STATE::RIGHT, mat.r[0]);
-	m_pTransform->Set_State(STATE::UP, mat.r[1]);
-	m_pTransform->Set_State(STATE::LOOK, mat.r[2]);
-	m_pTransform->Set_State(STATE::POS, mat.r[3]);
+
+	if (!m_tagHandState.bShoot)
+	{
+		m_pTransform->Set_State(STATE::RIGHT, mat.r[0]);
+		m_pTransform->Set_State(STATE::UP, mat.r[1]);
+		m_pTransform->Set_State(STATE::LOOK, mat.r[2]);
+		m_pTransform->Set_State(STATE::POS, mat.r[3]);
+	}
+
+	XMStoreFloat4x4(&m_StartMatrix, mat);
 
 }
 void					CPlayer_LeftHand::Hand_Collision()
 {
 	CGameObject* pObj = nullptr;
-	if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPlayer_LeftHand))))
+
+	if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPlayer_LeftHand))))
 		m_eLHand = PLAYER_HAND::WALL;
 	else if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPlayer_LeftHand))))
 	{
 		auto Obj = static_cast<CTriggerObject*>(pObj);
 		Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform.get());
+		Hand_Trigger_Event(Obj, Obj->Get_TriggerPtr()->Get_Trigger_Event());
 		Obj->Set_Trigger();
-		m_eLHand = PLAYER_HAND::TRIGGER; 
+
+		m_eLHand = PLAYER_HAND::TRIGGER;
 	}
-	else m_eLHand = PLAYER_HAND::END;
+	else
+	{
+		m_eLHand = PLAYER_HAND::END;
+	}
 
 }
 void CPlayer_LeftHand::Priority_Update(_float fTimeDelta)
@@ -155,6 +169,17 @@ HRESULT CPlayer_LeftHand::Render()
 
 	}
 	return S_OK;
+}
+
+void CPlayer_LeftHand::Hand_Trigger_Event(CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger)
+{
+	switch (eTrigger)
+	{
+	case TRIGGER_EVENT::ELECTRIC:
+		m_tagHandState.bHandAttached = pTrigger->Get_TriggerPtr()->Get_OtherTrigger();
+		XMStoreFloat4x4(&m_LastMatrix, m_pTransform->Get_World());
+		break;
+	}
 }
 unique_ptr<CPlayer_LeftHand> CPlayer_LeftHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

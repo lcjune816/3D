@@ -79,8 +79,8 @@ HRESULT CGreenElectric::Interaction(shared_ptr<CTransform> pTransform, _float fT
 	if (m_fFrameTime > 20.f)
 	{
 		m_fFrameTime = 0.f;
-		m_bOtherTrigger = false;
-		m_pDstTransform = nullptr;
+		//m_bOtherTrigger = false;
+		//m_pDstTransform = nullptr;
 	}
 
 	if (!m_bTriggerOn) return E_FAIL;

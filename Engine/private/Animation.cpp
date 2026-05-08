@@ -28,7 +28,7 @@ HRESULT	CAnimation::Initialize(void* pArg)
 	
 	m_AniTime = move(Desc->AniTime);
 	m_AnimantionName = move(Desc->AnimantionName);
-	m_Bones = move(Desc->Bones);
+	m_Bones    = move(Desc->Bones);
 	m_BoneInfo = move(Desc->BoneInfo);
 	m_RootNode = move(Desc->RootNode);
 
@@ -36,13 +36,13 @@ HRESULT	CAnimation::Initialize(void* pArg)
 }
 
 
-CBone* CAnimation::Find_Bone(const string& name, uint32_t i)
+CBone* CAnimation::Find_Bone(const uint32_t index , uint32_t i)
 
 {
 	auto iter = find_if(m_Bones[i].begin(), m_Bones[i].end(),
 		[&](const shared_ptr<CBone>& Bone)
 		{
-			return Bone.get()->Get_Name() == name;
+			return Bone.get()->Get_Index() == index;
 		}
 	);
 
@@ -51,14 +51,7 @@ CBone* CAnimation::Find_Bone(const string& name, uint32_t i)
 	else return (iter)->get();
 }
 
-Bone* CAnimation::Find_SocketBone(const string& name)
-{
-	auto find = m_BoneInfo.find(name);
-	
-	if (find != m_BoneInfo.end())
-		return &find->second;
-	return nullptr;
-}
+
 
 unique_ptr<CAnimation> CAnimation::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
