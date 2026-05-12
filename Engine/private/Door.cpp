@@ -40,6 +40,7 @@ HRESULT CDoor::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta,
 
 	if (m_fFrameTime > 20.f)
 	{
+
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
 		m_fAngle = 0.f;

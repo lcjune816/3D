@@ -21,6 +21,7 @@
 #include "DebugLine.h"
 #include "FSM_Machine.h"
 #include "Rect.h"
+#include "NaviMesh.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

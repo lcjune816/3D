@@ -1,21 +1,7 @@
 #include "Loader.h"
+#include "Loader_Defines.h"
 
-#include "BackGround.h"
-#include "Camera.h"
-#include "WorldObject.h"
-#include "Player.h"
-#include "Stageone_Terrain.h"
-#include "TriggerObject.h"
-#include "FSM_Idle.h"
-#include "FSM_Move.h"
-#include "FSM_Jump.h"
-#include "FSM_Crouch.h"
-#include "FSM_Hand.h"
-#include "Player_LeftHand.h"
-#include "Player_RightHand.h"
-#include "FSM_LeftHand.h"
-#include "FSM_RightHand.h"
-#include "DecalObject.h"
+
 CLoader::CLoader(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : m_pDevice(pDevice),m_pContext(pContext)
 {
 
@@ -107,6 +93,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CPLayer_RightHand::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Arm"),
+		CPlayer_Arm::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_PlayerLeftHand"),
 		CPlayer_LeftHand::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -125,6 +115,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Decal"),
 		CDecalObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Teacher"),
+		CBoss_Teacher::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	////////////////////////fFFFFFFSSSSSSSMMMMMMMMM///////////////////////////////////////////
@@ -160,6 +154,17 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CFSM_RightHand::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	///////////////////////////////////////////爾蝶疏/////////////////////////////////////////
+
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Idle"),
+		CFSM_Teacher_IDLE::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Move"),
+		CFSM_Teacher_Move::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	//////////////////////////聽粽天天天////////////////////////////////////////////////////
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube",
 		Engine::CCube::Create(m_pDevice, m_pContext))))
@@ -190,17 +195,17 @@ HRESULT CLoader::Loading_For_GamePlay()
 		return E_FAIL;
 
 
-		//Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
-		//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
-		//m_Objects.clear();
-		//
-		//Load_Data(LEVEL::GAMEPLAY, L"../../Triggers.json", L"Layer_TriggerObject", L"OBJ_Trigger",   "Triggers");
-		//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
-		//m_Objects.clear();
-		//
-		//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
-		//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
-		//m_Objects.clear();
+	//Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
+	//m_Objects.clear();
+	//
+	//Load_Data(LEVEL::GAMEPLAY, L"../../Triggers.json", L"Layer_TriggerObject", L"OBJ_Trigger",   "Triggers");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
+	//m_Objects.clear();
+	//
+	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
+	//m_Objects.clear();
 
 	m_isFinished = true;
 	return S_OK;

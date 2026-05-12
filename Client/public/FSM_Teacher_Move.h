@@ -1,0 +1,27 @@
+#pragma once
+#include "Teacher_FSM.h"
+
+NS_BEGIN(Client)
+class  CFSM_Teacher_Move : public CTeacher_FSM
+{
+
+private:
+	CFSM_Teacher_Move(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	CFSM_Teacher_Move(const CFSM_Teacher_Move& Prototype);
+public:
+	virtual ~CFSM_Teacher_Move();
+
+public:
+	virtual HRESULT Initialize(void* pArg);
+	virtual void Enter_State() override;
+	virtual void Update_State(_float fTimeDelta)override;
+	virtual void Exit_State()  override;
+
+
+public:
+	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	virtual shared_ptr<CPrototype> Clone(void* pArg);
+};
+
+
+NS_END;

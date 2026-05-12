@@ -47,6 +47,27 @@ HRESULT CAnimator::Initialize_Prototype()
 
 void CAnimator::Update(_float fTimeDelta)
 {
+	if (m_bStop)
+	{
+		m_fStopTick += fTimeDelta;
+		if (m_fStopTick > 0.1f)
+		{
+			m_fStopTick = 0.f;
+			++m_fStopTime;
+		}
+			
+		if (m_fStopTime >= 3.f)
+		{
+			m_fStopTime = 3.f;
+			return;
+		}
+	}
+	else
+	{
+		m_fStopTime = 0.f;
+		m_fStopTick = 0.f;
+	}
+		
 	if (NULL_TRUE(m_pCurrentAnimation))
 		return;
 

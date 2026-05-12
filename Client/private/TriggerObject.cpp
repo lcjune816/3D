@@ -88,17 +88,20 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 
 	m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID);
 
+ //	CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	return S_OK;
 }
 void CTriggerObject::Priority_Update(_float fTimeDelta)
 {
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CTriggerObject));
+
+	m_pTrigger->Interaction(m_pTransform, fTimeDelta);
+
 }
 void CTriggerObject::Update(_float fTimeDelta)
 {
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CTriggerObject));
 
-	m_pTrigger->Interaction(m_pTransform, fTimeDelta);
 }
 void CTriggerObject::Late_Update(_float fTimeDelta)
 {
@@ -150,6 +153,7 @@ HRESULT CTriggerObject::Render()
 {
 	_float4x4 matWorld{};
 	_float4 fColor = { 1.f,0.f,0.f,1.f };
+
 	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
 
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
@@ -176,11 +180,14 @@ HRESULT CTriggerObject::Render()
 
 
 	//¼±±ß±â¿ë
+
+	_bool bCheck(true);
 	m_pBoxShader->Bind_Matrix("g_World", &m_TargetMatrix);
 	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
-	
+
+	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
 
 	m_pBoxShader->Begin(0);
 
@@ -255,13 +262,13 @@ HRESULT CTriggerObject::Render()
 	World.r[1] = vUp;
 	World.r[2] = vLook;
 	World.r[3] = vPos;
-
 	fColor = { 0.f,1.f,0.f,1.f };
 	XMStoreFloat4x4(&matWorld, World);
 	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
 	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
+
 	m_pBoxShader->Begin(0);
 
 	m_pBoxMesh->Bind_Resource();

@@ -44,9 +44,10 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 
 	_float4 vPos{};
 	XMStoreFloat4(&vPos, pTransform->Get_State(STATE::POS));
-	if (!m_bJump && vPos.y <= 0.f)
+	if (!m_bJump && vPos.y <= 5.f)
 	{
-		vPos.y = 0.f;
+		_float offset = vPos.y;
+		vPos.y = 0.f + offset;
 
 		pTransform->Set_State(STATE::POS, XMLoadFloat4(&vPos));
 

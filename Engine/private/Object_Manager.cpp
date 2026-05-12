@@ -170,6 +170,20 @@ void CObject_Manager::Move_To_Layer(uint32_t iLayerCurrentLevelIndex, const _wst
 	ObjList.erase(remove(ObjList.begin(),ObjList.end(),pObj));
 }
 
+CGameObject* CObject_Manager::Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _char* ObjTag)
+{
+	auto CLayer = Find_Layer(iLayerCurrentLevelIndex, strCurrentLayerTag);
+	if (NULL_TRUE(CLayer))
+		return nullptr;
+
+	for (auto pObj : CLayer->Get_ObjectList())
+	{
+		if (!strcmp(ObjTag, pObj->Get_TagName()))
+			return pObj.get();
+	}
+	return nullptr;
+}
+
 void CObject_Manager::Add_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strLayerTag)
 {
 	auto Layer = Find_Layer(iLayerCurrentLevelIndex, strLayerTag);

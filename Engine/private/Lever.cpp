@@ -20,7 +20,7 @@ HRESULT CLever::Initialize_Prototype()
 HRESULT CLever::Initialize(void* pArg)
 {
 
-	m_eEventTrigger = TRIGGER_EVENT::END;
+	m_eEventTrigger = TRIGGER_EVENT::LEVER;
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }

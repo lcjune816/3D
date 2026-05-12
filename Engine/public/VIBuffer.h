@@ -17,7 +17,7 @@ public:
 	HRESULT Bind_Resource_InstanceCount(const uint32_t iNumber);
 	HRESULT	Bind_ResourceSRV(class CShader* pShader, const _char* pName, aiTextureType eType, uint32_t iTextureNumber );
 	virtual HRESULT Render();
-
+	HRESULT Render_Array(uint32_t iArrayIndex);
 protected:
 	ComPtr<ID3D11Buffer>			m_pVB = { nullptr };
 	ComPtr<ID3D11Buffer>			m_pIB = { nullptr };

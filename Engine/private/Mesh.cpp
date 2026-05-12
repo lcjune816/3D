@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "TextureLoader.h"
+#include "GameInstance.h"
 CMesh::CMesh(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CVIBuffer(pDevice, pContext)
 {
@@ -34,8 +35,6 @@ HRESULT CMesh::Initialize(void* pArg)
 		m_TextureList[i] = move(Dest->m_Mesh._TextureList[i]);
 	if (FAILED(Setup_Mesh(Dest->m_Mesh._VertexList,Dest->m_Mesh._Indices)))
 		return E_FAIL;
-
-	return S_OK;
 
 }
 

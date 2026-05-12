@@ -67,6 +67,21 @@
     <Filter Include="02.GameObject\02.Player\FSM_Hand">
       <UniqueIdentifier>{35835915-55f9-48bc-bc4b-6dda1c2c3635}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Boss">
+      <UniqueIdentifier>{6dcf2982-4443-4e24-a52c-e519f9823aae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Boss\Teacher">
+      <UniqueIdentifier>{f684c104-a707-40d4-a379-639abe5d4676}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Boss\Teacher\FSM_Boss_Teacher">
+      <UniqueIdentifier>{b1916313-9da0-4c1c-9e9f-fd1a9322ac89}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Boss\Teacher\FSM_Teacher_Move">
+      <UniqueIdentifier>{5e50ec44-ff7c-4348-9bd5-973f40b09dae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Boss\Teacher\FSM_Teacher_IDLE">
+      <UniqueIdentifier>{2ac888f4-172a-4955-8409-d4efb12a91dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -155,6 +170,27 @@
     </ClInclude>
     <ClInclude Include="..\public\FSM_LeftHand.h">
       <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Player_Arm.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Boss_Teacher.h">
+      <Filter>03.Boss\Teacher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Teacher_FSM.h">
+      <Filter>03.Boss\Teacher\FSM_Boss_Teacher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Teacher_Move.h">
+      <Filter>03.Boss\Teacher\FSM_Teacher_Move</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\FSM_Teacher_IDLE.h">
+      <Filter>03.Boss\Teacher\FSM_Teacher_IDLE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Loader_Defines.h">
+      <Filter>99.Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\NaviObject.h">
+      <Filter>02.GameObject\20.WorldObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -246,6 +282,24 @@
     <ClCompile Include="..\private\FSM_RightHand.cpp">
       <Filter>02.GameObject\02.Player\FSM_Hand</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Player_Arm.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Boss_Teacher.cpp">
+      <Filter>03.Boss\Teacher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Teacher_FSM.cpp">
+      <Filter>03.Boss\Teacher\FSM_Boss_Teacher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Teacher_Move.cpp">
+      <Filter>03.Boss\Teacher\FSM_Teacher_Move</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Teacher_IDLE.cpp">
+      <Filter>03.Boss\Teacher\FSM_Teacher_IDLE</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\NaviObject.cpp">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
@@ -261,6 +315,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\InstancingTest.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Array_VtxTex.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

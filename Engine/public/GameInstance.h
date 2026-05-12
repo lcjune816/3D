@@ -50,7 +50,7 @@ public:
 #pragma region GAMEOBJECT_MANAGER
 	HRESULT Add_GameObject_toLayer(uint32_t iPrototypeLevelIndex, const _wstring& strPrototypeTag,
 		uint32_t iLayerLevelIndex, const _wstring& strLayerTag, void* pArg = nullptr);
-
+	CGameObject* Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _char* ObjTag);
 	class CLayer* Find_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag);
 	HRESULT    Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, int32_t iResize);
 	void		Save_Data(uint32_t iNumLevel,_wstring path, const _wstring& strLayerName, const string& pSaveArrayName);
@@ -74,14 +74,15 @@ public:
 	void			 Set_Collision(_bool bCollision);
 	_bool Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform);
 	class CGameObject* AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
-	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
+	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
+	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay);
 
 #pragma endregion
-	 
+ 
 #pragma region INSTANCING
 
-	HRESULT				   Add_Instancing_Data(const string strName, INSTANCING_DATA Data, vector<string> TextureNames);
-	const INSTANCING_DESC* Find_Instancing_Data(const string strName);
+	HRESULT				   Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data);
+	const INSTANCING_DESC* Find_Instancing_Data(const uint32_t meshindex);
 	HRESULT				   Add_Instancing_Shader(shared_ptr<CShader> pShader);
 	HRESULT					Draw_Instancing();
 #pragma endregion
@@ -112,6 +113,15 @@ public:
 	weak_ptr<LIGHT_VALUE>		Find_LightMtrl(const string tagLightName);
 
 	const vector<string>& Get_ObejctNames();
+#pragma endregion
+#pragma region NAVI_MANAGER
+
+	void	Add_NaviMeshInfo(const _float4x4* WorldMatrix);
+	
+	void							Set_MeshInfo(vector<VERTEX_NOANIME> mesh, vector<uint32_t>index);
+	const vector<uint32_t>&			Get_MeshIndexInfo();
+	const vector<VERTEX_NOANIME>&	Get_MeshInfo();
+	
 #pragma endregion
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);
@@ -148,7 +158,7 @@ private:
 	unique_ptr<class  CInput_Device>			m_pInput_Device = { nullptr };
 	unique_ptr<class CLight_Manager>			m_pLight_Manager = { nullptr };
 	unique_ptr<class CInstancing>				m_pInstancing = { nullptr };
-
+	unique_ptr<class CNavi_Manager>				m_pNavi_Manager = { nullptr };
 
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };

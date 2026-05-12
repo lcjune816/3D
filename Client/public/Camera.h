@@ -9,7 +9,8 @@ class CCamera : public CCameraNS
 public:
     typedef struct tagFreeCamera : public CCameraNS::CAMERA_DESC
     {
-
+        _float4x4* ParentsMatrix;
+        _float4x4 CamBoneMatrix;
     }FREECAM_DESC;
 
 private:
@@ -42,13 +43,12 @@ private:
     _float3             m_fUp = {};
     _float3             m_fLook = {};
 
-    _float4x4           m_matView = {};
-    _float4x4           m_matProj = {};
-
-
+    _float4x4*          m_ChildMatrix = {};
+    _float4x4           m_ChildCamBoneMatrix{};
     _float3             m_fLastMousePos = {};
     _float              m_fSpeed = {0};
 
+    _bool               m_bFreecam = {false};
     _bool               m_bMouseMoveCheck = { false };
 public:
     static unique_ptr<CCamera> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

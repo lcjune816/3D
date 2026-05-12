@@ -44,12 +44,15 @@ public:
 	PLAYER_ANIME				Get_Animation_State() { return m_eAnimeState; }
 	PLAYER_STATE&				Get_AnimeState()	  { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
 
+	void					Turn(const _float& fTimeDelta);
+	void					CameraSetting();
 	void					Set_ActionState(_bool	bAction)	{ m_bOnlyActionState = bAction; }
 	void					Change_Animation(PLAYER_ANIME eAnime, _bool bLoop = true);
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 	CAnimator*				GetAnimator() { return m_pAnimator.get(); }
 private:
 	HRESULT					Ready_Component();
+	void					Default_Height();
 	void					State_Move();
 private:
 
@@ -59,8 +62,8 @@ private:
 	shared_ptr<class CPlayer_LeftHand>	m_pPlayerLHand;
 	shared_ptr<class CPLayer_RightHand>	m_pPlayerRHand;
 
-
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
+	
 
 private:
 	vector<string>						m_ShootBone;

@@ -29,6 +29,7 @@ public:
 	void	Move_To_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _wstring& strNextLayerTag, shared_ptr<class CGameObject> pObj);
 	void    Move_Tol_AllLayer(uint32_t iLayerCurrentLevelIndex, const _wstring& strNextLayerTag, list<shared_ptr<class CGameObject>> pObj);
 	
+	CGameObject* Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _char* ObjTag);
 	void	Add_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strLayerTag);
 	void	Reset_CopyLayer();
 

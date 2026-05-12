@@ -26,6 +26,7 @@ public:
 	}
 
 	_matrix Get_World()const { return XMLoadFloat4x4(&m_WorldMatrix); }
+	_float4x4* Get_WorldPtr() { return &m_WorldMatrix; }
 	_float3 Get_Scaled();
 
 	_float3									Get_Max() { return m_fMax; }
@@ -47,12 +48,15 @@ public:
 	void Go_Left(_float fTimeDelta);
 	void Go_Right(_float fTimeDelta);
 	void Go_Up(_float fTimeDelta, _float m_fSpeed);
-
+	void Set_Matrix(_fmatrix matrix);
 	void Apply_Rotation(_fvector vAxis, _float fAngle);
+	void Rotation(_float fAngleX, _float fAngleY, _float fAngleZ);
 	void Rotation(_fvector vAxis, _float fAngle);
+	
 	void Turn(_fvector vAxis, _float fTimeDelta);
+	
 	void LookAt(_fvector vAt);
-
+	void Chase_Target(const _float& fTimeDelta);
 	void Velocity_Speed(_float fSpeed) { m_fSpeedPerSec = m_fOriginSpeed + fSpeed; }
 private:
 

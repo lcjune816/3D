@@ -1,5 +1,5 @@
 	
-float4x4 g_World[100], g_View , g_Projection;
+float4x4 g_World[500], g_View , g_Projection;
 Texture2D diffTexture;
 
 struct tagLight
@@ -93,23 +93,25 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out;
     float4 textureColor = diffTexture.Sample(DefaultSampler, In.texcoord);
     
-    vector vShade = max(dot(normalize(g_tagLight.vLightDIr) * -1.f, normalize(In.vNormal)), 0.f) +
-            (g_tagLight.vLightAmbient * g_tagLight.vMtrlAmbient);
+   //vector vShade = max(dot(normalize(g_tagLight.vLightDIr) * -1.f, normalize(In.vNormal)), 0.f) +
+   //        (g_tagLight.vLightAmbient * g_tagLight.vMtrlAmbient);
+   //
+   //vector vReflect = reflect(normalize(g_tagLight.vLightDIr), normalize(In.vNormal));
+   //vector vLook = In.vWorldPos - g_vCamPosition;
+   //
+   //float fSpecular = pow(
+   //max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f);
+   //
+   //f (textureColor.a < 0.1f)
+   //    discard;
+   //
+   //
+   ////sature 이거는 0보다 작으면 0 1보다 크면 1로 만들어줌
+   ////어떤건 더하고 어떤건 곱하고 기준을 잘 모르겠네
+   //Out.textureColor = g_tagLight.vLightDiffuse * textureColor * saturate(vShade) +
+   //                (g_tagLight.vLightSpecular * g_tagLight.vMtrlSpecular) * fSpecular;
     
-    vector vReflect = reflect(normalize(g_tagLight.vLightDIr), normalize(In.vNormal));
-    vector vLook = In.vWorldPos - g_vCamPosition;
-    
-    float fSpecular = pow(
-    max(dot(normalize(vReflect) * -1.f, normalize(vLook)), 0.f), 50.f);
-    
-   if (textureColor.a < 0.1f)
-        discard;
-    
-    
-    //sature 이거는 0보다 작으면 0 1보다 크면 1로 만들어줌
-    //어떤건 더하고 어떤건 곱하고 기준을 잘 모르겠네
-    Out.textureColor = g_tagLight.vLightDiffuse * textureColor * saturate(vShade) +
-                    (g_tagLight.vLightSpecular * g_tagLight.vMtrlSpecular) * fSpecular;
+    Out.textureColor = textureColor;
     return Out;
 }
 

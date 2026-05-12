@@ -1,7 +1,7 @@
 #pragma once
 #include "Transform.h"
 NS_BEGIN(Engine)
-enum class TRIGGER_EVENT{BATTERY, DOOR, ELECTRIC, END};
+enum class TRIGGER_EVENT{BATTERY, DOOR, ELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , END};
 class ENGINE_DLL CTrigger abstract : public CComponent
 {
 

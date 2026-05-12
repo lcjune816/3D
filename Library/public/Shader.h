@@ -23,7 +23,7 @@ public:
 	HRESULT Bind_Matrix_Array(const _char* pConstantName, const _float4x4* Mat, const uint32_t iBoneCnt);
 	HRESULT Bind_RawValue(const _char* pConstantName, const void* fColor, uint32_t iSize);
 	HRESULT Bind_SRV(const _char* pConstantName, ID3D11ShaderResourceView* pSRV);
-
+	HRESULT Bind_Vector_Array(const _char* pConstantName, const _float4* Mat, const uint32_t iBoneCnt);
 private:
 	ComPtr<ID3DX11Effect>		m_pEffect = { nullptr };
 

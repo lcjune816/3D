@@ -151,6 +151,12 @@
     <Filter Include="13.Instancing">
       <UniqueIdentifier>{57aa9aa9-98dd-42f8-b9df-e0da899795ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="14.Navigation">
+      <UniqueIdentifier>{abc6d1f4-dc7d-4f19-8f8b-beccefceea6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06.Component\VIBuffer\Navi">
+      <UniqueIdentifier>{076956d1-a2bc-416f-b821-615b1ce9ee8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -315,6 +321,12 @@
     </ClInclude>
     <ClInclude Include="..\public\Instancing.h">
       <Filter>13.Instancing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Navi_Manager.h">
+      <Filter>14.Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\NaviMesh.h">
+      <Filter>06.Component\VIBuffer\Navi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -494,6 +506,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Instancing.cpp">
       <Filter>13.Instancing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Navi_Manager.cpp">
+      <Filter>14.Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\NaviMesh.cpp">
+      <Filter>06.Component\VIBuffer\Navi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

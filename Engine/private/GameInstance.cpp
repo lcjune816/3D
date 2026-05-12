@@ -12,6 +12,7 @@
 #include "Texture_Manager.h"
 #include "Input_Device.h"
 #include "Light_Manager.h"
+#include "Navi_Manager.h"
 #include "Instancing.h"
 CGameInstance::CGameInstance()
 {
@@ -86,6 +87,9 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pInstancing))
 		return E_FAIL;
 
+	m_pNavi_Manager = CNavi_Manager::Create();
+	if (NULL_TRUE(m_pNavi_Manager))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -141,13 +145,13 @@ const uint32_t		CGameInstance::Get_RanderCall()
 #pragma endregion
 
 #pragma region INSTANCING
-HRESULT				   CGameInstance::Add_Instancing_Data(const string strName, INSTANCING_DATA Data, vector<string> TextureNames)
+HRESULT				   CGameInstance::Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data)
 {
-	return m_pInstancing->Add_Instancing_Data(strName, Data,TextureNames);
+	return m_pInstancing->Add_Instancing_Data(meshindex, Data);
 }
-const INSTANCING_DESC* CGameInstance::Find_Instancing_Data(const string strName)
+const INSTANCING_DESC* CGameInstance::Find_Instancing_Data(const uint32_t meshindex)
 {
-	return m_pInstancing->Find_Instancing_Data(strName);
+	return m_pInstancing->Find_Instancing_Data(meshindex);
 }
 HRESULT CGameInstance::Draw_Instancing()
 {
@@ -308,7 +312,10 @@ HRESULT CGameInstance::Move_CopyLayer_ToObjectLayer(uint32_t iLayerLevelIndex, c
 {
 	return m_pObject_Manager->Move_CopyLayer_ToObjectLayer(iLayerLevelIndex, strLayerTag);
 }
-
+CGameObject* CGameInstance::Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _char* ObjTag)
+{
+	return m_pObject_Manager->Get_ObjectPtr(iLayerCurrentLevelIndex, strCurrentLayerTag, ObjTag);
+}
 void CGameInstance::Move_Tol_AllLayer(uint32_t iLayerCurrentLevelIndex, const _wstring& strNextLayerTag, list<shared_ptr<class CGameObject>> pObj)
 {
 	m_pObject_Manager->Move_Tol_AllLayer(iLayerCurrentLevelIndex, strNextLayerTag, pObj);
@@ -347,16 +354,39 @@ _bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransf
 	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform);
 }
 
-_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses)
+_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses)
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, BoneParentsMatrix, startmat, endMat, OriginMatrix, EdgePoses);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses);
 }
 CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
 {
 	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj, bBack);
 }
-#pragma endregion
+_bool		CGameInstance::RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay)
+{
+	return m_pCollision_Manager->RayCast(endLayerIndex, strCompareLayerName,LayerName, tagName, pSrcTransform, OffsetRay);
+}
 
+#pragma endregion
+#pragma region NAVI_MANAGER
+
+void	CGameInstance::Add_NaviMeshInfo(const _float4x4* WorldMatrix)
+{
+	m_pNavi_Manager->Add_NaviMeshInfo(WorldMatrix);
+}
+void    CGameInstance::Set_MeshInfo(vector<VERTEX_NOANIME> mesh, vector<uint32_t>index)
+{
+	m_pNavi_Manager->Set_MeshInfo(mesh, index);
+}
+const vector<uint32_t>& CGameInstance::Get_MeshIndexInfo()
+{
+	return m_pNavi_Manager->Get_MeshIndexInfo();
+}
+const vector<VERTEX_NOANIME>& CGameInstance::Get_MeshInfo()
+{
+	return m_pNavi_Manager->Get_MeshInfo();
+}
+#pragma endregion
 #pragma region TRIGGER_MANAGER
 HRESULT					CGameInstance::Add_Trigger(uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger)
 {
@@ -443,6 +473,8 @@ void CGameInstance::Release_Engine()
 	m_pObject_Manager.reset();
 	
 	m_pPrototype_Manager.reset();
+
+	m_pNavi_Manager.reset();
 	
 	m_pGui_Manager.reset();
 

@@ -1,6 +1,7 @@
 #include "Level_GasProduction.h"
 #include "GameInstance.h"
 #include "Camera.h"
+#include "Player.h"
 CLevel_GasProduction::CLevel_GasProduction(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CLevel{ pDevice, pContext }
 {
@@ -12,10 +13,11 @@ CLevel_GasProduction::~CLevel_GasProduction()
 
 HRESULT CLevel_GasProduction::Initialize()
 {
-	if (FAILED(Ready_Layer_Camera(L"Layer_Camera")))
-		return E_FAIL;
 
 	if (FAILED(Ready_Layer_Player(L"Layer_Player")))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Camera(L"Layer_Camera")))
 		return E_FAIL;
 
 	if (FAILED(Ready_Layer_Decal(L"Layer_Decal")))
@@ -45,16 +47,17 @@ HRESULT CLevel_GasProduction::Render()
 }
 HRESULT CLevel_GasProduction::Ready_Layer_Camera(const _wstring& strLayerTag)
 {
-	CCamera::CAMERA_DESC		FreeDesc{};
-	FreeDesc.vEye = _float4{ 0.f,10.f,-5.f,1.f };
-	FreeDesc.vAt = _float4{ 0.f,0.f,0.f,1.f };
-	FreeDesc.fFovy = XMConvertToRadians(60.f);
-	FreeDesc.fNear = 0.1f;
-	FreeDesc.fFar = 1000.f;
-	FreeDesc.m_fSpeedPerSec = 10.f;
-	
+	auto pObj = static_cast<CPlayer*>(CGameInstance::Get().Get_ObjectPtr(ETOUI(LEVEL::GASZONE), L"Layer_Player", "Player"));
+	uint32_t index = pObj->GetAnimator()->Find_Key("JNT_Camera");
+	_float4x4 Matrix = pObj->GetAnimator()->Find_Matrix(index);
+
+	CCamera::FREECAM_DESC FreeDesc{};
+
+	FreeDesc.ParentsMatrix = pObj->Get_Transform().lock()->Get_WorldPtr();
+	XMStoreFloat4x4(&FreeDesc.CamBoneMatrix, XMLoadFloat4x4(&Matrix));
+
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE),
-		TEXT("OBJ_Camera"), ETOUI(LEVEL::GASZONE), strLayerTag, &FreeDesc)))
+		TEXT("OBJ_Camera"), ETOUI(LEVEL::GASZONE), L"Layer_Camera", &FreeDesc)))
 		return E_FAIL;
 
 	return S_OK;

@@ -1,5 +1,5 @@
 #include "MeshNonAnime.h"
-
+#include "GameInstance.h"
 CMeshNonAnime::CMeshNonAnime(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CVIBuffer(pDevice, pContext)
 {
@@ -38,8 +38,9 @@ HRESULT CMeshNonAnime::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_eMatrial = Dest->eMatrial;
-	return S_OK;
 
+	CGameInstance::Get().Set_MeshInfo(Dest->Vertexes, Dest->Indices);
+	return S_OK;
 }
 
 

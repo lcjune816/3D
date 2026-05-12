@@ -32,14 +32,15 @@ public:
 	void						CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans);
 	void						CalculateFinalBoneMatrices();
 	
+	void						Stop_Animation(_bool bStop) { m_bStop = bStop; }
 	vector<_float4x4>			Get_FinalBoneMatrix() { return m_FinalBoneMatrices; }
 	vector<string>&				Get_NameList();
 	const uint32_t				Get_BoneCnt() { return m_iBoneCnt; }
 	void						Change_Animation(const string& name);
 	void						Change_Animation_Enum(uint32_t iNumber, _bool bLoop = true);
 	void						Change_Final_BoneMatices(const  uint32_t str,_float4x4 boneMatrix);
-	_matrix					Find_ChangeBone(uint32_t index);
-	int32_t					Find_Key(const string& str)
+	_matrix						Find_ChangeBone(uint32_t index);
+	int32_t						Find_Key(const string& str)
 	{
 		auto find = m_BoneList.find(str);
 			if(find != m_BoneList.end())
@@ -73,11 +74,17 @@ private:
 	_float						m_fCurrentTime			= { 0 };
 	_float						m_fNoLoopTime			= { 0 };
 	_float						m_fDeltaTime			= { 0 };
+	
+	_float						m_fStopTick = { 0 };
+	_float						m_fStopTime = { 0.f };
 	uint32_t					m_iAnimationNumber		= { 0 };
 	uint32_t					m_iBoneCnt				= { 0 };
+
+
 	_bool						m_bFinished = { false };
 	_bool						m_bLoop = { true };
-	
+	_bool						m_bStop = { false };
+
 	_float4x4					m_PreTransform;
 	_float4x4					m_matScale;
 	_float4x4					m_RootNode;
