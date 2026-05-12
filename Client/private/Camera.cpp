@@ -23,32 +23,109 @@ HRESULT CCamera::Initialize(void* pArg)
 {
     auto    pDesc = static_cast<FREECAM_DESC*>(pArg);
 
-    pDesc->m_fSpeedPerSec = 100.f;
-    if (FAILED(__super::Initialize(pArg)))
-        return E_FAIL;
+    CCamera::CAMERA_DESC		FreeDesc{};
+    FreeDesc.vEye = _float4{ 0.f,10.f,-5.f,1.f };
+    FreeDesc.vAt = _float4{ 0.f,0.f,0.f,1.f };
+    FreeDesc.fFovy = XMConvertToRadians(60.f);
+    FreeDesc.fNear = 0.1f;
+    FreeDesc.fFar = 1000.f;
+    FreeDesc.m_fSpeedPerSec = 100.f;
 
-    _float fFov(0), fAspect(0), fNear(0), fFar(0);
-    
+    m_ChildMatrix = pDesc->ParentsMatrix;
+    m_ChildCamBoneMatrix = pDesc->CamBoneMatrix;
+
+    if (FAILED(__super::Initialize(&FreeDesc)))
+        return E_FAIL;
 
     m_fLook = { 0.f,0.f,1.f };
     m_fUp = { 0.f,1.f,0.f };
     m_fRight = { 1.f,0.f,0.f };
     m_fSpeed = 2.f;
-
     return S_OK;
 }
 
 void CCamera::Priority_Update(_float fTimeDelta)
 {
+
+}
+
+void CCamera::Update(_float fTimeDelta)
+{
    
-    POINT mousePos;
-    GetCursorPos(&mousePos);
-    ScreenToClient(g_hWnd, &mousePos);
-    if (GetKeyState(VK_TAB) & 0x8000)
-         m_bMouseMoveCheck = !m_bMouseMoveCheck;
-  
-    if (m_bMouseMoveCheck)
+
+}
+
+void CCamera::Late_Update(_float fTimeDelta)
+{
+    if (CGameInstance::Get().Get_DIKeyState(DIK_F5))
+        m_bFreecam = !m_bFreecam;
+
+    if (!m_bFreecam)
     {
+
+        POINT mousePos;
+        GetCursorPos(&mousePos);
+        ScreenToClient(g_hWnd, &mousePos);
+        if (GetKeyState(VK_TAB) & 0x8000)
+            m_bMouseMoveCheck = !m_bMouseMoveCheck;
+
+        if (m_bMouseMoveCheck)
+        {
+            POINT pt;
+            pt.x = Client::g_iWinSizeX / 2.f;
+            pt.y = Client::g_iWinSizeY / 2.f;
+
+            ClientToScreen(g_hWnd, &pt);
+
+            SetCursorPos(pt.x, pt.y);
+        }
+
+        XMVECTOR vSpeed{}, vLook{}, vPos{};
+        if (GetKeyState('W') & 0x8000)
+        {
+            m_pTransform->Go_Straight(fTimeDelta);
+        }
+        if (GetKeyState('S') & 0x8000)
+        {
+            m_pTransform->Go_BackWard(fTimeDelta);
+        }
+        if (GetKeyState('D') & 0x8000)
+        {
+            m_pTransform->Go_Right(fTimeDelta);
+        }
+        if (GetKeyState('A') & 0x8000)
+        {
+            m_pTransform->Go_Left(fTimeDelta);
+        }
+        //회전
+        OneMouseMove(mousePos.x, mousePos.y, fTimeDelta);
+
+        XMVECTOR fR{}, fU{}, fL{}, fP{};
+
+        fR = XMLoadFloat3(&m_fRight);
+        fU = XMLoadFloat3(&m_fUp);
+        fL = XMLoadFloat3(&m_fLook);
+        fP = m_pTransform->Get_State(STATE::POS);
+
+        fL = XMVector3Normalize(fL);
+        fU = XMVector3Normalize(XMVector3Cross(fL, fR));
+        fR = XMVector3Cross(fU, fL);
+
+        _float x = -XMVectorGetX(XMVector3Dot(fP, fR));
+        _float y = -XMVectorGetX(XMVector3Dot(fP, fU));
+        _float z = -XMVectorGetX(XMVector3Dot(fP, fL));
+
+        m_pTransform->Set_State(STATE::RIGHT, fR);
+        m_pTransform->Set_State(STATE::UP, fU);
+        m_pTransform->Set_State(STATE::LOOK, fL);
+    }
+    else
+    {
+        POINT mousePos;
+        GetCursorPos(&mousePos);
+        ScreenToClient(g_hWnd, &mousePos);
+        _matrix matrix = XMLoadFloat4x4(m_ChildMatrix) * XMLoadFloat4x4(&m_ChildCamBoneMatrix);
+        m_pTransform->Set_Matrix(matrix);
         POINT pt;
         pt.x = Client::g_iWinSizeX / 2.f;
         pt.y = Client::g_iWinSizeY / 2.f;
@@ -58,58 +135,9 @@ void CCamera::Priority_Update(_float fTimeDelta)
         SetCursorPos(pt.x, pt.y);
     }
 
-    XMVECTOR vSpeed{}, vLook{}, vPos{};
-    if (GetKeyState('W') & 0x8000)
-    {
-        m_pTransform->Go_Straight(fTimeDelta);
-    }
-    if (GetKeyState('S') & 0x8000)
-    {
-        m_pTransform->Go_BackWard(fTimeDelta);
-    }
-    if (GetKeyState('D') & 0x8000)
-    {
-        m_pTransform->Go_Right(fTimeDelta);
-    }
-    if (GetKeyState('A') & 0x8000)
-    {
-        m_pTransform->Go_Left(fTimeDelta);
-    }
-     //회전
-    OneMouseMove(mousePos.x, mousePos.y,fTimeDelta);
 
-    XMVECTOR fR{}, fU{}, fL{}, fP{};
 
-    fR = XMLoadFloat3(&m_fRight);
-    fU = XMLoadFloat3(&m_fUp);
-    fL = XMLoadFloat3(&m_fLook);
-    fP = m_pTransform->Get_State(STATE::POS);
-
-    fL = XMVector3Normalize(fL);
-    fU = XMVector3Normalize(XMVector3Cross(fL, fR));
-    fR = XMVector3Cross(fU, fL);
-
-    _float x = -XMVectorGetX(XMVector3Dot(fP, fR));
-    _float y = -XMVectorGetX(XMVector3Dot(fP, fU));
-    _float z = -XMVectorGetX(XMVector3Dot(fP, fL));
-
-    m_pTransform->Set_State(STATE::RIGHT,  fR);
-    m_pTransform->Set_State(STATE::UP    , fU);
-    m_pTransform->Set_State(STATE::LOOK  , fL);
-  
     __super::Update_PipeLine();
-
-}
-
-void CCamera::Update(_float fTimeDelta)
-{
-
-  
-
-}
-
-void CCamera::Late_Update(_float fTimeDelta)
-{
 }
 
 HRESULT CCamera::Render()

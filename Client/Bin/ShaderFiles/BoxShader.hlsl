@@ -1,7 +1,8 @@
 	
-float4x4 g_World, g_View, g_Projection;
+float4x4 g_World, g_View, g_Projection, g_ArrayWorld[512];
+float4 g_ArrayColor[512];
 vector g_Color;
-
+bool   g_bChoice = true;
 
 struct VS_IN
 {
@@ -17,15 +18,22 @@ struct VS_OUT
     float4 vProjPos : TEXCOORD2;
 };
 
-VS_OUT VS_MAIN(VS_IN In)
+VS_OUT VS_MAIN(VS_IN In,uint iInstanceId : SV_InstanceID)
 {
     VS_OUT output = (VS_OUT) 0;
 	
     float4x4 matWV, matWVP;
-	
-    matWV = mul(g_World, g_View);
-    matWVP = mul(matWV, g_Projection);
-	  
+    if (g_bChoice)
+    {
+        matWV = mul(g_World, g_View);
+        matWVP = mul(matWV, g_Projection);   
+    }
+    else
+    {
+        In.Color = g_ArrayColor[iInstanceId];
+        matWV = mul(g_ArrayWorld[iInstanceId], g_View);
+        matWVP = mul(matWV, g_Projection);
+    }
    
     output.pos = mul(float4(In.pos, 1.f), matWVP);
     output.Color = In.Color;

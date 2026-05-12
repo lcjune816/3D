@@ -44,6 +44,7 @@ public:
 	_bool					Get_Finished() { return m_bFinished; }
 	void					Set_Finisihed(_bool bFinishied) { m_bFinished = bFinishied; }
 	void					Set_CheckCopyLater(_bool bLayer) { m_bCopyLayerCheck = bLayer; }
+	const _char* Get_TagName() { return m_pTagName; }
 
 	void					Set_Dead() { m_bDead = true; }
 	void					Set_bBoxColor(_bool bColor) { m_bBoxColor = bColor; }
@@ -56,6 +57,7 @@ protected:
 	
 	template<typename T>
 	HRESULT Add_Component(uint32_t iPrototypeLevelIndex, const _wstring& strPrototypeTag,
+
 		const _wstring& strComponentTag, shared_ptr<T>& pOut, void* pArg = nullptr)
 	{
 		if (nullptr != Find_Component(strComponentTag))
@@ -86,6 +88,7 @@ protected:
 	_bool						m_bBoxColor = { false };
 	_bool						m_bCopyLayerCheck = { false };
 
+	_char					m_pTagName[64];
 	string						m_PathName;
 protected:
 	map<const _wstring, shared_ptr<class CComponent>> m_Components;

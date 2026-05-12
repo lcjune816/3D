@@ -60,6 +60,13 @@ namespace Engine
 
 	}ENGINE_ASTAR;
 
+	typedef struct strnavimesh
+	{
+		_float4		Triangle[3];
+		int32_t		neighborIndices[3];
+		_float3		Center;
+	}NAVI_MESH;
+
 	typedef struct filepath
 	{
 		string strFileName;

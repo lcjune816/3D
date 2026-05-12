@@ -19,7 +19,7 @@ HRESULT CRollupDoor::Initialize_Prototype()
 
 HRESULT CRollupDoor::Initialize(void* pArg)
 {
-	m_eEventTrigger = TRIGGER_EVENT::END;
+	m_eEventTrigger = TRIGGER_EVENT::ROLLUPDOOR;
 	m_fRotationArrow = 10.f;
 	return S_OK;
 }
@@ -47,6 +47,7 @@ HRESULT CRollupDoor::Interaction(shared_ptr<CTransform> pTransform, _float fTime
 
 void CRollupDoor::Action_Trigger(shared_ptr<CTransform> pTransform,_float fTimeDelta)
 {
+	
 	pTransform->Go_Up(fTimeDelta, m_fRotationArrow);
 }
 

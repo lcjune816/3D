@@ -73,6 +73,8 @@ HRESULT CWorldObject::Initialize(void* pArg)
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	INSTANCING_DATA Data;
 	XMStoreFloat4x4(&Data.matWorld,m_pTransform->Get_World());
+	//CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
+	//CGameInstance::Get().Add_Instancing_Data(m_MeshNameList, Data);
 	return S_OK;
 }
 void CWorldObject::Priority_Update(_float fTimeDelta)
@@ -109,10 +111,10 @@ HRESULT CWorldObject::Render()
 		auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
 		if (pMesh == nullptr)
 			continue;
-
+	
 		if (NULL_FALSE(Light))
 			m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
-
+	
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
 		
 		m_pShaderCom->Begin(0);
@@ -191,10 +193,12 @@ HRESULT CWorldObject::Render()
 
 	XMStoreFloat4x4(&matWorld, World);
 	 fColor = { 1.f,0.f,0.f,1.f };
+	 _bool bCheck(true);
 	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
 	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
 	m_pBoxShader->Begin(0);
 
 	m_pBoxMesh->Bind_Resource();

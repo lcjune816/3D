@@ -15,18 +15,18 @@ public:
 	HRESULT						Initialize();
 
 	HRESULT						Draw_Instancing();
-	HRESULT						Add_Instancing_Data(const string strName, INSTANCING_DATA Data, vector<string> TextureNames);
+	HRESULT						Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data);
 	HRESULT						Add_Instancing_Shader(shared_ptr<class CShader> pShader);
-	const INSTANCING_DESC*		Find_Instancing_Data(const string strName);
+	const INSTANCING_DESC*		Find_Instancing_Data(const uint32_t meshindex);
 private:
-	map<string, INSTANCING_DESC>		m_InstancingDatas;
+	map<uint32_t, INSTANCING_DESC>		m_InstancingDatas;
 	
 	shared_ptr<class CShader>			m_pShader;
 	shared_ptr<class CTransform>		m_pTransform;
 
-	vector<string>						m_OnlyOneDrawCallList;
+	vector<uint32_t>						m_OnlyOneDrawCallList;
 
-	map<string, vector<string>>			m_InstancingDataToTextures;
+	map<uint32_t, vector<uint32_t>>			m_InstancingDataToTextures;
 public:
 	static		unique_ptr<CInstancing> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

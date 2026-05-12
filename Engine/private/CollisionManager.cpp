@@ -228,192 +228,139 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 
 	_matrix SrcWorld = SrcTransform->Get_World();
 	_matrix DstWorld = DstTransform->Get_World();
-	_float3  SrcMin, SrcMax;
-	_float3  DstMin, DstMax;
+	_matrix SrcInverseWorld = XMMatrixInverse(nullptr, SrcTransform->Get_World());
+	_float3  SrcMin{}, SrcMax{};
 
 	SrcMin = SrcTransform->Get_Min();
 	SrcMax = SrcTransform->Get_Max();
 
-	XMStoreFloat3(&SrcMin, XMVector3TransformCoord(XMLoadFloat3(&SrcMin), SrcWorld));
-	XMStoreFloat3(&SrcMax, XMVector3TransformCoord(XMLoadFloat3(&SrcMax), SrcWorld));
+	_vector DstLocalPos = XMVector3TransformCoord(DstWorld.r[3], SrcInverseWorld);
+	_vector DstLocalRay = XMVector3Normalize(DstLocalPos - XMLoadFloat3(&SrcMax));
 
-	DstMin = DstTransform->Get_Min();
-	DstMax = DstTransform->Get_Max();
+	BoundingBox box;
+	XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f);
+	XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
 
-	XMStoreFloat3(&DstMin, XMVector3TransformCoord(XMLoadFloat3(&DstMin), DstWorld));
-	XMStoreFloat3(&DstMax, XMVector3TransformCoord(XMLoadFloat3(&DstMax), DstWorld));
-
-	SrcMin.x = min(SrcMin.x, SrcMax.x);
-	SrcMin.y = min(SrcMin.y, SrcMax.y);
-	SrcMin.z = min(SrcMin.z, SrcMax.z);
-
-	SrcMax.x = max(SrcMin.x, SrcMax.x);
-	SrcMax.y = max(SrcMin.y, SrcMax.y);
-	SrcMax.z = max(SrcMin.z, SrcMax.z);
-
-	DstMin.x = min(DstMin.x, DstMax.x);
-	DstMin.y = min(DstMin.y, DstMax.y);
-	DstMin.z = min(DstMin.z, DstMax.z);
-
-	DstMax.x = max(DstMin.x, DstMax.x);
-	DstMax.y = max(DstMin.y, DstMax.y);
-	DstMax.z = max(DstMin.z, DstMax.z);
-
-
-	// 
-	if (DstMax.x > SrcMin.x &&
-		DstMax.y > SrcMin.y &&
-		DstMax.z > SrcMin.z &&
-		DstMin.x < SrcMax.x &&
-		DstMin.y < SrcMax.y &&
-		DstMin.z < SrcMax.z)
+	_float fDist{};
+	if (box.Intersects(DstLocalPos, DstLocalRay, fDist))
 	{
-		if (!bBack)
-		{
-			_vector DstCenter = (XMVector3Length(XMLoadFloat3(&DstMax)) + XMVector3Length(XMLoadFloat3(&DstMin)) * 0.5f);
-			_vector SrcCenter = (XMVector3Length(XMLoadFloat3(&SrcMax)) + XMVector3Length(XMLoadFloat3(&SrcMin)) * 0.5f);
-
-			_vector Distance = DstCenter - SrcCenter;
-
-			_vector Pos = DstWorld.r[3] + Distance;
-				
-			DstTransform->Set_State(STATE::POS, Pos);
-		}
-
-		return true;
+		if (fDist < 3.f)
+			return true;
 	}
-
 	return false;
 }
 
-_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix , _float3* matWorld)
+
+
+_bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay)
 {
-
-	auto   SrcTransform = pSrcTransform.lock();
-
-	_matrix SrcWorld = SrcTransform->Get_World();
-	_vector Test = SrcWorld.r[3];
-	//현재 본 행렬에 플레이어 월드 역행렬 해서 플레이어 로컬로 만든 상태
-	_vector startPos = startmat.r[3];
-	_vector endPos = endMat.r[3];
-
-	startPos = XMVector3TransformCoord(startPos, OriginMatrix);
-	endPos = XMVector3TransformCoord(endPos, OriginMatrix);
+	CLayer* pLayer = nullptr;
+	CLayer* ComPareLayer = nullptr;
+	for (size_t i = 0; i < endLayerIndex; ++i)
+	{
+		pLayer = CGameInstance::Get().Find_Layer(i, LayerName);
+		ComPareLayer = CGameInstance::Get().Find_Layer(i, strCompareLayerName);
+		if (NULL_FALSE(pLayer) && NULL_FALSE(ComPareLayer))
+			break;
+	}
+	if (NULL_TRUE(pLayer) && NULL_TRUE(ComPareLayer))
+		return false;
 	
-	_vector SrcPos = SrcWorld.r[3];
+	
+	_float fMaxDistance = 100000.f;
+	_float fPlayerDistance = {};
+	_vector CheckPos = {};
+	_vector DstPos = {};
+	_bool   bReturn = {true};
 
-	if (XMVectorGetX(XMVector3Length(startPos - SrcPos)) > 20.f)
+	auto SrcTransform = pSrcTransform.lock();
+	for (auto& pLayerInObj : pLayer->Get_ObjectList())
+	{
+		if (!strcmp(tagName,pLayerInObj->Get_TagName()))
+		{
+			auto DstTransform = pLayerInObj->Get_Transform().lock();
+			if (NULL_TRUE(DstTransform) || NULL_TRUE(SrcTransform))
+				return false;
+
+			_vector SrcPos{}, SrcLook{}, Center{}, Extents{};
+			RayCalculator(SrcTransform.get(), DstTransform.get(), SrcPos, Center, Extents, XMVectorSet(0,0,0,1.f));
+			BoundingBox Dstbox;
+			_vector SrcYRot = XMVector3Normalize(SrcPos);
+			
+
+			XMStoreFloat3(&Dstbox.Center,Center);
+			XMStoreFloat3(&Dstbox.Extents, Extents);
+			SrcLook = XMVector3Normalize(Center - SrcPos);
+
+			_float Dist{};
+			if (Dstbox.Intersects(SrcPos, SrcLook, Dist))
+			{
+				//Player Look은 플레이어 -> 보스 Look 방향
+				//
+				_vector PlayerLook = XMVector3Normalize(SrcPos - Center);
+
+				// 현재 플레이어 원래 방향이랑  Player Look 방향이랑 내적해서 앞뒤 판정 false면 뒤라는거임
+				if (XMVectorGetX(XMVector3Dot(PlayerLook, DstTransform->Get_State(STATE::LOOK))) < 0)
+					 return false;
+			
+				fPlayerDistance = Dist;
+				DstPos = Center;
+			}
+
+
+		}
+	}
+
+	for (auto& pLayerInObj : ComPareLayer->Get_ObjectList())
+	{
+		auto DstTransform = pLayerInObj->Get_Transform().lock();
+		if (NULL_TRUE(DstTransform) || NULL_TRUE(SrcTransform))
+			return false;
+
+		if (XMVectorGetX(XMVector3Length(DstTransform->Get_World().r[3] - SrcTransform->Get_World().r[3])) > fPlayerDistance)
+			continue;
+
+		_vector SrcPos{}, SrcLook{}, Center{}, Extents{}, vUp{ 0,1,0 ,0};
+		RayCalculator(SrcTransform.get(), DstTransform.get(), SrcPos, Center, Extents, OffsetRay);
+		BoundingBox Dstbox;
+		XMStoreFloat3(&Dstbox.Center, Center);
+		XMStoreFloat3(&Dstbox.Extents, Extents);
+		
+	
+		SrcLook = XMVector3Normalize(DstPos - XMVectorSetY(SrcPos,0.f));
+		_float Dist{};
+		if (Dstbox.Intersects(SrcPos, SrcLook, Dist))
+		{
+			if (fMaxDistance > Dist)
+			{
+				fMaxDistance = Dist;
+			}
+
+		}
+	}
+
+	if (fMaxDistance < fPlayerDistance)
 		return false;
 
-	_float3  SrcMin{}, SrcMax{};
-	_float3  DstMin{}, DstMax{};
-
-	//거기서 플레이어 월드로 변경
-	//얘는 월드인데?
-	_vector v = endPos - startPos;
-	_vector w = SrcPos - startPos;
-						//대상이랑 제곱					//내기준 제곱하여서 거리비교
-	_float t = XMVectorGetX(XMVector3Dot(w, v)) / XMVectorGetX(XMVector3Dot(v, v));
-	t = max(0.0f, min(1.0f, t));
-	_vector CheckPoint = startPos + v * t;
-	
-	SrcMin = SrcTransform->Get_Min();
-	SrcMax = SrcTransform->Get_Max();
-	_float3 fmin{}, fmax{};
-	//이거도 그럼 월드로 바꿔야지;
-	XMStoreFloat3(&SrcMin, XMVector3TransformCoord(XMLoadFloat3(&SrcMin), SrcWorld));
-	XMStoreFloat3(&SrcMax, XMVector3TransformCoord(XMLoadFloat3(&SrcMax), SrcWorld));
-
-	fmin.x = min(SrcMin.x, SrcMax.x); fmax.x = max(SrcMin.x, SrcMax.x);
-	fmin.y = min(SrcMin.y, SrcMax.y); fmax.y = max(SrcMin.y, SrcMax.y);
-	fmin.z = min(SrcMin.z, SrcMax.z); fmax.z = max(SrcMin.z, SrcMax.z);
-
-	SrcMin.x = fmin.x;  SrcMax.x = fmax.x;
-	SrcMin.y = fmin.y;  SrcMax.y = fmax.y;
-	SrcMin.z = fmin.z;  SrcMax.z = fmax.z;
-	
-	//부딪힌 오브젝트의 반지름 
-	_float SrcRadius = XMVectorGetX(XMVector3Length(((XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f)-(XMLoadFloat3(&SrcMin))));
-	float dist = XMVectorGetX(XMVector3Length(SrcPos - CheckPoint));
-	float threshold = 1.f + fabsf(SrcRadius);
-	if(XMVectorGetX(XMVector3Length(SrcPos - CheckPoint)) < 1.f + fabsf(SrcRadius))
-	{
-
-
-		_vector  vertex[8]{};
-		vertex[0] = { SrcMin.x, SrcMin.y, SrcMin.z ,1.f };  //좌하
-		vertex[1] = { SrcMin.x, SrcMax.y, SrcMin.z ,1.f };  //좌상
-		vertex[2] = { SrcMax.x, SrcMin.y, SrcMin.z ,1.f };  //우하
-		vertex[3] = { SrcMax.x, SrcMax.y, SrcMin.z ,1.f };  // 우상
-		vertex[4] = { SrcMin.x, SrcMin.y, SrcMax.z ,1.f };  // 좌하
-		vertex[5] = { SrcMin.x, SrcMax.y, SrcMax.z ,1.f };  // 좌상
-		vertex[6] = { SrcMax.x, SrcMin.y, SrcMax.z ,1.f }; // 우하
-		vertex[7] = { SrcMax.x, SrcMax.y, SrcMax.z ,1.f };  // 우상
-
-		_vector vCenter = (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f;
-		_Edge Edge[4] = { {vertex[0],vertex[1]},{vertex[2],vertex[3]},  {vertex[4],vertex[5]},{vertex[6],vertex[7]} };
-
-
-		_vector Player = endPos - startPos;
-		_float Distance = 10000;
-		_float FinalDir = {};
-		_float sDir = {};
-		_float tDir = {};
-		_vector EdgeFinalDir = {};
-		_vector EdgeStartPos = {};
-		for (uint32_t i = 0; i < 4; ++i)
-		{
-			_vector EdgeDir = Edge[i].end - Edge[i].start;
-			//모서리 선분
-			_vector PlayerDir = Player;
-			//팔의 선분
-			_vector PtoEdgeDir = startPos - Edge[i].start;
-			//두 시작점 간격
-			_float pToedgeDistance = XMVectorGetX(XMVector3Length(startPos - Edge[i].start));
-			if (Distance > pToedgeDistance)
-			{
-				Distance = pToedgeDistance;
-				_float a = XMVectorGetX(XMVector3Dot(PlayerDir, PlayerDir));
-				_float b = XMVectorGetX(XMVector3Dot(PlayerDir, EdgeDir));
-				_float c = XMVectorGetX(XMVector3Dot(EdgeDir, EdgeDir));
-				_float d = XMVectorGetX(XMVector3Dot(PlayerDir, PtoEdgeDir));
-				_float e = XMVectorGetX(XMVector3Dot(EdgeDir, PtoEdgeDir));
-				EdgeStartPos = Edge[i].start;
-				FinalDir = a * c - b * b;
-
-				sDir = (b * e - c * d )/ FinalDir;
-				tDir = (a * e - b * d) / FinalDir;
-
-				sDir = max(0.f, min(1.f, sDir));
-				tDir = max(0.f, min(1.f, tDir));
-
-				EdgeFinalDir = Edge[i].end - Edge[i].start;
-
-			}
-		}
-
-		_float3 FinalPos = {};
-		XMStoreFloat3(&FinalPos, EdgeStartPos + EdgeFinalDir * tDir);
-		_vector Pivot = XMVector3Normalize(XMLoadFloat3(&FinalPos) - vCenter);
-		XMStoreFloat3(&FinalPos, XMLoadFloat3(&FinalPos) + Pivot * 0.5f);
-		*matWorld = FinalPos ;
-
-		//두 선분이 공중에 떠잇을떄 팔의 어느지점(s)과 모서리의 어느지점
-		// t에 가까운지 찾아내기
-		
-		//오브젝트의 두 꼭짓점 끼리 - 해서 모서리 구하기
-	
-
-		//손 시작지점과 모서리의 시작지점을 빼서 간격
-	
-		return true;
-	}
-
-	return false;
+	return true;
 }
 
+void CCollisionManager::RayCalculator(class CTransform* pSrcTrasnform, class CTransform* pDstTransform, _vector& SrcPos,  _vector& vCenter,_vector& Extern, _hvector offset)
+{
+	_matrix Dstworld = pDstTransform->Get_World();
+	_vector DstPos = Dstworld.r[3];
+	_float3 DstMax = pDstTransform->Get_Max();
+	_float3 DstMin = pDstTransform->Get_Min();
 
+	vCenter = (XMLoadFloat3(&DstMax) + XMLoadFloat3(&DstMin)) * 0.5f;
+	vCenter = XMVector3TransformCoord(vCenter, Dstworld);
+	XMStoreFloat3(&DstMax, XMVector3TransformCoord(XMLoadFloat3(&DstMax), Dstworld));
+	Extern = vCenter - XMLoadFloat3(&DstMax);
 
+	_matrix Srcworld = pSrcTrasnform->Get_World();
+	SrcPos = XMVectorSetW(Srcworld.r[3] + offset,1.f);
+
+}
 
 CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
 {
@@ -441,8 +388,72 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 	return nullptr;
 
 }
+_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses)
+{
 
-_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses)
+	auto   SrcTransform = pSrcTransform.lock();
+
+	_matrix SrcWorld = SrcTransform->Get_World();
+	_matrix InverseSrcWorld = XMMatrixInverse(nullptr, SrcWorld);
+	_vector Test = SrcWorld.r[3];
+	_vector OriginPos = OriginMatrix.r[3];
+	//Ray 시작점
+	//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
+	_vector startPos = XMVectorSetW(startmat, 1.f);
+	_vector LastendPos = XMVectorSetW(endMat, 1.f);
+
+	_vector SrcPos = SrcWorld.r[3];
+	//_vector actualStart = EdgePoses.empty() ? startPos : XMLoadFloat3(&EdgePoses.back());
+	//에라 모르겠다 로컬에서 비교~
+	LastendPos = XMVector3TransformCoord(LastendPos, InverseSrcWorld);
+	startPos = XMVector3TransformCoord(startPos, InverseSrcWorld);
+	_vector RayDir{};
+	RayDir = XMVector3Normalize(LastendPos - startPos);
+	_float fDist{};
+	BoundingBox box;
+	BoundingBox WorldBox;
+	_float3 SrcMin = SrcTransform->Get_Min();
+	_float3 SrcMax = SrcTransform->Get_Max();
+
+	XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f);
+	XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
+	
+	if (box.Intersects(startPos, RayDir, fDist))
+	{
+
+		//위치만큼 이동한 점 찾고
+		_vector WorldHitPos = startPos + (RayDir * fDist);
+
+		_float SrcLength = XMVectorGetX(XMVector3Length(LastendPos - startPos));
+
+		_vector offsetDir = XMVector3Normalize(WorldHitPos - XMLoadFloat3(&WorldBox.Center));
+		WorldHitPos += offsetDir * 1.5f;
+
+		_float WordDis = XMVectorGetX(XMVector3Length(WorldHitPos - startPos));
+
+		if (fDist <= SrcLength)
+		{
+			_float3 LastPos{};
+			XMStoreFloat3(&LastPos, XMVector3TransformCoord(WorldHitPos,SrcWorld));
+			if (!EdgePoses.empty())
+			{
+				_float Length = XMVectorGetX(XMVector3Length(startPos - XMLoadFloat3(&LastPos)));
+				if (Length < 5.f)
+					return false;
+			}
+
+			EdgePoses.push_back(LastPos);
+
+			return true;
+		}
+		//로컬 공간에서의 충돌 지점 계산
+
+
+	}
+	return false;
+
+}
+_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses)
 {
 	_bool bEnd = false;
 	CLayer* pLayer = nullptr;
@@ -457,19 +468,74 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	if (NULL_TRUE(pLayer))
 		return false;
 
-	for (auto& Layer : pLayer->Get_ObjectList())
+	uint32_t iCnt{};
+	_float   MaxDist{ 0 };
+	if (!EdgePoses.empty())
 	{
-		_float3 fPos = {};
-		if (EdgePoses.size() >= 1) bEnd ? true : false;
-			
-		if (Only_AABB_Collision(Layer->Get_Transform(), BoneParentsMatrix, startmat, endMat, OriginMatrix, &fPos))
+		_float3 Edge = EdgePoses.back();
+		_float fEdgeDist{};
+		_bool bCheck{ false };
+		for (auto& Layer : pLayer->Get_ObjectList())
 		{
-			EdgePoses.push_back(fPos);
-			if (EdgePoses.size() > 5)
-				return bEnd;
+
+			auto   SrcTransform = Layer->Get_Transform().lock();
+			_matrix SrcWorld = SrcTransform->Get_World();
+			_vector OriginPos = OriginMatrix.r[3];
+			//Ray 시작점
+			//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
+			_vector startPos = XMVectorSetW(startmat, 1.f);
+			_vector endPos = XMVectorSetW(endMat, 1.f);
+			_vector SrcPos = SrcWorld.r[3];
+		
+			BoundingBox box;
+			_float3 SrcMin = SrcTransform->Get_Min();
+			_float3 SrcMax = SrcTransform->Get_Max();
+	
+	
+			XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f);
+			XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
+
+			_vector LocalEdge = XMVector3Transform(XMLoadFloat3(&Edge), XMMatrixInverse(nullptr, SrcWorld));
+			_vector LocalStart = XMVector3Transform(startPos, XMMatrixInverse(nullptr, SrcWorld));
+
+			_vector OffsetDir = XMVectorSetW(XMVector3Normalize(XMLoadFloat3(&box.Center) - LocalEdge ),0.f);
+			fEdgeDist = 0.f;
+
+			LocalEdge += OffsetDir * 1.6f;
+
+			_vector LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);
+
+			_float rayLen = XMVectorGetX(XMVector3Length(LocalStart - LocalEdge));
+
+
+			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
+			{
+				_vector LocalLength = LocalEdge + LastEdgeDir * fEdgeDist;
+
+				_float a = XMVectorGetX(XMVector3Length((LocalLength - LocalEdge)));
+				if (XMVectorGetX(XMVector3Length((LocalLength -  LocalEdge))) <5.f)
+				{
+					bCheck = true;
+					break;
+				}
+			}
 		}
+		if (!bCheck)
+		{
+			EdgePoses.pop_back();
+			return false;
+		}
+	
 	}
 
+
+	for (auto& Layer : pLayer->Get_ObjectList())
+	{
+		if (Only_AABB_Collision(Layer->Get_Transform(), readStart, startmat, endMat, OriginMatrix, EdgePoses))
+			return true;
+	}
+
+	
 	
 	return bEnd;
 

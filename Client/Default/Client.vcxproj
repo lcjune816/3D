@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\public\BackGround.h" />
+    <ClInclude Include="..\public\Boss_Teacher.h" />
     <ClInclude Include="..\public\Camera.h" />
     <ClInclude Include="..\public\Client_Defines.h" />
     <ClInclude Include="..\public\DecalObject.h" />
@@ -150,18 +151,24 @@
     <ClInclude Include="..\public\FSM_LeftHand.h" />
     <ClInclude Include="..\public\FSM_Move.h" />
     <ClInclude Include="..\public\FSM_RightHand.h" />
+    <ClInclude Include="..\public\FSM_Teacher_IDLE.h" />
+    <ClInclude Include="..\public\FSM_Teacher_Move.h" />
     <ClInclude Include="..\public\GuiObject.h" />
     <ClInclude Include="..\public\Level_GamePlay.h" />
     <ClInclude Include="..\public\Level_GasProduction.h" />
     <ClInclude Include="..\public\Level_Loading.h" />
     <ClInclude Include="..\public\Level_Logo.h" />
     <ClInclude Include="..\public\Loader.h" />
+    <ClInclude Include="..\public\Loader_Defines.h" />
     <ClInclude Include="..\public\MainApp.h" />
+    <ClInclude Include="..\public\NaviObject.h" />
     <ClInclude Include="..\public\Player.h" />
+    <ClInclude Include="..\public\Player_Arm.h" />
     <ClInclude Include="..\public\Player_FSM.h" />
     <ClInclude Include="..\public\Player_LeftHand.h" />
     <ClInclude Include="..\public\Player_RightHand.h" />
     <ClInclude Include="..\public\Stageone_Terrain.h" />
+    <ClInclude Include="..\public\Teacher_FSM.h" />
     <ClInclude Include="..\public\TriggerObject.h" />
     <ClInclude Include="..\public\WorldObject.h" />
     <ClInclude Include="Client.h" />
@@ -171,6 +178,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
+    <ClCompile Include="..\private\Boss_Teacher.cpp" />
     <ClCompile Include="..\private\Camera.cpp" />
     <ClCompile Include="..\private\DecalObject.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
@@ -180,6 +188,8 @@
     <ClCompile Include="..\private\FSM_LeftHand.cpp" />
     <ClCompile Include="..\private\FSM_Move.cpp" />
     <ClCompile Include="..\private\FSM_RightHand.cpp" />
+    <ClCompile Include="..\private\FSM_Teacher_IDLE.cpp" />
+    <ClCompile Include="..\private\FSM_Teacher_Move.cpp" />
     <ClCompile Include="..\private\GuiObject.cpp" />
     <ClCompile Include="..\private\Level_GamePlay.cpp" />
     <ClCompile Include="..\private\Level_GasProduction.cpp" />
@@ -187,11 +197,14 @@
     <ClCompile Include="..\private\Level_Logo.cpp" />
     <ClCompile Include="..\private\Loader.cpp" />
     <ClCompile Include="..\private\MainApp.cpp" />
+    <ClCompile Include="..\private\NaviObject.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
+    <ClCompile Include="..\private\Player_Arm.cpp" />
     <ClCompile Include="..\private\Player_FSM.cpp" />
     <ClCompile Include="..\private\Player_LeftHand.cpp" />
     <ClCompile Include="..\private\Player_RightHand.cpp" />
     <ClCompile Include="..\private\Stageone_Terrain.cpp" />
+    <ClCompile Include="..\private\Teacher_FSM.cpp" />
     <ClCompile Include="..\private\TriggerObject.cpp" />
     <ClCompile Include="..\private\WorldObject.cpp" />
     <ClCompile Include="Client.cpp" />
@@ -213,6 +226,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\InstancingTest.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Array_VtxTex.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>

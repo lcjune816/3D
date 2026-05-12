@@ -15,7 +15,7 @@ namespace Client
 
 	enum class MOVE { IDLE, LEFT, RIGHT, FORWARD, BACKWARD, RUN,JUMP, END };
 	
-	enum class PLAYER_HAND{WALL,TRIGGER, END};
+	enum class PLAYER_HAND{WALL,TRIGGER,FORCE, END};
 
 }
 

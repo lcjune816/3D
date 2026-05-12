@@ -23,15 +23,16 @@ public:
 	_bool			 Get_Collision() { return m_bCollision; }
 	
 	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, const weak_ptr<class CTransform>pDstTransform, _bool bBack = true);
-	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix,_float3* matWorld);
+	_bool			 Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
 
-
-	CGameObject*			AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
-	_bool			        AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _fmatrix BoneParentsMatrix, _cmatrix startmat, _cmatrix endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
+	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName , const _char* tagName, weak_ptr<class CTransform> pSrcTransform, _fvector OffsetRay = {0,0,0,1});
+	void					RayCalculator(class CTransform* pSrcTrasnform, class CTransform* pDstTransform, _vector& SrcPos,  _vector& vCenter, _vector& Extern, _hvector offset);
+	CGameObject*			AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName,weak_ptr<CGameObject> pObj, _bool bBack = true);
+	_bool			        AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
 
 	void					Set_Collision(_bool bCollision) { m_bCollision = bCollision; }
 private:
-			
+	_float          m_fMax{FLT_MAX};
 	_bool			m_bCollision;
 public:
 	static unique_ptr<CCollisionManager> Create();

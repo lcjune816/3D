@@ -25,10 +25,10 @@ HRESULT CInstancing::Draw_Instancing()
 
 	for (auto& PathName : m_OnlyOneDrawCallList)
 	{
-		auto TextueList = m_InstancingDataToTextures.find(PathName);
+		//auto TextueList = m_InstancingDataToTextures.find(PathName);
 		
-		if (TextueList == m_InstancingDataToTextures.end())
-			continue;
+		//if (TextueList == m_InstancingDataToTextures.end())
+		//	continue;
 
 		auto WorldMatrixs = m_InstancingDatas.find(PathName);
 
@@ -43,15 +43,14 @@ HRESULT CInstancing::Draw_Instancing()
 
 		//for (auto MeshList : TextueList->second)
 		//{
-		//	CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(MeshList);
-		//
-		//	pMesh->Bind_ResourceSRV(m_pShader.get());
-		//	m_pShader->Begin(0);
-		//
-		//	pMesh->Bind_Resource_InstanceCount(matWorlds.size());
-		//	pMesh->Bind_Resource();
-		//	pMesh->Render();
-		//
+			CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(PathName);
+		
+			pMesh->Bind_ResourceSRV(m_pShader.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+			m_pShader->Begin(0);
+		
+			pMesh->Bind_Resource();
+
+			pMesh->Render_Array(matWorlds.size());
 		//}
 
 	}
@@ -59,22 +58,28 @@ HRESULT CInstancing::Draw_Instancing()
 	return S_OK;
 }
 
-HRESULT CInstancing::Add_Instancing_Data(const string strName, INSTANCING_DATA Data, vector<string> TextureNames)
+HRESULT CInstancing::Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data)
 {
-	auto iter = m_InstancingDatas.find(strName);
-
-	if (iter == m_InstancingDatas.end())
+	//인덱스로 인스턴싱 데이터 찾기
+	for (size_t i = 0; i < meshindex.size(); ++i)
 	{
-		INSTANCING_DESC desc;
-		desc.matWorlds.push_back(Data.matWorld);
+		auto iter = m_InstancingDatas.find(meshindex[i]);
 
-		m_InstancingDatas.insert({ strName, desc });
-		m_InstancingDataToTextures.insert({ strName, TextureNames });
-		m_OnlyOneDrawCallList.push_back(strName);
-	}
-	else
-	{
-		m_InstancingDatas[strName].matWorlds.push_back(Data.matWorld);
+		if (iter == m_InstancingDatas.end())
+		{
+			INSTANCING_DESC desc;
+			desc.matWorlds.push_back(Data.matWorld);
+
+			m_InstancingDatas.insert({ meshindex[i], desc });
+
+
+			m_OnlyOneDrawCallList.push_back(meshindex[i]);
+		}
+		else
+		{
+			//중복 매쉬가 있으면 행렬 푸쉬백
+			m_InstancingDatas[meshindex[i]].matWorlds.push_back(Data.matWorld);
+		}
 	}
 	
 	return S_OK;
@@ -90,9 +95,9 @@ HRESULT CInstancing::Add_Instancing_Shader(shared_ptr<CShader> pShader)
 	return S_OK;
 }
 
-const INSTANCING_DESC* CInstancing::Find_Instancing_Data(const string strName)
+const INSTANCING_DESC* CInstancing::Find_Instancing_Data(const uint32_t meshindex)
 {
-	auto iter = m_InstancingDatas.find(strName);
+	auto iter = m_InstancingDatas.find(meshindex);
 
 	if (iter != m_InstancingDatas.end())
 		return &iter->second;

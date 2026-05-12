@@ -17,7 +17,7 @@ public:
 	virtual void Update_State(_float fTimeDelta)override;
 	virtual void Exit_State()  override;
 
-	void			Set_RightHand(shared_ptr<CGameObject> pObj);
+	void			Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm);
 	void			Shoot_Hand(_fvector startPos,   const shared_ptr<CPlayer> pPlayer);
 	void			Mouse_Cal();
 	
@@ -28,12 +28,13 @@ private:
 	_bool			m_bRightHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false };
 
 	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 };
-	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{};
+	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{};
 
 	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
 
 	vector<int32_t>		m_ShootBone{};
 	vector<_float3>		m_EdgePoses;
+	shared_ptr<class CPlayer_Arm>			m_pArm;
 	shared_ptr<class CPLayer_RightHand>		m_pHand;
 public:
 	static unique_ptr<CFSM_RightHand> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

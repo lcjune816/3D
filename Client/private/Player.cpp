@@ -1,5 +1,6 @@
 #include "GameInstance.h"
 #include "Player.h"
+#include "Camera.h"
 #include "Player_FSM.h"
 #include "FSM_Idle.h"
 #include "FSM_Move.h"
@@ -74,7 +75,7 @@ HRESULT CPlayer::Ready_Component()
 	m_pPlayerLHand = LHand;
 	m_pPlayerRHand = RHand;
 
-	FsmRightHand->Set_RightHand(m_pPlayerRHand);
+	FsmRightHand->Set_RightHand(m_pPlayerRHand, m_pPlayerRHand->Get_Arm());
 	FsmLeftHand->Set_LeftHand(m_pPlayerLHand);
 	
 	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
@@ -90,9 +91,15 @@ HRESULT CPlayer::Ready_Component()
 
 	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Change_State(FSM::IDLE);
 
+	
 	return S_OK;
 
 }
+
+void CPlayer::Default_Height()
+{
+}
+
 void CPlayer::State_Move()
 {
 	m_ePlayer.bMove = false;
@@ -189,7 +196,7 @@ HRESULT CPlayer::Initialize_Prototype()
 HRESULT CPlayer::Initialize(void* pArg)
 {
 	CTransform::TRANSFORM_DESC desc;
-	desc.m_fRotationPerSec = 0.f;
+	desc.m_fRotationPerSec = 5.f;
 	desc.m_fSpeedPerSec = 30.f;
 
 	if (FAILED(__super::Initialize(&desc)))
@@ -201,8 +208,10 @@ HRESULT CPlayer::Initialize(void* pArg)
 	if(FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
-
+	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
+
+	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
 }
 void CPlayer::Priority_Update(_float fTimeDelta)
@@ -220,7 +229,10 @@ void CPlayer::Update(_float fTimeDelta)
 	if (name != "")
 		m_pAnimator->Change_Animation(name);
 
+	Turn(fTimeDelta);
 	State_Move();
+	CameraSetting();
+
  	m_pAnimator->Update(fTimeDelta);
 
 	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
@@ -231,14 +243,25 @@ void CPlayer::Update(_float fTimeDelta)
 
 	m_pPlayerRHand->Update(fTimeDelta);
 	m_pPlayerLHand->Update(fTimeDelta);
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPlayer));
+
+	if (!m_ePlayer.bFalling && !m_ePlayer.bJump)
+	{
+		_float4 vPos{};
+		XMStoreFloat4(&vPos,
+		m_pTransform->Get_State(STATE::POS));
+		_float offset = vPos.y;
+		vPos.y = 0 + offset;
+	
+		m_pTransform->Set_State(STATE::POS, XMLoadFloat4(&vPos));
+	}
+		CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPlayer));
 
 
 }
 void CPlayer::Late_Update(_float fTimeDelta)
 {
 	m_pPlayerRHand->Late_Update(fTimeDelta);
-	m_pPlayerLHand->Update(fTimeDelta);
+	m_pPlayerLHand->Late_Update(fTimeDelta);
 }
 HRESULT CPlayer::Render()
 {
@@ -339,6 +362,32 @@ string CPlayer::Model_Animation(const vector<string>& pNames)
 	ImGui::End();
 
 	return name;
+}
+
+void CPlayer::Turn(const _float& fTimeDelta)
+{
+	int32_t	iMouseMove{};
+	if (iMouseMove = CGameInstance::Get().Get_DIMouseMove(DIMM::X))
+	{
+		m_pTransform->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), iMouseMove * fTimeDelta * 3.f);
+	}
+	if (iMouseMove = CGameInstance::Get().Get_DIMouseMove(DIMM::Y))
+	{
+		m_pTransform->Turn(m_pTransform->Get_State(STATE::RIGHT), iMouseMove * fTimeDelta * 3.f);
+	}
+}
+
+void CPlayer::CameraSetting()
+{
+	//uint32_t index = m_pAnimator->Find_Key("JNT_Camera");
+	//_float4x4 Matrix = m_pAnimator->Find_Matrix(index);
+	//
+	//_vector Pos = {};
+	//memcpy(&Pos, &Matrix.m[3], sizeof _float3);
+	//Pos = XMVectorSetW(Pos, 1.f);
+	//
+	//m_pTransform->Set_State(STATE::POS, Pos);
+		
 }
 
 void CPlayer::Change_Animation(PLAYER_ANIME eAnime, _bool bLoop)

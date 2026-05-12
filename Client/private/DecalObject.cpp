@@ -76,15 +76,15 @@ HRESULT CDecalObject::Render()
 	_float4x4 matWorld{};
 	_float4 fColor = { 1.f,0.6f,0.3f,1.f };
 	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
-
+	_bool bCheck(true);
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pShaderCom->Bind_SRV("g_Diffuse", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
 
+	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
 	auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
-	if (NULL_TRUE(Light))
-		S_OK;
+
 	m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
 	m_pShaderCom->Begin(0);
 

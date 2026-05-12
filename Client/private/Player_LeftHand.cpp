@@ -98,9 +98,9 @@ void					CPlayer_LeftHand::Hand_Pivot()
 	if (!m_tagHandState.bShoot)
 	{
 		m_pTransform->Set_State(STATE::RIGHT, mat.r[0]);
-		m_pTransform->Set_State(STATE::UP, mat.r[1]);
-		m_pTransform->Set_State(STATE::LOOK, mat.r[2]);
-		m_pTransform->Set_State(STATE::POS, mat.r[3]);
+		m_pTransform->Set_State(STATE::UP,    mat.r[1]);
+		m_pTransform->Set_State(STATE::LOOK,  mat.r[2]);
+		m_pTransform->Set_State(STATE::POS,   mat.r[3]);
 	}
 
 	XMStoreFloat4x4(&m_StartMatrix, mat);

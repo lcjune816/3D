@@ -1,6 +1,7 @@
 #include "GameInstance.h"
 #include "Player_RightHand.h"
 #include "TriggerObject.h"
+#include "Player_Arm.h"
 #include "Player.h"
 CPLayer_RightHand::CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
@@ -13,6 +14,11 @@ CPLayer_RightHand::CPLayer_RightHand(const CPLayer_RightHand& Prototye) : CGameO
 CPLayer_RightHand::~CPLayer_RightHand()
 {
 };
+
+shared_ptr<CGameObject> CPLayer_RightHand::Get_Arm()
+{
+	return static_pointer_cast<CPlayer_Arm>(m_pArm);
+}
 
 void CPLayer_RightHand::Hand_Pivot()
 {
@@ -67,9 +73,7 @@ void CPLayer_RightHand::Hand_Collision()
 
 	CGameObject* pObj = nullptr;
 
-	if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPLayer_RightHand))))
-		m_eRHand = PLAYER_HAND::WALL;
-	else if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPLayer_RightHand))))
+	if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPLayer_RightHand))))
 	{
 		auto Obj = static_cast<CTriggerObject*>(pObj);
 		Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform.get());
@@ -77,7 +81,8 @@ void CPLayer_RightHand::Hand_Collision()
 		Obj->Set_Trigger();
 
 		m_eRHand = PLAYER_HAND::TRIGGER;
-	}
+	}else if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPLayer_RightHand))))
+		m_eRHand = PLAYER_HAND::WALL;
 	else
 	{
 		m_eRHand = PLAYER_HAND::END;
@@ -92,7 +97,16 @@ void CPLayer_RightHand::Hand_Trigger_Event(CTriggerObject* pTrigger, TRIGGER_EVE
 			m_tagHandState.bHandAttached = pTrigger->Get_TriggerPtr()->Get_OtherTrigger();
 			XMStoreFloat4x4(&m_LastMatrix,m_pTransform->Get_World());
 			break;
+
+	case TRIGGER_EVENT::DOOR:
+		m_tagHandState.bHandAttached = false;
+		m_eRHand = PLAYER_HAND::FORCE;
+		break;
+	case TRIGGER_EVENT::BATTERY:
+		break;
+
 	}
+
 }
 
 HRESULT CPLayer_RightHand::Ready_Component()
@@ -107,6 +121,7 @@ HRESULT CPLayer_RightHand::Ready_Component()
 	mat = XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
+	m_pArm = static_pointer_cast<CPlayer_Arm>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_Arm", nullptr));
 	return S_OK;
 }
 HRESULT CPLayer_RightHand::Initialize_Prototype()
@@ -117,7 +132,7 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 {
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 0.f;
-	desc.m_fSpeedPerSec = 30.f;
+	desc.m_fSpeedPerSec = 60.f;
 
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
@@ -135,20 +150,21 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 }
 void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
 {
-	
+	m_pArm->Priority_Update(fTimeDelta);
 }
 void CPLayer_RightHand::Update(_float fTimeDelta)
 {
 	Hand_Pivot();
 
 	Hand_Collision();
-
+	m_pArm->Update(fTimeDelta);
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPLayer_RightHand));
 
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)
 {
 
+	m_pArm->Late_Update(fTimeDelta);
 }
 HRESULT CPLayer_RightHand::Render()
 {
@@ -174,6 +190,7 @@ HRESULT CPLayer_RightHand::Render()
 		iter->Render();
 
 	}
+	m_pArm->Render();
 	return S_OK;
 }
 unique_ptr<CPLayer_RightHand> CPLayer_RightHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

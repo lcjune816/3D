@@ -186,6 +186,8 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Mesh.h" />
     <ClInclude Include="..\public\MeshModel.h" />
     <ClInclude Include="..\public\MeshNonAnime.h" />
+    <ClInclude Include="..\public\NaviMesh.h" />
+    <ClInclude Include="..\public\Navi_Manager.h" />
     <ClInclude Include="..\public\NonModel.h" />
     <ClInclude Include="..\public\Object_Manager.h" />
     <ClInclude Include="..\public\PipeLine.h" />
@@ -250,6 +252,8 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Mesh.cpp" />
     <ClCompile Include="..\private\MeshModel.cpp" />
     <ClCompile Include="..\private\MeshNonAnime.cpp" />
+    <ClCompile Include="..\private\NaviMesh.cpp" />
+    <ClCompile Include="..\private\Navi_Manager.cpp" />
     <ClCompile Include="..\private\NonModel.cpp" />
     <ClCompile Include="..\private\Object_Manager.cpp" />
     <ClCompile Include="..\private\PipeLine.cpp" />

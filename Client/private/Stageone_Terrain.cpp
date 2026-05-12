@@ -46,8 +46,6 @@ void CStageone_Terrain::Late_Update(_float fTimeDelta)
 }
 HRESULT CStageone_Terrain::Render()
 {
-	_float4x4  World{}, View{}, Projection{};
-	
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
