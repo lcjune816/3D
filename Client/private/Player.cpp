@@ -197,7 +197,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 {
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 5.f;
-	desc.m_fSpeedPerSec = 30.f;
+	desc.m_fSpeedPerSec = 100.f;
 
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;

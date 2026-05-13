@@ -39,6 +39,7 @@ public:
 	_bool					Get_Dead()      { return m_bDead; }
 	MESH_TYPE				Get_MeshType()  { return m_eMeshType; }
 	weak_ptr<CTransform>	Get_Transform() { return m_pTransform; }
+	CTransform*				Get_TransformPtr() { return m_pTransform.get(); }
 	const string			Get_PathName()  { return m_PathName; }
 
 	_bool					Get_Finished() { return m_bFinished; }

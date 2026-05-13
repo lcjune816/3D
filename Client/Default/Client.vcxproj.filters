@@ -82,6 +82,9 @@
     <Filter Include="03.Boss\Teacher\FSM_Teacher_IDLE">
       <UniqueIdentifier>{2ac888f4-172a-4955-8409-d4efb12a91dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Boss\Cat">
+      <UniqueIdentifier>{1d99a8a3-5532-4eba-be86-bcbbdb235ede}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -192,6 +195,9 @@
     <ClInclude Include="..\public\NaviObject.h">
       <Filter>02.GameObject\20.WorldObject</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Cat.h">
+      <Filter>03.Boss\Cat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -299,6 +305,9 @@
     </ClCompile>
     <ClCompile Include="..\private\NaviObject.cpp">
       <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Cat.cpp">
+      <Filter>03.Boss\Cat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

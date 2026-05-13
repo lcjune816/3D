@@ -195,17 +195,17 @@ HRESULT CLoader::Loading_For_GamePlay()
 		return E_FAIL;
 
 
-	//Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
-	//m_Objects.clear();
-	//
-	//Load_Data(LEVEL::GAMEPLAY, L"../../Triggers.json", L"Layer_TriggerObject", L"OBJ_Trigger",   "Triggers");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
-	//m_Objects.clear();
-	//
-	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
-	//m_Objects.clear();
+	Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
+	m_Objects.clear();
+	
+	Load_Data(LEVEL::GAMEPLAY, L"../../Triggers.json", L"Layer_TriggerObject", L"OBJ_Trigger",   "Triggers");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
+	m_Objects.clear();
+	
+	Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
+	m_Objects.clear();
 
 	m_isFinished = true;
 	return S_OK;
@@ -242,15 +242,15 @@ HRESULT CLoader::Loading_For_GasProduction()
 
 
 
-	Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");
-	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_WorldObject", m_Objects);
-	m_Objects.clear();
-	Load_Data(LEVEL::GASZONE, L"../../GasZone_Trigger.json", L"Layer_TriggerObject", L"OBJ_Trigger", "GasZone_Trigger");
-	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_TriggerObject", m_Objects);
-	m_Objects.clear();
-	Load_Data(LEVEL::GASZONE, L"../../GasZone_Decal.json", L"Layer_Decal", L"OBJ_Decal", "GasZone_Decal");
-	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
-	m_Objects.clear();
+	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_WorldObject", m_Objects);
+	//m_Objects.clear();
+	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Trigger.json", L"Layer_TriggerObject", L"OBJ_Trigger", "GasZone_Trigger");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_TriggerObject", m_Objects);
+	//m_Objects.clear();
+	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Decal.json", L"Layer_Decal", L"OBJ_Decal", "GasZone_Decal");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
+	//m_Objects.clear();
 
 	m_isFinished = true;
 

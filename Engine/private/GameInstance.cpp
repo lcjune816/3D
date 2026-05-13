@@ -354,9 +354,9 @@ _bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransf
 	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform);
 }
 
-_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses)
+_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses, vector<_float3>& EdgeNormals,_bool bFinished)
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses, EdgeNormals, bFinished);
 }
 CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
 {

@@ -73,8 +73,8 @@ HRESULT CGreenElectric::Interaction(shared_ptr<CTransform> pTransform, _float fT
 		_vector Pos = m_pDstTransform->Get_World().r[3];
 		vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 		
-		_vector Look = XMVector3Normalize(Pos - XMVectorSetY(vCenter,0.f) );
-		vCenter += Look * 6.f;
+		_vector Look = XMVector3Normalize(XMVectorSetY(XMVectorSetX(Pos,0.f),0.f) - XMVectorSetY(vCenter,0.f) );
+		vCenter += Look * 8.f;
 		m_pDstTransform->Set_State(STATE::POS, vCenter);
 		
 	}

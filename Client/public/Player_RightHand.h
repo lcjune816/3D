@@ -14,7 +14,7 @@ class CPLayer_RightHand final : public CGameObject
 private:
 	typedef struct HandState
 	{
-		_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false };
+		_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false }, bCollect{ false };
 	}HAND_STATE;
 private:
 	CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

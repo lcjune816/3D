@@ -60,7 +60,7 @@ void CRenderer::Culling_Calcurator(_fvector* vP)
     _float4x4 matView = *CGameInstance::Get().Get_Transform(D3DTS::VIEW);
 
     _float zMinimum = -matProj._43 / matProj._33; // 절두체 최소 z거리 계산
-    _float r = 600.f / (600.f - zMinimum);
+    _float r = 500.f / (500.f - zMinimum);
 
     matProj._33 = r;
     matProj._43 = -r * zMinimum;
@@ -148,11 +148,11 @@ HRESULT CRenderer::Render_Priority()
     {
         if (nullptr != pRenderObject)
         {
-           //if (Culling(pRenderObject.get(), vPlane))
-           //{
+           if (Culling(pRenderObject.get(), vPlane))
+           {
                 ++iRanderCall;
                 pRenderObject->Render();
-           // }
+           }
         }
     }
 

@@ -64,6 +64,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 
 	if (m_pHand->Get_HandState().bHandAttached)
 	{
+		m_bCollision = m_pHand->Get_HandState().bHandAttached;
 		_float4x4 matrix = m_pHand->Get_LastMatrix();
 		memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
 	}
@@ -87,7 +88,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		if(!m_pHand->Get_HandState().bHandAttached)
 			XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * m_fSpeed * fTimeDelta); //마지막 위치 늘려서 보간하기
 		
-		Shoot_Hand(StartPos, Player); ////손 늘리기//////
+		Shoot_Hand(StartPos, Player, fTimeDelta); ////손 늘리기//////
 				
 		_vector Pos = XMVectorSet(m_fLastHandPos.x, m_fLastHandPos.y, m_fLastHandPos.z, 1);
 
@@ -111,12 +112,42 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		_float4x4 matrix = m_pHand->Get_FirstMatrix();
 		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
 		XMStoreFloat3(&m_fStartPos, XMLoadFloat3(&m_fStartPos) + XMLoadFloat3(&m_fOffset));
-		_vector StartPos = XMVectorSet(m_fStartPos.x, m_fStartPos.y, m_fStartPos.z, 1.f);
-		_vector Look = StartPos - XMLoadFloat3(&m_fLastHandPos);
-		
-		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed *0.8f * fTimeDelta); //위치 줄이기
-		Shoot_Hand(StartPos,   Player);
 
+		_vector StartPos{};
+		_vector LastPos = { };
+		_vector Look{};
+		uint32_t V0 = {0};
+		if (!m_EdgePoses.empty())
+		{
+			V0 = m_EdgePoses.size()-1;
+
+			if (V0 <= 0)
+			{
+				Look = XMVector3Normalize(StartPos - XMLoadFloat3(&m_fLastHandPos));
+			}
+			else
+			{
+				if (V0 <= 0)
+					V0 = 0;
+
+				LastPos = XMLoadFloat3(&m_EdgePoses[V0]);
+				Look = XMVector3Normalize(XMLoadFloat3(&m_EdgePoses[V0]) - XMLoadFloat3(&m_fLastHandPos));
+
+			}
+			
+		}
+
+		if(V0 == 0)
+		{
+
+			StartPos = XMVectorSet(m_fStartPos.x, m_fStartPos.y, m_fStartPos.z, 1.f);
+			LastPos = StartPos;
+			Look = XMVector3Normalize( StartPos - XMLoadFloat3(&m_fLastHandPos));
+		}
+
+		
+		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed  * fTimeDelta); //위치 줄이기
+		Shoot_Hand(LastPos, Player,fTimeDelta, true);
 
 		_vector Pos = XMVectorSet(m_fLastHandPos.x, m_fLastHandPos.y, m_fLastHandPos.z, 1);
 		m_pHand->Get_Transform().lock()->Set_State(STATE::POS, Pos);
@@ -127,10 +158,18 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		{
 			m_pArm->Get_ArmMatrix().Matrix.clear();
 			m_pArm->Get_ArmMatrix().fColor.clear();
+			m_bCollision = false;
 			m_bEndInHand = true;
 		}
 	}
 
+	if (m_pHand->Get_HandState().bHandAttached && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80))
+	{
+		m_pHand->Get_HandState().bCollect = true;
+		m_pHand->Get_HandState().bHandAttached = false;
+		m_bEndHand = true;
+	}
+		
 	Hand_End(Player.get());
 
 }
@@ -140,7 +179,7 @@ void CFSM_RightHand::Exit_State()
 	m_bRightHand = false;
 	if(m_pHand->Get_HandState().bHandAttached)
 		m_pHand->Get_HandState().bHandAttached = false;
-
+	m_pHand->Get_HandState().bCollect = false;
 }
 
 void CFSM_RightHand::Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm)
@@ -149,7 +188,7 @@ void CFSM_RightHand::Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGam
 	m_pArm  = static_pointer_cast<CPlayer_Arm>(pArm);
 }
 
-void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer)
+void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta, _bool bFinished )
 {
 	//일단 레이를 쏴서 오브젝트 모서리 충돌을 확인
 	//모서리에 닿으면 해당 지점을 저장
@@ -166,13 +205,23 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	vector<_float> vLen;
 	_float			total{};
 	//ray 시작 위치 정하기 처음 위치로 고정
-	_vector StatRayPos = m_EdgePoses.empty() ? XMLoadFloat3(&m_fLastHandPos) : XMLoadFloat3(&m_EdgePoses.back());
 	//StatRayPos = XMVectorSetW(StatRayPos, 1.f);
 	
-	if (m_pHand->Get_HandState().bHandAttached)
+	if (m_bCollision)
 	{
+		_vector StatRayPos{};
+		if(bFinished)
+			StatRayPos = XMLoadFloat3(&m_fLastHandPos);
+		else
+		StatRayPos = m_EdgePoses.empty() ? XMLoadFloat3(&m_fLastHandPos) : XMLoadFloat3(&m_EdgePoses.back());
+
 		CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject",
-			StatRayPos, startPos, StatRayPos, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses);
+			StatRayPos, startPos, StatRayPos, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses,m_EdgeNormals, bFinished);
+
+		//CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject",
+		//	StatRayPos, startPos, StatRayPos, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses);
+
+
 	}
 	
 	if (!m_EdgePoses.empty())
@@ -181,7 +230,6 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 		path.push_back(XMLoadFloat3(&m_fLastHandPos)); //시작위치 꺽인 위치 마지막 위치 를 순차적으로 담고
 		for (auto& edge : m_EdgePoses) path.push_back(XMVectorSetW(XMLoadFloat3(&edge), 1.f));
 		path.push_back(startPos);
-
 	}
 	else
 	{
@@ -202,7 +250,7 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	{
 		//뭐냐이게 하나도모르겠네;;
 		//와이어 비율 0 ~ 1
-		_float fDiv= ArmMatrix.Matrix.size();
+		_float fDiv= ArmMatrix.Matrix.size()-1;
 		_float t  = min(1.f,(_float)i   /  (fDiv)); // 현재위치       
 		_float t2 = min(1.f, (_float)(i + 1.f) / (fDiv)); //다음 위치
 
@@ -219,7 +267,7 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 			{
 				_float LocalT =  min(1.f,(targetDist - ft) / vLen[j]);
 				//이구간의 시작이랑 끝으로 보간
-				vLook = XMVector3Normalize(path[j + 1] - path[j]);
+				vLook = XMVector3Normalize(path[j] - path[j + 1]);
 				LerpPos = XMVectorLerp(path[j], path[j+1], LocalT);
 				break;
 			}
@@ -241,18 +289,22 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 			ft += vLen[k];
 		}
 
-		_float fScale = XMVectorGetX(XMVector3Length(LerpEnd - LerpPos)) / MeshLocalScale;
+		//LerpPos = XMVectorLerp(LerpEnd,LerpPos,fTimeDelta * m_fSpeed);
+		_float fScale = XMVectorGetX(XMVector3Length(LerpEnd - LerpPos)) ;
+		_vector LerpP = XMVector3Normalize(XMVector3Length(LerpPos - startPos));
+		
 		_vector Rot[3] = {};
 		//라 업 룩 라 업
-		//vLook   = XMVector3Normalize(LerpPos - LerpEnd);
+		//vLook   = XMVector3Normalize(LerpEnd- LerpPos);
 
 		if (fabsf(XMVectorGetY(vLook)) > 0.99f) vUp = { 1.f, 0.f, 0.f };
+
 		vRight  = XMVector3Cross(vUp, vLook);
 		vUp     = XMVector3Cross(vLook, vRight);
 
 		_matrix matrix{}, S = XMMatrixIdentity(), R = XMMatrixIdentity(), T = XMMatrixIdentity();
 		 
-		LerpPos += vLook * (fScale * 0.5f );
+		LerpPos += vLook; // *(fScale * 0.5f);
 		S = XMMatrixScaling(0.1f, 0.1f, fScale);
 		R.r[0] = XMVectorSetW(vRight, 0.f);
 		R.r[1] = XMVectorSetW(vUp, 0.f);
@@ -266,6 +318,8 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	
 	
 }
+
+
 
 void CFSM_RightHand::Mouse_Cal()
 {
@@ -297,6 +351,7 @@ void CFSM_RightHand::Hand_End(CPlayer* Player)
 	if (!m_bReFinished && m_bEndInHand)
 	{
 		m_EdgePoses.clear();
+		m_EdgeNormals.clear();
 		m_pHand->Get_HandState().bShoot = false;
 		m_bReFinished = true;
 		Player->Set_ActionState(false);

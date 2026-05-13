@@ -70,7 +70,8 @@ void CPLayer_RightHand::Hand_Pivot()
 
 void CPLayer_RightHand::Hand_Collision()
 {
-
+	if (m_tagHandState.bCollect)
+		return;
 	CGameObject* pObj = nullptr;
 
 	if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPLayer_RightHand))))

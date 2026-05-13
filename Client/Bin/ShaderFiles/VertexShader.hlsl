@@ -2,6 +2,7 @@
 float4x4 g_World, g_View , g_Projection;
 Texture2D g_Diffuse;
 float4 g_Color = { 1.f, 1.f, 1.f, 1.f };
+uint g_iCheck;
 struct tagLight
 {
 //빛의 방향?
@@ -118,10 +119,9 @@ PS_OUT PS_MAIN(PS_IN In)
    if (textureColor.a < 0.1f)
         discard;
     
-    
     //sature 이거는 0보다 작으면 0 1보다 크면 1로 만들어줌
     //어떤건 더하고 어떤건 곱하고 기준을 잘 모르겠네
-    Out.textureColor = g_tagLight.vLightDiffuse * textureColor * saturate(vShade) +
+        Out.textureColor = g_tagLight.vLightDiffuse * textureColor * saturate(vShade) +
                     (g_tagLight.vLightSpecular * g_tagLight.vMtrlSpecular) * fSpecular;
     return Out;
 }
