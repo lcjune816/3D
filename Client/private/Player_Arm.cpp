@@ -56,9 +56,9 @@ void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
 	if (0 == m_ArmMatrix.Matrix.size())
 	{
-		m_ArmMatrix.Matrix.resize(512);
+		m_ArmMatrix.Matrix.resize(100);
 
-		m_ArmMatrix.fColor.resize(512);
+		m_ArmMatrix.fColor.resize(100);
 	}
 
 }
@@ -82,7 +82,8 @@ HRESULT CPlayer_Arm::Render()
 		if (pMesh == nullptr)
 			continue;
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
-		
+			
+			
  		//m_pShaderCom->Bind_RawValue("g_Arm", m_ArmMatrix.data(), iArraySize);
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();

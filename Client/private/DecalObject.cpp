@@ -59,7 +59,7 @@ HRESULT CDecalObject::Initialize(void* pArg)
 }
 void CDecalObject::Priority_Update(_float fTimeDelta)
 {
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CDecalObject));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CDecalObject));
 
 }
 void CDecalObject::Update(_float fTimeDelta)

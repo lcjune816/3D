@@ -114,9 +114,10 @@ HRESULT CWorldObject::Render()
 	
 		if (NULL_FALSE(Light))
 			m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
-	
+
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
 		
+
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();
 		pMesh->Render();

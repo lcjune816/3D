@@ -170,7 +170,8 @@ HRESULT CTriggerObject::Render()
 		auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
 		if (NULL_FALSE(Light))
 			m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
-		pMesh->Bind_ResourceSRV(m_pShaderCom.get(),"g_Diffuse", aiTextureType_DIFFUSE,0);
+		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+			
 		m_pShaderCom->Begin(0);
 		
 		pMesh->Bind_Resource();
@@ -186,7 +187,6 @@ HRESULT CTriggerObject::Render()
 	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
-
 	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
 
 	m_pBoxShader->Begin(0);

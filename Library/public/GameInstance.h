@@ -74,7 +74,7 @@ public:
 	void			 Set_Collision(_bool bCollision);
 	_bool Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform);
 	class CGameObject* AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true);
-	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses);
+	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses, vector<_float3>& EdgeNormals, _bool bFinished);
 	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay);
 
 #pragma endregion

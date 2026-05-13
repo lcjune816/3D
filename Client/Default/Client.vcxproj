@@ -142,6 +142,7 @@
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\public\Boss_Teacher.h" />
     <ClInclude Include="..\public\Camera.h" />
+    <ClInclude Include="..\public\Cat.h" />
     <ClInclude Include="..\public\Client_Defines.h" />
     <ClInclude Include="..\public\DecalObject.h" />
     <ClInclude Include="..\public\FSM_Crouch.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\private\Boss_Teacher.cpp" />
     <ClCompile Include="..\private\Camera.cpp" />
+    <ClCompile Include="..\private\Cat.cpp" />
     <ClCompile Include="..\private\DecalObject.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
     <ClCompile Include="..\private\FSM_Hand.cpp" />

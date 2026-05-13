@@ -388,10 +388,10 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 	return nullptr;
 
 }
-_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses)
+_bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses, vector<_float3>& EdgeNormals)
 {
 
-	auto   SrcTransform = pSrcTransform.lock();
+	auto   SrcTransform = pSrcTransform;
 
 	_matrix SrcWorld = SrcTransform->Get_World();
 	_matrix InverseSrcWorld = XMMatrixInverse(nullptr, SrcWorld);
@@ -437,13 +437,15 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pS
 			XMStoreFloat3(&LastPos, XMVector3TransformCoord(WorldHitPos,SrcWorld));
 			if (!EdgePoses.empty())
 			{
-				_float Length = XMVectorGetX(XMVector3Length(startPos - XMLoadFloat3(&LastPos)));
-				if (Length < 5.f)
+				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back()) - XMLoadFloat3(&LastPos)));
+				if (Length < 10.f)
 					return false;
 			}
 
+			_float3 LastDir{};
+			XMStoreFloat3(&LastDir,XMVector3Normalize(startPos - XMLoadFloat3(&LastPos)));
 			EdgePoses.push_back(LastPos);
-
+			EdgeNormals.push_back(LastDir);
 			return true;
 		}
 		//로컬 공간에서의 충돌 지점 계산
@@ -453,7 +455,7 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<class CTransform> pS
 	return false;
 
 }
-_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses)
+_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses,vector<_float3>& EdgeNormals, _bool bFinished)
 {
 	_bool bEnd = false;
 	CLayer* pLayer = nullptr;
@@ -469,6 +471,9 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 		return false;
 
 	uint32_t iCnt{};
+	_float offset = {8.f};
+	if (bFinished)
+		offset = -1.f;
 	_float   MaxDist{ 0 };
 	if (!EdgePoses.empty())
 	{
@@ -478,7 +483,7 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 		for (auto& Layer : pLayer->Get_ObjectList())
 		{
 
-			auto   SrcTransform = Layer->Get_Transform().lock();
+			auto   SrcTransform = Layer->Get_TransformPtr();
 			_matrix SrcWorld = SrcTransform->Get_World();
 			_vector OriginPos = OriginMatrix.r[3];
 			//Ray 시작점
@@ -500,20 +505,24 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 
 			_vector OffsetDir = XMVectorSetW(XMVector3Normalize(XMLoadFloat3(&box.Center) - LocalEdge ),0.f);
 			fEdgeDist = 0.f;
+			_vector rayLen = LocalStart - LocalEdge;
 
-			LocalEdge += OffsetDir * 1.6f;
+			LocalEdge += OffsetDir * 1.5f;
 
 			_vector LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);
 
-			_float rayLen = XMVectorGetX(XMVector3Length(LocalStart - LocalEdge));
 
 
 			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
 			{
+			
 				_vector LocalLength = LocalEdge + LastEdgeDir * fEdgeDist;
-
-				_float a = XMVectorGetX(XMVector3Length((LocalLength - LocalEdge)));
-				if (XMVectorGetX(XMVector3Length((LocalLength -  LocalEdge))) <5.f)
+	
+				LocalLength = LocalStart - LocalLength;
+				LocalLength = XMVector3TransformCoord(LocalLength, SrcWorld);
+				rayLen = XMVector3TransformCoord(rayLen, SrcWorld);
+				_float a = XMVectorGetX(XMVector3Length((LocalLength - rayLen)));
+				if (XMVectorGetX(XMVector3Length((LocalLength - rayLen))) < offset)
 				{
 					bCheck = true;
 					break;
@@ -523,15 +532,17 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 		if (!bCheck)
 		{
 			EdgePoses.pop_back();
+			EdgeNormals.pop_back();
 			return false;
 		}
 	
 	}
-
+	if (bFinished)
+		return true;
 
 	for (auto& Layer : pLayer->Get_ObjectList())
 	{
-		if (Only_AABB_Collision(Layer->Get_Transform(), readStart, startmat, endMat, OriginMatrix, EdgePoses))
+		if (Only_AABB_Collision(Layer->Get_TransformPtr(), readStart, startmat, endMat, OriginMatrix, EdgePoses,EdgeNormals))
 			return true;
 	}
 

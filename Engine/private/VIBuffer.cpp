@@ -61,6 +61,9 @@ HRESULT CVIBuffer::Bind_ResourceSRV(CShader* pShader, const _char* pName, aiText
 	{
 		pShader->Bind_SRV(pName, CGameInstance::Get().Find_Texture(m_TextureList[eType][iTextureNumber].iTextureID));
 	}
+	else
+		return E_FAIL;
+
 	return S_OK;
 }
 
