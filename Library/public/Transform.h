@@ -38,6 +38,10 @@ public:
 	}
 
 	HRESULT		Bind_Matrix(shared_ptr<class CShader> pShader, const char* pBindName);
+	void		CombinedMatrix(const _float4x4* pMatrix)	
+	{
+		XMStoreFloat4x4(&m_WorldMatrix, XMLoadFloat4x4(pMatrix));
+	}
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);

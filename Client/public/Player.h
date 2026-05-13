@@ -22,7 +22,7 @@ class CPlayer final : public CGameObject
 private:
 	typedef struct PlayerState
 	{
-		_bool bRun{ false }, bCrouch{ false }, bIdle{ false }, bMove{ false }, bJump{ false }, bFalling{ false }, bHand{ false }, bLHand{ false }, bTwoHand{ false }, bRHand{};
+		_bool bRun{ false }, bCrouch{ false }, bIdle{ false }, bMove{ false }, bJump{ false }, bFalling{ false },  bLHand{ false }, bTwoHand{ false }, bRHand{};
 	}PLAYER_STATE;
 private:
 	CPlayer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

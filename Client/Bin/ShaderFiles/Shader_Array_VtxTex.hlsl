@@ -1,6 +1,6 @@
 
-float4x4 g_World[512], g_View, g_Projection;
-float4 g_Color [512];
+float4x4 g_World[800], g_View, g_Projection;
+float4 g_Color;
 
 struct VS_IN
 {
@@ -13,7 +13,6 @@ struct VS_OUT
 {
     float4 vPostion : SV_POSITION;
     float2 vTexcoord : TEXCOORD0;
-    float4 vColor    : TEXCOORD1;
 };
 
 VS_OUT VS_MAIN(VS_IN In ,uint instanceid :SV_InstanceID)
@@ -29,7 +28,6 @@ VS_OUT VS_MAIN(VS_IN In ,uint instanceid :SV_InstanceID)
     
     Out.vPostion = mul(float4(In.vPosition, 1.f), matWVP);
     Out.vTexcoord = In.vTexcoord;
-    Out.vColor = g_Color[instanceid];
     return Out;
 }
 
@@ -37,7 +35,6 @@ struct PS_IN
 {
     float4 vPosition : SV_POSITION;
     float2 vTexcoord : TEXCOORD0;
-    float4 vColor : TEXCOORD1;
 };
 
 struct PS_OUT
@@ -49,7 +46,7 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor = In.vColor;
+    Out.vColor =g_Color;
     
     return Out;
 }

@@ -38,7 +38,7 @@ private:
 	HRESULT					Ready_Component();
 private:
 	_bool								m_bShoot = false;
-
+	_float4x4							m_offSet = {};
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 	vector<uint32_t>					m_MeshNameList;

@@ -54,11 +54,16 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 }
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
+	//_matrix matOffset = XMMatrixIdentity();
+	//matOffset.r[3] = XMVectorSet(-2.f, -1.26f, -2.970f, 1.f);
+	//for (size_t i = 0; i < m_ArmMatrix.Matrix.size(); ++i)
+	//{
+	//	XMStoreFloat4x4(&m_ArmMatrix.Matrix[i], XMLoadFloat4x4(&m_ArmMatrix.Matrix[i]) * matOffset);
+	//
+	//}
 	if (0 == m_ArmMatrix.Matrix.size())
 	{
-		m_ArmMatrix.Matrix.resize(100);
-
-		m_ArmMatrix.fColor.resize(100);
+		m_ArmMatrix.Matrix.resize(800);
 	}
 
 }
@@ -71,39 +76,23 @@ HRESULT CPlayer_Arm::Render()
 
 	uint32_t iArraySize = m_ArmMatrix.Matrix.size();
 
-	m_pShaderCom->Bind_Vector_Array("g_Color", m_ArmMatrix.fColor.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 
+	m_pShaderCom->Bind_RawValue("g_Color", &fColor, sizeof _float4);
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
 		if (pMesh == nullptr)
 			continue;
-		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+		//pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
 			
-			
- 		//m_pShaderCom->Bind_RawValue("g_Arm", m_ArmMatrix.data(), iArraySize);
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();
 
 		pMesh->Render_Array(iArraySize);
 
-	}
-	_bool bcheck = false;
-	if (!m_EdgePoses.Matrix.empty())
-	{
-
-		m_pBoxShader->Bind_Vector_Array("g_ArrayColor", m_EdgePoses.fColor.data(), iArraySize);
-		m_pBoxShader->Bind_Matrix_Array("g_ArrayWorld", m_EdgePoses.Matrix.data(), iArraySize);
-		m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-		m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-		m_pBoxShader->Bind_RawValue("g_bChoice", &bcheck, sizeof bcheck);
-
-		m_pBoxShader->Begin(0);
-		m_pBoxMesh->Bind_Resource();
-		m_pBoxMesh->Render_Array(iArraySize);
 	}
 
 

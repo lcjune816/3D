@@ -33,6 +33,7 @@ public:
 	void						CalculateFinalBoneMatrices();
 	
 	void						Stop_Animation(_bool bStop) { m_bStop = bStop; }
+	void						Bind_Resource_BoneMatrix(class CShader* pShader, const _char* constName);
 	vector<_float4x4>			Get_FinalBoneMatrix() { return m_FinalBoneMatrices; }
 	vector<string>&				Get_NameList();
 	const uint32_t				Get_BoneCnt() { return m_iBoneCnt; }
@@ -48,6 +49,7 @@ public:
 		
 			return -1;
 	}
+
 	const _float4x4				Find_Matrix(uint32_t index) {
 		auto find = m_beforeOffsetMatrix.find(index);
 		if (find != m_beforeOffsetMatrix.end())

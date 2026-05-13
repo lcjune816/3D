@@ -163,7 +163,6 @@ void CFSM_Hand::Update_State(_float fTimeDelta)
 	if (m_bReFinished && Player->Get_Finished())
 	{
 		Player->Set_ActionState(false);
-		Player->Get_AnimeState().bHand = false;
 		Player->Change_Animation(PLAYER_ANIME::IDLE, true);
 
 		auto pMachine = m_pMachine.lock();

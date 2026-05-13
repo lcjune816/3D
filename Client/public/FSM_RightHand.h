@@ -23,8 +23,7 @@ public:
 	
 	void			Hand_End(CPlayer* Player);
 	void			Hand_Collision_Check(const PLAYER_HAND eHand);
-	void			Set_Bone();
-	
+
 private:
 	_bool			m_bRightHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false }, m_bCollision{ false };
 
@@ -36,6 +35,7 @@ private:
 	vector<int32_t>		m_ShootBone{};
 	vector<_float3>		m_EdgePoses;
 	vector<_float3>		m_EdgeNormals;
+	_float4x4* m_StartMatrix = { nullptr };
 	shared_ptr<class CPlayer_Arm>			m_pArm;
 	shared_ptr<class CPLayer_RightHand>		m_pHand;
 public:
