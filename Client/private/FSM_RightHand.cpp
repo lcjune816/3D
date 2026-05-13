@@ -17,17 +17,18 @@ CFSM_RightHand::~CFSM_RightHand()
 
 HRESULT CFSM_RightHand::Initialize(void* pArg)
 {
+	auto desc = static_cast<FSM_PLAYER_DESC*>(pArg);
 
+	m_StartMatrix = desc->ParentsMatrix;
 	return S_OK;
 }
 
 void CFSM_RightHand::Enter_State()
 {
 	auto Player = m_pPlayer.lock();
-	Set_Bone();
 	if (NULL_TRUE(Player)) return;
 
-	m_iHandindex = Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_06");
+	m_iHandindex      = Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_06");
 	m_iFirstHandindex = Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Gun");
 	m_iHandAttachedindex = Player->GetAnimator()->Find_Key("JNT_R_HandAttachment");
 
@@ -35,7 +36,6 @@ void CFSM_RightHand::Enter_State()
 	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_R, true);
 	Player->Get_AnimeState().bRHand = false;
 	Player->Set_ActionState(true);
-	m_pHand->Get_HandState().bShoot = true;
 
 	m_fShootMaxTime = 30.f;
 	m_fShootTime = 0.f;
@@ -46,8 +46,8 @@ void CFSM_RightHand::Enter_State()
 	m_fSpeed = 300.f;
 
 	XMStoreFloat3(&m_fFirstLook,Player->Get_Transform().lock()->Get_State(STATE::LOOK));
-	m_fOffset = { 0.f,0.1f,0.f };
-	_float4x4 matrix = m_pHand->Get_FirstMatrix();
+	m_fOffset = { 0.f,0.f,0.f};
+	_float4x4 matrix = *m_StartMatrix;
 	memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
 
 }
@@ -79,7 +79,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 			m_fShootTimeTick = 0.f;
 		}
 	
-		_float4x4 matrix = m_pHand->Get_FirstMatrix();
+		_float4x4 matrix = *m_StartMatrix;
 
 		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
 		XMStoreFloat3(&m_fStartPos, XMLoadFloat3(&m_fStartPos) + XMLoadFloat3(&m_fOffset));
@@ -109,7 +109,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 
 	if (!m_bReFinished && m_bEndHand && !m_pHand->Get_HandState().bHandAttached)
 	{
-		_float4x4 matrix = m_pHand->Get_FirstMatrix();
+		_float4x4 matrix = *m_StartMatrix;
 		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
 		XMStoreFloat3(&m_fStartPos, XMLoadFloat3(&m_fStartPos) + XMLoadFloat3(&m_fOffset));
 
@@ -180,6 +180,7 @@ void CFSM_RightHand::Exit_State()
 	if(m_pHand->Get_HandState().bHandAttached)
 		m_pHand->Get_HandState().bHandAttached = false;
 	m_pHand->Get_HandState().bCollect = false;
+	m_pHand->Get_HandState().bShoot = false;
 }
 
 void CFSM_RightHand::Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm)
@@ -194,13 +195,16 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	//모서리에 닿으면 해당 지점을 저장
 	//해당 지점으로부터 플레이어의 팔이 꺾이게 즉 플레이어의 start지점 방향으로 꺾는거고
 	//
-	_float4x4 startMatrix		= m_pHand->Get_FirstMatrix();
+	_float4x4 startMatrix		= *m_StartMatrix;
 	auto& ArmMatrix = m_pArm->Get_ArmMatrix();
 	auto& ArmEdgesMatrix = m_pArm->Get_EdgePoses();
 
 	_float3 Max = m_pHand->Get_Transform().lock()->Get_Max();
 	_float3 Min = m_pHand->Get_Transform().lock()->Get_Min();
-	_float MeshLocalScale = Max.z - Min.z;
+	_float MeshLocalScaleX = (Max.x + Min.x) *0.5f - Max.x;
+	_float MeshLocalScaleY = (Max.y + Min.y) *0.5f - Max.y;
+	_float MeshLocalScaleZ = (Max.z + Min.z) *0.5f - Max.z;
+
 	vector<_vector> path;
 	vector<_float> vLen;
 	_float			total{};
@@ -241,7 +245,7 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	for (size_t j = 0; j < path.size() - 1; ++j)
 	{
 		//위에 서 담은거 거리 구해서 담기
-		_float len = XMVectorGetX(XMVector3Length(path[j + 1] - path[j]));
+		_float len = XMVectorGetX(XMVector3Length( path[j+1]- path[j]));
 		vLen.push_back(max(len,0.0001f));
 		total += len; //총 거리
 	}
@@ -250,15 +254,17 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 	{
 		//뭐냐이게 하나도모르겠네;;
 		//와이어 비율 0 ~ 1
-		_float fDiv= ArmMatrix.Matrix.size()-1;
+		_float fDiv= ArmMatrix.Matrix.size();
 		_float t  = min(1.f,(_float)i   /  (fDiv)); // 현재위치       
 		_float t2 = min(1.f, (_float)(i + 1.f) / (fDiv)); //다음 위치
-
+		_float t3 = min(1.f, (_float)(i + 2.f) / (fDiv)); //다음 위치
 		_float targetDist =     min(t  * total,total - 0.0001f); //마디가 위치할 절대 거리
 		_float NextTargetDIst = min(t2 * total,total);
-		_float ft = {};
+		_float FinalTargetDist = min(t3 * total, total);
+		_float ft = {}, fScaleX{}, fScaleY{}, fScaleZ{};
+		_vector LerpPos{}, LerpEnd{}, LerpFinal{}, vRight{}, vUp = { 0,1,0 }, vLook{}, Pivot{};
 
-		_vector LerpPos{}, LerpEnd{}, vRight{}, vUp = { 0,1,0 }, vLook{}, Pivot{};
+		
 		for (size_t j = 0; j < vLen.size(); ++j)
 		{//어느 위치에 있는지 구하기
 			//구간 내에서 0 ~ 1 구하기
@@ -267,8 +273,10 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 			{
 				_float LocalT =  min(1.f,(targetDist - ft) / vLen[j]);
 				//이구간의 시작이랑 끝으로 보간
-				vLook = XMVector3Normalize(path[j] - path[j + 1]);
-				LerpPos = XMVectorLerp(path[j], path[j+1], LocalT);
+				LerpPos =
+					XMVectorCatmullRom(startPos,path[j ], path[j+1], XMLoadFloat3(&m_fLastHandPos), LocalT);
+				//LerpPos = XMVectorLerp(path[j], path[j + 1], LocalT);
+		
 				break;
 			}
 			ft += vLen[j];
@@ -281,38 +289,55 @@ void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPl
 			{
 				_float LocalT2 = min(1.f, (NextTargetDIst - ft) / vLen[k]);
 				//이구간의 시작이랑 끝으로 보간
-			//	vLook = XMVector3Normalize(path[j + 1] - path[j]);
-				LerpEnd = XMVectorLerp(path[k], path[k + 1], LocalT2);
-
+				//vLook = XMVector3Normalize(path[j + 1] - path[j]);
+				LerpEnd = 
+					XMVectorCatmullRom(startPos, path[k], path[k+1], XMLoadFloat3(&m_fLastHandPos), LocalT2); //XMVectorLerp(path[k] ,path[k + 1], LocalT2);
+				vLook = XMVector3Normalize((LerpPos -LerpEnd  ));
 				break;
 			}
 			ft += vLen[k];
 		}
-
-		//LerpPos = XMVectorLerp(LerpEnd,LerpPos,fTimeDelta * m_fSpeed);
-		_float fScale = XMVectorGetX(XMVector3Length(LerpEnd - LerpPos)) ;
-		_vector LerpP = XMVector3Normalize(XMVector3Length(LerpPos - startPos));
+		ft = 0.f;
+		for (size_t l = 0; l < vLen.size(); ++l)
+		{//어느 위치에 있는지 구하기
+			//구간 내에서 0 ~ 1 구하기
+			if (FinalTargetDist <= ft + vLen[l] || l == vLen.size() - 1)
+			{
+				_float LocalT3 = min(1.f, (FinalTargetDist - ft) / vLen[l]);
+				//이구간의 시작이랑 끝으로 보간
+			   //	vLool = XMVector3Normalize(path[j + 1] - path[j]);
+				LerpFinal =
+					XMVectorCatmullRom(startPos, path[l],path[l+1], XMLoadFloat3(&m_fLastHandPos), LocalT3); //XMVectorLerp(path[l] ,path[l + 1], LocalT2);
+				
+			//	vLook = XMVectorLerp(XMVector3Normalize((LerpEnd - LerpFinal )), vLook,0.25f);
+			//	LerpPos += (LerpPos + LerpEnd) * 0.5f;
+				if (fabsf(XMVectorGetY(vLook)) > 0.99f) vUp = { 1.f, 0.f, 0.f };
+				vRight = XMVector3Cross(vUp, vLook);
+				vUp = XMVector3Cross(vLook, vRight);
 		
+				break;
+			}
+			ft += vLen[l];
+		}
+		_float fScale = XMVectorGetX(XMVector3Length(LerpEnd - LerpPos)) / MeshLocalScaleZ;
+	
+		_float z = (fabsf(XMVectorGetZ(LerpEnd)) - fabsf(XMVectorGetZ(LerpPos)))/ MeshLocalScaleZ;
+		//_vector LerpP = XMVector3Normalize(XMVector3Length(LerpPos - startPos));
 		_vector Rot[3] = {};
 		//라 업 룩 라 업
 		//vLook   = XMVector3Normalize(LerpEnd- LerpPos);
 
-		if (fabsf(XMVectorGetY(vLook)) > 0.99f) vUp = { 1.f, 0.f, 0.f };
-
-		vRight  = XMVector3Cross(vUp, vLook);
-		vUp     = XMVector3Cross(vLook, vRight);
-
 		_matrix matrix{}, S = XMMatrixIdentity(), R = XMMatrixIdentity(), T = XMMatrixIdentity();
 		 
-		LerpPos += vLook; // *(fScale * 0.5f);
+		//           LerpPos += vLook;
 		S = XMMatrixScaling(0.1f, 0.1f, fScale);
 		R.r[0] = XMVectorSetW(vRight, 0.f);
-		R.r[1] = XMVectorSetW(vUp, 0.f);
-		R.r[2] = XMVectorSetW(vLook, 0.f);
+		R.r[1] = XMVectorSetW(vUp, 0.f)   ;
+		R.r[2] = XMVectorSetW(vLook, 0.f) ;
 		R.r[3] = XMVectorSet(0,0,0,1.f);
 		T = XMMatrixTranslationFromVector(LerpPos);
 
-		matrix =  S * R * T ;
+		matrix = S*  R * T ;
 		XMStoreFloat4x4(&ArmMatrix.Matrix[i], matrix);
 	}
 	
@@ -352,7 +377,6 @@ void CFSM_RightHand::Hand_End(CPlayer* Player)
 	{
 		m_EdgePoses.clear();
 		m_EdgeNormals.clear();
-		m_pHand->Get_HandState().bShoot = false;
 		m_bReFinished = true;
 		Player->Set_ActionState(false);
 		Player->Change_Animation(PLAYER_ANIME::SHOOT_IN, false);
@@ -390,20 +414,7 @@ void CFSM_RightHand::Hand_Collision_Check(const PLAYER_HAND eHand)
 		
 }
 
-void CFSM_RightHand::Set_Bone()
-{
-	if (!m_ShootBone.empty())
-		return;
 
-	auto Player = m_pPlayer.lock();
-
-	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_01"));
-	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_02"));
-	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_03"));
-	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_04"));
-	m_ShootBone.push_back(Player->GetAnimator()->Find_Key("JNT_R_Grabpack_Tube_05"));
-
-}
 
 
 unique_ptr<CFSM_RightHand>		CFSM_RightHand::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
@@ -425,7 +436,7 @@ shared_ptr<CPrototype> CFSM_RightHand::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed CShader Clone");
+		MSG_BOX("Create Failed CFSM_RightHand Clone");
 		return nullptr;
 	}
 

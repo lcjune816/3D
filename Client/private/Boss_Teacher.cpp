@@ -125,20 +125,11 @@ void CBoss_Teacher::Late_Update(_float fTimeDelta)
 }
 HRESULT CBoss_Teacher::Render()
 {
-	for (uint32_t i = 0; i < BONE_MATRIX; ++i)
-		XMStoreFloat4x4(&m_bones[i], XMMatrixIdentity());
-
-	vector<_float4x4> bBone = m_pAnimator->Get_FinalBoneMatrix();
-	for (uint32_t i = 0; i < m_pAnimator->Get_BoneCnt(); ++i)
-	{
-		m_bones[i] = bBone[i];
-
-	}
-
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pShaderCom->Bind_Matrix_Array("g_Bone", &m_bones[0], BONE_MATRIX);
+
+	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);

@@ -1,5 +1,6 @@
 #include "Animator.h"
 #include "Animation.h"
+#include "Shader.h"
 CAnimator::CAnimator(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	:CComponent(pDevice,pContext)
 {
@@ -105,7 +106,10 @@ void CAnimator::Player_Animation(unique_ptr<CAnimation> pAin)
 	m_pCurrentAnimation = std::move(pAin);
 	m_fCurrentTime = 0.f;
 }
-
+void CAnimator::Bind_Resource_BoneMatrix(CShader* pShader, const _char* constName)
+{
+	pShader->Bind_Matrix_Array(constName, m_FinalBoneMatrices.data(), m_FinalBoneMatrices.size());
+}
 void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans)
 {
 	//JNT_R_Grabpack_Tube_01
@@ -135,13 +139,17 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 	if (index < mesh.size())
 	{
 		uint32_t idex = mesh[index].index;
+		_matrix offset = XMLoadFloat4x4(&mesh[index].matBone);
 
-		XMStoreFloat4x4(&m_GlobalBoneMatrices[idex],globalTransform);
-		m_GlobalBoneMap[index] = idex;
-
-		_float4x4 insertMatrix;
-		XMStoreFloat4x4(&insertMatrix, globalTransform);
-		m_beforeOffsetMatrix[index] = insertMatrix;
+		XMStoreFloat4x4(&m_FinalBoneMatrices[index], offset * globalTransform);
+		m_beforeOffsetMatrix[index] = m_FinalBoneMatrices[index];
+		//m_beforeOffsetMatrix[i] = m_FinalBoneMatrices[index];
+		//XMStoreFloat4x4(&m_GlobalBoneMatrices[idex],globalTransform);
+		//m_GlobalBoneMap[index] = idex;
+		//
+		//_float4x4 insertMatrix;
+		//XMStoreFloat4x4(&insertMatrix, globalTransform);
+		//m_beforeOffsetMatrix[index] = insertMatrix;
 		
 	}
 	

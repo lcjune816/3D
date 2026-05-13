@@ -2,6 +2,7 @@
 #include "Player_RightHand.h"
 #include "TriggerObject.h"
 #include "Player_Arm.h"
+#include "FSM_RightHand.h"
 #include "Player.h"
 CPLayer_RightHand::CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
@@ -26,46 +27,15 @@ void CPLayer_RightHand::Hand_Pivot()
 	if (NULL_TRUE(pPlayer))
 		return;
 
-	_matrix mat = XMMatrixIdentity();
-	_vector PlayerX, PlayerY, PlayerZ, PlayerW;
-	PlayerX = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::RIGHT));
-	PlayerY = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::UP));
-	PlayerZ = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::LOOK));
-	PlayerW = pPlayer->Get_Transform().lock()->Get_State(STATE::POS);
+	_float4x4 CombinedMatrix{};
+	_float4x4 BoneMatrix = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
+	_matrix FinalMatrix = XMLoadFloat4x4(&BoneMatrix);
 
-	memcpy(&mat.r[0], &PlayerX, sizeof _float3);
-	memcpy(&mat.r[1], &PlayerY, sizeof _float3);
-	memcpy(&mat.r[2], &PlayerZ, sizeof _float3);
-	memcpy(&mat.r[3], &PlayerW, sizeof _float3);
-
-	//JNT_L_HandAttachment
-	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
-
-	_vector x = XMVector3Normalize(XMVectorSet(matPos.m[0][0], matPos.m[0][1], matPos.m[0][2], 0.f));
-	_vector y = XMVector3Normalize(XMVectorSet(matPos.m[1][0], matPos.m[1][1], matPos.m[1][2], 0.f));
-	_vector z = XMVector3Normalize(XMVectorSet(matPos.m[2][0], matPos.m[2][1], matPos.m[2][2], 0.f));
-
-	memcpy(&matPos.m[0], &x, sizeof _float3);
-	memcpy(&matPos.m[1], &y, sizeof _float3);
-	memcpy(&matPos.m[2], &z, sizeof _float3);
-
-	//_float3 offsetRot = { 0,0,0 };
-	_float3 offsetPos = { -2.f,-1.4f,-3.180f };
-	_matrix matoffset = XMMatrixIdentity();
-
-	memcpy(&matoffset.r[3], &offsetPos, sizeof _float3);
-
-	mat = XMMatrixScaling(-0.1f, 0.1f, 0.1f) * matoffset * XMLoadFloat4x4(&matPos) * mat;
-
-	if (!m_tagHandState.bShoot)
-	{
-		m_pTransform->Set_State(STATE::RIGHT, mat.r[0]);
-		m_pTransform->Set_State(STATE::UP, mat.r[1]);
-		m_pTransform->Set_State(STATE::LOOK, mat.r[2]);
-		m_pTransform->Set_State(STATE::POS, mat.r[3]);
-	}
+	for (uint32_t i = 0; i < 3; ++i)
+		FinalMatrix.r[i] = XMVector3Normalize(FinalMatrix.r[i]);
 	
-	XMStoreFloat4x4(&m_StartMatrix, mat);
+	XMStoreFloat4x4(&CombinedMatrix, XMLoadFloat4x4(&m_fOffsetMatrix) *FinalMatrix * XMLoadFloat4x4(m_ParentsMatrix));
+	m_pTransform->CombinedMatrix(&CombinedMatrix);
 }
 
 void CPLayer_RightHand::Hand_Collision()
@@ -109,7 +79,14 @@ void CPLayer_RightHand::Hand_Trigger_Event(CTriggerObject* pTrigger, TRIGGER_EVE
 	}
 
 }
-
+void	CPLayer_RightHand::State_Move()
+{
+	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80)
+	{
+		m_tagHandState.bShoot = true;
+		m_pStateMachine->Change_State(FSM::HAND);
+	}
+}
 HRESULT CPLayer_RightHand::Ready_Component()
 {
 
@@ -131,10 +108,11 @@ HRESULT CPLayer_RightHand::Initialize_Prototype()
 }
 HRESULT CPLayer_RightHand::Initialize(void* pArg)
 {
+	auto pDesc = static_cast<RIGHT_HAND_DESC*>(pArg);
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 0.f;
 	desc.m_fSpeedPerSec = 60.f;
-
+	m_ParentsMatrix = pDesc->ParentsMatrix;
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
 
@@ -144,9 +122,13 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
-
+	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
-
+	
+	_matrix offset = XMMatrixIdentity();
+	offset *= XMMatrixScaling(-0.1f, 0.1f, 0.1f);
+	offset.r[3] = XMVectorSet(-2.f,-1.26f,-2.970f ,1.f);
+	XMStoreFloat4x4(&m_fOffsetMatrix, offset);
 	return S_OK;
 }
 void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
@@ -155,34 +137,28 @@ void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
 }
 void CPLayer_RightHand::Update(_float fTimeDelta)
 {
+	
 	Hand_Pivot();
+	State_Move();
+	m_pStateMachine->Update_Machine(fTimeDelta);
 
 	Hand_Collision();
 	m_pArm->Update(fTimeDelta);
+
+
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPLayer_RightHand));
 
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)
 {
-
 	m_pArm->Late_Update(fTimeDelta);
 }
 HRESULT CPLayer_RightHand::Render()
 {
-	for (uint32_t i = 0; i < BONE_MATRIX; ++i)
-		XMStoreFloat4x4(&m_bones[i], XMMatrixIdentity());
-
-	vector<_float4x4> bBone = m_pAnimator->Get_FinalBoneMatrix();
-	for (uint32_t i = 0; i < m_pAnimator->Get_BoneCnt(); ++i)
-	{
-		m_bones[i] = bBone[i];
-
-	}
-
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pShaderCom->Bind_Matrix_Array("g_Bone", &m_bones[0], BONE_MATRIX);
+	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
@@ -193,6 +169,15 @@ HRESULT CPLayer_RightHand::Render()
 	}
 	m_pArm->Render();
 	return S_OK;
+}
+void CPLayer_RightHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine> pFsmMachine, shared_ptr<class CFSM_RightHand> pState, int32_t iKey)
+{
+	m_pPlayer = static_pointer_cast<CPlayer>(pPlayer);
+	m_iOffsetIndex = iKey;
+	m_pStateMachine = pFsmMachine;
+	m_pStateMachine->Set_Owner(pPlayer);
+	m_pStateMachine->Add_State(HAND, pState);
+
 }
 unique_ptr<CPLayer_RightHand> CPLayer_RightHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

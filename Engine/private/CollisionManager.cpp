@@ -399,14 +399,15 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 	_vector OriginPos = OriginMatrix.r[3];
 	//Ray 시작점
 	//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
-	_vector startPos = XMVectorSetW(startmat, 1.f);
+	_vector startorigin = XMVectorSetW(startmat, 1.f);
+	_vector startPos = {};
 	_vector LastendPos = XMVectorSetW(endMat, 1.f);
 
 	_vector SrcPos = SrcWorld.r[3];
 	//_vector actualStart = EdgePoses.empty() ? startPos : XMLoadFloat3(&EdgePoses.back());
 	//에라 모르겠다 로컬에서 비교~
 	LastendPos = XMVector3TransformCoord(LastendPos, InverseSrcWorld);
-	startPos = XMVector3TransformCoord(startPos, InverseSrcWorld);
+	startPos = XMVector3TransformCoord(startorigin, InverseSrcWorld);
 	_vector RayDir{};
 	RayDir = XMVector3Normalize(LastendPos - startPos);
 	_float fDist{};
@@ -437,8 +438,10 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 			XMStoreFloat3(&LastPos, XMVector3TransformCoord(WorldHitPos,SrcWorld));
 			if (!EdgePoses.empty())
 			{
+				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
+				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back()) - XMLoadFloat3(&LastPos)));
-				if (Length < 10.f)
+				if (Length < 9.f || PlayerToObjectLength <7.f)
 					return false;
 			}
 

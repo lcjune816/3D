@@ -4,6 +4,11 @@
 NS_BEGIN(Engine)
 class  CPlayer_FSM : public CFSM_STATE
 {
+public:
+	typedef struct strfsmPlayer
+	{
+		_float4x4* ParentsMatrix;
+	}FSM_PLAYER_DESC;
 
 protected:
 	CPlayer_FSM(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

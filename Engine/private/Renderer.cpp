@@ -34,9 +34,9 @@ _bool CRenderer::Culling(CGameObject* pObj, _vector* vec)
     _float3 fMax = pObj->Get_Transform().lock()->Get_Max();
     _float3 fMin = pObj->Get_Transform().lock()->Get_Min();
     _vector vCenter =  ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
-
+   
     _float vRadius = XMVectorGetX(XMVector3Length(XMLoadFloat3(&fMax) - vCenter));
-
+   
     vCenter = XMVector3TransformCoord(vCenter, matrix);
     _vector fx = matrix.r[0];
     _vector fy = matrix.r[1];
@@ -47,7 +47,7 @@ _bool CRenderer::Culling(CGameObject* pObj, _vector* vec)
     for (int32_t i = 0; i < 6; ++i)
     {
         _float fDot = XMVectorGetX(XMPlaneDot(vec[i], XMVectorSetW(vCenter,1.f)));
-
+   
         if (fDot  < -vRadius)
             return false;
     }

@@ -64,7 +64,10 @@ void CFSM_Machine::Change_State(FSM eMachineState )
 		m_pCurrentState.lock()->Set_Machine(SHARED_THIS(CFSM_Machine));
 
 	}
-	else m_pCurrentState.reset();
+	else
+	{
+		m_pCurrentState.reset();
+	}
 }
 
 

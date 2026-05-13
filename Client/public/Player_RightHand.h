@@ -11,6 +11,12 @@ NS_BEGIN(Client)
 
 class CPLayer_RightHand final : public CGameObject
 {
+public:
+	typedef struct strPlayerRightHand
+	{
+		_float4x4* ParentsMatrix; 
+		_float4x4   BoneoffsetMatrix;
+	}RIGHT_HAND_DESC;
 private:
 	typedef struct HandState
 	{
@@ -31,11 +37,11 @@ public:
 
 public:
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
-	void					Connet_Player(shared_ptr<class CPlayer> pPlayer, int32_t iOffsetIndex) { m_pPlayer = pPlayer; m_iOffsetIndex = iOffsetIndex; }
+	void					Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine>pFsmMachine, shared_ptr<class CFSM_RightHand> pState, int32_t iKey);
 
+	void					State_Move();
 	const PLAYER_HAND		Get_PlayerHand() { return m_eRHand; }
 	HAND_STATE&				Get_HandState() { return m_tagHandState; }
-	const _float4x4         Get_FirstMatrix() {return m_StartMatrix;}
 	const _float4x4			Get_LastMatrix() { return m_LastMatrix; }
 	shared_ptr<CGameObject>	Get_Arm();
 private:
@@ -51,16 +57,16 @@ private:
 	shared_ptr<class CPlayer_Arm>		m_pArm = { nullptr };
 	weak_ptr<class CPlayer>				m_pPlayer;
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
-
+	shared_ptr<Engine::CFSM_Machine>    m_pStateMachine = { nullptr };
 
 private:
 	int32_t								m_iOffsetIndex = {};
-
 	_float4x4							m_LastMatrix;
-	_float4x4							m_StartMatrix;
+
+	_float4x4*							m_ParentsMatrix{};
 	_float4x4							m_bones[BONE_MATRIX];
 
-
+	_float4x4							m_fOffsetMatrix;
 	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
 
 	HAND_STATE							m_tagHandState = {};
