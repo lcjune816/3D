@@ -159,6 +159,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Assimp_Manager.h" />
     <ClInclude Include="..\public\Battery.h" />
     <ClInclude Include="..\public\BatteryCase.h" />
+    <ClInclude Include="..\public\BlueElectric.h" />
     <ClInclude Include="..\public\Bone.h" />
     <ClInclude Include="..\public\CameraNS.h" />
     <ClInclude Include="..\public\CollisionManager.h" />
@@ -166,6 +167,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Cube.h" />
     <ClInclude Include="..\public\DebugLine.h" />
     <ClInclude Include="..\public\Door.h" />
+    <ClInclude Include="..\public\ElectricPole.h" />
     <ClInclude Include="..\public\Engine_Defines.h" />
     <ClInclude Include="..\public\Engine_Enum.h" />
     <ClInclude Include="..\public\Engine_Function.h" />
@@ -231,6 +233,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Assimp_Manager.cpp" />
     <ClCompile Include="..\private\Battery.cpp" />
     <ClCompile Include="..\private\BatteryCase.cpp" />
+    <ClCompile Include="..\private\BlueElectric.cpp" />
     <ClCompile Include="..\private\Bone.cpp" />
     <ClCompile Include="..\private\CameraNS.cpp" />
     <ClCompile Include="..\private\CollisionManager.cpp" />
@@ -238,6 +241,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Cube.cpp" />
     <ClCompile Include="..\private\DebugLine.cpp" />
     <ClCompile Include="..\private\Door.cpp" />
+    <ClCompile Include="..\private\ElectricPole.cpp" />
     <ClCompile Include="..\private\FSM_Machine.cpp" />
     <ClCompile Include="..\private\FSM_STATE.cpp" />
     <ClCompile Include="..\private\GameInstance.cpp" />
@@ -277,6 +281,9 @@ call Copy.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Bin\ShaderFiles\Engine_Shader_Defines.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

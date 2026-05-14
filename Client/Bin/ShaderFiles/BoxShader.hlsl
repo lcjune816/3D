@@ -1,4 +1,4 @@
-	
+#include "Engine_Shader_Defines.hlsli"
 float4x4 g_World, g_View, g_Projection, g_ArrayWorld[512];
 float4 g_ArrayColor[512];
 vector g_Color;
@@ -67,6 +67,9 @@ technique11 DefaultTechnique
         
     pass DefaultPass
     {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
         PixelShader = compile ps_5_0 PS_MAIN();

@@ -1,6 +1,6 @@
 #pragma once
-#include "GameInstance.h"
 
+#include "GameInstance.h"
 NS_BEGIN(Engine)
 class ENGINE_DLL CGameObject abstract : public CPrototype
 {

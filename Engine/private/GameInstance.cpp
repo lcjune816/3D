@@ -452,17 +452,19 @@ void CGameInstance::Release_Engine()
 	
 	m_pInstancing.reset();
 
+	m_pNavi_Manager.reset();
+
 	m_pInput_Device.reset();
 
+	m_pCollision_Manager.reset();
+
+	m_pTrigger_Manager.reset();
+	
 	m_pRenderer.reset();
 
 	m_pPipeLine.reset();
 
 	m_pTexture_Manager.reset();
-
-	m_pObject_Manager.reset();
-
-	m_pCollision_Manager.reset();
 
 	m_pLevel_Manager.reset();
 
@@ -474,8 +476,6 @@ void CGameInstance::Release_Engine()
 	
 	m_pPrototype_Manager.reset();
 
-	m_pNavi_Manager.reset();
-	
 	m_pGui_Manager.reset();
 
 	m_pGraphic_Device->Shutdown();

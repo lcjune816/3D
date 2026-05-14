@@ -5,3 +5,4 @@ xcopy					/y				.\Engine\Bin\Engine.dll				.\Client\Bin
 xcopy					/y/s				.\Engine\Bin\*.lib				.\Library\Lib
 xcopy					/y/s				.\Engine\Lib\*.lib				.\Library\Lib
 xcopy					/y				.\Engine\3rdParty\json\*.hpp			.\Library\public
+xcopy				/y			.\Engine\Bin\ShaderFiles\*.*	.\Client\Bin\ShaderFiles\

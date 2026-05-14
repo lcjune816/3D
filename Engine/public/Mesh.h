@@ -17,7 +17,7 @@ private:
 	CMesh(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	
 public:
-	~CMesh();
+	virtual ~CMesh();
 
 	virtual HRESULT					Initialize_Prototype();
 	virtual HRESULT					Initialize(void* pArg);

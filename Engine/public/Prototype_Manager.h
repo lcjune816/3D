@@ -4,6 +4,7 @@
 #include "Trigger.h"
 #include "3DModel.h"
 #include "Mesh.h"
+#include "Transform.h"
 #include "MeshNonAnime.h"
 #include "NonModel.h"
 #include "Cube.h"
@@ -13,7 +14,6 @@
 #include "Animator.h"
 #include "Door.h"
 #include "Lever.h"
-#include "Transform.h"
 #include "RollupDoor.h"
 #include "GreenEletric.h"
 #include "Battery.h"
@@ -22,6 +22,8 @@
 #include "FSM_Machine.h"
 #include "Rect.h"
 #include "NaviMesh.h"
+#include "BlueElectric.h"
+#include "ElectricPole.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

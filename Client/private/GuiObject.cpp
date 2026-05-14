@@ -770,7 +770,7 @@ void CGuiObject::Select_Model()
 				return;
 			}
 			ImGui::Text(u8"트리거 옵션");
-			const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase"};
+			const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric"};
 			static int item_selected_idx = 0;
 
 			const char* combo_preview_value = items[item_selected_idx];

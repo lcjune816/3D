@@ -15,8 +15,8 @@ public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 
-	virtual HRESULT Interaction(shared_ptr<class CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger = false);
-
+	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false);
+	virtual HRESULT Late_Interaction(_float fTimeDelta,_bool bOtherTrigger = false);
 public:
 	HRESULT			Action_Trigger(weak_ptr<class CTransform> pTransform);
 private:

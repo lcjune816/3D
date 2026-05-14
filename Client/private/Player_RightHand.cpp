@@ -14,6 +14,7 @@ CPLayer_RightHand::CPLayer_RightHand(const CPLayer_RightHand& Prototye) : CGameO
 }
 CPLayer_RightHand::~CPLayer_RightHand()
 {
+	m_pStateMachine.reset();
 };
 
 shared_ptr<CGameObject> CPLayer_RightHand::Get_Arm()
@@ -38,47 +39,7 @@ void CPLayer_RightHand::Hand_Pivot()
 	m_pTransform->CombinedMatrix(&CombinedMatrix);
 }
 
-void CPLayer_RightHand::Hand_Collision()
-{
-	if (m_tagHandState.bCollect)
-		return;
-	CGameObject* pObj = nullptr;
 
-	if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPLayer_RightHand))))
-	{
-		auto Obj = static_cast<CTriggerObject*>(pObj);
-		Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform.get());
-		Hand_Trigger_Event(Obj, Obj->Get_TriggerPtr()->Get_Trigger_Event());
-		Obj->Set_Trigger();
-
-		m_eRHand = PLAYER_HAND::TRIGGER;
-	}else if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPLayer_RightHand))))
-		m_eRHand = PLAYER_HAND::WALL;
-	else
-	{
-		m_eRHand = PLAYER_HAND::END;
-	}
-}
-
-void CPLayer_RightHand::Hand_Trigger_Event(CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger)
-{
-	switch (eTrigger)
-	{
-	case TRIGGER_EVENT::ELECTRIC:
-			m_tagHandState.bHandAttached = pTrigger->Get_TriggerPtr()->Get_OtherTrigger();
-			XMStoreFloat4x4(&m_LastMatrix,m_pTransform->Get_World());
-			break;
-
-	case TRIGGER_EVENT::DOOR:
-		m_tagHandState.bHandAttached = false;
-		m_eRHand = PLAYER_HAND::FORCE;
-		break;
-	case TRIGGER_EVENT::BATTERY:
-		break;
-
-	}
-
-}
 void	CPLayer_RightHand::State_Move()
 {
 	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80)
@@ -137,12 +98,10 @@ void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
 }
 void CPLayer_RightHand::Update(_float fTimeDelta)
 {
-	
 	Hand_Pivot();
 	State_Move();
 	m_pStateMachine->Update_Machine(fTimeDelta);
 
-	Hand_Collision();
 	m_pArm->Update(fTimeDelta);
 
 
@@ -151,6 +110,7 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)
 {
+	
 	m_pArm->Late_Update(fTimeDelta);
 }
 HRESULT CPLayer_RightHand::Render()
@@ -174,11 +134,13 @@ void CPLayer_RightHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND,
 {
 	m_pPlayer = static_pointer_cast<CPlayer>(pPlayer);
 	m_iOffsetIndex = iKey;
+	pState->Set_RightHand(SHARED_THIS(CPLayer_RightHand), m_pArm);
 	m_pStateMachine = pFsmMachine;
 	m_pStateMachine->Set_Owner(pPlayer);
 	m_pStateMachine->Add_State(HAND, pState);
 
 }
+
 unique_ptr<CPLayer_RightHand> CPLayer_RightHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
 	auto pInstance = unique_ptr<CPLayer_RightHand>(new CPLayer_RightHand(pDevice, pContext));

@@ -1,4 +1,4 @@
-	
+#include "Engine_Shader_Defines.hlsli"
 float4x4 g_World, g_View , g_Projection;
 Texture2D g_Diffuse;
 float4 g_Color = { 1.f, 1.f, 1.f, 1.f };
@@ -35,18 +35,6 @@ sampler DefaultSampler = sampler_state
     AddressU = wrap;
     AddressV = wrap;
 };
-
-
-BlendState BS_AlphaBlend
-{
-    BlendEnable[0] = true;
-    BlendEnable[1] = true;
-
-    SrcBlend = SRC_ALPHA;
-    DestBlend = INV_SRC_ALPHA;
-    BlendOp = add;
-};
-
 
 struct VS_IN
 {
@@ -131,6 +119,10 @@ technique11 DefaultTechnique
         
     pass DefaultPass
     {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
         PixelShader = compile ps_5_0 PS_MAIN();

@@ -23,6 +23,7 @@ CPlayer::CPlayer(const CPlayer& Prototye) : CGameObject(Prototye)
 }
 CPlayer::~CPlayer()
 {
+	m_pPlayerRHand.reset();
 };
 
 HRESULT CPlayer::Ready_Component()
@@ -37,7 +38,7 @@ HRESULT CPlayer::Ready_Component()
 	mat = XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
+	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
 	{
 		m_pStateMachine[i] = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
 		if (NULL_TRUE(m_pStateMachine)) return E_FAIL;
@@ -70,27 +71,24 @@ HRESULT CPlayer::Ready_Component()
 	if (NULL_TRUE(LHand)) return E_FAIL;
 
 	pFsmDesc.ParentsMatrix = RHand->Get_TransformPtr()->Get_WorldPtr();
-	auto RightStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
+	auto RightStateMachine = move(static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr)));
 	if (NULL_TRUE(RightStateMachine)) return E_FAIL;
 
-	auto FsmRightHand = static_pointer_cast<CFSM_RightHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_RightHand", &pFsmDesc));
+	auto FsmRightHand = move(static_pointer_cast<CFSM_RightHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_RightHand", &pFsmDesc)));
 	if (NULL_TRUE(FsmRightHand)) return E_FAIL;
 	///////////////////////////////////////Ме//////////////////////////////////////////////////////////////////////////////////
 
-
-	FsmRightHand->Set_RightHand(RHand, RHand->Get_Arm());
-	
 	//"JNT_R_Grabpack_Tube_06"
 	//	"JNT_R_Grabpack_Gun"
 	LHand->Connet_Player(SHARED_THIS(CPlayer), GetAnimator()->Find_Key("JNT_L_HandAttachment"));
-	RHand->Connet_Player(SHARED_THIS(CPlayer), FSM::HAND, RightStateMachine, FsmRightHand, GetAnimator()->Find_Key("JNT_R_HandAttachment_Pivot"));
+	RHand->Connet_Player(SHARED_THIS(CPlayer), FSM::HAND, move(RightStateMachine), move(FsmRightHand), GetAnimator()->Find_Key("JNT_R_HandAttachment_Pivot"));
 	
-	m_pPlayerLHand = LHand;
-	m_pPlayerRHand = RHand;
+	m_pPlayerLHand = move(LHand);
+	m_pPlayerRHand = move(RHand);
 
 	FsmLeftHand->Set_LeftHand(m_pPlayerLHand);
 	
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
+	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
 		m_pStateMachine[i]->Set_Owner(SHARED_THIS(CPlayer));
 
 
@@ -240,7 +238,7 @@ void CPlayer::Update(_float fTimeDelta)
  	m_pAnimator->Update(fTimeDelta);
 
 
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END); ++i)
+	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
 		m_pStateMachine[i]->Update_Machine(fTimeDelta);
 
 	//m_pAnimator->CalculateFinalBoneMatrices();

@@ -1,5 +1,5 @@
 #include "Lever.h"
-
+#include "GameObject.h"
 CLever::CLever(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }
@@ -25,7 +25,7 @@ HRESULT CLever::Initialize(void* pArg)
 	return S_OK;
 }
 
-HRESULT CLever::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger)
+HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 	if (!m_bTriggerOn) return E_FAIL;
 
@@ -34,7 +34,7 @@ HRESULT CLever::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta
 	{
 		m_fFrameTick = 0.f;
 		m_fAngle += m_fRotationArrow;
-		Action_Trigger(pTransform);
+		Action_Trigger();
 		++m_fFrameTime;
 	}
 
@@ -47,10 +47,18 @@ HRESULT CLever::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta
 	}
 	return S_OK;
 }
-
-void CLever::Action_Trigger(shared_ptr<CTransform> pTransform)
+HRESULT CLever::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger )
 {
-	pTransform->Apply_Rotation(_vector{ 1,0,0,0 }, m_fAngle);
+	return S_OK;
+}
+
+void CLever::Action_Trigger()
+{
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(pObj))
+		return;
+
+	pObj->Get_Transform().lock()->Apply_Rotation(_vector{ 1,0,0,0 }, m_fAngle);
 }
 
 unique_ptr<CLever>CLever::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
