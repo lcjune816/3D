@@ -1,6 +1,6 @@
 #pragma once
 #include "Player_FSM.h"
-
+#include "Player_RightHand.h"
 NS_BEGIN(Client)
 class  CFSM_RightHand : public CPlayer_FSM
 {
@@ -18,26 +18,29 @@ public:
 	virtual void Exit_State()  override;
 
 	void			Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm);
-	void			Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta,  _bool bFinished = false);
-	void			Mouse_Cal();
+	void			Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta, class CPlayer_Arm* PlayerArm, class CPLayer_RightHand* pRHand, _bool bFinished = false);
 	
 	void			Hand_End(CPlayer* Player);
-	void			Hand_Collision_Check(const PLAYER_HAND eHand);
+	void			Hand_Collision_Check(shared_ptr<CPLayer_RightHand> pObj);
 
+	void			Hand_Trigger_Event(class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger,CTransform* pTransform);
 private:
 	_bool			m_bRightHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false }, m_bCollision{ false };
 
-	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 };
-	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{};
+	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 }, m_fBackShootTime{}, m_fBackShootTick{};
+	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{}, m_fForce{};
 
 	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
 
 	vector<int32_t>		m_ShootBone{};
 	vector<_float3>		m_EdgePoses;
 	vector<_float3>		m_EdgeNormals;
+
+	HAND_STATE					m_eFSM;
+
 	_float4x4* m_StartMatrix = { nullptr };
-	shared_ptr<class CPlayer_Arm>			m_pArm;
-	shared_ptr<class CPLayer_RightHand>		m_pHand;
+	weak_ptr<class CPlayer_Arm>			m_pArm;
+	weak_ptr<class CPLayer_RightHand>		m_pHand;
 public:
 	static unique_ptr<CFSM_RightHand> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

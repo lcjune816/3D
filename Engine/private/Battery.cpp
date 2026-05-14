@@ -1,4 +1,5 @@
 #include "Battery.h"
+#include "GameObject.h"
 #include "GameInstance.h"
 #include "BatteryCase.h"
 CBattery::CBattery(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
@@ -26,10 +27,15 @@ HRESULT CBattery::Initialize(void* pArg)
 	return S_OK;
 }
 
-HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger)
+HRESULT CBattery::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 	if (!m_bTriggerOn) return E_FAIL;
 	_vector vPos{};
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(pObj))
+		return E_FAIL;
+	auto pTransform = pObj->Get_Transform().lock();
+
 	if (m_pDstTransform != nullptr)
 	{
 
@@ -40,7 +46,6 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 		_float3 fMin = pTransform->Get_Min();
 
 		_float3 fCenter{};
-		_vector vLook = m_pDstTransform->Get_State(STATE::LOOK);
 		//스케일 반지름 중심에서 
 		XMStoreFloat3(&fCenter,(XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
 	
@@ -52,6 +57,7 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 		vCenter = XMVector3TransformCoord(XMLoadFloat3(&fCenter), pTransform->Get_World());
 
 		XMStoreFloat3(&vHandPos, vDstPos - vCenter);
+		_vector vLook = XMVector3Normalize(vDstPos - vCenter);
 		//새로구한 좌표 기준으로 원래 dst 위치랑 빼서 차이 구하고
 		//원래 위치에 그만큼 더하기
 
@@ -86,7 +92,7 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 	if (NULL_TRUE(Target))
 		return E_FAIL;
 
-	if (0 == static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(pTransform))
+	if (0 == static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(m_pParent.lock()->Get_Transform()))
 	{
 		m_pDstTransform = nullptr;
 		m_bTriggerOn = false;
@@ -94,8 +100,11 @@ HRESULT CBattery::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDel
 		
 	return S_OK;
 }
-
-void CBattery::Action_Trigger(shared_ptr<CTransform> pTransform)
+HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
+{
+	return S_OK;
+}
+void CBattery::Action_Trigger()
 {
 }
 

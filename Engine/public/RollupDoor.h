@@ -15,10 +15,11 @@ public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 
-	virtual HRESULT Interaction(shared_ptr<class CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger = false);
+	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false);
+	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
 
 private:
-	void			Action_Trigger(shared_ptr<class CTransform> pTransform, _float fTimeDelta);
+	void			Action_Trigger(_float fTimeDelta);
 private:
 	_float						m_fRotationArrow = { 1.f };
 public:

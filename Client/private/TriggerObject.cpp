@@ -87,7 +87,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	else CGameInstance::Get().Add_Trigger(m_TriggerInfo.iObjectID, m_pTrigger);
 
 	m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID);
-
+	m_pTrigger->Set_Parent(SHARED_THIS(CTriggerObject));
  //	CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	return S_OK;
@@ -95,16 +95,17 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 void CTriggerObject::Priority_Update(_float fTimeDelta)
 {
 
-	m_pTrigger->Interaction(m_pTransform, fTimeDelta);
-
+	m_pTrigger->Pirority_Interaction(fTimeDelta);
 }
 void CTriggerObject::Update(_float fTimeDelta)
 {
+	m_pTrigger->Interaction(fTimeDelta);
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CTriggerObject));
 
 }
 void CTriggerObject::Late_Update(_float fTimeDelta)
 {
+	m_pTrigger->Late_Interaction(fTimeDelta);
 
 	if (0 != m_TriggerInfo.iTargetObjectID)
 	{

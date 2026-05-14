@@ -11,6 +11,7 @@ namespace Engine
 	enum class D3DTS   {VIEW, PROJ, END};
 	enum class FSM     {IDLE, MOVE, JUMP,CROUCH, HAND, END};
 	enum class FSM_ACTION {HAND, END};
+	enum class FLAGVALUE { ENABLE, DISABLE, TOGGLE,RESET, END };
 
 	enum class DIMK{LBUTTON, RBUTTON, WHEEL, END};
 	enum class DIMM {X,Y,WHEEL,END};

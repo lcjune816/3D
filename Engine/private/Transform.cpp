@@ -8,7 +8,7 @@ CTransform::CTransform(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext>
 
 CTransform::~CTransform()
 {
-
+	int32_t i = 0;
 }
 _float3 CTransform::Get_Scaled()
 {

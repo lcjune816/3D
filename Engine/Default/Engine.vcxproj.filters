@@ -112,9 +112,6 @@
     <Filter Include="10.Trigger_Manager\Trigger\RollupDoor">
       <UniqueIdentifier>{55f0550e-5c35-42f0-a82b-9b04cd36e5cd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\GreenElectric">
-      <UniqueIdentifier>{f9a68142-f5bc-43ce-96c0-6d0ff9461757}</UniqueIdentifier>
-    </Filter>
     <Filter Include="10.Trigger_Manager\Trigger\Battery">
       <UniqueIdentifier>{af15d5bf-6777-42a6-a85e-d0f55c042760}</UniqueIdentifier>
     </Filter>
@@ -156,6 +153,21 @@
     </Filter>
     <Filter Include="06.Component\VIBuffer\Navi">
       <UniqueIdentifier>{076956d1-a2bc-416f-b821-615b1ce9ee8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="97.ShaderFiles">
+      <UniqueIdentifier>{fb5b2ed1-fa8d-4a31-90e5-bbb4203c4fb6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Electric">
+      <UniqueIdentifier>{f9a68142-f5bc-43ce-96c0-6d0ff9461757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Electric\Green">
+      <UniqueIdentifier>{6a65da39-a2a2-400c-940f-18c89e4fbdd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Electric\Blue">
+      <UniqueIdentifier>{30c75205-db54-4d5a-8015-51c721d3e35e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pool">
+      <UniqueIdentifier>{08c08048-ec08-4ddd-aba6-133148ee4bcb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -282,9 +294,6 @@
     <ClInclude Include="..\public\Trigger_Manager.h">
       <Filter>10.Trigger_Manager</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\GreenEletric.h">
-      <Filter>10.Trigger_Manager\Trigger\GreenElectric</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Battery.h">
       <Filter>10.Trigger_Manager\Trigger\Battery</Filter>
     </ClInclude>
@@ -327,6 +336,15 @@
     </ClInclude>
     <ClInclude Include="..\public\NaviMesh.h">
       <Filter>06.Component\VIBuffer\Navi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\GreenEletric.h">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ElectricPole.h">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\BlueElectric.h">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -468,9 +486,6 @@
     <ClCompile Include="..\private\Trigger_Manager.cpp">
       <Filter>10.Trigger_Manager</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\GreenEletric.cpp">
-      <Filter>10.Trigger_Manager\Trigger\GreenElectric</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Battery.cpp">
       <Filter>10.Trigger_Manager\Trigger\Battery</Filter>
     </ClCompile>
@@ -513,8 +528,22 @@
     <ClCompile Include="..\private\NaviMesh.cpp">
       <Filter>06.Component\VIBuffer\Navi</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\GreenEletric.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ElectricPole.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\BlueElectric.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Bin\ShaderFiles\Engine_Shader_Defines.hlsli">
+      <Filter>97.ShaderFiles</Filter>
+    </None>
   </ItemGroup>
 </Project>

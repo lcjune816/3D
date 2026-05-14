@@ -1,5 +1,5 @@
 #include "RollupDoor.h"
-
+#include "GameObject.h"
 CRollupDoor::CRollupDoor(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }
@@ -24,7 +24,7 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 	return S_OK;
 }
 
-HRESULT CRollupDoor::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger)
+HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 	if (!m_bTriggerOn) return E_FAIL;
 
@@ -32,7 +32,7 @@ HRESULT CRollupDoor::Interaction(shared_ptr<CTransform> pTransform, _float fTime
 	if (m_fFrameTick > 0.03f)
 	{
 		m_fFrameTick = 0.f;
-		Action_Trigger(pTransform,fTimeDelta);
+		Action_Trigger(fTimeDelta);
 		++m_fFrameTime;
 	}
 
@@ -45,10 +45,17 @@ HRESULT CRollupDoor::Interaction(shared_ptr<CTransform> pTransform, _float fTime
 	return S_OK;
 }
 
-void CRollupDoor::Action_Trigger(shared_ptr<CTransform> pTransform,_float fTimeDelta)
+HRESULT CRollupDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 {
-	
-	pTransform->Go_Up(fTimeDelta, m_fRotationArrow);
+	return S_OK;
+}
+
+void CRollupDoor::Action_Trigger(_float fTimeDelta)
+{
+	auto pObj = m_pParent.lock();
+	if(NULL_TRUE(pObj))
+		return;
+	pObj->Get_Transform().lock()->Go_Up(fTimeDelta, m_fRotationArrow);
 }
 
 unique_ptr<CRollupDoor>CRollupDoor::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

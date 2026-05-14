@@ -7,7 +7,10 @@ namespace Engine
 }
 NS_BEGIN(Client)
 
-
+typedef struct HandState
+{
+	_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false }, bCollect{ false };
+}HAND_STATE;
 
 class CPLayer_RightHand final : public CGameObject
 {
@@ -17,11 +20,6 @@ public:
 		_float4x4* ParentsMatrix; 
 		_float4x4   BoneoffsetMatrix;
 	}RIGHT_HAND_DESC;
-private:
-	typedef struct HandState
-	{
-		_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false }, bCollect{ false };
-	}HAND_STATE;
 private:
 	CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	CPLayer_RightHand(const CPLayer_RightHand& Prototye);
@@ -38,7 +36,6 @@ public:
 public:
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 	void					Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine>pFsmMachine, shared_ptr<class CFSM_RightHand> pState, int32_t iKey);
-
 	void					State_Move();
 	const PLAYER_HAND		Get_PlayerHand() { return m_eRHand; }
 	HAND_STATE&				Get_HandState() { return m_tagHandState; }
@@ -46,8 +43,6 @@ public:
 	shared_ptr<CGameObject>	Get_Arm();
 private:
 	void					Hand_Pivot();
-	void					Hand_Collision();
-	void					Hand_Trigger_Event(class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger);
 private:
 	HRESULT					Ready_Component();
 private:
@@ -67,6 +62,8 @@ private:
 	_float4x4							m_bones[BONE_MATRIX];
 
 	_float4x4							m_fOffsetMatrix;
+
+	_float4x4							m_FinalWorldMatrix;
 	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
 
 	HAND_STATE							m_tagHandState = {};

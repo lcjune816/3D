@@ -1,5 +1,5 @@
 #include "BatteryCase.h"
-#include "GameInstance.h"
+#include "GameObject.h"
 CBatteryCase::CBatteryCase(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }
@@ -25,22 +25,27 @@ HRESULT CBatteryCase::Initialize(void* pArg)
 	return S_OK;
 }
 
-HRESULT CBatteryCase::Interaction(shared_ptr<CTransform> pTransform, _float fTimeDelta, _bool bOtherTrigger)
+HRESULT CBatteryCase::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 {
 	if (m_bTriggerOn) return E_FAIL;
 
-	m_pTransform = pTransform;
 	return S_OK;
 }
-
-HRESULT CBatteryCase::Action_Trigger(weak_ptr<CTransform> pTransform)
+HRESULT CBatteryCase::Late_Interaction( _float fTimeDelta, _bool bOtherTrigger)
 {
-	auto SrcTransform = m_pTransform.lock();
+	return S_OK;
+}
+HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
+{
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(pObj))
+		return E_FAIL;
+	auto SrcTransform = pObj->Get_Transform().lock();
 	auto DstTransform = pTransform.lock();
 	if (NULL_TRUE(SrcTransform) || NULL_TRUE(DstTransform))
 		return E_FAIL;
 
-	if(CGameInstance::Get().Only_AABB_Collision(m_pTransform, pTransform))
+	if(CGameInstance::Get().Only_AABB_Collision(SrcTransform, DstTransform))
 	{//충돌하면 배터리를 집어 넣으라
 		_float3 fPos = {};
 		XMStoreFloat3(&fPos,SrcTransform->Get_State(STATE::POS));

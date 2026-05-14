@@ -396,7 +396,6 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 	_matrix SrcWorld = SrcTransform->Get_World();
 	_matrix InverseSrcWorld = XMMatrixInverse(nullptr, SrcWorld);
 	_vector Test = SrcWorld.r[3];
-	_vector OriginPos = OriginMatrix.r[3];
 	//Ray 시작점
 	//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
 	_vector startorigin = XMVectorSetW(startmat, 1.f);
@@ -441,12 +440,12 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back()) - XMLoadFloat3(&LastPos)));
-				if (Length < 9.f || PlayerToObjectLength <7.f)
+				if (Length < 6.f || PlayerToObjectLength <5.f)
 					return false;
 			}
 
 			_float3 LastDir{};
-			XMStoreFloat3(&LastDir,XMVector3Normalize(startPos - XMLoadFloat3(&LastPos)));
+			XMStoreFloat3(&LastDir,XMVector3Normalize(XMLoadFloat3(&LastPos) - startPos));
 			EdgePoses.push_back(LastPos);
 			EdgeNormals.push_back(LastDir);
 			return true;
@@ -480,7 +479,11 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	_float   MaxDist{ 0 };
 	if (!EdgePoses.empty())
 	{
-		_float3 Edge = EdgePoses.back();
+		_float3 Edge{};
+		if (bFinished)
+			Edge = EdgePoses.front();
+		else
+			Edge = EdgePoses.back();
 		_float fEdgeDist{};
 		_bool bCheck{ false };
 		for (auto& Layer : pLayer->Get_ObjectList())
@@ -511,9 +514,10 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 			_vector rayLen = LocalStart - LocalEdge;
 
 			LocalEdge += OffsetDir * 1.5f;
-
-			_vector LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);
-
+			_vector LastEdgeDir{};
+			if (!bFinished)
+			LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);
+			else LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalEdge - LocalStart), 0.f);
 
 
 			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
@@ -534,9 +538,18 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 		}
 		if (!bCheck)
 		{
-			EdgePoses.pop_back();
-			EdgeNormals.pop_back();
-			return false;
+			if (!bFinished)
+			{
+				EdgePoses.pop_back();
+				EdgeNormals.pop_back();
+				return false;
+
+			}
+			else
+			{
+				EdgePoses.erase(EdgePoses.begin());
+				return false;
+			}
 		}
 	
 	}
