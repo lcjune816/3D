@@ -1,7 +1,11 @@
 #pragma once
 #include "Transform.h"
 NS_BEGIN(Engine)
-enum class TRIGGER_EVENT{BATTERY, DOOR, ELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , END};
+enum class TRIGGER_EVENT{BATTERY, DOOR, ELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, END};
+enum class TRIGGER_FLAG
+{
+	SHADER = 0x00000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, END = 0xffffffff
+};
 class ENGINE_DLL CTrigger abstract : public CComponent
 {
 
@@ -12,11 +16,12 @@ typedef struct tagTriggerdesc
  }TRIGGER_DESC;
 
 public:
-	enum class TRIGGER_FLAG
+
+protected:
+	typedef struct strBindResource
 	{
-		SHADER = 0x00000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, END = 0xffffffff
-	};
-	
+		_float4 fColor{1,1,1,1};
+	}BIND_RESOURCE;
 protected:
 	CTrigger(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	CTrigger(const CTrigger& Prototype);
@@ -32,27 +37,30 @@ public:
 	
 	void							Set_Parent(shared_ptr<class CGameObject> pObj);
 	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }
-	_bool							Set_DstTransform(CTransform* pTransform);
-	void							Set_Trigger() { m_bTriggerOn = true; }
+	_bool							Set_DstTransform(shared_ptr<CTransform> pTransform);
+	void							Set_Trigger(_bool bTrigger = true) { m_bTriggerOn = bTrigger; }
 	void							Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
 	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
 	_bool							Get_OtherTrigger() { return m_bOtherTrigger; }
 	uint32_t						Get_FlagState() { return m_iFlag; }
 	const TRIGGER_EVENT				Get_Trigger_Event() { return m_eEventTrigger; }
 	void							Set_Flag(TRIGGER_FLAG eFlag, FLAGVALUE eValue);
-	void							Disconnect_Transform() { m_pDstTransform = nullptr; }
+	void							Set_PtrMatrix(_float4x4* pMat) { m_pMatrixPtr = pMat; }
+	void							Disconnect_Transform() { m_pDstTransform.reset(); }
 
+	virtual	void					Bind_Resource(shared_ptr<class CShader> pShader, const _char* pConstantName);
 	virtual _bool					offsetMatrix(_float4x4* pMatrix);
 protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
 	_float							m_fFrameTick{}, m_fFrameTime{};
 	_float							m_fAngle{};
+	_float4x4*						m_pMatrixPtr = { nullptr };
 
-	CTransform*						m_pDstTransform = { nullptr };
+	weak_ptr<CTransform>			m_pDstTransform;
 	uint32_t						m_iTargetNumber = {};
-	TRIGGER_EVENT					m_eEventTrigger;
-
 	uint32_t						m_iFlag;
+	TRIGGER_EVENT					m_eEventTrigger;
+	BIND_RESOURCE					m_BindValue;
 
 	weak_ptr<class CGameObject>		m_pParent;
 public:

@@ -39,6 +39,7 @@ HRESULT CBlueElectric::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 
 	if (!m_bTriggerOn) return E_FAIL;
+	auto pDstTransform = m_pDstTransform.lock();
 
 	if (m_bTriggerOn && !m_bOtherTrigger)
 	{
@@ -53,7 +54,7 @@ HRESULT CBlueElectric::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		{
 			m_fFrameTime = 0.f;
 			m_bOtherTrigger = true;
-			m_pDstTransform = nullptr;
+			Disconnect_Transform();
 		}
 
 		return S_OK;
@@ -62,7 +63,7 @@ HRESULT CBlueElectric::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 
 	_vector vPos{};
 
-	if (m_pDstTransform != nullptr && m_bOtherTrigger)
+	if (NULL_FALSE(pDstTransform) && m_bOtherTrigger)
 	{
 		m_fFrameTick += fTimeDelta;
 
@@ -94,7 +95,8 @@ HRESULT CBlueElectric::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 _bool CBlueElectric::offsetMatrix(_float4x4* pMatrix)
 {
 	auto pObj = m_pParent.lock();
-	if (NULL_TRUE(pObj) || ((m_pDstTransform == nullptr) && !m_bOtherTrigger))
+	auto pDstTransform = m_pDstTransform.lock();
+	if (NULL_TRUE(pObj) || (NULL_TRUE(pDstTransform) && !m_bOtherTrigger))
 		return false;
 
 	_matrix matOffset = XMMatrixIdentity();
@@ -108,14 +110,14 @@ _bool CBlueElectric::offsetMatrix(_float4x4* pMatrix)
 	//_vector vWorldMin = XMVector3TransformCoord(XMLoadFloat3(&fMin), pTransform->Get_World());
 
 	_vector vCenter = (XMLoadFloat3(&fMax)+ XMLoadFloat3(&fMin)) * 0.5f;
-	_vector vDstPos = m_pDstTransform->Get_State(STATE::POS);
+	_vector vDstPos = pDstTransform->Get_State(STATE::POS);
 
 	vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 
 	_float Length = XMVectorGetX(XMVector3Length((vCenter - vDstPos)));
 	_vector FLook = XMVector3Normalize(vCenter - vDstPos);
 
-	vDstPos += FLook * Length;
+	vDstPos += FLook * Length ;
 	matOffset.r[3] = XMVectorSetW(vDstPos,1.f);
 
 	XMStoreFloat4x4(pMatrix, matOffset);

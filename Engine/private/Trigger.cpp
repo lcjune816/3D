@@ -37,9 +37,10 @@ void CTrigger::Set_Parent(shared_ptr<class CGameObject> pObj)
 	m_pParent = pObj; 
 }
 
-_bool				CTrigger::Set_DstTransform(CTransform* pTransform)
+_bool				CTrigger::Set_DstTransform(shared_ptr<CTransform> pTransform)
 {
-	if (NULL_TRUE(m_pDstTransform))
+	auto Transform = m_pDstTransform.lock();
+	if (NULL_TRUE(Transform))
 	{
 		m_pDstTransform = pTransform;
 		return true;
@@ -74,6 +75,16 @@ void CTrigger::Set_Flag(TRIGGER_FLAG eFlag, FLAGVALUE eValue)
 		break;
 	
 	}
+}
+
+void CTrigger::Bind_Resource(shared_ptr<CShader> pShader, const _char* pConstantName)
+{
+	_float4 fColor = { 1,1,1,1 };
+	if(ETOUI(TRIGGER_FLAG::SHADER) & m_iFlag)
+		pShader->Bind_RawValue(pConstantName, &m_BindValue.fColor, sizeof m_BindValue.fColor);
+	else
+		pShader->Bind_RawValue(pConstantName, &fColor, sizeof m_BindValue.fColor);
+
 }
 
 _bool CTrigger::offsetMatrix(_float4x4* pMatrix)

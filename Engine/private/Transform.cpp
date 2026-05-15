@@ -35,7 +35,16 @@ HRESULT CTransform::Initialize(void* Arg)
 	if(Desc->bWorldCheck)
 		XMStoreFloat4x4(&m_WorldMatrix, XMMatrixIdentity());
 	else
+	{
+		_vector Pos{};
+
+		memcpy(&Pos, Desc->matWorld.m[3], sizeof _float3);
+		Pos = XMVectorSetW(Pos, 1.f);
+
+		memcpy(Desc->matWorld.m[3] ,&Pos, sizeof _float4);
 		m_WorldMatrix = Desc->matWorld;
+
+	}
 	
 	return S_OK;
 }

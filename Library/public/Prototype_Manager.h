@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Component.h"
-#include "Trigger.h"
 #include "3DModel.h"
 #include "Mesh.h"
 #include "Transform.h"

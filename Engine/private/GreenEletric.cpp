@@ -37,7 +37,8 @@ HRESULT CGreenElectric::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrig
 }
 HRESULT CGreenElectric::Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 {
-	
+	auto DstTransform = m_pDstTransform.lock();
+
 	if (!m_bOtherTrigger)
 	{
 		m_fFrameTick += fTimeDelta;
@@ -51,7 +52,7 @@ HRESULT CGreenElectric::Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 		{
 			m_fFrameTime = 0.f;
 			m_bOtherTrigger = true;
-			m_pDstTransform = nullptr;
+			Disconnect_Transform();
 		}
 
 		return S_OK;
@@ -60,7 +61,7 @@ HRESULT CGreenElectric::Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 
 	_vector vPos{};
 
-	if (m_pDstTransform != nullptr && m_bOtherTrigger)
+	if (NULL_FALSE(DstTransform)&& m_bOtherTrigger)
 	{
 		auto pObj = m_pParent.lock();
 		if (NULL_TRUE(pObj))
@@ -78,13 +79,13 @@ HRESULT CGreenElectric::Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 		_float3 fMax = pTransform->Get_Max();
 		_float3 fMin = pTransform->Get_Min();
 		_vector vCenter = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
-		_vector Pos = m_pDstTransform->Get_World().r[3];
+		_vector Pos = DstTransform->Get_World().r[3];
 		vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 
 		_vector Look = XMVector3Normalize(XMVectorSetY(XMVectorSetX(Pos, 0.f), 0.f) - XMVectorSetY(vCenter, 0.f));
 		vCenter += Look * 8.f;
-
-		m_pDstTransform->Set_State(STATE::POS, vCenter);
+		XMVectorSetW(vCenter, 1.f);
+		DstTransform->Set_State(STATE::POS, vCenter);
 	}
 
 	if (m_fFrameTime > 20.f)

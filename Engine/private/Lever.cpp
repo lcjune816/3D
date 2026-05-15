@@ -38,7 +38,7 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		++m_fFrameTime;
 	}
 
-	if (m_fFrameTime > 20.f)
+	if (m_fFrameTime > 40.f)
 	{
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;

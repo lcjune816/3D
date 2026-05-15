@@ -37,6 +37,8 @@ HRESULT CBatteryCase::Late_Interaction( _float fTimeDelta, _bool bOtherTrigger)
 }
 HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 {
+	if (!m_bOtherTrigger)
+		return E_FAIL;
 	auto pObj = m_pParent.lock();
 	if (NULL_TRUE(pObj))
 		return E_FAIL;
@@ -47,12 +49,34 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 
 	if(CGameInstance::Get().Only_AABB_Collision(SrcTransform, DstTransform))
 	{//충돌하면 배터리를 집어 넣으라
-		_float3 fPos = {};
-		XMStoreFloat3(&fPos,SrcTransform->Get_State(STATE::POS));
-		fPos.y += 6.f;
-		DstTransform->Set_State(STATE::POS,XMLoadFloat3(&fPos));
-		DstTransform->Apply_Rotation(_vector{ 1,0,0,0 }, -90.f);
-		m_bTriggerOn = true;
+		_vector vPos = SrcTransform->Get_State(STATE::POS);
+		vPos  += XMVectorSet(0,6.f,0,0);
+		_vector vLook = XMVector3Normalize(vPos - DstTransform->Get_World().r[3]);
+		_vector DstUp = DstTransform->Get_World().r[1];
+		_vector DstRight = DstTransform->Get_World().r[0];
+		_vector DstLook = DstTransform->Get_World().r[2];
+
+		_vector vUp = { 0,1,0,0 };
+
+		if (XMVectorGetX(XMVector3Dot(vUp, DstUp)) < 0)
+			DstUp *= -1;
+		
+		_vector vRight = XMVector3Cross(vLook, DstUp);
+
+	
+		_matrix matRot = XMMatrixRotationAxis(DstRight, XMConvertToRadians(90.f));
+
+		DstUp = XMVector3TransformNormal(DstUp, matRot);
+		DstLook = XMVector3TransformNormal(DstLook, matRot);
+
+		vPos = XMVectorSetW(vPos, 1.f);
+		DstTransform->Set_State(STATE::RIGHT, DstRight);
+		DstTransform->Set_State(STATE::UP, DstUp);
+		DstTransform->Set_State(STATE::LOOK, DstLook);
+
+		DstTransform->Set_State(STATE::POS, vPos);
+
+		m_bOtherTrigger = true;
 		
 		return S_OK;
 	}

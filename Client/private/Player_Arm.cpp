@@ -1,5 +1,6 @@
 #include "Player_Arm.h"
 #include "GameInstance.h"
+#include"TriggerObject.h"
 
 CPlayer_Arm::CPlayer_Arm(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
@@ -43,6 +44,8 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 
 	CGameInstance::Get().ImportModel_NonAnime(importModel, m_pTransform, m_MeshNameList);
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
+
+	m_ArmMatrix.Matrix.resize(800);
 	return S_OK;
 }
 void CPlayer_Arm::Priority_Update(_float fTimeDelta)
@@ -51,25 +54,32 @@ void CPlayer_Arm::Priority_Update(_float fTimeDelta)
 }
 void CPlayer_Arm::Update(_float fTimeDelta)
 {
+	for (auto iter = m_ArmMatrix.CollisionIndex.begin(); iter != m_ArmMatrix.CollisionIndex.end();)
+	{
+		auto pObj = CGameInstance::Get().Matrix_Check_Collision(XMLoadFloat4x4(&m_ArmMatrix.Matrix[*iter]), COLLISION::TRIGGER).lock();
+
+		if (NULL_FALSE(pObj))
+		{
+			static_pointer_cast<CTriggerObject>(pObj)->Set_Trigger();
+			static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Set_OtherTrigger(true);
+		}
+		else
+		{
+			iter = m_ArmMatrix.CollisionIndex.erase(iter);
+			continue;
+		}
+
+		++iter;
+
+	}
 }
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
-	//_matrix matOffset = XMMatrixIdentity();
-	//matOffset.r[3] = XMVectorSet(-2.f, -1.26f, -2.970f, 1.f);
-	//for (size_t i = 0; i < m_ArmMatrix.Matrix.size(); ++i)
-	//{
-	//	XMStoreFloat4x4(&m_ArmMatrix.Matrix[i], XMLoadFloat4x4(&m_ArmMatrix.Matrix[i]) * matOffset);
-	//
-	//}
-	if (0 == m_ArmMatrix.Matrix.size())
-	{
-		m_ArmMatrix.Matrix.resize(800);
-	}
+	
 
 }
 HRESULT CPlayer_Arm::Render()
 {
-
 	_float4x4 matWorld{};
 	_float4 fColor = {0.f, 0.f, 0.f,1.f};
 	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
@@ -94,8 +104,30 @@ HRESULT CPlayer_Arm::Render()
 		pMesh->Render_Array(iArraySize);
 
 	}
+	for (auto& iter : m_ArmMatrix.CollisionIndex)
+	{
+		fColor = { 1,0,0,1 };
+		_matrix mat = XMLoadFloat4x4(&m_ArmMatrix.Matrix[iter]);
 
+		for (uint32_t i = 0; i < 3; ++i)
+		{
+			_float fScale;
+			if (i == 1)
+				fScale = 1.5f;
+			else fScale = 3.f;
+			mat.r[i] = XMVector3Normalize(mat.r[i]) * fScale;
 
+		}
+			
+		_float4x4 Combinemat{};
+		XMStoreFloat4x4(&Combinemat, mat);
+		m_pBoxShader->Bind_Matrix("g_World", &Combinemat);
+		m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+		m_pBoxShader->Begin(0);
+		m_pBoxMesh->Bind_Resource();
+		m_pBoxMesh->Render();
+	}
+	
 	return S_OK;
 }
 
