@@ -33,12 +33,13 @@ private:
 	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
 
 	vector<int32_t>		m_ShootBone{};
-	vector<_float3>		m_EdgePoses;
-	vector<_float3>		m_EdgeNormals;
+	vector<GRAB_ARM_EDGE>		m_EdgePoses;
 
 	HAND_STATE					m_eFSM;
 
 	_float4x4* m_StartMatrix = { nullptr };
+	uint32_t							m_iEdgeCnt = {};
+	vector<uint32_t>					m_iSizeCnt;
 	weak_ptr<class CPlayer_Arm>			m_pArm;
 	weak_ptr<class CPLayer_RightHand>		m_pHand;
 public:

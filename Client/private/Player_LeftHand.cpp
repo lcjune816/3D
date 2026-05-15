@@ -110,21 +110,21 @@ void					CPlayer_LeftHand::Hand_Collision()
 {
 	CGameObject* pObj = nullptr;
 
-	if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPlayer_LeftHand))))
-		m_eLHand = PLAYER_HAND::WALL;
-	else if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPlayer_LeftHand))))
-	{
-		auto Obj = static_cast<CTriggerObject*>(pObj);
-		Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform.get());
-		Hand_Trigger_Event(Obj, Obj->Get_TriggerPtr()->Get_Trigger_Event());
-		Obj->Set_Trigger();
-
-		m_eLHand = PLAYER_HAND::TRIGGER;
-	}
-	else
-	{
-		m_eLHand = PLAYER_HAND::END;
-	}
+	//if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPlayer_LeftHand))))
+	//	m_eLHand = PLAYER_HAND::WALL;
+	//else if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPlayer_LeftHand))))
+	//{
+	//	auto Obj = static_cast<CTriggerObject*>(pObj);
+	//	Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
+	//	Hand_Trigger_Event(Obj, Obj->Get_TriggerPtr()->Get_Trigger_Event());
+	//	Obj->Set_Trigger();
+	//
+	//	m_eLHand = PLAYER_HAND::TRIGGER;
+	//}
+	//else
+	//{
+	//	m_eLHand = PLAYER_HAND::END;
+	//}
 
 }
 void CPlayer_LeftHand::Priority_Update(_float fTimeDelta)

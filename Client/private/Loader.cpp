@@ -190,9 +190,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CBlueElectric::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	//if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_ElectricPole"),
-	//	CElectricPole::Create(m_pDevice, m_pContext))))
-	//	return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_ElectricPole"),
+		CElectricPole::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Battery"),
 		CBattery::Create(m_pDevice, m_pContext))))

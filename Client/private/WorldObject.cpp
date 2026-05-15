@@ -83,6 +83,12 @@ void CWorldObject::Priority_Update(_float fTimeDelta)
 }
 void CWorldObject::Update(_float fTimeDelta)
 {
+	_matrix mat = m_pTransform->Get_World();
+	_float4 at{};
+	XMStoreFloat4(&at, mat.r[3]);
+
+	if (at.w == 0)
+		int a = 0;
 }
 void CWorldObject::Late_Update(_float fTimeDelta)
 {

@@ -15,6 +15,21 @@ namespace Engine
 		uint32_t	iNumLevels;
 	}ENGINE_DESC;
 	
+	typedef struct tagEdgeStruct
+	{
+		_float3 fPos;
+		_bool	bCheck;
+	}GRAB_ARM_EDGE;
+
+	typedef struct strcollisioninfo
+	{
+		_float3 DstLocalPos;
+		_float3 DstWorldPos;
+		_float3 SrcLocalPos;
+		_float3 SrcWorldPos;
+		_float3 LocalExtents;
+		_float fDist;
+	}COLLISION_INFO;
 
 	typedef struct tagEngineCollisionDesc
 	{

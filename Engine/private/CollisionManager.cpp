@@ -44,6 +44,7 @@ weak_ptr<CGameObject>  CCollisionManager::Check_Ray(int32_t iLayerLevelIndex, co
 	_matrix InverseWorld = {};
 	_vector Worldray = {}, WorldrayDir = {}, OriginRay = {}, OriginDir = {};
 
+	//tagCollision.fMouse 
 	for (auto& iter : pLayer->Get_ObjectList())
 	{
 		//월드로만 비교
@@ -221,31 +222,47 @@ _bool CCollisionManager::ABB_Collision(CGameObject* pObj, _fvector vRayPos, _fve
 	return false;
 }
 
-_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform, _bool bBack)
+_bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform, _bool bBack, COLLISION_INFO* pstrCollision)
 {
 	auto   SrcTransform = pSrcTransform.lock();
 	auto   DstTransform = pDstTransform.lock();
 
 	_matrix SrcWorld = SrcTransform->Get_World();
 	_matrix DstWorld = DstTransform->Get_World();
-	_matrix SrcInverseWorld = XMMatrixInverse(nullptr, SrcTransform->Get_World());
-	_float3  SrcMin{}, SrcMax{};
+	_matrix DstInverseWorld = XMMatrixInverse(nullptr, DstWorld);
 
-	SrcMin = SrcTransform->Get_Min();
-	SrcMax = SrcTransform->Get_Max();
+	_float3  DstMin{}, DstMax{};
 
-	_vector DstLocalPos = XMVector3TransformCoord(DstWorld.r[3], SrcInverseWorld);
-	_vector DstLocalRay = XMVector3Normalize(DstLocalPos - XMLoadFloat3(&SrcMax));
+	DstMin = DstTransform->Get_Min();
+	DstMax = DstTransform->Get_Max();
+
+	_vector DstLocalCenter = (XMLoadFloat3(&DstMax) + XMLoadFloat3(&DstMin)) * 0.5f;
+	_vector DstExtents     = (XMLoadFloat3(&DstMax) - XMLoadFloat3(&DstMin)) * 0.5f;
+
+	_vector SrcLocalPos = XMVector3TransformCoord(SrcWorld.r[3], DstInverseWorld);
+	_vector SrcLocalRay = XMVector3Normalize(DstLocalCenter - SrcLocalPos);
 
 	BoundingBox box;
-	XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f);
-	XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
-
+	XMStoreFloat3(&box.Center, DstLocalCenter);
+	XMStoreFloat3(&box.Extents, DstExtents);
+	
+	_float fMaxDist = XMVectorGetX(XMVector3Length(DstLocalCenter - SrcLocalPos ));
 	_float fDist{};
-	if (box.Intersects(DstLocalPos, DstLocalRay, fDist))
+	if (box.Intersects(SrcLocalPos, SrcLocalRay, fDist))
 	{
 		if (fDist < 3.f)
+		{
+			if (NULL_FALSE(pstrCollision))
+			{
+				XMStoreFloat3(&pstrCollision->DstLocalPos, DstLocalCenter);
+				XMStoreFloat3(&pstrCollision->SrcLocalPos, SrcLocalPos);
+				XMStoreFloat3(&pstrCollision->LocalExtents, DstExtents);
+				pstrCollision->fDist=fDist;
+
+			}
+
 			return true;
+		}
 	}
 	return false;
 }
@@ -381,14 +398,17 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 
 	for (auto& Layer : pLayer->Get_ObjectList())
 	{		
-			if (Only_AABB_Collision(Layer->Get_Transform(), SrcObj->Get_Transform(), bBack))
+		if (Layer->Get_EndObject())
+			continue;
+
+			if (Only_AABB_Collision(SrcObj->Get_Transform(),Layer->Get_Transform(), bBack))
 			return Layer.get();
 	}
 
 	return nullptr;
 
 }
-_bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses, vector<_float3>& EdgeNormals)
+_bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses)
 {
 
 	auto   SrcTransform = pSrcTransform;
@@ -439,15 +459,14 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 			{
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
-				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back()) - XMLoadFloat3(&LastPos)));
+				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
 				if (Length < 6.f || PlayerToObjectLength <5.f)
 					return false;
 			}
 
-			_float3 LastDir{};
-			XMStoreFloat3(&LastDir,XMVector3Normalize(XMLoadFloat3(&LastPos) - startPos));
-			EdgePoses.push_back(LastPos);
-			EdgeNormals.push_back(LastDir);
+			GRAB_ARM_EDGE Edge{};
+			Edge.fPos = LastPos;
+			EdgePoses.push_back(Edge);
 			return true;
 		}
 		//로컬 공간에서의 충돌 지점 계산
@@ -457,7 +476,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 	return false;
 
 }
-_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<_float3>& EdgePoses,vector<_float3>& EdgeNormals, _bool bFinished)
+weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<GRAB_ARM_EDGE>& EdgePoses, _bool bFinished)
 {
 	_bool bEnd = false;
 	CLayer* pLayer = nullptr;
@@ -470,8 +489,22 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	}
 
 	if (NULL_TRUE(pLayer))
-		return false;
+		return {};
 
+	if (bFinished)
+	{
+		if (EdgePoses.empty())
+			return {};
+
+		_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.front().fPos) - readStart));
+		if (Length < 1.5f)
+		{
+			EdgePoses.erase(EdgePoses.begin());
+			return {};
+		}
+		
+		return {};
+	}
 	uint32_t iCnt{};
 	_float offset = {8.f};
 	if (bFinished)
@@ -480,22 +513,18 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	if (!EdgePoses.empty())
 	{
 		_float3 Edge{};
-		if (bFinished)
-			Edge = EdgePoses.front();
-		else
-			Edge = EdgePoses.back();
+			Edge = EdgePoses.back().fPos;
 		_float fEdgeDist{};
 		_bool bCheck{ false };
 		for (auto& Layer : pLayer->Get_ObjectList())
 		{
-
+			
 			auto   SrcTransform = Layer->Get_TransformPtr();
 			_matrix SrcWorld = SrcTransform->Get_World();
 			_vector OriginPos = OriginMatrix.r[3];
 			//Ray 시작점
 			//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
 			_vector startPos = XMVectorSetW(startmat, 1.f);
-			_vector endPos = XMVectorSetW(endMat, 1.f);
 			_vector SrcPos = SrcWorld.r[3];
 		
 			BoundingBox box;
@@ -522,7 +551,6 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 
 			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
 			{
-			
 				_vector LocalLength = LocalEdge + LastEdgeDir * fEdgeDist;
 	
 				LocalLength = LocalStart - LocalLength;
@@ -538,34 +566,78 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 		}
 		if (!bCheck)
 		{
-			if (!bFinished)
-			{
-				EdgePoses.pop_back();
-				EdgeNormals.pop_back();
-				return false;
-
-			}
-			else
-			{
-				EdgePoses.erase(EdgePoses.begin());
-				return false;
-			}
+			
+			EdgePoses.pop_back();
+			return {};
+			
 		}
 	
 	}
 	if (bFinished)
-		return true;
+		return {};
 
-	for (auto& Layer : pLayer->Get_ObjectList())
+	for (auto& pObj : pLayer->Get_ObjectList())
 	{
-		if (Only_AABB_Collision(Layer->Get_TransformPtr(), readStart, startmat, endMat, OriginMatrix, EdgePoses,EdgeNormals))
-			return true;
+		if (Only_AABB_Collision(pObj->Get_TransformPtr(), readStart, startmat, endMat, OriginMatrix, EdgePoses))
+				return pObj;
+		
+			
 	}
 
 	
 	
-	return bEnd;
+	return {};
 
+}
+
+weak_ptr<CGameObject> CCollisionManager::Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue)
+{
+	
+	auto Collision = m_CollisionCheckList.find(eCollisionValue);
+
+	if (Collision != m_CollisionCheckList.end())
+	{
+		
+		for (auto& coll : Collision->second)
+		{
+			auto Src = coll.lock();
+			if (NULL_TRUE(Src))
+				continue;
+
+			auto SrcTransform = Src->Get_Transform().lock();
+
+			
+			BoundingBox box;
+			
+			_float3 SrcLocalMax = SrcTransform->Get_Max();
+			_float3 SrcLocalMin = SrcTransform->Get_Min();
+			
+			_matrix SrcInverseWorld = XMMatrixInverse(nullptr,SrcTransform->Get_World());
+			_vector SrcCenter =  (XMLoadFloat3(&SrcLocalMax) + XMLoadFloat3(&SrcLocalMin)) * 0.5f;
+			_vector SrcExtents = (XMLoadFloat3(&SrcLocalMax) - XMLoadFloat3(&SrcLocalMin)) * 0.5f;
+			
+			_vector DstPos = Checck.r[3];
+			
+			DstPos = XMVector3TransformCoord(DstPos, SrcInverseWorld);
+			XMStoreFloat3(&box.Center ,SrcCenter);
+			XMStoreFloat3(&box.Extents, SrcExtents);
+
+
+			_vector Dir = XMVector3Normalize(SrcCenter - DstPos);
+			_float Dist{};
+			if (box.Intersects(DstPos, Dir, Dist))
+			{
+
+				if (Dist < 10.f)
+				{
+					return Src;
+				}
+			}
+		}
+			
+	}
+
+	return {};
 }
 
 unique_ptr<CCollisionManager> CCollisionManager::Create()

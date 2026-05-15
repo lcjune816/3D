@@ -29,45 +29,58 @@ HRESULT CBattery::Initialize(void* pArg)
 
 HRESULT CBattery::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (!m_bTriggerOn) return E_FAIL;
+	
+		
+	return S_OK;
+}
+HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
+{
+	if (m_bOtherTrigger) return E_FAIL;
+
 	_vector vPos{};
 	auto pObj = m_pParent.lock();
+	auto pDstTransform = m_pDstTransform.lock();
 	if (NULL_TRUE(pObj))
 		return E_FAIL;
 	auto pTransform = pObj->Get_Transform().lock();
 
-	if (m_pDstTransform != nullptr)
+	if (NULL_FALSE(pDstTransform))
 	{
+		_matrix SrcWorld = pTransform->Get_World();
+		_matrix DstWorld = pDstTransform->Get_World();
+		
+		_vector vWorldSrcPos  = SrcWorld.r[3];
 
-		_vector vSrcPos = pTransform->Get_State(STATE::POS);
-		_vector vDstPos = m_pDstTransform->Get_State(STATE::POS);
+		_vector vWorldDstPos  = DstWorld.r[3];
+		_vector vWorldDstLook = DstWorld.r[2];
 
-		_float3 fMax = pTransform->Get_Max();
-		_float3 fMin = pTransform->Get_Min();
-
-		_float3 fCenter{};
-		//스케일 반지름 중심에서 
-		XMStoreFloat3(&fCenter,(XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
+		_float3 SrcMax = pTransform->Get_Max();
+		_float3 SrcMin = pTransform->Get_Min();
 	
-		_float Radius = XMVectorGetX(XMVector3Length(XMLoadFloat3(&fCenter)- (XMLoadFloat3(&fMin))));
-		_vector vCenter{};
-		_float3 vHandPos = {};
-		//원래 플레이어의 손 위치랑 offset만큼 다시 위치에 
-	
-		vCenter = XMVector3TransformCoord(XMLoadFloat3(&fCenter), pTransform->Get_World());
+		_vector SrcCenter = (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f;
+		_vector Right = XMVector3Normalize(pDstTransform->Get_State(STATE::RIGHT));
+		_vector Up    = XMVector3Normalize(pDstTransform->Get_State(STATE::UP));
+		_vector Look = XMVector3Normalize(pDstTransform->Get_State(STATE::LOOK));
 
-		XMStoreFloat3(&vHandPos, vDstPos - vCenter);
-		_vector vLook = XMVector3Normalize(vDstPos - vCenter);
-		//새로구한 좌표 기준으로 원래 dst 위치랑 빼서 차이 구하고
-		//원래 위치에 그만큼 더하기
+		Right *= -1.f;
+		_vector SrcPivot = 
+							Right * XMVectorGetX(SrcCenter) +
+						   Up * XMVectorGetY(SrcCenter) +
+						   Look * XMVectorGetX(SrcCenter);
+		
+		vPos = vWorldDstPos - SrcPivot - Look *3.f;
 
-		//반지름만큼 함 밀고
-		vPos = (vSrcPos + XMLoadFloat3(&vHandPos)) - vLook * Radius * 4.5f;
+		vPos = XMVectorSetW(vPos, 1.f);
+
+		pTransform->Set_State(STATE::RIGHT, Right);
+		pTransform->Set_State(STATE::UP, Up);
+		pTransform->Set_State(STATE::LOOK, Look);
+		pTransform->Set_State(STATE::POS, vPos);
 
 	}
 	else
 	{
-		vPos =  pTransform->Get_State(STATE::POS);
+		vPos = pTransform->Get_State(STATE::POS);
 		_float3 Pos{};
 		XMStoreFloat3(&Pos, vPos);
 
@@ -82,33 +95,33 @@ HRESULT CBattery::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		else if (Pos.y > -fY)
 			Pos.y -= m_fDropTime;
 
-		vPos = XMVectorSetW(XMLoadFloat3(&Pos),1.f);
+		vPos = XMVectorSetW(XMLoadFloat3(&Pos), 1.f);
+
+		pTransform->Set_State(STATE::POS, vPos);
 	}
 
 
-	pTransform->Set_State(STATE::POS, vPos);
 
 	auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
 	if (NULL_TRUE(Target))
 		return E_FAIL;
-
+	Target->Set_OtherTrigger(true);
 	if (0 == static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(m_pParent.lock()->Get_Transform()))
 	{
-		m_pDstTransform = nullptr;
+		pObj->Set_EndObject(true);
+		Disconnect_Transform();
+		m_bOtherTrigger = true;
+
 		m_bTriggerOn = false;
+		m_iFlag |= ETOUI(TRIGGER_FLAG::END);
 	}
-		
-	return S_OK;
-}
-HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
-{
 	return S_OK;
 }
 void CBattery::Action_Trigger()
 {
 }
 
-unique_ptr<CBattery>CBattery::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
+unique_ptr<CBattery>CBattery::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
 	auto		pInstance = unique_ptr<CBattery>(new CBattery(pDevice, pContext));
 

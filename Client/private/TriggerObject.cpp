@@ -160,7 +160,7 @@ HRESULT CTriggerObject::Render()
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-
+	m_pTrigger->Bind_Resource(m_pShaderCom, "g_Color");
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
@@ -283,9 +283,9 @@ HRESULT CTriggerObject::Render()
 }
 
 
-void CTriggerObject::Set_Trigger()
+void CTriggerObject::Set_Trigger(_bool bTrigger)
 {
-	m_pTrigger->Set_Trigger();
+	m_pTrigger->Set_Trigger(bTrigger);
 }
 
 json CTriggerObject::Save_Data()

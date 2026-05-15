@@ -346,6 +346,9 @@
     <ClInclude Include="..\public\BlueElectric.h">
       <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Triangle.h">
+      <Filter>06.Component\VIBuffer\Rect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\3rdParty\imgui\imgui.cpp">
@@ -536,6 +539,9 @@
     </ClCompile>
     <ClCompile Include="..\private\BlueElectric.cpp">
       <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Triangle.cpp">
+      <Filter>06.Component\VIBuffer\Rect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

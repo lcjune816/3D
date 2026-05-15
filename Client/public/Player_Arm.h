@@ -12,7 +12,7 @@ class CPlayer_Arm final : public CGameObject
 	typedef struct strGrabarm
 	{
 		vector<_float4x4> Matrix;
-		vector<_float4>   fColor;
+		vector<uint32_t>   CollisionIndex;
 	}GRAB_ARM;
 private:
 	CPlayer_Arm(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -31,7 +31,6 @@ public:
 public:
 	strGrabarm& Get_ArmMatrix()	{ return m_ArmMatrix; }
 
-	strGrabarm& Get_EdgePoses() { return m_EdgePoses; }
 public:
 	string					Model_Animation(const vector<string>& pNames);
 private:
@@ -43,7 +42,6 @@ private:
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 	vector<uint32_t>					m_MeshNameList;
 
-	strGrabarm							m_EdgePoses;
 	strGrabarm							m_ArmMatrix;
 public:
 	static unique_ptr<CPlayer_Arm> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

@@ -30,7 +30,7 @@ HRESULT CCamera::Initialize(void* pArg)
     FreeDesc.fNear = 0.1f;
     FreeDesc.fFar = 1000.f;
     FreeDesc.m_fSpeedPerSec = 100.f;
-
+   
     m_ChildMatrix = pDesc->ParentsMatrix;
     m_ChildCamBoneMatrix = pDesc->CamBoneMatrix;
 
@@ -121,10 +121,12 @@ void CCamera::Late_Update(_float fTimeDelta)
     }
     else
     {
+        _matrix OffsetMat = XMMatrixIdentity();
+        OffsetMat.r[3] = XMVectorSet(0, 0,0.5f, 1);
         POINT mousePos;
         GetCursorPos(&mousePos);
         ScreenToClient(g_hWnd, &mousePos);
-        _matrix matrix = XMLoadFloat4x4(m_ChildMatrix) * XMLoadFloat4x4(&m_ChildCamBoneMatrix);
+        _matrix matrix = OffsetMat * XMLoadFloat4x4(m_ChildMatrix) * XMLoadFloat4x4(&m_ChildCamBoneMatrix);
         m_pTransform->Set_Matrix(matrix);
         POINT pt;
         pt.x = Client::g_iWinSizeX / 2.f;

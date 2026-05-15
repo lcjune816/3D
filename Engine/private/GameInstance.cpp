@@ -349,24 +349,31 @@ void			CGameInstance::Set_Collision(_bool bCollision)
 {
 	m_pCollision_Manager->Set_Collision(bCollision);
 }
-_bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform)
+_bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform,_bool bBack, COLLISION_INFO* pstrCollision)
 {
-	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform);
+	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform, bBack, pstrCollision);
 }
 
-_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<_float3>& EdgePoses, vector<_float3>& EdgeNormals,_bool bFinished)
+weak_ptr<CGameObject>	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses, _bool bFinished)
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses, EdgeNormals, bFinished);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses, bFinished);
 }
-CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
+CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj)
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj, bBack);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj);
 }
 _bool		CGameInstance::RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay)
 {
 	return m_pCollision_Manager->RayCast(endLayerIndex, strCompareLayerName,LayerName, tagName, pSrcTransform, OffsetRay);
 }
-
+void					CGameInstance::Add_Check_Collision(COLLISION eCollisionValue, weak_ptr<CGameObject> pObj)
+{
+	return m_pCollision_Manager->Add_Check_Collision(eCollisionValue, pObj);
+}
+weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue)
+{
+	return m_pCollision_Manager->Matrix_Check_Collision(Checck, eCollisionValue);
+}
 #pragma endregion
 #pragma region NAVI_MANAGER
 
