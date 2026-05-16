@@ -1,13 +1,12 @@
 #pragma once
-#include "GameObject.h"
+#include "Player.h"
 #include "Client_Defines.h"
 NS_BEGIN(Engine)
 class CShader;
 class CCube;
 NS_END
-
 NS_BEGIN(Client)
-class CPlayer_Arm final : public CGameObject
+class CPlayer_Arm final : public CPlayer
 {
 	typedef struct strGrabarm
 	{
@@ -27,21 +26,23 @@ public:
 	virtual void			Late_Update(_float fTimeDelta) override;
 	virtual HRESULT			Render();
 
+	void					Bind_ResourceFromFlag(CShader* pShader,const _char* pConstantName);
 	void					Set_Shoot(_bool bShoot) { m_bShoot = bShoot; }
+
 public:
-	strGrabarm& Get_ArmMatrix()	{ return m_ArmMatrix; }
+	strGrabarm&				Get_ArmMatrix()	{ return m_ArmMatrix; }
 
 public:
 	string					Model_Animation(const vector<string>& pNames);
 private:
 	HRESULT					Ready_Component();
 private:
+	
 	_bool								m_bShoot = false;
 	_float4x4							m_offSet = {};
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
-	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
-	vector<uint32_t>					m_MeshNameList;
 
+	vector<uint32_t>					m_MeshNameList;
 	strGrabarm							m_ArmMatrix;
 public:
 	static unique_ptr<CPlayer_Arm> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

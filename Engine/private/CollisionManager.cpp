@@ -231,10 +231,8 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	_matrix DstWorld = DstTransform->Get_World();
 	_matrix DstInverseWorld = XMMatrixInverse(nullptr, DstWorld);
 
-	_float3  DstMin{}, DstMax{};
-
-	DstMin = DstTransform->Get_Min();
-	DstMax = DstTransform->Get_Max();
+	_float3 DstMin = DstTransform->Get_Min();
+	_float3 DstMax = DstTransform->Get_Max();
 
 	_vector DstLocalCenter = (XMLoadFloat3(&DstMax) + XMLoadFloat3(&DstMin)) * 0.5f;
 	_vector DstExtents     = (XMLoadFloat3(&DstMax) - XMLoadFloat3(&DstMin)) * 0.5f;
@@ -250,8 +248,22 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 	_float fDist{};
 	if (box.Intersects(SrcLocalPos, SrcLocalRay, fDist))
 	{
-		if (fDist < 3.f)
+		if (fDist < 30.f)
 		{
+			BoundingBox SrcBox;
+
+			_float3 SrcMin = SrcTransform->Get_Min();
+			_float3 SrcMax = SrcTransform->Get_Max();
+
+			_vector SrcExtents = (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f;
+
+			XMStoreFloat3(&SrcBox.Center,  SrcWorld.r[3]);
+			XMStoreFloat3(&SrcBox.Extents, SrcExtents);
+
+			SrcBox.Transform(SrcBox, DstInverseWorld);
+			if (SrcBox.Intersects(box))
+				return true;
+			
 			if (NULL_FALSE(pstrCollision))
 			{
 				XMStoreFloat3(&pstrCollision->DstLocalPos, DstLocalCenter);
@@ -260,8 +272,6 @@ _bool CCollisionManager::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTran
 				pstrCollision->fDist=fDist;
 
 			}
-
-			return true;
 		}
 	}
 	return false;

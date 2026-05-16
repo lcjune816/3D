@@ -49,24 +49,24 @@ _bool				CTrigger::Set_DstTransform(shared_ptr<CTransform> pTransform)
 	return false;
 }
 
-void CTrigger::Set_Flag(TRIGGER_FLAG eFlag, FLAGVALUE eValue)
+void CTrigger::Set_Flag(uint32_t iFlag, FLAGVALUE eValue)
 {
 
 	switch (eValue)
 	{
 	case FLAGVALUE::ENABLE:
 
-		m_iFlag |= ETOUI(eFlag);
+		m_iFlag |= iFlag;
 		break;
 
 	case FLAGVALUE::DISABLE:
 
-		m_iFlag &= ~ETOUI(eFlag);
+		m_iFlag &= ~iFlag;
 		break;
 
 	case FLAGVALUE::TOGGLE:
 
-		m_iFlag ^= ETOUI(eFlag);
+		m_iFlag ^= iFlag;
 		break;
 
 	case FLAGVALUE::RESET:
@@ -75,6 +75,14 @@ void CTrigger::Set_Flag(TRIGGER_FLAG eFlag, FLAGVALUE eValue)
 		break;
 	
 	}
+}
+
+_bool CTrigger::Check_Flag(uint32_t iFlag)
+{
+	if (m_iFlag & iFlag)
+		return true;
+
+	return false;
 }
 
 void CTrigger::Bind_Resource(shared_ptr<CShader> pShader, const _char* pConstantName)

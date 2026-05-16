@@ -24,7 +24,11 @@ HRESULT CBlueElectric::Initialize(void* pArg)
 
 	__super::Initialize(pArg);
 
-	m_eEventTrigger = TRIGGER_EVENT::ELECTRIC;
+	m_eEventTrigger = TRIGGER_EVENT::BELECTRIC;
+	uint32_t iFlag = ETOUI(TRIGGER_FLAG::ATTACHED) | ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER);
+	
+	m_BindValue.fColor = { 0,0,1,1 };
+	Set_Flag(iFlag, FLAGVALUE::ENABLE);
 	m_fRotationArrow = 10.f;
 	m_bOtherTrigger = true;
 	return S_OK;
@@ -37,51 +41,7 @@ HRESULT CBlueElectric::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigg
 }
 HRESULT CBlueElectric::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-
-	if (!m_bTriggerOn) return E_FAIL;
-	auto pDstTransform = m_pDstTransform.lock();
-
-	if (m_bTriggerOn && !m_bOtherTrigger)
-	{
-		m_fFrameTick += fTimeDelta;
-
-		if (m_fFrameTick > 0.1f)
-		{
-			m_fFrameTick = 0.f;
-			++m_fFrameTime;
-		}
-		if (m_fFrameTime > 5.f)
-		{
-			m_fFrameTime = 0.f;
-			m_bOtherTrigger = true;
-			Disconnect_Transform();
-		}
-
-		return S_OK;
-		//여기 전기 파지직
-	}
-
-	_vector vPos{};
-
-	if (NULL_FALSE(pDstTransform) && m_bOtherTrigger)
-	{
-		m_fFrameTick += fTimeDelta;
-
-		if (m_fFrameTick > 0.1f)
-		{
-			m_fFrameTick = 0.f;
-			++m_fFrameTime;
-		}
-	}
-
-	if (m_fFrameTime > 20.f)
-	{
-		m_fFrameTime = 0.f;
-		m_bOtherTrigger = false;
-		m_bTriggerOn = false;
-	}
-
-	if (m_iFlag && ETOUI(TRIGGER_FLAG::SHADER))
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 		Action_Trigger();
 
 	return S_OK;
@@ -98,35 +58,35 @@ _bool CBlueElectric::offsetMatrix(_float4x4* pMatrix)
 	auto pDstTransform = m_pDstTransform.lock();
 	if (NULL_TRUE(pObj) || (NULL_TRUE(pDstTransform) && !m_bOtherTrigger))
 		return false;
+	auto pTransform = pObj->Get_Transform().lock();
 
 	_matrix matOffset = XMMatrixIdentity();
 
-	auto pTransform = pObj->Get_Transform().lock();
+	_vector SrcPos = pTransform->Get_World().r[3];
+	_vector DstPos = pDstTransform->Get_World().r[3];
 	_float3 fMax = pTransform->Get_Max();
 	_float3 fMin = pTransform->Get_Min();
 
-
-	//_vector vWorldMax = XMVector3TransformCoord(XMLoadFloat3(&fMax), pTransform->Get_World());
-	//_vector vWorldMin = XMVector3TransformCoord(XMLoadFloat3(&fMin), pTransform->Get_World());
-
-	_vector vCenter = (XMLoadFloat3(&fMax)+ XMLoadFloat3(&fMin)) * 0.5f;
-	_vector vDstPos = pDstTransform->Get_State(STATE::POS);
+	_vector vCenter = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
+	_vector vLook = pDstTransform->Get_World().r[2];
 
 	vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 
-	_float Length = XMVectorGetX(XMVector3Length((vCenter - vDstPos)));
-	_vector FLook = XMVector3Normalize(vCenter - vDstPos);
 
-	vDstPos += FLook * Length ;
-	matOffset.r[3] = XMVectorSetW(vDstPos,1.f);
+	SrcPos = vCenter + vLook * 3.f;
 
+	matOffset.r[3] = SrcPos;
 	XMStoreFloat4x4(pMatrix, matOffset);
 	return true;
+}
+void CBlueElectric::Set_Trigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
 }
 void CBlueElectric::Action_Trigger()
 {
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-	if (NULL_FALSE(TriggerCheck))
+	if (NULL_FALSE(TriggerCheck) && ETOUI(TRIGGER_FLAG::OTHERTRIGGER))
 		TriggerCheck->Set_Trigger();
 
 }

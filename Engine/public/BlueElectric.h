@@ -21,6 +21,8 @@ public:
 
 
 	virtual _bool					offsetMatrix(_float4x4* pMatrix)override;
+	virtual void					Set_Trigger() override;
+
 private:
 	void			Action_Trigger();
 private:

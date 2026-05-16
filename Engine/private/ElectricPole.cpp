@@ -32,8 +32,7 @@ HRESULT CElectricPole::Initialize(void* pArg)
 }
 HRESULT CElectricPole::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-
-	m_bOtherTrigger = false;
+	Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::DISABLE);
 	return S_OK;
 
 }
@@ -44,40 +43,30 @@ HRESULT CElectricPole::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 HRESULT CElectricPole::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {//손에 전기 뭍은상태로 닿으면 문 열리게 바꿔야지
 
-	_bool Shader = false;
-	if (!m_bOtherTrigger)
-		m_bTriggerOn = false;
-
-	if (m_bTriggerOn)
-		Shader = true;
-
-	Action_Trigger(Shader);
+	Action_Trigger();
 
 	return S_OK;
+}
+void CElectricPole::Set_Trigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }
 _bool CElectricPole::offsetMatrix(_float4x4* pMatrix)
 {
 	return true;
 }
-void CElectricPole::Action_Trigger(_bool bShader)
+void CElectricPole::Action_Trigger()
 {
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-	if (bShader)
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::SHADER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Trigger();
+			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER)| ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 		m_BindValue.fColor = { 0,1,0,1 };
-		Set_Flag(TRIGGER_FLAG::SHADER, FLAGVALUE::ENABLE);
 	}
 	else
-	{
-		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Trigger(false);
 		m_BindValue.fColor = { 1,1,1,1 };
-		Set_Flag(TRIGGER_FLAG::SHADER, FLAGVALUE::DISABLE);
-		Disconnect_Transform();
-		m_bTriggerOn = false;
-	}
+	
 
 }
 

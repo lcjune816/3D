@@ -27,7 +27,7 @@ HRESULT CLever::Initialize(void* pArg)
 
 HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (!m_bTriggerOn) return E_FAIL;
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
 
 	m_fFrameTick += fTimeDelta;
 	if (m_fFrameTick > 0.01f)
@@ -43,13 +43,18 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
 		m_fAngle = 0.f;
-		m_bTriggerOn = false;
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	}
 	return S_OK;
 }
 HRESULT CLever::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger )
 {
 	return S_OK;
+}
+
+void CLever::Set_Trigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }
 
 void CLever::Action_Trigger()

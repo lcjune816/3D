@@ -26,7 +26,7 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 
 HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (!m_bTriggerOn) return E_FAIL;
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
 
 	m_fFrameTick += fTimeDelta;
 	if (m_fFrameTick > 0.03f)
@@ -40,7 +40,7 @@ HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	{
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
-		m_bTriggerOn = false;
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	}
 	return S_OK;
 }
@@ -48,6 +48,11 @@ HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 HRESULT CRollupDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 {
 	return S_OK;
+}
+
+void CRollupDoor::Set_Trigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }
 
 void CRollupDoor::Action_Trigger(_float fTimeDelta)

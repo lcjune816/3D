@@ -23,6 +23,7 @@
 #include "NaviMesh.h"
 #include "BlueElectric.h"
 #include "ElectricPole.h"
+#include "ElectricPannel.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

@@ -3,18 +3,16 @@
 #include "TriggerObject.h"
 #include "Player_Arm.h"
 #include "FSM_RightHand.h"
-#include "Player.h"
 CPLayer_RightHand::CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
-	CGameObject(pDevice, pContext)
+	CPlayer (pDevice, pContext)
 {
 
 }
-CPLayer_RightHand::CPLayer_RightHand(const CPLayer_RightHand& Prototye) : CGameObject(Prototye)
+CPLayer_RightHand::CPLayer_RightHand(const CPLayer_RightHand& Prototye) : CPlayer(Prototye)
 {
 }
 CPLayer_RightHand::~CPLayer_RightHand()
 {
-	m_pStateMachine.reset();
 };
 
 shared_ptr<CGameObject> CPLayer_RightHand::Get_Arm()
@@ -67,6 +65,7 @@ HRESULT CPLayer_RightHand::Initialize_Prototype()
 {
 	return S_OK;
 }
+
 HRESULT CPLayer_RightHand::Initialize(void* pArg)
 {
 	auto pDesc = static_cast<RIGHT_HAND_DESC*>(pArg);
@@ -74,13 +73,13 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 	desc.m_fRotationPerSec = 0.f;
 	desc.m_fSpeedPerSec = 60.f;
 	m_ParentsMatrix = pDesc->ParentsMatrix;
-	if (FAILED(__super::Initialize(&desc)))
+	if (FAILED(CGameObject::Initialize(&desc)))
 		return E_FAIL;
 
 	if (FAILED(Ready_Component()))
 		return E_FAIL;
 
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
+	if (FAILED(CGameObject::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 	
@@ -94,6 +93,8 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 }
 void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
 {
+
+	Timer(fTimeDelta);
 	m_pArm->Priority_Update(fTimeDelta);
 }
 void CPLayer_RightHand::Update(_float fTimeDelta)
@@ -119,6 +120,7 @@ HRESULT CPLayer_RightHand::Render()
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
+	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
@@ -140,7 +142,19 @@ void CPLayer_RightHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND,
 	m_pStateMachine->Add_State(HAND, pState);
 
 }
+void CPLayer_RightHand::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName)
+{
+	_float4 fColor{ 0,0,0,1 };
+	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+		fColor = { 0,1,0,1, };
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+		fColor = { 1,0,1,1 };
+	else
+		fColor = { 1,1,1,1, };
 
+	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);
+
+}
 unique_ptr<CPLayer_RightHand> CPLayer_RightHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
 	auto pInstance = unique_ptr<CPLayer_RightHand>(new CPLayer_RightHand(pDevice, pContext));

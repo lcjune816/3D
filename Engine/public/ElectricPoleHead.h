@@ -3,13 +3,13 @@
 
 NS_BEGIN(Engine)
 
-class ENGINE_DLL CElectricPole final : public CTrigger
+class ENGINE_DLL CElectricPoleHead final : public CTrigger
 {
 private:
-	CElectricPole(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
-	CElectricPole(const CElectricPole& Prototype);
+	CElectricPoleHead(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	CElectricPoleHead(const CElectricPoleHead& Prototype);
 public:
-	virtual ~CElectricPole();
+	virtual ~CElectricPoleHead();
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -30,7 +30,7 @@ private:
 
 
 public:
-	static unique_ptr<CElectricPole>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	static unique_ptr<CElectricPoleHead>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>		 Clone(void* pArg) override;
 
 };

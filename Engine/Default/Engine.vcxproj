@@ -167,7 +167,9 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Cube.h" />
     <ClInclude Include="..\public\DebugLine.h" />
     <ClInclude Include="..\public\Door.h" />
+    <ClInclude Include="..\public\ElectricPannel.h" />
     <ClInclude Include="..\public\ElectricPole.h" />
+    <ClInclude Include="..\public\ElectricPoleHead.h" />
     <ClInclude Include="..\public\Engine_Defines.h" />
     <ClInclude Include="..\public\Engine_Enum.h" />
     <ClInclude Include="..\public\Engine_Function.h" />
@@ -242,7 +244,9 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Cube.cpp" />
     <ClCompile Include="..\private\DebugLine.cpp" />
     <ClCompile Include="..\private\Door.cpp" />
+    <ClCompile Include="..\private\ElectricPannel.cpp" />
     <ClCompile Include="..\private\ElectricPole.cpp" />
+    <ClCompile Include="..\private\ElectricPoleHead.cpp" />
     <ClCompile Include="..\private\FSM_Machine.cpp" />
     <ClCompile Include="..\private\FSM_STATE.cpp" />
     <ClCompile Include="..\private\GameInstance.cpp" />

@@ -1,14 +1,14 @@
 #include "GameInstance.h"
 #include "TriggerObject.h"
 #include "Player_LeftHand.h"
-#include "Player.h"
-
+#include "FSM_LeftHand.h"
+#include "Player_Arm.h"
 CPlayer_LeftHand::CPlayer_LeftHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
-	CGameObject(pDevice, pContext)
+	CPlayer(pDevice, pContext)
 {
 
 }
-CPlayer_LeftHand::CPlayer_LeftHand(const CPlayer_LeftHand& Prototye) : CGameObject(Prototye)
+CPlayer_LeftHand::CPlayer_LeftHand(const CPlayer_LeftHand& Prototye) : CPlayer(Prototye)
 {
 }
 CPlayer_LeftHand::~CPlayer_LeftHand()
@@ -26,7 +26,7 @@ HRESULT CPlayer_LeftHand::Ready_Component()
 	_matrix mat = XMMatrixIdentity();
 	mat = XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
-
+	m_pArm = static_pointer_cast<CPlayer_Arm>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_Arm", nullptr));
 	return S_OK;
 }
 HRESULT CPlayer_LeftHand::Initialize_Prototype()
@@ -35,131 +35,87 @@ HRESULT CPlayer_LeftHand::Initialize_Prototype()
 }
 HRESULT CPlayer_LeftHand::Initialize(void* pArg)
 {
+	auto pDesc = static_cast<LEFT_HAND_DESC*>(pArg);
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 0.f;
-	desc.m_fSpeedPerSec = 30.f;
-
-	if (FAILED(__super::Initialize(&desc)))
+	desc.m_fSpeedPerSec = 60.f;
+	m_ParentsMatrix = pDesc->ParentsMatrix;
+	if (FAILED(CGameObject::Initialize(&desc)))
 		return E_FAIL;
-	
+
 	if (FAILED(Ready_Component()))
 		return E_FAIL;
 
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
+	if (FAILED(CGameObject::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
+
+	_matrix offset = XMMatrixIdentity();
+	offset *= XMMatrixScaling(0.1f, 0.1f, 0.1f);
+	offset.r[3] = XMVectorSet(2.f, -1.26f, -2.970f, 1.f);
+	XMStoreFloat4x4(&m_fOffsetMatrix, offset);
 	return S_OK;
 }
 
 
-void CPlayer_LeftHand::Enable_Electric()
-{
-}
-
-void					CPlayer_LeftHand::Hand_Pivot()
+void CPlayer_LeftHand::Hand_Pivot()
 {
 	auto pPlayer = m_pPlayer.lock();
 	if (NULL_TRUE(pPlayer))
 		return;
 
-	_matrix mat = XMMatrixIdentity();
-	_vector PlayerX, PlayerY, PlayerZ, PlayerW;
-	PlayerX = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::RIGHT));
-	PlayerY = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::UP));
-	PlayerZ = XMVector3Normalize(pPlayer->Get_Transform().lock()->Get_State(STATE::LOOK));
-	PlayerW = pPlayer->Get_Transform().lock()->Get_State(STATE::POS);
+	_float4x4 CombinedMatrix{};
+	_float4x4 BoneMatrix = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
+	_matrix FinalMatrix = XMLoadFloat4x4(&BoneMatrix);
 
-	memcpy(&mat.r[0], &PlayerX, sizeof _float3);
-	memcpy(&mat.r[1], &PlayerY, sizeof _float3);
-	memcpy(&mat.r[2], &PlayerZ, sizeof _float3);
-	memcpy(&mat.r[3], &PlayerW, sizeof _float3);
+	for (uint32_t i = 0; i < 3; ++i)
+		FinalMatrix.r[i] = XMVector3Normalize(FinalMatrix.r[i]);
 
-	_vector Pos = pPlayer->Get_Transform().lock()->Get_State(STATE::POS);
-
-	//JNT_L_HandAttachment
-	_float4x4	matPos = pPlayer->GetAnimator()->Find_Matrix(m_iOffsetIndex);
-
-	_vector x = XMVector3Normalize(XMVectorSet(matPos.m[0][0], matPos.m[0][1], matPos.m[0][2], 0.f));
-	_vector y = XMVector3Normalize(XMVectorSet(matPos.m[1][0], matPos.m[1][1], matPos.m[1][2], 0.f));
-	_vector z = XMVector3Normalize(XMVectorSet(matPos.m[2][0], matPos.m[2][1], matPos.m[2][2], 0.f));
-
-	memcpy(&matPos.m[0], &x, sizeof _float3);
-	memcpy(&matPos.m[1], &y, sizeof _float3);
-	memcpy(&matPos.m[2], &z, sizeof _float3);
-	_float3 offsetPos = { 2.f,-1.4f,-3.18f };
-	_matrix matoffset = XMMatrixIdentity();
-
-	memcpy(&matoffset.r[3], &offsetPos, sizeof _float3);
-	mat = XMMatrixScaling(0.1f, 0.1f, 0.1f) * matoffset * XMLoadFloat4x4(&matPos) * mat;
-
-
-	if (!m_tagHandState.bShoot)
-	{
-		m_pTransform->Set_State(STATE::RIGHT, mat.r[0]);
-		m_pTransform->Set_State(STATE::UP,    mat.r[1]);
-		m_pTransform->Set_State(STATE::LOOK,  mat.r[2]);
-		m_pTransform->Set_State(STATE::POS,   mat.r[3]);
-	}
-
-	XMStoreFloat4x4(&m_StartMatrix, mat);
-
+	XMStoreFloat4x4(&CombinedMatrix, XMLoadFloat4x4(&m_fOffsetMatrix) * FinalMatrix * XMLoadFloat4x4(m_ParentsMatrix));
+	m_pTransform->CombinedMatrix(&CombinedMatrix);
 }
-void					CPlayer_LeftHand::Hand_Collision()
+
+
+void	CPlayer_LeftHand::State_Move()
 {
-	CGameObject* pObj = nullptr;
-
-	//if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", SHARED_THIS(CPlayer_LeftHand))))
-	//	m_eLHand = PLAYER_HAND::WALL;
-	//else if (NULL_FALSE(pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", SHARED_THIS(CPlayer_LeftHand))))
-	//{
-	//	auto Obj = static_cast<CTriggerObject*>(pObj);
-	//	Obj->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
-	//	Hand_Trigger_Event(Obj, Obj->Get_TriggerPtr()->Get_Trigger_Event());
-	//	Obj->Set_Trigger();
-	//
-	//	m_eLHand = PLAYER_HAND::TRIGGER;
-	//}
-	//else
-	//{
-	//	m_eLHand = PLAYER_HAND::END;
-	//}
-
+	if (!m_tagHandState.bShoot && CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80)
+	{
+		m_tagHandState.bShoot = true;
+		m_pStateMachine->Change_State(FSM::HAND);
+	}
 }
 void CPlayer_LeftHand::Priority_Update(_float fTimeDelta)
 {
 
+	Timer(fTimeDelta);
+	m_pArm->Priority_Update(fTimeDelta);
 }
 void CPlayer_LeftHand::Update(_float fTimeDelta)
 {
-
 	Hand_Pivot();
-	Hand_Collision();
+	State_Move();
+	m_pStateMachine->Update_Machine(fTimeDelta);
+
+	m_pArm->Update(fTimeDelta);
 
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPlayer_LeftHand));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer_LeftHand));
 
 }
 void CPlayer_LeftHand::Late_Update(_float fTimeDelta)
 {
+
+	m_pArm->Late_Update(fTimeDelta);
 }
 HRESULT CPlayer_LeftHand::Render()
 {
-	for (uint32_t i = 0; i < BONE_MATRIX; ++i)
-		XMStoreFloat4x4(&m_bones[i], XMMatrixIdentity());
-
-	vector<_float4x4> bBone = m_pAnimator->Get_FinalBoneMatrix();
-	for (uint32_t i = 0; i < m_pAnimator->Get_BoneCnt(); ++i)
-	{
-		m_bones[i] = bBone[i];
-
-	}
-
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pShaderCom->Bind_Matrix_Array("g_Bone", &m_bones[0], BONE_MATRIX);
+	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
+	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
@@ -168,18 +124,31 @@ HRESULT CPlayer_LeftHand::Render()
 		iter->Render();
 
 	}
+	m_pArm->Render();
 	return S_OK;
 }
-
-void CPlayer_LeftHand::Hand_Trigger_Event(CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger)
+void CPlayer_LeftHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine> pFsmMachine, shared_ptr<CFSM_LeftHand> pState, int32_t iKey)
 {
-	switch (eTrigger)
-	{
-	case TRIGGER_EVENT::ELECTRIC:
-		m_tagHandState.bHandAttached = pTrigger->Get_TriggerPtr()->Get_OtherTrigger();
-		XMStoreFloat4x4(&m_LastMatrix, m_pTransform->Get_World());
-		break;
-	}
+	m_pPlayer = static_pointer_cast<CPlayer>(pPlayer);
+	m_iOffsetIndex = iKey;
+	pState->Set_LeftHand(SHARED_THIS(CPlayer_LeftHand), m_pArm);
+	m_pStateMachine = pFsmMachine;
+	m_pStateMachine->Set_Owner(pPlayer);
+	m_pStateMachine->Add_State(HAND, pState);
+
+}
+void CPlayer_LeftHand::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName)
+{
+	_float4 fColor{ 0,0,0,1 };
+	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+		fColor = { 0,1,0,1, };
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+		fColor = { 1,0,1,1 };
+	else
+		fColor = { 1,1,1,1, };
+
+	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);
+
 }
 unique_ptr<CPlayer_LeftHand> CPlayer_LeftHand::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
