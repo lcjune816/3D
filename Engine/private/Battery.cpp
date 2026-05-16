@@ -35,7 +35,8 @@ HRESULT CBattery::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 }
 HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (m_bOtherTrigger) return E_FAIL;
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::CANCLE)))
+		return E_FAIL;
 
 	_vector vPos{};
 	auto pObj = m_pParent.lock();
@@ -44,7 +45,7 @@ HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		return E_FAIL;
 	auto pTransform = pObj->Get_Transform().lock();
 
-	if (NULL_FALSE(pDstTransform))
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::ATTACHED)) && NULL_FALSE(pDstTransform))
 	{
 		_matrix SrcWorld = pTransform->Get_World();
 		_matrix DstWorld = pDstTransform->Get_World();
@@ -105,17 +106,19 @@ HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
 	if (NULL_TRUE(Target))
 		return E_FAIL;
-	Target->Set_OtherTrigger(true);
-	if (0 == static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(m_pParent.lock()->Get_Transform()))
+	Target->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
+	if (SUCCEEDED(static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(m_pParent.lock()->Get_Transform())))
 	{
 		pObj->Set_EndObject(true);
 		Disconnect_Transform();
-		m_bOtherTrigger = true;
+		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 
-		m_bTriggerOn = false;
-		m_iFlag |= ETOUI(TRIGGER_FLAG::END);
 	}
 	return S_OK;
+}
+void CBattery::Set_Trigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::ATTACHED), FLAGVALUE::ENABLE);
 }
 void CBattery::Action_Trigger()
 {

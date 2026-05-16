@@ -15,21 +15,6 @@ CFSM_Hand::~CFSM_Hand()
 
 HRESULT CFSM_Hand::Initialize(void* pArg)
 {
-
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_01");
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_02");
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_03");
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_04");
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_05");
-	m_ShootBone[ETOUI(ARROW::RIGHT)].push_back("JNT_R_Grabpack_Tube_06");
-
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_01");
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_02");
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_03");
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_04");
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_05");
-	m_ShootBone[ETOUI(ARROW::LEFT)].push_back("JNT_L_Grabpack_Tube_06");
-
 	return S_OK;
 }
 

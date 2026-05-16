@@ -19,10 +19,12 @@ public:
 	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false)override;
 	virtual HRESULT Late_Interaction(_float fTimeDelta, _bool bOtherTrigger = false)override;
 
+	virtual void					Set_Trigger() override;
+
 
 	virtual _bool					offsetMatrix(_float4x4* pMatrix)override;
 private:
-	void							Action_Trigger(_bool bShader);
+	void							Action_Trigger();
 private:
 	_float						m_fRotationArrow = { 1.f };
 

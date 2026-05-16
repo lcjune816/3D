@@ -166,7 +166,10 @@
     <Filter Include="10.Trigger_Manager\Trigger\Electric\Blue">
       <UniqueIdentifier>{30c75205-db54-4d5a-8015-51c721d3e35e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pool">
+    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pannel">
+      <UniqueIdentifier>{f599515a-e54b-4ffa-b759-d8984809b939}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pole">
       <UniqueIdentifier>{08c08048-ec08-4ddd-aba6-133148ee4bcb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -341,13 +344,19 @@
       <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
     </ClInclude>
     <ClInclude Include="..\public\ElectricPole.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pool</Filter>
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
     </ClInclude>
     <ClInclude Include="..\public\BlueElectric.h">
       <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Triangle.h">
       <Filter>06.Component\VIBuffer\Rect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ElectricPannel.h">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pannel</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ElectricPoleHead.h">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -535,13 +544,19 @@
       <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
     </ClCompile>
     <ClCompile Include="..\private\ElectricPole.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pool</Filter>
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
     </ClCompile>
     <ClCompile Include="..\private\BlueElectric.cpp">
       <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Triangle.cpp">
       <Filter>06.Component\VIBuffer\Rect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ElectricPannel.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pannel</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ElectricPoleHead.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

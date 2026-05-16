@@ -22,3 +22,57 @@ HRESULT CPlayer_FSM::Initialize_State(weak_ptr<CGameObject> pObj)
 
 	return S_OK;
 }
+_bool CPlayer_FSM::Flag_Check(uint32_t iFlag)
+{
+	if (m_iStateFlag & iFlag)
+		return true;
+
+	return false;
+}
+
+void CPlayer_FSM::Set_Flag(uint32_t eState, FLAGVALUE eValue)
+{
+	switch (eValue)
+	{
+	case FLAGVALUE::ENABLE:
+
+		m_iStateFlag |= eState;
+		break;
+
+	case FLAGVALUE::DISABLE:
+
+		m_iStateFlag &= ~eState;
+		break;
+
+	case FLAGVALUE::TOGGLE:
+
+		m_iStateFlag ^= eState;
+		break;
+
+	case FLAGVALUE::RESET:
+
+		m_iStateFlag = 0;
+		break;
+
+	}
+}
+
+void CPlayer_FSM::Timer(const _float& fTimeDelta)
+{
+	if (!Flag_Check(ETOUI(FSM_HAND_FLAG::TIMER)))
+		return;
+
+	m_fTimerTick += fTimeDelta;
+
+	if (m_fTimerTick > 0.01f)
+	{
+		m_fTimerTick = 0;
+		++m_fTimerTime;
+	}
+
+	if (m_fTimerTime > 30.f)
+	{
+		Hand_State_Chand(CHANGE_STATE::PULL);
+	}
+
+}

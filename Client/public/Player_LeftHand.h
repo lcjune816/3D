@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObject.h"
+#include "Player.h"
 #include "Client_Defines.h"
 namespace Engine
 {
@@ -7,14 +7,14 @@ namespace Engine
 }
 NS_BEGIN(Client)
 
-
-class CPlayer_LeftHand final : public CGameObject
+class CPlayer_LeftHand final : public CPlayer
 {
-private:
-	typedef struct HandState
+public:
+	typedef struct strPlayerLeftHand
 	{
-		_bool bHandAttached{ false }, bShoot{ false };
-	}HAND_STATE;
+		_float4x4* ParentsMatrix;
+		_float4x4   BoneoffsetMatrix;
+	}LEFT_HAND_DESC;
 private:
 	CPlayer_LeftHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	CPlayer_LeftHand(const CPlayer_LeftHand& Prototye);
@@ -28,39 +28,31 @@ public:
 	virtual void			Late_Update(_float fTimeDelta) override;
 	virtual HRESULT			Render();
 
-public:
-	string					Model_Animation(const vector<string>& pNames);
-	void					Connet_Player(shared_ptr<class CPlayer> pPlayer, int32_t iOffsetIndex) { m_pPlayer = pPlayer; m_iOffsetIndex = iOffsetIndex; }
-	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 
-	void					Enable_Electric();
-	const PLAYER_HAND		Get_PlayerHand() { return m_eLHand; }
-	const _float4x4         Get_FirstMatrix() { return m_StartMatrix; }
-	const _float4x4			Get_LastMatrix() { return m_LastMatrix; }
-	HAND_STATE&			    Get_HandState() { return m_tagHandState; }
-private:
+public:
+	void					Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine>pFsmMachine, shared_ptr<class CFSM_LeftHand> pState, int32_t iKey);
+	const PLAYER_HAND		Get_PlayerHand() { return m_eRHand; }
+	HAND_STATE&				Get_HandState() { return m_tagHandState; }
+	shared_ptr<CGameObject>	Get_Arm();
+
 	void					Hand_Pivot();
-	void					Hand_Collision();
-	void					Hand_Trigger_Event(class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger);
+
 private:
+	void					Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName);
+	void					State_Move();
 	HRESULT					Ready_Component();
 private:
-
-	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
-	shared_ptr<Engine::CAnimator>		m_pAnimator;
+	shared_ptr<class CPlayer_Arm>		m_pArm = { nullptr };
 	weak_ptr<class CPlayer>				m_pPlayer;
-	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
 private:
 	int32_t								m_iOffsetIndex = {};
-
-	_float4x4							m_LastMatrix;
-	_float4x4							m_StartMatrix;
+	_float4x4							 m_fOffsetMatrix, m_FinalWorldMatrix;
 	_float4x4							m_bones[BONE_MATRIX];
 
-	PLAYER_HAND							m_eLHand = { PLAYER_HAND::END };
-
+	_float4x4* m_ParentsMatrix{};
 	HAND_STATE							m_tagHandState = {};
+	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
 public:
 	static unique_ptr<CPlayer_LeftHand> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

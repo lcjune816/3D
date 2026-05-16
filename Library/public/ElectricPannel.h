@@ -3,13 +3,13 @@
 
 NS_BEGIN(Engine)
 
-class ENGINE_DLL CElectricPole final : public CTrigger
+class ENGINE_DLL CElectricPannel final : public CTrigger
 {
 private:
-	CElectricPole(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
-	CElectricPole(const CElectricPole& Prototype);
+	CElectricPannel(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	CElectricPannel(const CElectricPannel& Prototype);
 public:
-	virtual ~CElectricPole();
+	virtual ~CElectricPannel();
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -21,7 +21,6 @@ public:
 
 	virtual void					Set_Trigger() override;
 
-
 	virtual _bool					offsetMatrix(_float4x4* pMatrix)override;
 private:
 	void							Action_Trigger();
@@ -30,7 +29,7 @@ private:
 
 
 public:
-	static unique_ptr<CElectricPole>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	static unique_ptr<CElectricPannel>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>		 Clone(void* pArg) override;
 
 };

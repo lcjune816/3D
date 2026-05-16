@@ -22,12 +22,13 @@ HRESULT CDoor::Initialize(void* pArg)
 
 	m_eEventTrigger = TRIGGER_EVENT::DOOR;
 	m_fRotationArrow = 0.25f;
+	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 	return S_OK;
 }
 
 HRESULT CDoor::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 {
-	if (!m_bTriggerOn) return E_FAIL;
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
 
 	m_fFrameTick += fTimeDelta;
 	if (m_fFrameTick > 0.01f)
@@ -44,13 +45,21 @@ HRESULT CDoor::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
 		m_fAngle = 0.f;
-		m_bTriggerOn = false;
+
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	}
 	return S_OK;
 }
 HRESULT CDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 {
 	return S_OK;
+}
+void CDoor::Set_Trigger()
+{
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		return;
+
+	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }
 void CDoor::Action_Trigger()
 {

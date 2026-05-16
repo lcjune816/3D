@@ -38,12 +38,10 @@ HRESULT CPlayer::Ready_Component()
 	mat = XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
-	{
-		m_pStateMachine[i] = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
+
+		m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
 		if (NULL_TRUE(m_pStateMachine)) return E_FAIL;
 
-	}
 	
 	auto Idle = static_pointer_cast<CFSM_Idle>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Idle", nullptr));
 	if(NULL_TRUE(Idle)) return E_FAIL;
@@ -57,48 +55,56 @@ HRESULT CPlayer::Ready_Component()
 	auto Crouch = static_pointer_cast<CFSM_Crouch>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Crouch", nullptr));
 	if (NULL_TRUE(Crouch)) return E_FAIL;
 	
-	auto FsmLeftHand = static_pointer_cast<CFSM_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_LeftHand", nullptr));
-	if (NULL_TRUE(FsmLeftHand)) return E_FAIL;
+
 
 	///////////////////////////////////////손//////////////////////////////////////////////////////////////////////////////////
 	CFSM_RightHand::FSM_PLAYER_DESC pFsmDesc;
+	CFSM_LeftHand::FSM_PLAYER_DESC pFsmLeftDesc;
+
 	CPLayer_RightHand::RIGHT_HAND_DESC pDesc;
+	CPlayer_LeftHand::LEFT_HAND_DESC pLeftDesc;
+
 	pDesc.ParentsMatrix = m_pTransform->Get_WorldPtr();
+	pLeftDesc.ParentsMatrix = m_pTransform->Get_WorldPtr();
+
 	auto RHand = static_pointer_cast<CPLayer_RightHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_PlayerRightHand", &pDesc));
 	if (NULL_TRUE(RHand)) return E_FAIL;
-
-	auto LHand = static_pointer_cast<CPlayer_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_PlayerLeftHand", nullptr));
-	if (NULL_TRUE(LHand)) return E_FAIL;
-
 	pFsmDesc.ParentsMatrix = RHand->Get_TransformPtr()->Get_WorldPtr();
+
 	auto RightStateMachine = move(static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr)));
 	if (NULL_TRUE(RightStateMachine)) return E_FAIL;
 
 	auto FsmRightHand = move(static_pointer_cast<CFSM_RightHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_RightHand", &pFsmDesc)));
 	if (NULL_TRUE(FsmRightHand)) return E_FAIL;
+
+	///////////////////////////////////////////////////왼손////////////////////////////////////////////////////////////////////
+	auto LHand = static_pointer_cast<CPlayer_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_PlayerLeftHand", &pLeftDesc));
+	if (NULL_TRUE(LHand)) return E_FAIL;
+	pFsmLeftDesc.ParentsMatrix = LHand->Get_TransformPtr()->Get_WorldPtr();
+
+	auto LeftStateMachine = move(static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr)));
+	if (NULL_TRUE(LeftStateMachine)) return E_FAIL;
+
+	auto FsmLeftHand = static_pointer_cast<CFSM_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_LeftHand", &pFsmLeftDesc));
+	if (NULL_TRUE(FsmLeftHand)) return E_FAIL;
 	///////////////////////////////////////손//////////////////////////////////////////////////////////////////////////////////
 
 	//"JNT_R_Grabpack_Tube_06"
 	//	"JNT_R_Grabpack_Gun"
-	LHand->Connet_Player(SHARED_THIS(CPlayer), GetAnimator()->Find_Key("JNT_L_HandAttachment"));
+
+	LHand->Connet_Player(SHARED_THIS(CPlayer), FSM::HAND, move(LeftStateMachine) , move(FsmLeftHand), GetAnimator()->Find_Key("JNT_L_HandAttachment_Pivot"));
 	RHand->Connet_Player(SHARED_THIS(CPlayer), FSM::HAND, move(RightStateMachine), move(FsmRightHand), GetAnimator()->Find_Key("JNT_R_HandAttachment_Pivot"));
 	
 	m_pPlayerLHand = move(LHand);
 	m_pPlayerRHand = move(RHand);
 
-	FsmLeftHand->Set_LeftHand(m_pPlayerLHand);
-	
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
-		m_pStateMachine[i]->Set_Owner(SHARED_THIS(CPlayer));
 
-
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::IDLE, Idle);
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::MOVE, Move);
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::JUMP, Jump);
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Add_State(FSM::CROUCH, Crouch);
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::LEFT_HAND)]->Add_State(FSM::HAND, FsmLeftHand);
-
-	m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Change_State(FSM::IDLE);
+	m_pStateMachine->Set_Owner(SHARED_THIS(CPlayer));
+	m_pStateMachine->Add_State(FSM::IDLE, Idle);
+	m_pStateMachine->Add_State(FSM::MOVE, Move);
+	m_pStateMachine->Add_State(FSM::JUMP, Jump);
+	m_pStateMachine->Add_State(FSM::CROUCH, Crouch);
+	m_pStateMachine->Change_State(FSM::IDLE);
 
 	
 	return S_OK;
@@ -149,16 +155,6 @@ void CPlayer::State_Move()
 		m_eState = MOVE::JUMP;
 		m_ePlayer.bJump = true;
 	}
-	
-	///////////////////손//////////////////////
-
-	if (!m_ePlayer.bLHand && CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80)
-	{
-		m_ePlayer.bLHand = true;
-
-		m_pStateMachine[ETOUI(PLAYER_MACHINE::LEFT_HAND)]->Change_State(FSM::HAND);
-	}
-		
 
 	//////////////기본 동작/////////////////////
 	if (m_ePlayer.bFalling)
@@ -168,13 +164,13 @@ void CPlayer::State_Move()
 	if (m_ePlayer.bJump )
 	{
 		m_ePlayer.bFalling = true;
-		m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Change_State(FSM::JUMP);
+		m_pStateMachine->Change_State(FSM::JUMP);
 		return;
 	}
 
 	if (m_ePlayer.bCrouch)
 	{
-		m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Change_State(FSM::CROUCH);
+		m_pStateMachine->Change_State(FSM::CROUCH);
 		return;
 	}
 
@@ -187,7 +183,7 @@ void CPlayer::State_Move()
 		}
 		else
 			m_ePlayer.bRun = false;
-		m_pStateMachine[ETOUI(PLAYER_MACHINE::NORMAL)]->Change_State(FSM::MOVE);
+		m_pStateMachine->Change_State(FSM::MOVE);
 	}
 
 }
@@ -233,15 +229,10 @@ void CPlayer::Update(_float fTimeDelta)
 
 	Turn(fTimeDelta);
 	State_Move();
-	CameraSetting();
 
  	m_pAnimator->Update(fTimeDelta);
+	m_pStateMachine->Update_Machine(fTimeDelta);
 
-
-	for (uint32_t i = 0; i < ETOUI(PLAYER_MACHINE::END)-1; ++i)
-		m_pStateMachine[i]->Update_Machine(fTimeDelta);
-
-	//m_pAnimator->CalculateFinalBoneMatrices();
 	m_bFinished = m_pAnimator->Animation_End();
 
 	m_pPlayerRHand->Update(fTimeDelta);
@@ -281,7 +272,6 @@ HRESULT CPlayer::Render()
 		iter->Render();
 
 	}
-
 	m_pPlayerRHand->Render();
 	m_pPlayerLHand->Render();
 	return S_OK;
@@ -371,19 +361,62 @@ void CPlayer::Turn(const _float& fTimeDelta)
 	}
 }
 
-void CPlayer::CameraSetting()
+void CPlayer::Set_Flag(uint32_t eState, FLAGVALUE eValue)
 {
-	//uint32_t index = m_pAnimator->Find_Key("JNT_Camera");
-	//_float4x4 Matrix = m_pAnimator->Find_Matrix(index);
-	//
-	//_vector Pos = {};
-	//memcpy(&Pos, &Matrix.m[3], sizeof _float3);
-	//Pos = XMVectorSetW(Pos, 1.f);
-	//
-	//m_pTransform->Set_State(STATE::POS, Pos);
-		
-}
+	switch (eValue)
+	{
+	case FLAGVALUE::ENABLE:
 
+		m_iStateFlag |= eState;
+		break;
+
+	case FLAGVALUE::DISABLE:
+
+		m_iStateFlag &= ~eState;
+		break;
+
+	case FLAGVALUE::TOGGLE:
+
+		m_iStateFlag ^= eState;
+		break;
+
+	case FLAGVALUE::RESET:
+
+		m_iStateFlag = 0;
+		m_fTimerTick = 0.f;
+		break;
+
+	}
+}
+_bool CPlayer::Flag_Check(uint32_t iFlag)
+{
+	if (m_iStateFlag & iFlag)
+		return true;
+
+	return false;
+}
+void CPlayer::Timer(const _float& fTimeDelta)
+{
+
+	if (!(m_iStateFlag & ETOUI(PLAYER_FLAG::TIMER)))
+		return;
+
+	m_fTimerTick += fTimeDelta;
+
+	if (m_fTimerTick > 0.1f)
+	{
+		m_fTimerTick = 0;
+		++m_fTimerCnt;
+	}
+
+	if (m_fTimerCnt > 100.f)
+	{
+		m_fTimerCnt = 0;
+		uint32_t iFlag = ETOUI(PLAYER_FLAG::END);
+		Set_Flag(iFlag,FLAGVALUE::RESET);
+	}
+
+}
 void CPlayer::Change_Animation(PLAYER_ANIME eAnime, _bool bLoop)
 {
 	if (m_bOnlyActionState)

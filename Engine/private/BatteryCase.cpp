@@ -22,6 +22,7 @@ HRESULT CBatteryCase::Initialize(void* pArg)
 
 	m_eEventTrigger = TRIGGER_EVENT::BATTERYCASE;
 	m_fRotationArrow = 0.25f;
+
 	return S_OK;
 }
 
@@ -35,49 +36,64 @@ HRESULT CBatteryCase::Late_Interaction( _float fTimeDelta, _bool bOtherTrigger)
 {
 	return S_OK;
 }
+void CBatteryCase::Set_Trigger()
+{
+}
 HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 {
-	if (!m_bOtherTrigger)
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 		return E_FAIL;
+
 	auto pObj = m_pParent.lock();
 	if (NULL_TRUE(pObj))
 		return E_FAIL;
 	auto SrcTransform = pObj->Get_Transform().lock();
 	auto DstTransform = pTransform.lock();
+
 	if (NULL_TRUE(SrcTransform) || NULL_TRUE(DstTransform))
 		return E_FAIL;
-
+	
 	if(CGameInstance::Get().Only_AABB_Collision(SrcTransform, DstTransform))
 	{//충돌하면 배터리를 집어 넣으라
 		_vector vPos = SrcTransform->Get_State(STATE::POS);
 		vPos  += XMVectorSet(0,6.f,0,0);
-		_vector vLook = XMVector3Normalize(vPos - DstTransform->Get_World().r[3]);
-		_vector DstUp = DstTransform->Get_World().r[1];
-		_vector DstRight = DstTransform->Get_World().r[0];
-		_vector DstLook = DstTransform->Get_World().r[2];
+		_vector vSrcLook = SrcTransform->Get_World().r[2];
 
 		_vector vUp = { 0,1,0,0 };
+		_vector vRight = { 1,0,0,0 };
+		_vector vLook = { 0,0,1,0 };
+		_float fAngel = 90.f;
+		_float SrcX = XMVectorGetX(SrcTransform->Get_State(STATE::LOOK));
+		_float SrcZ = XMVectorGetX(SrcTransform->Get_State(STATE::LOOK));
 
-		if (XMVectorGetX(XMVector3Dot(vUp, DstUp)) < 0)
-			DstUp *= -1;
-		
-		_vector vRight = XMVector3Cross(vLook, DstUp);
+
+		_float X{}, Z{}, MX{}, MZ{};
+		_matrix matRot{};
+		X = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), vRight));
+		Z = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), vLook));
+		MX = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), -vRight));
+		MZ = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), -vLook));
 
 	
-		_matrix matRot = XMMatrixRotationAxis(DstRight, XMConvertToRadians(90.f));
+		if (XMVectorGetX(XMVector3Dot(vSrcLook, vLook)) > 0)
+			fAngel *= -1;
 
-		DstUp = XMVector3TransformNormal(DstUp, matRot);
-		DstLook = XMVector3TransformNormal(DstLook, matRot);
+		matRot = XMMatrixRotationAxis(vRight, XMConvertToRadians(fAngel));
+		vUp = XMVector3TransformNormal(vUp, matRot);
+		vLook = XMVector3TransformNormal(vLook, matRot);
+		
+	
+	
 
 		vPos = XMVectorSetW(vPos, 1.f);
-		DstTransform->Set_State(STATE::RIGHT, DstRight);
-		DstTransform->Set_State(STATE::UP, DstUp);
-		DstTransform->Set_State(STATE::LOOK, DstLook);
+		DstTransform->Set_State(STATE::RIGHT, vRight);
+		DstTransform->Set_State(STATE::UP, vUp);
+		DstTransform->Set_State(STATE::LOOK, vLook);
 
 		DstTransform->Set_State(STATE::POS, vPos);
 
-		m_bOtherTrigger = true;
-		
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+
 		return S_OK;
 	}
 

@@ -7,6 +7,9 @@
 
 namespace Client
 {
+#define    SPTCAST(Src)  static_pointer_cast<Src>
+#define    DPTCAST(Src)  dynamic_pointner_cast<Src>
+
 
 	static const unsigned int	   g_iWinSizeX = { 1280 };
 	static const unsigned int	   g_iWinSizeY = { 720 };
@@ -17,6 +20,7 @@ namespace Client
 	
 	enum class PLAYER_HAND{WALL,TRIGGER,FORCE, END};
 
+	enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002,TIMER = 0x00000004, END = 0xffffffff };
 }
 
 extern HWND			g_hWnd;

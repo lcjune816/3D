@@ -13,31 +13,32 @@ public:
 	virtual ~CFSM_LeftHand();
 
 public:
-	virtual HRESULT Initialize(void* pArg);
-	virtual void Enter_State() override;
-	virtual void Update_State(_float fTimeDelta)override;
-	virtual void Exit_State()  override;
+	virtual HRESULT		 Initialize(void* pArg);
+	virtual void		 Enter_State() override;
+	virtual void		 Update_State(_float fTimeDelta)override;
+	virtual void		 Exit_State()  override;
+	void				 Set_LeftHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm);
 
-public:
-	void			Set_LeftHand(shared_ptr<CGameObject> pObj);
-	void			Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer);
-	void			Mouse_Cal();
-
-	void			Hand_End(CPlayer* Player);
-	void			Hand_Collision_Check(const PLAYER_HAND eHand);
-
-	void			Set_Bone();
 private:
-	_bool			 m_bLeftHand{ false }, m_bEndHand{ false }, m_bEndInHand{ false };
+	void				Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta, class CPlayer_Arm* PlayerArm, class CPlayer_LeftHand* pRHand, _bool bFinished = false);
 
-	_float			m_fShootTime{ 0 }, m_fShootMaxTime{ 0 }, m_fShootTimeTick{ 0 }, m_fSpeed{ 0 };
-	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{};;
+	void				Hand_End(CPlayer* Player);
+	void				Hand_Collision_Check(shared_ptr<CPlayer_LeftHand> pObj, shared_ptr<CPlayer_Arm> pArm, const _float& fTimeDelta);
 
-	int32_t		m_iHandindex{}, m_iFirstHandindex{}, m_iHandAttachedindex{};
+	void				Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, shared_ptr<CPlayer_Arm> pArm, class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger, CTransform* pTransform, const _float& fTimeDelta);
+	virtual void		Hand_State_Chand(CHANGE_STATE eChange) override;
 
-	vector<int32_t>		m_ShootBone{};
+private:
+	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{}, m_fForce{};
 
-	shared_ptr<class CPlayer_LeftHand>		m_pHand;
+
+	vector<GRAB_ARM_EDGE>						m_EdgePoses;
+
+	_float4x4* m_StartMatrix = { nullptr };
+	uint32_t									m_iEdgeCnt = {};
+	vector<uint32_t>							m_iSizeCnt;
+	weak_ptr<class CPlayer_Arm>					m_pArm;
+	weak_ptr<class CPlayer_LeftHand>			m_pHand;
 public:
 	static unique_ptr<CFSM_LeftHand> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

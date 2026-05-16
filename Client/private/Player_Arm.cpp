@@ -3,11 +3,11 @@
 #include"TriggerObject.h"
 
 CPlayer_Arm::CPlayer_Arm(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
-	CGameObject(pDevice, pContext)
+	CPlayer(pDevice, pContext)
 {
 
 }
-CPlayer_Arm::CPlayer_Arm(const CPlayer_Arm& Prototye) :CGameObject(Prototye)
+CPlayer_Arm::CPlayer_Arm(const CPlayer_Arm& Prototye) :CPlayer(Prototye)
 {
 }
 CPlayer_Arm::~CPlayer_Arm()
@@ -21,12 +21,11 @@ HRESULT CPlayer_Arm::Initialize_Prototype()
 }
 HRESULT CPlayer_Arm::Initialize(void* pArg)
 {
-
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 0.f;
 	desc.m_fSpeedPerSec = 0.f;
 
-	if (FAILED(__super::Initialize(&desc)))
+	if (FAILED(CGameObject::Initialize(&desc)))
 		return E_FAIL;
 
 	Engine::IMPORTMODEL_DESC importModel;
@@ -34,10 +33,10 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 	importModel.bAllModel = 1;
 	importModel.eType = MESH_TYPE::NONANIME;
 
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_ArrayShader"),	TEXT("Com_Shader"), m_pShaderCom)))
+	if (FAILED(CGameObject::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_ArrayShader"),	TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pBoxShader)))
+	if (FAILED(CGameObject::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pBoxShader)))
 		return E_FAIL;
 
 	m_pBoxMesh = static_pointer_cast<CCube>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube", &pArg));
@@ -50,6 +49,8 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 }
 void CPlayer_Arm::Priority_Update(_float fTimeDelta)
 {
+
+	Timer(fTimeDelta);
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CPlayer_Arm));
 }
 void CPlayer_Arm::Update(_float fTimeDelta)
@@ -60,8 +61,7 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 
 		if (NULL_FALSE(pObj))
 		{
-			static_pointer_cast<CTriggerObject>(pObj)->Set_Trigger();
-			static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Set_OtherTrigger(true);
+			static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER),FLAGVALUE::ENABLE);
 		}
 		else
 		{
@@ -75,7 +75,6 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 }
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
-	
 
 }
 HRESULT CPlayer_Arm::Render()
@@ -89,8 +88,8 @@ HRESULT CPlayer_Arm::Render()
 	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
 
-	m_pShaderCom->Bind_RawValue("g_Color", &fColor, sizeof _float4);
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
@@ -131,6 +130,19 @@ HRESULT CPlayer_Arm::Render()
 	return S_OK;
 }
 
+void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName)
+{
+	_float4 fColor{ 0,0,0,1 };
+	if(Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+		fColor = { 0,1,0,1, };
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+		fColor = { 1,0,1,1 };
+	else 
+		fColor = { 0,0,0,1, };
+
+	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);
+
+}
 
 HRESULT CPlayer_Arm::Ready_Component()
 {

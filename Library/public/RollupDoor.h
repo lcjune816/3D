@@ -18,6 +18,8 @@ public:
 	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false);
 	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
 
+	virtual void					Set_Trigger() override;
+
 private:
 	void			Action_Trigger(_float fTimeDelta);
 private:

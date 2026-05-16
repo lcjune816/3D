@@ -283,9 +283,9 @@ HRESULT CTriggerObject::Render()
 }
 
 
-void CTriggerObject::Set_Trigger(_bool bTrigger)
+void CTriggerObject::Set_Trigger()
 {
-	m_pTrigger->Set_Trigger(bTrigger);
+	m_pTrigger->Set_Trigger();
 }
 
 json CTriggerObject::Save_Data()
