@@ -50,6 +50,8 @@ void CFSM_LeftHand::Enter_State()
 	memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
 
 	m_pArm.lock()->Get_ArmMatrix().Matrix.resize(800);
+
+	Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::ENABLE);
 }
 
 void CFSM_LeftHand::Update_State(_float fTimeDelta)
@@ -63,16 +65,15 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 	MOVE eMove = Player->Get_State();
 
 	Timer(fTimeDelta);
-	if (!Flag_Check(ETOUI(FSM_HAND_FLAG::PULL)) && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80 || Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))))
+
+	if (!Flag_Check(ETOUI(FSM_HAND_FLAG::PULL)) && (Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT)) || Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))))
 	{
 		m_fShootTimeTick += fTimeDelta;
-
 		if (m_fShootTimeTick > 0.05f)
 		{
 			++m_fShootTime;
 			m_fShootTimeTick = 0.f;
 		}
-
 		_float4x4 matrix = *m_StartMatrix;
 
 		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
@@ -85,6 +86,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 		//현재속도
 		_float  Length = {};
 		_vector NewForce = {};
+
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)))
 		{
 			Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_fLastHandPos) - XMLoadFloat3(&m_fStartPos)));
@@ -97,8 +99,9 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 			NewForce = (XMVector3Length((XMLoadFloat3(&m_fLastHandPos) - XMLoadFloat3(&m_fStartPos)))) * fTimeDelta * XMLoadFloat3(&m_fFirstLook);
 			NewForce *= 0.9;
 			XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * m_fSpeed * fTimeDelta); //마지막 위치 늘려서 보간하기
-
 		}
+		
+
 
 		Shoot_Hand(StartPos, Player, fTimeDelta, pArm.get(), pHand.get()); ////손 늘리기//////
 
@@ -106,18 +109,13 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 
 
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE)) && (m_fShootTime >= m_fShootMaxTime || Length > 300.f))
-			Flag_Check(ETOUI(FSM_HAND_FLAG::PULL));
+			Hand_State_Chand(CHANGE_STATE::PULL);
 		else
 			pHand->Get_Transform().lock()->Set_State(STATE::POS, Pos);
 		///////충돌/////////
 	}
-	else Set_Flag(ETOUI(FSM_HAND_FLAG::PULL), FLAGVALUE::ENABLE);
 
-	if (Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)))
-		Set_Flag(ETOUI(FSM_HAND_FLAG::PULL), FLAGVALUE::DISABLE);
-
-
-	if (!m_bReFinished && Flag_Check(ETOUI(FSM_HAND_FLAG::PULL)) && !Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)))
+	if (!m_bReFinished && Flag_Check(ETOUI(FSM_HAND_FLAG::PULL)))
 	{
 		_float4x4 matrix = *m_StartMatrix;
 		memcpy(&m_fStartPos, matrix.m[3], sizeof _float3);
@@ -173,7 +171,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 		}
 	}
 
-	if (Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)) && (CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80))
+	if ((Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)) || Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT))) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
 	{
 		uint32_t iFlag = ETOUI(PLAYER_FLAG::ELECTRIC_LONG);
 		if (pHand->Flag_Check(iFlag))
@@ -280,7 +278,7 @@ void CFSM_LeftHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPla
 		if (NULL_FALSE(pObj))
 		{
 			m_EdgePoses.back().bCheck = false;
-			if (static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Get_Trigger_Event() == TRIGGER_EVENT::ELECTRICPOLE)
+			if (static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Check_Trigger_Event(TRIGGER_EVENT::ELECTRICPOLE))
 			{
 				m_EdgePoses.back().bCheck = true;
 				CGameInstance::Get().Add_Check_Collision(COLLISION::TRIGGER, pObj);
@@ -470,18 +468,21 @@ void CFSM_LeftHand::Hand_Collision_Check(shared_ptr<CPlayer_LeftHand> pObj, shar
 	if (NULL_FALSE(pOb = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject", m_pHand)))
 	{
 		CTriggerObject* Trigger = static_cast<CTriggerObject*>(pOb);
+		CTrigger* pTri = Trigger->Get_TriggerPtr();
 
-		Trigger->Get_TriggerPtr()->Set_DstTransform(pTransform); //
+		pTri->Set_DstTransform(pTransform); 
 
-		Hand_Trigger_Event(pObj, pArm, Trigger, Trigger->Get_TriggerPtr()->Get_Trigger_Event(), pTransform.get(), fTimeDelta);
-		Trigger->Set_Trigger();
+		if (Hand_Trigger_Event(pObj, Trigger, pTri->Get_Event(), pTransform.get(), fTimeDelta))
+			Trigger->Set_Trigger();
+		else
+			Hand_State_Chand(CHANGE_STATE::PULL);
 
 	}
 	else if (NULL_FALSE(CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_WorldObject", m_pHand)))
 		Set_Flag(ETOUI(FSM_HAND_FLAG::PULL), FLAGVALUE::ENABLE);
 }
 
-void CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, shared_ptr<CPlayer_Arm> pArm, CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger, CTransform* pTransform, const _float& fTimeDelta)
+_bool CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger, CTransform* pTransform, const _float& fTimeDelta)
 {
 	_vector Pos{};
 	_float4x4 mat{};
@@ -489,41 +490,18 @@ void CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, shared
 	if (pTrigger->Get_TriggerPtr()->Get_FlagState(ETOUI(TRIGGER_FLAG::CANCLE)))
 	{
 		Hand_State_Chand(CHANGE_STATE::PULL);
-		return;
+		return true;
 	}
 
 	switch (eTrigger)
 	{
 	case TRIGGER_EVENT::GELECTRIC:
-
-		if (!(pTrigger->Get_TriggerPtr()->Get_FlagState(ETOUI(TRIGGER_FLAG::FTRIGGER))))
-		{
-			if (pObj->Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
-				pTrigger->Get_TriggerPtr()->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER), FLAGVALUE::ENABLE);
-		}
-		else
-		{
-			//녹색 전기 활성화
-			iFlag = ETOUI(PLAYER_FLAG::ELECTRIC_SHORT);
-			pObj->Set_Flag(iFlag, FLAGVALUE::ENABLE);
-			pArm->Set_Flag(iFlag, FLAGVALUE::ENABLE);
-		}
-		iFlag |= ETOUI(PLAYER_FLAG::TIMER);
-
-		Hand_State_Chand(CHANGE_STATE::ATTACHED_SHORT);
-
-		pTrigger->Get_TriggerPtr()->offsetMatrix(&mat);
-		memcpy(&Pos, mat.m[3], sizeof _float4);
-		XMStoreFloat3(&m_fLastHandPos, Pos);
-		pTransform->Set_State(STATE::POS, Pos);
-
 		break;
 	case TRIGGER_EVENT::BELECTRIC:
 		Hand_State_Chand(CHANGE_STATE::ATTACHED_LONG);
 
 		iFlag = ETOUI(PLAYER_FLAG::ELECTRIC_LONG);
 		pObj->Set_Flag(iFlag, FLAGVALUE::ENABLE);
-		pArm->Set_Flag(iFlag, FLAGVALUE::ENABLE);
 
 		pTrigger->Get_TriggerPtr()->offsetMatrix(&mat);
 		memcpy(&Pos, mat.m[3], sizeof _float4);
@@ -533,10 +511,16 @@ void CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, shared
 		//고정은 블루
 		break;
 	case TRIGGER_EVENT::BATTERY:
+		Hand_State_Chand(CHANGE_STATE::PULL);
 		break;
+	case TRIGGER_EVENT::ELECTRICPOLE:
+		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE)))
+			return false;
 
+		break;
 	}
 
+	return true;
 }
 
 void CFSM_LeftHand::Hand_State_Chand(CHANGE_STATE eChange)
@@ -547,10 +531,13 @@ void CFSM_LeftHand::Hand_State_Chand(CHANGE_STATE eChange)
 	switch (eChange)
 	{
 	case CHANGE_STATE::ATTACHED_LONG:
+		Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::DISABLE);
 		iFlag = ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::WALLCOLLIDE);
 
 		break;
 	case CHANGE_STATE::ATTACHED_SHORT:
+		Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::DISABLE);
+
 		iFlag = ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::TIMER);
 		break;
 	case CHANGE_STATE::PULL:

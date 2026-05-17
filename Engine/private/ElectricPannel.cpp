@@ -27,37 +27,21 @@ HRESULT CElectricPannel::Initialize(void* pArg)
 	m_eEventTrigger = TRIGGER_EVENT::PANNEL;
 	m_fRotationArrow = 10.f;
 
-	
-	Set_Flag(ETOUI(TRIGGER_FLAG::ATTACHED), FLAGVALUE::ENABLE);
-	
-
 	return S_OK;
 }
 HRESULT CElectricPannel::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+
 	m_BindValue.fColor = { 1,1,1,1 };
 	return S_OK;
 
 }
 HRESULT CElectricPannel::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::CANCLE)))
+		return S_OK;
+
 	Action_Trigger();
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
-	{
-		m_fFrameTick += fTimeDelta;
-		if (m_fFrameTick > 0.5f)
-		{
-			m_fFrameTick = 0.f;
-			++m_fFrameTime;
-		}
-			
-		if (m_fFrameTime > 60.f)
-		{
-			Set_Flag(ETOUI(TRIGGER_FLAG::END), FLAGVALUE::RESET);
-			m_fFrameTime = 0.f;
-		}
-		
-	}
 	return S_OK;
 }
 _bool CElectricPannel::offsetMatrix(_float4x4* pMatrix)
@@ -93,21 +77,27 @@ HRESULT CElectricPannel::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger
 }
 void CElectricPannel::Set_Trigger()
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 		return;
 
-	Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
-	m_BindValue.fColor = { 0,1,0,1 };
+	Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
+
 }
 void CElectricPannel::Action_Trigger()
 {
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-
-	if (NULL_FALSE(TriggerCheck))
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
-		if (TriggerCheck->Get_FlagState(ETOUI(TRIGGER_FLAG::FTRIGGER)))
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER),FLAGVALUE::ENABLE);
+		if (NULL_FALSE(TriggerCheck))
+			TriggerCheck->Set_Trigger();
+
 	}
+	else
+	{
+		if (NULL_FALSE(TriggerCheck))
+			TriggerCheck->Set_Flag(Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)), FLAGVALUE::DISABLE);
+	}
+	
 }
 
 unique_ptr<CElectricPannel>  CElectricPannel::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

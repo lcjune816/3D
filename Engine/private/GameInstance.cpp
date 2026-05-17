@@ -222,7 +222,11 @@ int32_t CGameInstance::Get_DIMouseMove(DIMM eMouseState)
 {
 	return m_pInput_Device->Get_DIMouseMove(eMouseState);
 }
+int8_t CGameInstance::Get_DIMouseOneClick(DIMK eMouse)
+{
 
+	return m_pInput_Device->Get_DIMouseOneClick(eMouse);
+}
 #pragma endregion
 #pragma region IMGUI
 _bool CGameInstance::WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)

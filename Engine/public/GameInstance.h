@@ -30,6 +30,7 @@ public:
 	int8_t	Get_DIKeyState(uint8_t byKeyID);
 	int8_t	Get_DIMouseState(DIMK eMouse);
 	int32_t	Get_DIMouseMove(DIMM eMouseState);
+	int8_t Get_DIMouseOneClick(DIMK eMouse);
 #pragma endregion
 #pragma region GRAPHIC_DEVICE
 	HRESULT	Clear_BackBuffer_View(const _float4* pClearColor);

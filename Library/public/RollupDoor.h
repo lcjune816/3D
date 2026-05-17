@@ -15,8 +15,9 @@ public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
 
-	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false);
-	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
+	virtual HRESULT Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger = false)override;
+	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false)override;
+	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false)override;
 
 	virtual void					Set_Trigger() override;
 

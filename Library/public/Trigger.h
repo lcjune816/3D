@@ -1,11 +1,13 @@
 #pragma once
 #include "Transform.h"
 NS_BEGIN(Engine)
-enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, END};
+enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT, END};
 enum class TRIGGER_FLAG
 {
-	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,END = 0xffffffff
+	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,PAUSE = 0x00000020,END = 0xffffffff
 };
+enum class TRIGGER_ROT{X,Y,Z};
+enum class TRIGGER_STATE{ IDLE, ACTION, RETURN, PAUSE};
 class ENGINE_DLL CTrigger abstract : public CComponent
 {
 
@@ -13,6 +15,11 @@ public:
 typedef struct tagTriggerdesc
 {
 	_bool bTrigger;
+	TRIGGER_ROT eRot{TRIGGER_ROT::X};
+	_float fMaxFrameTime{0.f};
+	_float fFrameTickTime{0.f};
+	_float fRotationArrow{0.f};
+	_float fArrrowRotation{0.f};
  }TRIGGER_DESC;
 
 public:
@@ -34,7 +41,7 @@ public:
 	virtual HRESULT Pirority_Interaction( _float fTimeDelta, _bool bOtherTrigger = false);
 	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false) PURE;
 	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false)PURE;
-	
+
 	void							Set_Parent(shared_ptr<class CGameObject> pObj);
 	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }
 	_bool							Set_DstTransform(shared_ptr<CTransform> pTransform);
@@ -43,7 +50,10 @@ public:
 	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
 	_bool							Get_OtherTrigger() { return m_bOtherTrigger; }
 	uint32_t						Get_FlagState(uint32_t iFlag) { return Check_Flag(iFlag); }
-	const TRIGGER_EVENT				Get_Trigger_Event() { return m_eEventTrigger; }
+
+
+	_bool							Check_Trigger_Event(TRIGGER_EVENT eEvent) { if (eEvent == m_eEventTrigger) return true;   return false; }
+	const TRIGGER_EVENT				Get_Event() { return m_eEventTrigger; }
 	void							Set_Flag(uint32_t iFlag, FLAGVALUE eValue);
 	void							Set_PtrMatrix(_float4x4* pMat) { m_pMatrixPtr = pMat; }
 	void							Disconnect_Transform() { m_pDstTransform.reset(); }
@@ -54,9 +64,13 @@ public:
 	virtual	void					Bind_Resource(shared_ptr<class CShader> pShader, const _char* pConstantName);
 	virtual _bool					offsetMatrix(_float4x4* pMatrix);
 protected:
+	_bool							Start_Rotation(const _float& fTimeDelta);
+	_bool							End_Roatation(const _float& fTimeDelta);
+
+protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
-	_float							m_fFrameTick{}, m_fFrameTime{};
-	_float							m_fAngle{};
+	_float							m_fFrameTick{}, m_fFrameTickTime{}, m_fFrameTime{}, m_fMaxFrameTime{};
+	_float							m_fAngle{}, m_fStartAngle{ 0 },m_fEndAngle{ 180.f }, m_fRotationArrow = { 1.f };
 	_float4x4*						m_pMatrixPtr = { nullptr };
 
 	weak_ptr<CTransform>			m_pDstTransform;
@@ -64,7 +78,8 @@ protected:
 	uint32_t						m_iFlag = { 0 };
 	TRIGGER_EVENT					m_eEventTrigger;
 	BIND_RESOURCE					m_BindValue;
-
+	TRIGGER_STATE					m_eState;
+	_float4							m_fRotation{};
 	weak_ptr<class CGameObject>		m_pParent;
 public:
 	virtual shared_ptr<CPrototype> Clone(void* pArg) = 0;

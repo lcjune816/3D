@@ -15,6 +15,7 @@ enum class PLAYER_ANIME {CROUCH_ENTER, CROUCH_EXIT, CROUCH_POSE, FALLING, SHOOT_
 						SHOOTIN_L,SHOOTIN_R, SHOOTOUT_L, SHOOTOUT_R,END};
 enum class PLAYER_MACHINE{NORMAL, LEFT_HAND, RIGHT_HAND,END};
 
+enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002, TIMER = 0x00000004,CONNECTHAND = 0x00000008, END = 0xffffffff };
 class CPlayer : public CGameObject
 {
 protected:
@@ -61,6 +62,7 @@ private:
 	HRESULT					Ready_Component();
 	void					Default_Height();
 	void					State_Move();
+	void					Hnad_State_Check();
 protected:
 
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };

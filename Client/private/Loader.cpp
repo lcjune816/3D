@@ -202,7 +202,22 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CBatteryCase::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_PoleHead"),
+		CElectricPoleHead::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_ElectricPannel"),
+		CElectricPannel::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_LowerFlip"),
+		CLowerFlip::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_LowerFlip_Flip"),
+		CLowerFlip_Flip::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
 	//Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
 	//m_Objects.clear();
@@ -287,6 +302,12 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 		{
 			desc.strTriggerName = iter["TriggerValue"];
 			desc.bTrigger = iter["OtherTriggerValue"];
+
+			desc.fArrrowRotation = iter["TriggerArrow"];
+			desc.fFrameTickTime =  iter["FrameTick"];
+			desc.fMaxFrameTime =   iter["FrameMaxTime"];
+			int32_t Rot = iter["TriggerRot"];
+			desc.eRot= static_cast<TRIGGER_ROT>(Rot);
 		}
 		m_Objects.push_back(static_pointer_cast<CGameObject>(CGameInstance::Get().Clone_Prototype(ETOUI(eLevel),strObjName,&desc)));
 

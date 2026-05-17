@@ -20,7 +20,18 @@ public:
 	{
 		return m_tMouseState.rgbButtons[ETOUI(eMouse)];
 	}
+	
+	int8_t Get_DIMouseOneClick(DIMK eMouse)
+	{
+		if (m_bCur[ETOUI(eMouse)] && !m_bPre[ETOUI(eMouse)])
+		{
+			m_bPre[ETOUI(eMouse)] = true;
+			return true;
+		}
+			
+		return false;
 
+	}
 	int32_t Get_DIMouseMove(DIMM eMouseState)
 	{
 		return *((reinterpret_cast<int32_t*>(&m_tMouseState)) + ETOUI(eMouseState));
@@ -39,6 +50,8 @@ private:
 	int8_t			m_byKeyState[256];
 	DIMOUSESTATE	m_tMouseState;
 
+	_bool			m_bCur[3]{ false };
+	_bool			m_bPre[3]{ false };
 public:
 	static unique_ptr<CInput_Device> Create(HINSTANCE hInst, HWND hWnd);
 };

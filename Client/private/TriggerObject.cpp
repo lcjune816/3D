@@ -25,6 +25,12 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	m_TriggerInfo.bOtherTrigger = desc->bTrigger;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->bTrigger = m_TriggerInfo.bOtherTrigger;
 	 m_TriggerInfo.strTriggerName = desc->strTriggerName; //트리거 밸류용 문자저장
+
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eRot			= m_TriggerInfo.eRot = desc->eRot;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fArrrowRotation = m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime  = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime   = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
+	
 	if (FAILED(Create_Component(pArg)))
 		return E_FAIL;
 
@@ -314,6 +320,12 @@ json CTriggerObject::Save_Data()
 	j["ObjectID"] = m_TriggerInfo.iObjectID;
 	j["ObjectTargetID"] = m_TriggerInfo.iTargetObjectID;
 	j["OtherTriggerValue"] = m_TriggerInfo.bOtherTrigger; //이거도 gui에서 load
+
+	j["TriggerRot"] = static_cast<int32_t>(m_TriggerInfo.eRot);
+	j["TriggerArrow"] = m_TriggerInfo.fArrrowRotation;
+	j["FrameTick"] = m_TriggerInfo.fFrameTickTime ;
+	j["FrameMaxTime"] = m_TriggerInfo.fMaxFrameTime;
+
 	return j;
 }
 HRESULT CTriggerObject::Ready_Component()

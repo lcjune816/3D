@@ -46,11 +46,7 @@ HRESULT CGreenElectric::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrig
 }
 HRESULT CGreenElectric::Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
-	{
-		Action_Trigger();
-	}
-
+	Action_Trigger();
 	return S_OK;
 }
 _bool CGreenElectric::offsetMatrix(_float4x4* pMatrix)
@@ -93,16 +89,15 @@ HRESULT CGreenElectric::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger
 void CGreenElectric::Action_Trigger()
 {
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-	if (NULL_FALSE(TriggerCheck))
-		TriggerCheck->Set_Trigger();
 
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::SHADER)))
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Trigger();
+			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 		m_BindValue.fColor = { 0,1,0,1 };
-	}else
-		m_BindValue.fColor = { 1,1,1,1 };
+	}
+	else m_BindValue.fColor = { 1,1,1,1 };
+	
 
 }	
 

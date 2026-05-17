@@ -172,6 +172,9 @@
     <Filter Include="10.Trigger_Manager\Trigger\Electric\Pole">
       <UniqueIdentifier>{08c08048-ec08-4ddd-aba6-133148ee4bcb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\RotationPuzzle">
+      <UniqueIdentifier>{33b9c142-49da-4963-80fa-a460973c99e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -357,6 +360,12 @@
     </ClInclude>
     <ClInclude Include="..\public\ElectricPoleHead.h">
       <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\LowerFlip.h">
+      <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\LowerFlip_Flip.h">
+      <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -557,6 +566,12 @@
     </ClCompile>
     <ClCompile Include="..\private\ElectricPoleHead.cpp">
       <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\LowerFlip.cpp">
+      <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\LowerFlip_Flip.cpp">
+      <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

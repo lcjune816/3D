@@ -57,6 +57,14 @@ void Engine::CInput_Device::Update_InputDev(void)
 {
 	m_pKeyBoard->GetDeviceState(256, m_byKeyState);
 	m_pMouse->GetDeviceState(sizeof(m_tMouseState), &m_tMouseState);
+	
+
+	for(int32_t i=0; i<3 ; ++i)
+		m_bPre[i] = m_bCur[i];
+
+	for (int32_t i = 0; i < 3; ++i)
+		m_bCur[i] = (m_tMouseState.rgbButtons[i] & 0x80) ? true : false;
+
 }
 
 unique_ptr<CInput_Device> CInput_Device::Create(HINSTANCE hInst, HWND hWnd)

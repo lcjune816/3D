@@ -20,7 +20,6 @@ namespace Client
 	
 	enum class PLAYER_HAND{WALL,TRIGGER,FORCE, END};
 
-	enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002,TIMER = 0x00000004, END = 0xffffffff };
 }
 
 extern HWND			g_hWnd;

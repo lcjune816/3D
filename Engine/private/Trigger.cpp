@@ -20,11 +20,57 @@ HRESULT CTrigger::Initialize_Prototype()
 HRESULT CTrigger::Initialize(void* pArg)
 {
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
-	m_bOtherTrigger = pDesc->bTrigger;
-
+	m_bOtherTrigger  = pDesc->bTrigger;
+	m_fEndAngle = pDesc->fFrameTickTime;
+	m_fMaxFrameTime  = pDesc->fMaxFrameTime;
+	m_fRotationArrow = pDesc->fArrrowRotation;
+	switch (pDesc->eRot)
+	{
+	case TRIGGER_ROT::X:
+		m_fRotation = { 1.f,0.f,0,0 };
+		break;
+	case TRIGGER_ROT::Y:
+		m_fRotation = { 0.f,1.f,0,0 };
+		break;
+	case TRIGGER_ROT::Z:
+		m_fRotation = { 0.f,0.f,1.f,0 };
+		break;
+	}
 	return S_OK;
 }
+_bool						CTrigger::Start_Rotation(const _float& fTimeDelta )
+{
 
+	m_fFrameTick += fTimeDelta;
+
+	_float t = min(1.f, m_fFrameTick / m_fMaxFrameTime);
+	m_fAngle = m_fStartAngle + (m_fEndAngle - m_fStartAngle) * t;
+
+	
+	if (t >= 1.f)
+	{
+		m_fFrameTick = 0.f;
+		m_fAngle = m_fEndAngle;
+		return false;
+	}
+	return true;
+}
+_bool						CTrigger::End_Rotation(const _float& fTimeDelta)
+{
+	m_fFrameTick += fTimeDelta;
+
+	_float t = min(1.f, m_fFrameTick / m_fMaxFrameTime);
+	m_fAngle = m_fEndAngle + (m_fStartAngle - m_fEndAngle) * t;
+
+	if (t >= 1.f)
+	{
+		m_fFrameTick = 0.f;
+		m_fAngle = m_fStartAngle;
+		return false;
+	}
+
+	return true;
+}
 HRESULT CTrigger::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 	return S_OK;
@@ -99,3 +145,4 @@ _bool CTrigger::offsetMatrix(_float4x4* pMatrix)
 {
 	return false;
 }
+

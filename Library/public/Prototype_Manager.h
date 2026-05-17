@@ -24,6 +24,9 @@
 #include "BlueElectric.h"
 #include "ElectricPole.h"
 #include "ElectricPannel.h"
+#include "ElectricPoleHead.h"
+#include "LowerFlip.h"
+#include "LowerFlip_Flip.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {
