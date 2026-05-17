@@ -29,6 +29,7 @@ public:
 	void					Bind_ResourceFromFlag(CShader* pShader,const _char* pConstantName);
 	void					Set_Shoot(_bool bShoot) { m_bShoot = bShoot; }
 
+	void					Set_SameFlag(uint32_t iFlag) { m_iStateFlag = iFlag; }
 public:
 	strGrabarm&				Get_ArmMatrix()	{ return m_ArmMatrix; }
 

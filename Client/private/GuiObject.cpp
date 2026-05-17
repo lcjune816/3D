@@ -38,14 +38,21 @@ HRESULT CGuiObject::Initialize_Prototype()
 	}
 	//Layer_GameObject
 
-	m_strGameObjectPath = L"../../GasZone_Objects.json";
-	m_strTriggerPath = L"../../GasZone_Trigger.json";
-	m_strDecalpath = L"../../GasZone_Decal.json";
-
-	m_strGameObject = "GasZone_Object";
-	m_strTrigger = "GasZone_Trigger";
-	m_strDecal = "GasZone_Decal";
-
+	//m_strGameObjectPath = L"../../GasZone_Objects.json";
+	//m_strTriggerPath = L"../../GasZone_Trigger.json";
+	//m_strDecalpath = L"../../GasZone_Decal.json";
+	//
+	//m_strGameObject = "GasZone_Object";
+	//m_strTrigger = "GasZone_Trigger";
+	//m_strDecal = "GasZone_Decal";
+	
+	m_strGameObjectPath = L"../../Objects.json";
+	m_strTriggerPath = L"../../Triggers.json";
+	m_strDecalpath = L"../../Decal.json";
+	
+	m_strGameObject = "GameObjects";
+	m_strTrigger = "Triggers";
+	m_strDecal = "Decals";
 	m_eLevel = LEVEL::GAMEPLAY;
 	CGameInstance::Get().Add_Layer(ETOUI(m_eLevel), L"Layer_Temp");
 
@@ -85,7 +92,6 @@ void CGuiObject::Late_Update(_float fTimeDelta)
 			m_pObj.lock()->Set_bBoxColor(true);
 			if (m_pObj.lock()->Get_MeshType() == MESH_TYPE::TRIGGER)
 			{
-				static_pointer_cast<CTriggerObject>(m_pObj.lock())->Set_Trigger();
 				Click_Reset();
 			}
 		}
@@ -762,33 +768,63 @@ void CGuiObject::Select_Model()
 				ImGui::EndTabBar();
 				return;
 			}
-				
+
 			if (iLayerMode == 2)
 			{
 				ImGui::EndTabItem();
 				ImGui::EndTabBar();
 				return;
 			}
-			ImGui::Text(u8"트리거 옵션");
-			const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole" };
-			static int item_selected_idx = 0;
-
-			const char* combo_preview_value = items[item_selected_idx];
-			if (ImGui::BeginCombo(u8"옵션", combo_preview_value, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
+			GAMEOBJECT_DESC desc{};
+			if (iModelButton == ETOUI(MESH_TYPE::TRIGGER))
 			{
-				for (int i = 0; i < IM_COUNTOF(items); ++i)
+
+				ImGui::Text(u8"트리거 옵션");
+				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" };
+				const char* Rotitems[] = { "X","Y","Z" };
+				static int item_selected_idx = 0;
+				static int imte_rotselected_idx = 0;
+				const char* combo_preview_value = items[item_selected_idx];
+				const char* combo_preview_Rotvalue = Rotitems[imte_rotselected_idx];
+				if (ImGui::BeginCombo(u8"옵션", combo_preview_value, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
 				{
-					const bool is_selected = (item_selected_idx == i);
-					if (ImGui::Selectable(items[i], is_selected)) // 선택한 문자열
-						item_selected_idx = i;
-					
-					if (is_selected)
-						ImGui::SetItemDefaultFocus();
-						 //선택된 아이템을 포커스하라
+					for (int i = 0; i < IM_COUNTOF(items); ++i)
+					{
+						const bool is_selected = (item_selected_idx == i);
+						if (ImGui::Selectable(items[i], is_selected)) // 선택한 문자열
+							item_selected_idx = i;
+
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+						//선택된 아이템을 포커스하라
+					}
+					ImGui::EndCombo();
+				} ImGui::SameLine(200);
+				if (ImGui::BeginCombo(u8"회전방향", combo_preview_Rotvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
+				{
+					for (int j = 0; j < IM_COUNTOF(Rotitems); ++j)
+					{
+						const bool is_selected = (imte_rotselected_idx == j);
+						if (ImGui::Selectable(Rotitems[j], is_selected)) // 선택한 문자열
+							imte_rotselected_idx = j;
+
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+						//선택된 아이템을 포커스하라
+					}
+					ImGui::EndCombo();
 				}
-				ImGui::EndCombo();
+				strTriggerName = items[item_selected_idx];
+				desc.eRot = static_cast<TRIGGER_ROT>(imte_rotselected_idx);
+				static _float fTimeTick{}, fTimeFrame{}, fRotSpeed{};
+				ImGui::InputFloat(u8"최대 각도", &fTimeTick, ImGuiComboFlags_WidthFitPreview);
+				ImGui::InputFloat(u8"최대 시간", &fTimeFrame, ImGuiComboFlags_WidthFitPreview); 
+				ImGui::InputFloat(u8"회전 속도", &fRotSpeed, ImGuiComboFlags_WidthFitPreview);
+
+				desc.fArrrowRotation = fRotSpeed;
+				desc.fFrameTickTime = fTimeTick;
+				desc.fMaxFrameTime = fTimeFrame;
 			}
-			strTriggerName = items[item_selected_idx];
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{ 1,0,0,1 });
 			ImGui::Text(u8"현재 선택된 옵션 : "); ImGui::SameLine(); 
@@ -808,7 +844,6 @@ void CGuiObject::Select_Model()
 			ImGui::Text(u8"대상 오브젝트 번호 :"); ImGui::SameLine();
 
 
-			GAMEOBJECT_DESC desc{};
 			auto pObj = m_pObj.lock();
 			if (!m_bCopy && NULL_FALSE(pObj) && GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('C') & 0x8000)
 			{	
@@ -839,7 +874,7 @@ void CGuiObject::Select_Model()
 				desc.bCopy = true;						//복사 한다는 뜻
 				desc.eType = pObj->Get_MeshType();			// 매쉬 타입
 				desc.strTriggerName = m_CopyTriggerName; //트리거 밸류 저장
-
+				
 				switch (pObj->Get_MeshType())
 				{
 				case MESH_TYPE::NONANIME:

@@ -61,7 +61,8 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 
 		if (NULL_FALSE(pObj))
 		{
-			static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER),FLAGVALUE::ENABLE);
+			if(static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Check_Trigger_Event(TRIGGER_EVENT::ELECTRICPOLE))
+				static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Set_Trigger();
 		}
 		else
 		{
@@ -135,7 +136,7 @@ void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstant
 	_float4 fColor{ 0,0,0,1 };
 	if(Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 		fColor = { 0,1,0,1, };
-	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
 		fColor = { 1,0,1,1 };
 	else 
 		fColor = { 0,0,0,1, };

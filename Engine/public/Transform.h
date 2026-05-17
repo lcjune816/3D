@@ -53,6 +53,7 @@ public:
 	void Go_Up(_float fTimeDelta, _float m_fSpeed);
 	void Set_Matrix(_fmatrix matrix);
 	void Apply_Rotation(_fvector vAxis, _float fAngle);
+
 	void Rotation(_float fAngleX, _float fAngleY, _float fAngleZ);
 	void Rotation(_fvector vAxis, _float fAngle);
 	

@@ -40,7 +40,7 @@ void CPLayer_RightHand::Hand_Pivot()
 
 void	CPLayer_RightHand::State_Move()
 {
-	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseState(DIMK::RBUTTON) & 0x80)
+	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON))
 	{
 		m_tagHandState.bShoot = true;
 		m_pStateMachine->Change_State(FSM::HAND);
@@ -103,6 +103,7 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 	State_Move();
 	m_pStateMachine->Update_Machine(fTimeDelta);
 
+	m_pArm->Set_SameFlag(m_iStateFlag);
 	m_pArm->Update(fTimeDelta);
 
 
@@ -147,7 +148,7 @@ void CPLayer_RightHand::Bind_ResourceFromFlag(CShader* pShader, const _char* pCo
 	_float4 fColor{ 0,0,0,1 };
 	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 		fColor = { 0,1,0,1, };
-	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)))
 		fColor = { 1,0,1,1 };
 	else
 		fColor = { 1,1,1,1, };

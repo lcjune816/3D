@@ -190,6 +190,8 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Level_Manager.h" />
     <ClInclude Include="..\public\Lever.h" />
     <ClInclude Include="..\public\Light_Manager.h" />
+    <ClInclude Include="..\public\LowerFlip.h" />
+    <ClInclude Include="..\public\LowerFlip_Flip.h" />
     <ClInclude Include="..\public\Mesh.h" />
     <ClInclude Include="..\public\MeshModel.h" />
     <ClInclude Include="..\public\MeshNonAnime.h" />
@@ -261,6 +263,8 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Level_Manager.cpp" />
     <ClCompile Include="..\private\Lever.cpp" />
     <ClCompile Include="..\private\Light_Manager.cpp" />
+    <ClCompile Include="..\private\LowerFlip.cpp" />
+    <ClCompile Include="..\private\LowerFlip_Flip.cpp" />
     <ClCompile Include="..\private\Mesh.cpp" />
     <ClCompile Include="..\private\MeshModel.cpp" />
     <ClCompile Include="..\private\MeshNonAnime.cpp" />

@@ -21,12 +21,19 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 {
 	m_eEventTrigger = TRIGGER_EVENT::ROLLUPDOOR;
 	m_fRotationArrow = 10.f;
+	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	return S_OK;
+}
+
+HRESULT CRollupDoor::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
+{
 	return S_OK;
 }
 
 HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
+
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)) || Check_Flag(ETOUI(TRIGGER_FLAG::CANCLE))) return E_FAIL;
 
 	m_fFrameTick += fTimeDelta;
 	if (m_fFrameTick > 0.03f)
@@ -40,7 +47,7 @@ HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	{
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
-		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 	}
 	return S_OK;
 }
@@ -52,6 +59,9 @@ HRESULT CRollupDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 
 void CRollupDoor::Set_Trigger()
 {
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
+		return;
+
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }
 

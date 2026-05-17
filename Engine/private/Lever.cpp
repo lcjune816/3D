@@ -19,9 +19,10 @@ HRESULT CLever::Initialize_Prototype()
 
 HRESULT CLever::Initialize(void* pArg)
 {
-
+	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::LEVER;
-	m_fRotationArrow = 0.25f;
+	if (!m_bOtherTrigger)
+		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 	return S_OK;
 }
 
@@ -30,7 +31,7 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
 
 	m_fFrameTick += fTimeDelta;
-	if (m_fFrameTick > 0.01f)
+	if (m_fFrameTick > m_fFrameTickTime)
 	{
 		m_fFrameTick = 0.f;
 		m_fAngle += m_fRotationArrow;
@@ -38,7 +39,7 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		++m_fFrameTime;
 	}
 
-	if (m_fFrameTime > 40.f)
+	if (m_fFrameTime > m_fMaxFrameTime)
 	{
 		m_fFrameTime = 0.f;
 		m_fRotationArrow *= -1.f;
@@ -63,7 +64,7 @@ void CLever::Action_Trigger()
 	if (NULL_TRUE(pObj))
 		return;
 
-	pObj->Get_Transform().lock()->Apply_Rotation(_vector{ 1,0,0,0 }, m_fAngle);
+	pObj->Get_Transform().lock()->Apply_Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
 }
 
 unique_ptr<CLever>CLever::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

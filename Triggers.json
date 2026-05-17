@@ -1,6 +1,8 @@
 {
     "Triggers": [
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.9999985694885254,
                 0.0002110299392370507,
@@ -17,6 +19,8 @@
                 2.1533907784032635e-05,
                 -0.9999947547912598
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 -0.0002110286441165954,
@@ -30,6 +34,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.9999960064888,
                 0.00036114288377575576,
@@ -46,6 +52,8 @@
                 -9.428422345081344e-06,
                 -0.999992311000824
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 -0.00036113764508627355,
@@ -59,6 +67,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 1.5944242477416992e-06,
                 0.0,
@@ -75,6 +85,8 @@
                 0.0,
                 -1.5944242477416992e-06
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 0.0,
@@ -88,6 +100,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.9999977946281433,
                 -2.1049783823553353e-13,
@@ -104,6 +118,8 @@
                 -1.1337805694289216e-13,
                 -0.9999977946281433
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 2.1049743165971885e-13,
@@ -117,6 +133,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.9999951720237732,
                 6.8843032750010025e-06,
@@ -133,6 +151,8 @@
                 7.832908522686921e-06,
                 -0.9999938607215881
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 -6.884292815811932e-06,
@@ -146,6 +166,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 4.164873189438367e-06,
                 0.0,
@@ -162,6 +184,8 @@
                 0.0,
                 -4.164873189438367e-06
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 0.0,
@@ -175,6 +199,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.0,
                 0.0,
@@ -191,6 +217,8 @@
                 0.0,
                 0.0
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_RollupDoor",
             "Up": [
                 0.0,
@@ -199,11 +227,13 @@
             ],
             "fPos": [
                 246.3199920654297,
-                57.889678955078125,
+                71.53485870361328,
                 99.17831420898438
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.0,
                 0.0,
@@ -220,6 +250,8 @@
                 0.0,
                 0.0
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_GreenElectric",
             "Up": [
                 0.0,
@@ -233,6 +265,8 @@
             ]
         },
         {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
             "Look": [
                 0.9999966025352478,
                 0.00012332158803474158,
@@ -249,6 +283,8 @@
                 -7.554932835773798e-06,
                 -0.9999961853027344
             ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
                 -0.00012332091864664108,

@@ -27,6 +27,11 @@ private:
 		uint32_t		iObjectID = {};
 		int32_t			iModeNumber = { 0 };
 		_bool			bOtherTrigger = { false };
+		TRIGGER_ROT		eRot;
+		_float			fMaxFrameTime{};
+		_float			fFrameTickTime{};
+		_float			fRotationArrow{};
+		_float			fArrrowRotation{};
 	}TRIGGER_INFO;
 private:
 	CTriggerObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

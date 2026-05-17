@@ -187,6 +187,13 @@ void CPlayer::State_Move()
 	}
 
 }
+void CPlayer::Hnad_State_Check()
+{
+	if (m_pPlayerLHand->Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+		m_pPlayerRHand->Set_Flag(ETOUI(PLAYER_FLAG::CONNECTHAND),FLAGVALUE::ENABLE);
+	else
+		m_pPlayerRHand->Set_Flag(ETOUI(PLAYER_FLAG::CONNECTHAND), FLAGVALUE::DISABLE);
+}
 HRESULT CPlayer::Initialize_Prototype()
 {
 	return S_OK;
@@ -235,8 +242,10 @@ void CPlayer::Update(_float fTimeDelta)
 
 	m_bFinished = m_pAnimator->Animation_End();
 
-	m_pPlayerRHand->Update(fTimeDelta);
 	m_pPlayerLHand->Update(fTimeDelta);
+	Hnad_State_Check();
+	m_pPlayerRHand->Update(fTimeDelta);
+
 	if (!m_ePlayer.bFalling && !m_ePlayer.bJump)
 	{
 		_float4 vPos{};
@@ -398,7 +407,7 @@ _bool CPlayer::Flag_Check(uint32_t iFlag)
 void CPlayer::Timer(const _float& fTimeDelta)
 {
 
-	if (!(m_iStateFlag & ETOUI(PLAYER_FLAG::TIMER)))
+	if (!(Flag_Check(ETOUI(PLAYER_FLAG::TIMER))))
 		return;
 
 	m_fTimerTick += fTimeDelta;
@@ -409,7 +418,7 @@ void CPlayer::Timer(const _float& fTimeDelta)
 		++m_fTimerCnt;
 	}
 
-	if (m_fTimerCnt > 100.f)
+	if (m_fTimerCnt > 50.f)
 	{
 		m_fTimerCnt = 0;
 		uint32_t iFlag = ETOUI(PLAYER_FLAG::END);

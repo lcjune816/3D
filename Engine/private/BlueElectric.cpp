@@ -23,9 +23,10 @@ HRESULT CBlueElectric::Initialize(void* pArg)
 		return E_FAIL;
 
 	__super::Initialize(pArg);
-
+	uint32_t iFlag{0};
 	m_eEventTrigger = TRIGGER_EVENT::BELECTRIC;
-	uint32_t iFlag = ETOUI(TRIGGER_FLAG::ATTACHED) | ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER);
+	if (m_bOtherTrigger)
+			iFlag = ETOUI(TRIGGER_FLAG::ATTACHED) | ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER);
 	
 	m_BindValue.fColor = { 0,0,1,1 };
 	Set_Flag(iFlag, FLAGVALUE::ENABLE);
@@ -73,7 +74,7 @@ _bool CBlueElectric::offsetMatrix(_float4x4* pMatrix)
 	vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 
 
-	SrcPos = vCenter + vLook * 3.f;
+	SrcPos = vCenter + vLook * 5.f;
 
 	matOffset.r[3] = SrcPos;
 	XMStoreFloat4x4(pMatrix, matOffset);

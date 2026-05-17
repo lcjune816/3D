@@ -50,6 +50,9 @@ HRESULT CStageone_Terrain::Render()
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pShaderCom->Bind_SRV("diffTexture", nullptr);
+	_float4 fColor = { 0.f,0.f,0.f,1.f };
+
+	m_pShaderCom->Bind_RawValue("g_Color", &fColor, sizeof(_float4));
 
 	m_pShaderCom->Begin(0);
 	

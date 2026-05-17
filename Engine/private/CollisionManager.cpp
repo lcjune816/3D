@@ -457,7 +457,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 		_float SrcLength = XMVectorGetX(XMVector3Length(LastendPos - startPos));
 
 		_vector offsetDir = XMVector3Normalize(WorldHitPos - XMLoadFloat3(&WorldBox.Center));
-		WorldHitPos += offsetDir * 1.5f;
+		WorldHitPos += offsetDir * 1.2f;
 
 		_float WordDis = XMVectorGetX(XMVector3Length(WorldHitPos - startPos));
 
@@ -470,7 +470,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
-				if (Length < 6.f || PlayerToObjectLength <5.f)
+				if (Length < 5.f || PlayerToObjectLength <5.f)
 					return false;
 			}
 
@@ -552,7 +552,7 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 			fEdgeDist = 0.f;
 			_vector rayLen = LocalStart - LocalEdge;
 
-			LocalEdge += OffsetDir * 1.5f;
+			LocalEdge += OffsetDir * 1.2f;
 			_vector LastEdgeDir{};
 			if (!bFinished)
 			LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);

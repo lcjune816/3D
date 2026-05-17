@@ -38,12 +38,12 @@ HRESULT CElectricPole::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigg
 }
 HRESULT CElectricPole::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+	Action_Trigger();
 	return S_OK;
 }
 HRESULT CElectricPole::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {//손에 전기 뭍은상태로 닿으면 문 열리게 바꿔야지
 
-	Action_Trigger();
 
 	return S_OK;
 }
@@ -58,14 +58,17 @@ _bool CElectricPole::offsetMatrix(_float4x4* pMatrix)
 void CElectricPole::Action_Trigger()
 {
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::SHADER)))
+	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER)| ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
-		m_BindValue.fColor = { 0,1,0,1 };
+			TriggerCheck->Set_Trigger();
 	}
 	else
-		m_BindValue.fColor = { 1,1,1,1 };
+	{
+		if (NULL_FALSE(TriggerCheck))
+			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	}
+
 	
 
 }

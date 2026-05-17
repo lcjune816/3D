@@ -32,20 +32,16 @@ HRESULT CElectricPoleHead::Initialize(void* pArg)
 }
 HRESULT CElectricPoleHead::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	return S_OK;
 
 }
 HRESULT CElectricPoleHead::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+	Action_Trigger();
 	return S_OK;
 }
 HRESULT CElectricPoleHead::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
-{//손에 전기 뭍은상태로 닿으면 문 열리게 바꿔야지
-	
-	
-	Action_Trigger();
-
+{
 	return S_OK;
 }
 void CElectricPoleHead::Set_Trigger()
@@ -61,12 +57,16 @@ void CElectricPoleHead::Action_Trigger()
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
-		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+		if (NULL_FALSE(TriggerCheck))		
+			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
 		m_BindValue.fColor = { 0,0,1,1 };
 	}
 	else
+	{
+		if (NULL_FALSE(TriggerCheck))
+			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 		m_BindValue.fColor = { 1,1,1,1 };
+	}
 
 
 }
