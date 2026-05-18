@@ -37,20 +37,7 @@ void CNaviObject::Late_Update(_float fTimeDelta)
 }
 HRESULT CNaviObject::Render()
 {
-	_float4x4 matWorld{};
-	_float4 fColor = { 1.f,0.f,0.f,1.f };
-	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
-
-	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
-	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pShaderCom->Bind_RawValue("g_Color", &fColor,sizeof fColor);
-
-	m_pShaderCom->Begin(0);
-
-	m_pNaviMesh->Bind_Resource();
-	m_pNaviMesh->Render();
-
+	
 	return S_OK;
 }
 
@@ -70,9 +57,6 @@ HRESULT CNaviObject::Create_Component(void* pArg)
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pShaderCom)))
 		return E_FAIL;
 
-
-	m_pNaviMesh = static_pointer_cast<CNaviMesh>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_NaviMesh", pArg));
-	if (NULL_TRUE(m_pNaviMesh)) return E_FAIL;
 
 
 	return S_OK;

@@ -39,6 +39,8 @@ private:
 	void							Add_Decal_Texture();
 	void							Multy_Copy();
 	void							Move_Layer();
+	void							Navi_Creator();
+
 	void							Load_Data();
 	HRESULT							Load_Value(LEVEL eLevel,const _wstring strFilePath, 
 									const _wstring strLayerName, const _wstring strObjName, const string strLoadDataName);

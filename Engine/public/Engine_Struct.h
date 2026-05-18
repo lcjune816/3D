@@ -77,10 +77,10 @@ namespace Engine
 
 	typedef struct strnavimesh
 	{
-		_float4		Triangle[3];
-		int32_t		neighborIndices[3];
-		_float3		Center;
-	}NAVI_MESH;
+		int32_t		iIndex = { -1 };
+		_float3     vPoints[ETOUI(EPOINT::END)];
+		_float3		vNormals[ETOUI(LINE::END)];
+	}NAVI;
 
 	typedef struct filepath
 	{
@@ -88,7 +88,21 @@ namespace Engine
 		string strPathName;
 	}FPATH;
 
+	typedef struct vertexpos
+	{
+		_float3		fPos;			//0
 
+		static constexpr uint32_t		iNumElements = { 1 };
+		static constexpr D3D11_INPUT_ELEMENT_DESC		Elements[iNumElements] =
+		{
+			{"POSITION",0 ,DXGI_FORMAT_R32G32B32_FLOAT,0,D3D11_APPEND_ALIGNED_ELEMENT,D3D11_INPUT_PER_VERTEX_DATA,0},
+		};
+		void Save_Data(ofstream& fWrite)
+		{
+			fWrite.write((char*)(this), sizeof(VTX_POS));
+		}
+	}VTX_POS;
+	
 	typedef struct vertexnoanime
 	{
 		_float3		fPos;			//0

@@ -40,17 +40,17 @@ HRESULT CLowerFlip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	case TRIGGER_STATE::IDLE:
 		break;
 	case TRIGGER_STATE::ACTION:
-		if (!Start_Rotation(fTimeDelta))
+		if (Start_Rotation(fTimeDelta))
 		{
-			m_eState = TRIGGER_STATE::IDLE;
+			m_eState = TRIGGER_STATE::PAUSE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE) , FLAGVALUE::ENABLE);
 		}
 		else
 			Action_Trigger();
 		break;
 	case TRIGGER_STATE::RETURN:
-		if (!End_Roatation(fTimeDelta))
+		if (End_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
@@ -61,6 +61,9 @@ HRESULT CLowerFlip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		break;
 
 	case TRIGGER_STATE::PAUSE:
+
+		if (Timer_Flag(TRIGGER_FLAG::PAUSE, FLAGVALUE::DISABLE, fTimeDelta))
+			m_eState = TRIGGER_STATE::IDLE;
 		break;
 	}
 	
@@ -73,6 +76,9 @@ HRESULT CLowerFlip::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 
 void CLowerFlip::Set_Trigger()
 {
+	if (m_eState != TRIGGER_STATE::IDLE)
+		return;
+
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		m_eState = TRIGGER_STATE::ACTION;
@@ -80,6 +86,7 @@ void CLowerFlip::Set_Trigger()
 	}
 	else if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
+		Set_Flag(ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::DISABLE);
 		m_eState = TRIGGER_STATE::RETURN;
 		return;
 	}
@@ -110,19 +117,25 @@ _bool CLowerFlip::offsetMatrix(_float4x4* pMatrix)
 		return false;
 	auto pTransform = pObj->Get_Transform().lock();
 
+	_float3 Scale = pDstTransform->Get_Scaled();
+
+	_matrix matRot = XMMatrixIdentity();
+
+
 	_matrix matOffset = XMMatrixIdentity();
 
 	_vector SrcPos = pTransform->Get_World().r[3];
 	_vector DstPos = pDstTransform->Get_World().r[3];
 	_float3 fMax = pTransform->Get_Max();
 	_float3 fMin = pTransform->Get_Min();
+	
+	_vector vCenter = {};
+	_vector vLocal = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
 
-	_vector vCenter = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
-	_vector vLook = pDstTransform->Get_World().r[2];
 
-	vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
-
-	matOffset.r[3] = SrcPos;
+	vCenter = XMVector3TransformCoord(vLocal, pTransform->Get_World());
+	matOffset.r[2] = pTransform->Get_State(STATE::LOOK);
+	matOffset.r[3] = vCenter;
 	XMStoreFloat4x4(pMatrix, matOffset);
 	return true;
 }

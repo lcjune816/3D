@@ -162,6 +162,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\BlueElectric.h" />
     <ClInclude Include="..\public\Bone.h" />
     <ClInclude Include="..\public\CameraNS.h" />
+    <ClInclude Include="..\public\Cell.h" />
     <ClInclude Include="..\public\CollisionManager.h" />
     <ClInclude Include="..\public\Component.h" />
     <ClInclude Include="..\public\Cube.h" />
@@ -195,7 +196,6 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Mesh.h" />
     <ClInclude Include="..\public\MeshModel.h" />
     <ClInclude Include="..\public\MeshNonAnime.h" />
-    <ClInclude Include="..\public\NaviMesh.h" />
     <ClInclude Include="..\public\Navi_Manager.h" />
     <ClInclude Include="..\public\NonModel.h" />
     <ClInclude Include="..\public\Object_Manager.h" />
@@ -241,6 +241,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\BlueElectric.cpp" />
     <ClCompile Include="..\private\Bone.cpp" />
     <ClCompile Include="..\private\CameraNS.cpp" />
+    <ClCompile Include="..\private\Cell.cpp" />
     <ClCompile Include="..\private\CollisionManager.cpp" />
     <ClCompile Include="..\private\Component.cpp" />
     <ClCompile Include="..\private\Cube.cpp" />
@@ -268,7 +269,6 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Mesh.cpp" />
     <ClCompile Include="..\private\MeshModel.cpp" />
     <ClCompile Include="..\private\MeshNonAnime.cpp" />
-    <ClCompile Include="..\private\NaviMesh.cpp" />
     <ClCompile Include="..\private\Navi_Manager.cpp" />
     <ClCompile Include="..\private\NonModel.cpp" />
     <ClCompile Include="..\private\Object_Manager.cpp" />
@@ -294,6 +294,12 @@ call Copy.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Bin\ShaderFiles\Engine_Shader_Defines.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

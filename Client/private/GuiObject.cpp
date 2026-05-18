@@ -4,7 +4,7 @@
 #include "WorldObject.h"
 #include "DecalObject.h"
 #include "TriggerObject.h"
-
+#include "DirectXCollision.h"
 CGuiObject::CGuiObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -68,7 +68,7 @@ void CGuiObject::Priority_Update(_float fTimeDelta)
 	Save();
 	Load_Data();
 	Add_Decal_Texture();
-
+	Navi_Creator();
 }
 void CGuiObject::Update(_float fTimeDelta)
 {
@@ -1564,6 +1564,125 @@ void CGuiObject::Move_Layer()
 		m_CopyWorld = {};
 	}
 
+}
+
+void CGuiObject::Navi_Creator()
+{
+	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
+	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
+
+
+	if (!ImGui::Begin(u8"네비", NULL, ImGuiWindowFlags_MenuBar)) // 메뉴바임
+	{
+		ImGui::End(); return;
+	}//스크롤 접으면 밑에꺼 하지마라
+
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	if (ImGui::BeginTabBar(u8"목록", tab_bar_flags))
+	{
+		POINT tMouse{};
+		GetCursorPos(&tMouse);
+		ScreenToClient(g_hWnd, &tMouse);
+		static _float3 fPos[3]{};
+		static _bool   A{ false }, B{ false }, C{ false }, Check{ false };
+
+		_matrix CameProj = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+		_float4x4 Proj = {};
+		XMStoreFloat4x4(&Proj, CameProj);
+
+		_float rayX = (2.f  * tMouse.x / 1280.f - 1.f) / Proj(0, 0);
+		_float rayY = (-2.f * tMouse.y / 720.f + 1.f) / Proj(1, 1);
+
+		//뷰포트에서의 광선 정의9
+		_vector rayOrigin = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+		_vector rayDir = XMVectorSet(rayX, rayY, 1.f, 0.f);
+
+		//월드 좌표로 변환
+		_matrix CamView = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+		_matrix InverseView = XMMatrixInverse(nullptr, CamView);
+
+		rayOrigin = XMVector3TransformCoord(rayOrigin, InverseView);
+		rayDir = XMVector3Normalize(XMVector3TransformNormal(rayDir, InverseView));
+
+		_float fMax = { FLT_MAX };
+		_float tDis = 0;
+		_float t1Dis = 0;
+		_float3 LastPos{};
+		_vector TriFirst[3]{XMVectorSet(0,0,0,0),
+			                XMVectorSet(0,0,(TERRIANZ * TERRIANZ) *6 ,0),
+			                XMVectorSet((TERRIANZ * TERRIANZ)*6 ,0,(TERRIANZ * TERRIANZ) *6,0) };
+
+		_vector TriSecond[3]{ XMVectorSet((TERRIANZ * TERRIANZ)*6,0,(TERRIANZ * TERRIANZ)*6 ,0),
+							  XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,0,0),
+							  XMVectorSet(0,0,0,0) };
+		
+		if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
+		{
+			XMStoreFloat3(&LastPos, rayOrigin + rayDir * tDis) ;
+			fMax = tDis;
+		}
+
+		if (TriangleTests::Intersects(rayOrigin, rayDir, TriSecond[0], TriSecond[1], TriSecond[2], t1Dis))
+		{
+			if (fMax > t1Dis)
+			{
+				XMStoreFloat3(&LastPos, rayOrigin + rayDir * t1Dis);
+			}
+		}
+
+		ImGui::Text("X %f.3f:", LastPos.x); 
+		ImGui::Text("Z %f.3f :", LastPos.z);
+		if (Check = CGameInstance::Get().Check_First())
+		{
+			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
+			{
+				if (!A)
+				{
+					fPos[0] = LastPos;
+					A = true;
+				}else if (!B)
+				{
+					fPos[1] = LastPos;
+					B = true;
+				}else if (!C)
+				{
+					fPos[2] = LastPos;
+					C = true;
+				}else
+				{
+					CGameInstance::Get().Check_NeraPos(&fPos[0]);
+					A = false;
+				}
+
+			}
+		}
+		else
+		{
+			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
+			{
+				if (!A)
+				{
+					fPos[0] = LastPos;
+					CGameInstance::Get().Check_NeraPos(&fPos[0]);
+				}
+			}
+		}
+
+		
+		A ? ImGui::Text(u8"첫번째점 선택 완료") : ImGui::Text(u8"첫번째점 선택되지 않음");
+		if (Check)
+		{
+			B ? ImGui::Text(u8"두번째점 선택 완료") : ImGui::Text(u8"두번째점 선택되지 않음");
+			C ? ImGui::Text(u8"세번째점 선택 완료") : ImGui::Text(u8"세번째점 선택되지 않음");
+		}
+		
+	
+		ImGui::EndTabBar();
+	}
+
+
+	ImGui::End();
 }
 
 void CGuiObject::Load_Data()

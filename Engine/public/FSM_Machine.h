@@ -21,6 +21,7 @@ public:
 	void			Change_State(FSM eMachineState);
 	void			Set_Owner(weak_ptr<class CGameObject> pObj);
 
+	
 	weak_ptr<class CGameObject>		Get_Owner();
 public:
 	HRESULT			Add_State(FSM StateName ,shared_ptr<CFSM_STATE> pMachine);

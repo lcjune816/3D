@@ -39,7 +39,6 @@ HRESULT CMeshNonAnime::Initialize(void* pArg)
 
 	m_eMatrial = Dest->eMatrial;
 
-	CGameInstance::Get().Set_MeshInfo(Dest->Vertexes, Dest->Indices);
 	return S_OK;
 }
 

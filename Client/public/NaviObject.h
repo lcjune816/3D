@@ -32,7 +32,6 @@ private:
 
 private:
 	shared_ptr<Engine::CShader>				m_pShaderCom = { nullptr };
-	shared_ptr<Engine::CNaviMesh>			m_pNaviMesh = { nullptr };
 public:
 	static unique_ptr<CNaviObject> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

@@ -217,7 +217,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_LowerFlip_Flip"),
 		CLowerFlip_Flip::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-	
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Triangle"),
+		CTriAngle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	//Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
 	//m_Objects.clear();
@@ -262,8 +265,9 @@ HRESULT CLoader::Loading_For_GasProduction()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Decal"),
 		CDecalObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
-
+	
+	
+	
 
 	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_WorldObject", m_Objects);

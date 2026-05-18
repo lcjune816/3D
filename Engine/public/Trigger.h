@@ -65,12 +65,12 @@ public:
 	virtual _bool					offsetMatrix(_float4x4* pMatrix);
 protected:
 	_bool							Start_Rotation(const _float& fTimeDelta);
-	_bool							End_Roatation(const _float& fTimeDelta);
-
+	_bool							End_Rotation(const _float& fTimeDelta);
+	_bool							Timer_Flag(TRIGGER_FLAG flag, FLAGVALUE eValue , const _float& fTimeDelta);
 protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
 	_float							m_fFrameTick{}, m_fFrameTickTime{}, m_fFrameTime{}, m_fMaxFrameTime{};
-	_float							m_fAngle{}, m_fStartAngle{ 0 },m_fEndAngle{ 180.f }, m_fRotationArrow = { 1.f };
+	_float							m_fAngle{}, m_fStartAngle{ 0 }, m_fEndAngle{ 180.f }, m_fRotationArrow = { 1.f }, m_fFlagCnt{0 };
 	_float4x4*						m_pMatrixPtr = { nullptr };
 
 	weak_ptr<CTransform>			m_pDstTransform;

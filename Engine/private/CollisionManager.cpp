@@ -324,10 +324,10 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 			{
 				//Player Look은 플레이어 -> 보스 Look 방향
 				//
-				_vector PlayerLook = XMVector3Normalize(SrcPos - Center);
+				_vector PlayerLook = XMVector3Normalize(DstTransform->Get_World().r[3] - SrcTransform->Get_World().r[3]);
 
 				// 현재 플레이어 원래 방향이랑  Player Look 방향이랑 내적해서 앞뒤 판정 false면 뒤라는거임
-				if (XMVectorGetX(XMVector3Dot(PlayerLook, DstTransform->Get_State(STATE::LOOK))) < 0)
+				if (XMVectorGetX(XMVector3Dot(PlayerLook, XMVector3Normalize(DstTransform->Get_State(STATE::LOOK)))) > 0)
 					 return false;
 			
 				fPlayerDistance = Dist;

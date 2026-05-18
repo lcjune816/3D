@@ -1,6 +1,7 @@
 #include "Navi_Manager.h"
-
-CNavi_Manager::CNavi_Manager()
+#include "GameInstance.h"
+CNavi_Manager::CNavi_Manager(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
+	:m_pDevice(pDevice), m_pContext(pContext)
 {
 }
 
@@ -10,75 +11,137 @@ CNavi_Manager::~CNavi_Manager()
 
 HRESULT CNavi_Manager::Initialize()
 {
+#ifdef _DEBUG
+
+	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
+	if (nullptr == m_pShader)
+		return E_FAIL;
+#endif
+
 	return S_OK;
-}
-
-void CNavi_Manager::Check_Neighbor(NAVI_MESH* pSrc, NAVI_MESH* pDst, int32_t SrcIndex, int32_t DstIndex)
-{
-	for (uint32_t i = 0; i < 3; ++i)
-	{
-		for (uint32_t j = 0; j < 3; ++j)
-		{
-			_vector S0 = XMLoadFloat4(&pSrc->Triangle[i]);
-			_vector S1 = XMLoadFloat4(&pSrc->Triangle[(i+1)%3]);
-
-			_vector D0 = XMLoadFloat4(&pDst->Triangle[j]);
-			_vector D1 = XMLoadFloat4(&pDst->Triangle[(j + 1) % 3]);
-
-			if (XMVector3NearEqual(S0, D0, XMVectorSet(0.001f, 0.001f, 0.001f, 0.f)) ||
-				XMVector3NearEqual(S0, D1, XMVectorSet(0.001f, 0.001f, 0.001f, 0.f)) ||
-				XMVector3NearEqual(S1, D0, XMVectorSet(0.001f, 0.001f, 0.001f, 0.f)) ||
-				XMVector3NearEqual(S1, D1, XMVectorSet(0.001f, 0.001f, 0.001f, 0.f)))
-			{
-				pSrc->neighborIndices[i] = DstIndex;
-				pDst->neighborIndices[j] = SrcIndex;
-			}
-		}
-	}
 
 }
-
-void CNavi_Manager::Add_NaviMeshInfo(const _float4x4* WorldMatrix)
+_bool CNavi_Manager::Check_NeraPos(_float3* fPos)
 {
-	size_t iIndexOffset = { 0 };
-	
-	for (size_t j = 0 ; j< m_MeshIndexInfo.size(); j+=3)
-	{
+    if (m_Cells.empty())
+    {
+        Add_NaviMeshInfo(fPos);
+        return true;
+    }
+    _float firstNearDistance{ FLT_MAX };
+    _float SecondNearDistance{ FLT_MAX };
+     
+    EPOINT  FirstNear = {};
+    EPOINT  SecondNear = {};
+    _float SrcLen = XMVectorGetX(XMVector3Length(XMLoadFloat3(&fPos[0])));
+    size_t iFirstCellCnt{};
+    size_t iSecondCellCnt{};
+    for (size_t i = 0; i < m_Cells.size(); ++i)
+    {
+        _float CheckNear{};
+        _float ALength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::A)]) - XMLoadFloat3(&fPos[0])));
+        _float BLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::B)]) - XMLoadFloat3(&fPos[0])));
+        _float CLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::C)]) - XMLoadFloat3(&fPos[0])));
+        
+        CheckNear = min(ALength, min(BLength, CLength));
+        
+        if (firstNearDistance > CheckNear)
+        {
+            firstNearDistance = CheckNear;
 
-		NAVI_MESH tagNavi{};
-		
-		XMStoreFloat4(&tagNavi.Triangle[0] ,XMVectorSetW(XMLoadFloat3(&m_MeshInfo[m_MeshIndexInfo[j]].fPos),1.f));
-		XMStoreFloat4(&tagNavi.Triangle[1], XMVectorSetW(XMLoadFloat3(&m_MeshInfo[m_MeshIndexInfo[j+1]].fPos), 1.f));
-		XMStoreFloat4(&tagNavi.Triangle[2], XMVectorSetW(XMLoadFloat3(&m_MeshInfo[m_MeshIndexInfo[j+2]].fPos), 1.f));
+            if (CheckNear == ALength)
+                FirstNear = EPOINT::A;
+            else if (CheckNear == BLength)
+                FirstNear = EPOINT::B;
+            else if (CheckNear == CLength)
+                FirstNear = EPOINT::C;
 
-		for (uint32_t k = 0; k < 3; ++k)
-			XMStoreFloat4(&tagNavi.Triangle[k], XMVector3TransformCoord(XMLoadFloat4(&tagNavi.Triangle[k]), XMLoadFloat4x4(WorldMatrix)));
+            iFirstCellCnt = i;
+        }
 
-		_vector Cross = XMVector3Cross((XMLoadFloat4(&tagNavi.Triangle[0]) - XMLoadFloat4(&tagNavi.Triangle[1])),
-										(XMLoadFloat4(&tagNavi.Triangle[0]) - XMLoadFloat4(&tagNavi.Triangle[2])));
+    }
+    for (size_t i = 0; i < m_Cells.size(); ++i)
+    {
+        _float CheckNear{};
+        _float ALength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::A)]) - XMLoadFloat3(&fPos[0])));
+        _float BLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::B)]) - XMLoadFloat3(&fPos[0])));
+        _float CLength = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[i]->Get_CellPos()[ETOUI(EPOINT::C)]) - XMLoadFloat3(&fPos[0])));
+        
+        CheckNear = min(ALength, min(BLength, CLength));
+       
+        if (firstNearDistance != CheckNear)
+        {
+            if (CheckNear == ALength)
+                SecondNear = EPOINT::A;
+            else if (CheckNear == BLength)
+                SecondNear = EPOINT::B;
+            else if (CheckNear == CLength)
+                SecondNear = EPOINT::C;
 
-		if (XMVectorGetX(XMVector3Dot(Cross, XMVectorSet(0.f, 1.f, 0.f, 0.f))) <= 0.5f)
-			continue;
+            iSecondCellCnt = i;
+        }
+        else
+        {
 
-		XMStoreFloat3(&tagNavi.Center, (XMLoadFloat4(&tagNavi.Triangle[0]) + XMLoadFloat4(&tagNavi.Triangle[1]) + XMLoadFloat4(&tagNavi.Triangle[2])) * 0.3f);
-		m_NaviMeshs.push_back(tagNavi);
-	}
+            if (firstNearDistance == ALength)      
+              SecondNear =  BLength == min(BLength, CLength) ? EPOINT::B : EPOINT::C;
+            else if (firstNearDistance == BLength)
+              SecondNear =  ALength == min(ALength, CLength) ? EPOINT::A : EPOINT::C;
+            else if (firstNearDistance == CLength)
+              SecondNear =  ALength == min(ALength, BLength) ? EPOINT::A : EPOINT::B;
 
+                iSecondCellCnt = i;
+        }
+    }
+    fPos[ETOUI(EPOINT::B)] = m_Cells[iFirstCellCnt]->Get_CellPos()[ETOUI(FirstNear)];
+    fPos[ETOUI(EPOINT::C)] = m_Cells[iSecondCellCnt]->Get_CellPos()[ETOUI(SecondNear)];
+    Add_NaviMeshInfo(fPos);
+    return true;
+}
+void CNavi_Manager::Add_NaviMeshInfo( _float3* fPos)
+{
+    auto Cell = CCell::Create(m_pDevice, m_pContext, fPos, m_Cells.size());
+       if(NULL_TRUE(Cell))
+            return;
 
-	
-	for (size_t i = 0; i < m_NaviMeshs.size();++i)
-	{
-		for (size_t j = i + 1; j < m_NaviMeshs.size(); ++j)
-		{
-			Check_Neighbor(&m_NaviMeshs[i], &m_NaviMeshs[j], i, j);
-		}
-	}
-	
+       m_Cells.push_back(Cell);
 
 }
-
-unique_ptr<CNavi_Manager>		CNavi_Manager::Create()
+void CNavi_Manager::Save_Navi(json& j)
 {
+}
+#ifdef _DEBUG
+HRESULT CNavi_Manager::Render()
+{
+    _float4x4       WorldMatrix = {};
+    XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
 
-	return unique_ptr<CNavi_Manager>(new CNavi_Manager);
+    if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
+        return E_FAIL;
+    if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW))))
+        return E_FAIL;
+    if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ))))
+        return E_FAIL;
+
+    m_pShader->Begin(0);
+
+    for (auto& pCell : m_Cells)
+    {
+        if (nullptr != pCell)
+            pCell->Render();
+    }
+
+    return S_OK;
+}
+#endif
+unique_ptr<CNavi_Manager>		CNavi_Manager::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
+{
+	auto pInstance = unique_ptr<CNavi_Manager>(new CNavi_Manager(pDevice,pContext));
+
+	if (FAILED(pInstance->Initialize()))
+	{
+		MSG_BOX("Create Failed NaviManager");
+		return nullptr;
+	}
+	return pInstance;
 }
