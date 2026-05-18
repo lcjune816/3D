@@ -9,10 +9,11 @@ namespace Engine
 	enum class STATE { RIGHT, UP, LOOK, POS, END };
 	enum class MESH_TYPE { ANIME, NONANIME, TRIGGER ,DECAL,NAVI,END };
 	enum class D3DTS   {VIEW, PROJ, END};
-	enum class FSM     {IDLE, MOVE, JUMP,CROUCH, HAND, END};
+	enum class FSM     {IDLE, MOVE, JUMP,CROUCH, HAND,PULL_HAND, END};
 	enum class FSM_ACTION {HAND, END};
 	enum class FLAGVALUE { ENABLE, DISABLE, TOGGLE,RESET, END };
-
+	enum class EPOINT		{A,B,C,END};
+	enum class LINE  {AB, BC, CA ,END};
 	enum class COLLISION { NORMAL, TRIGGER, END };
 	enum class DIMK{LBUTTON, RBUTTON, WHEEL, END};
 	enum class DIMM {X,Y,WHEEL,END};

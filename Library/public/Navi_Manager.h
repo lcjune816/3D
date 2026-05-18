@@ -5,29 +5,29 @@ NS_BEGIN(Engine)
 class CNavi_Manager final
 {
 private:
-	CNavi_Manager();
+	CNavi_Manager(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 public:
 	~CNavi_Manager();
 
 public:
 	HRESULT Initialize();
 
-	void    Check_Neighbor(NAVI_MESH* pSrc, NAVI_MESH* pDst, int32_t SrcIndex, int32_t DstIndex);
-	void	Add_NaviMeshInfo(const _float4x4* WorldMatrix);
-	void    Set_MeshInfo(vector<VERTEX_NOANIME> mesh, vector<uint32_t>index) { m_MeshInfo = mesh; m_MeshIndexInfo = index; }
-	const vector<uint32_t>& Get_MeshIndexInfo() {
-		return m_MeshIndexInfo;
-	}
-	const vector<VERTEX_NOANIME>& Get_MeshInfo(){
-		return m_MeshInfo;
-	}
+	_bool	Check_NeraPos(_float3* fPos);
+	_bool	Check_First() { if (m_Cells.empty())return true;		return false; }
+	void	Add_NaviMeshInfo(_float3* fPos);
+	void    Save_Navi(json& j);
+	HRESULT Render();
+#ifdef _DEBUG
 private:
-	vector<NAVI_MESH>				m_NaviMeshs;
-	vector<uint32_t>				m_MeshIndexInfo;
-	vector<VERTEX_NOANIME>			m_MeshInfo;
+	shared_ptr<class CShader>				m_pShader = { nullptr };
+#endif
+private:
+	vector<shared_ptr<class CCell>>		m_Cells;
 
+	ComPtr<ID3D11Device>				m_pDevice = { nullptr };
+	ComPtr<ID3D11DeviceContext>			m_pContext = { nullptr };
 public:
-	static unique_ptr<CNavi_Manager>		Create();
+	static unique_ptr<CNavi_Manager>		Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 
 };
 

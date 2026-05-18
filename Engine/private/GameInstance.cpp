@@ -87,7 +87,7 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pInstancing))
 		return E_FAIL;
 
-	m_pNavi_Manager = CNavi_Manager::Create();
+	m_pNavi_Manager = CNavi_Manager::Create(pOutDevice,pOutContext);
 	if (NULL_TRUE(m_pNavi_Manager))
 		return E_FAIL;
 	return S_OK;
@@ -381,21 +381,21 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 #pragma endregion
 #pragma region NAVI_MANAGER
 
-void	CGameInstance::Add_NaviMeshInfo(const _float4x4* WorldMatrix)
+_bool	CGameInstance::Check_NeraPos(_float3* fPos)
 {
-	m_pNavi_Manager->Add_NaviMeshInfo(WorldMatrix);
+	return m_pNavi_Manager->Check_NeraPos(fPos);
 }
-void    CGameInstance::Set_MeshInfo(vector<VERTEX_NOANIME> mesh, vector<uint32_t>index)
+_bool	CGameInstance::Check_First()
 {
-	m_pNavi_Manager->Set_MeshInfo(mesh, index);
+	return m_pNavi_Manager->Check_First();
 }
-const vector<uint32_t>& CGameInstance::Get_MeshIndexInfo()
+void    CGameInstance::Save_Mesh(json& j)
 {
-	return m_pNavi_Manager->Get_MeshIndexInfo();
+	m_pNavi_Manager->Save_Navi(j);
 }
-const vector<VERTEX_NOANIME>& CGameInstance::Get_MeshInfo()
+HRESULT CGameInstance::Render()
 {
-	return m_pNavi_Manager->Get_MeshInfo();
+	return m_pNavi_Manager->Render();
 }
 #pragma endregion
 #pragma region TRIGGER_MANAGER

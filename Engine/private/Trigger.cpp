@@ -51,9 +51,9 @@ _bool						CTrigger::Start_Rotation(const _float& fTimeDelta )
 	{
 		m_fFrameTick = 0.f;
 		m_fAngle = m_fEndAngle;
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 _bool						CTrigger::End_Rotation(const _float& fTimeDelta)
 {
@@ -66,10 +66,31 @@ _bool						CTrigger::End_Rotation(const _float& fTimeDelta)
 	{
 		m_fFrameTick = 0.f;
 		m_fAngle = m_fStartAngle;
+		return true;
+	}
+
+	return false;
+}
+_bool CTrigger::Timer_Flag(TRIGGER_FLAG flag, FLAGVALUE eValue , const _float& fTimeDelta)
+{
+	m_fFrameTick += fTimeDelta;
+
+	if (m_fFrameTick >= 0.2f)
+	{
+		m_fFrameTick = 0.f;
+		++m_fFlagCnt;
 		return false;
 	}
 
-	return true;
+	if (m_fFlagCnt > 5)
+	{
+		m_fFlagCnt = 0;
+		m_fFrameTick = 0;
+		Set_Flag(ETOUI(flag), eValue);
+		return true;
+	}
+
+	return false;
 }
 HRESULT CTrigger::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {

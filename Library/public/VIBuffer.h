@@ -8,8 +8,7 @@ class ENGINE_DLL CVIBuffer abstract : public CComponent
 public:
 	typedef struct strBufferdesc
 	{
-		vector<_float3[3]> iTriVertex;
-		vector<uint32_t[3]> iTriindex ;
+		_float3 fPos[ETOUI(EPOINT::END)];
 	}BUFFER_DESC;
 protected:
 	CVIBuffer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

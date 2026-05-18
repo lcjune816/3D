@@ -21,15 +21,15 @@ HRESULT CTriAngle::Initialize(void* pArg)
 	auto pDesc = static_cast<BUFFER_DESC*>(pArg);
 
 	m_iNumVertexBuffers = 1;
-	m_iNumVertices = pDesc->iTriVertex.size() * 3;
-	m_iVertexStride = sizeof(VERTEX_NOANIME);
+	m_iNumVertices = 3;
+	m_iVertexStride = sizeof(VTX_POS);
 
-	m_iNumIndices = pDesc->iTriindex.size() * 3;
-	m_iIndexStride = 4;
-	m_eIndexFormat = DXGI_FORMAT_R32_UINT;
-	m_ePrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+	m_iNumIndices = 4;
+	m_iIndexStride = 2;
+	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
+	m_ePrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
 
-	if (FAILED(Setup_Mesh(pDesc->iTriVertex, pDesc->iTriindex)))
+	if (FAILED(Setup_Mesh(&pDesc->fPos[0])))
 		return E_FAIL;
 
 	return S_OK;
@@ -37,7 +37,7 @@ HRESULT CTriAngle::Initialize(void* pArg)
 }
 
 
-HRESULT CTriAngle::Setup_Mesh(vector<_float3[3]>& Vertices, vector<uint32_t[3]>& indices)
+HRESULT CTriAngle::Setup_Mesh(_float3* fPos)
 {
 	_float fScale = 0.5f;
 
@@ -52,17 +52,11 @@ HRESULT CTriAngle::Setup_Mesh(vector<_float3[3]>& Vertices, vector<uint32_t[3]>&
 
 	D3D11_SUBRESOURCE_DATA initData{};
 
-	VERTEX_NOANIME* pVertices = new VERTEX_NOANIME[m_iNumVertices];
-	ZeroMemory(pVertices, sizeof(VERTEX_NOANIME) * m_iNumVertices);
+	VTX_POS* pVertices = new VTX_POS[m_iNumVertices];
+	ZeroMemory(pVertices, sizeof(VTX_POS) * m_iNumVertices);
 
+	memcpy(pVertices, fPos, sizeof(VTX_POS) * m_iNumVertices);
 	initData.pSysMem = &pVertices[0];
-	for (size_t i = 0; i < Vertices.size(); ++i)
-	{
-		for (size_t j = 0; j < 3; ++j)
-		{
-			pVertices[i].fPos = Vertices[i][j];
-		}
-	}
 
 	if (FAILED(m_pDevice->CreateBuffer(&vbd, &initData, &m_pVB)))
 		return E_FAIL;
@@ -75,21 +69,21 @@ HRESULT CTriAngle::Setup_Mesh(vector<_float3[3]>& Vertices, vector<uint32_t[3]>&
 	ibd.CPUAccessFlags = 0;
 	ibd.MiscFlags = 0;
 
-	int32_t* pIndeces = new int32_t[m_iNumIndices];
-	for (size_t i = 0; i < indices.size(); ++i)
-	{
-		for (size_t j = 0; j < 3; ++j)
-		{
-			pIndeces[i]= indices[i][j];
-		}
-	}
+	uint16_t* pIndices = new uint16_t[m_iNumIndices];
+	ZeroMemory(pIndices, sizeof(uint16_t) * m_iNumIndices);
 
-	initData.pSysMem = &pIndeces[0];
+	pIndices[0] = 0;
+	pIndices[1] = 1;
+	pIndices[2] = 2;
+	pIndices[3] = 0;
 
-	if (FAILED(m_pDevice->CreateBuffer(&ibd, &initData, &m_pIB)))
+	D3D11_SUBRESOURCE_DATA          IndexInitialData{};
+	IndexInitialData.pSysMem = &pIndices[0];
+
+	if (FAILED(m_pDevice->CreateBuffer(&ibd, &IndexInitialData, &m_pIB)))
 		return E_FAIL;
 
-	Safe_Delete_Array(pIndeces);
+	Safe_Delete_Array(pIndices);
 	Safe_Delete_Array(pVertices);
 	return S_OK;
 }

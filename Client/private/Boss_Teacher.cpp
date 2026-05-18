@@ -113,7 +113,7 @@ void CBoss_Teacher::Update(_float fTimeDelta)
 	State_Move();
 	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
-	m_pAnimator->CalculateFinalBoneMatrices();
+	//m_pAnimator->CalculateFinalBoneMatrices();
 	m_bFinished = m_pAnimator->Animation_End();
 
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Teacher));

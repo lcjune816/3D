@@ -59,6 +59,7 @@ HRESULT CStageone_Terrain::Render()
 	m_pTerrain->Bind_Resource();
 	m_pTerrain->Render();
 
+	CGameInstance::Get().Render();
 	return S_OK;
 }
 unique_ptr<CStageone_Terrain> CStageone_Terrain::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

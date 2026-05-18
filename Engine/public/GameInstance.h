@@ -118,11 +118,10 @@ public:
 #pragma endregion
 #pragma region NAVI_MANAGER
 
-	void	Add_NaviMeshInfo(const _float4x4* WorldMatrix);
-	
-	void							Set_MeshInfo(vector<VERTEX_NOANIME> mesh, vector<uint32_t>index);
-	const vector<uint32_t>&			Get_MeshIndexInfo();
-	const vector<VERTEX_NOANIME>&	Get_MeshInfo();
+	_bool	Check_NeraPos(_float3* fPos);
+	_bool	Check_First();
+	void    Save_Mesh(json& j);
+	HRESULT Render();
 	
 #pragma endregion
 #pragma region ASSIMP_MANAGER

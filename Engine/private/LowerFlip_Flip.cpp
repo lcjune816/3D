@@ -39,6 +39,10 @@ HRESULT CLowerFlip_Flip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	switch (m_eState)
 	{
 	case TRIGGER_STATE::IDLE:
+		if (Check_Flag(ETOUI(TRIGGER_FLAG::PAUSE)))
+		{
+
+		}
 		break;
 	case TRIGGER_STATE::ACTION:
 		if (!Start_Rotation(fTimeDelta))
