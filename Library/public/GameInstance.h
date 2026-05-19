@@ -30,7 +30,8 @@ public:
 	int8_t	Get_DIKeyState(uint8_t byKeyID);
 	int8_t	Get_DIMouseState(DIMK eMouse);
 	int32_t	Get_DIMouseMove(DIMM eMouseState);
-	int8_t Get_DIMouseOneClick(DIMK eMouse);
+	int8_t Get_DIKeyOneState(DIMKEYINPUT eInput);
+	int8_t Get_DIMouseOneClick(DIMK eMouse, ENGINE_MOUSE eState = ENGINE_MOUSE::HOLD);
 #pragma endregion
 #pragma region GRAPHIC_DEVICE
 	HRESULT	Clear_BackBuffer_View(const _float4* pClearColor);
@@ -117,12 +118,14 @@ public:
 	const vector<string>& Get_ObejctNames();
 #pragma endregion
 #pragma region NAVI_MANAGER
-
+	shared_ptr<class CCell>  Select_TriAngle(_fvector vOrigin, _fvector vDir);
 	_bool	Check_NeraPos(_float3* fPos);
 	_bool	Check_First();
-	void    Save_Mesh(json& j);
+	HRESULT    Save_Navi(const _wstring& FilePath, const _char* pName);
+	HRESULT    Load_Navi(const _wstring& FilePath, const _char* pName);
+
 	HRESULT Render();
-	
+	void Undo_Cell();
 #pragma endregion
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);

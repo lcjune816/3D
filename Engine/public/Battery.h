@@ -17,10 +17,12 @@ public:
 
 	virtual HRESULT Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
 	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
+	void    Attached();
+	void	Drop(const _float& fTimeDelta);
 	virtual void					Set_Trigger() override;
 
 private:
-	void			Action_Trigger();
+	_bool			Action_Trigger();
 private:
 	_float						m_fRotationArrow = { 1.f };
 	_float						m_fDropTime = {};

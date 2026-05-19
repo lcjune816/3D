@@ -57,7 +57,7 @@ void CCamera::Update(_float fTimeDelta)
 
 void CCamera::Late_Update(_float fTimeDelta)
 {
-    if (CGameInstance::Get().Get_DIKeyState(DIK_F5))
+    if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F5))
         m_bFreecam = !m_bFreecam;
 
     if (!m_bFreecam)
@@ -66,7 +66,7 @@ void CCamera::Late_Update(_float fTimeDelta)
         POINT mousePos;
         GetCursorPos(&mousePos);
         ScreenToClient(g_hWnd, &mousePos);
-        if (GetKeyState(VK_TAB) & 0x8000)
+        if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::TAB))
             m_bMouseMoveCheck = !m_bMouseMoveCheck;
 
         if (m_bMouseMoveCheck)

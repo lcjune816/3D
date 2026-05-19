@@ -45,7 +45,7 @@ HRESULT CLowerFlip_Flip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		}
 		break;
 	case TRIGGER_STATE::ACTION:
-		if (!Start_Rotation(fTimeDelta))
+		if (Start_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
@@ -55,7 +55,7 @@ HRESULT CLowerFlip_Flip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 			Action_Trigger();
 		break;
 	case TRIGGER_STATE::RETURN:
-		if (!End_Rotation(fTimeDelta))
+		if (End_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);

@@ -17,8 +17,9 @@ namespace Engine
 	
 	typedef struct tagEdgeStruct
 	{
+		_bool bCheck;
 		_float3 fPos;
-		_bool	bCheck;
+		_float3 fNormal[3];
 	}GRAB_ARM_EDGE;
 
 	typedef struct strcollisioninfo
@@ -80,6 +81,7 @@ namespace Engine
 		int32_t		iIndex = { -1 };
 		_float3     vPoints[ETOUI(EPOINT::END)];
 		_float3		vNormals[ETOUI(LINE::END)];
+		_float3		vCenter;
 	}NAVI;
 
 	typedef struct filepath

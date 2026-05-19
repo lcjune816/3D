@@ -213,6 +213,10 @@ int8_t CGameInstance::Get_DIKeyState(uint8_t byKeyID)
 	return m_pInput_Device->Get_DIKeyState(byKeyID);
 }
 
+int8_t CGameInstance::Get_DIKeyOneState(DIMKEYINPUT eInput)
+{
+	return m_pInput_Device->Get_DIKeyOneState(eInput);
+}
 int8_t CGameInstance::Get_DIMouseState(DIMK eMouse)
 {
 	return m_pInput_Device->Get_DIMouseState(eMouse);
@@ -222,10 +226,10 @@ int32_t CGameInstance::Get_DIMouseMove(DIMM eMouseState)
 {
 	return m_pInput_Device->Get_DIMouseMove(eMouseState);
 }
-int8_t CGameInstance::Get_DIMouseOneClick(DIMK eMouse)
+int8_t CGameInstance::Get_DIMouseOneClick(DIMK eMouse, ENGINE_MOUSE eState)
 {
 
-	return m_pInput_Device->Get_DIMouseOneClick(eMouse);
+	return m_pInput_Device->Get_DIMouseOneClick(eMouse, eState);
 }
 #pragma endregion
 #pragma region IMGUI
@@ -381,6 +385,11 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 #pragma endregion
 #pragma region NAVI_MANAGER
 
+shared_ptr<CCell>  CGameInstance::Select_TriAngle(_fvector vOrigin, _fvector vDir)
+{
+	return m_pNavi_Manager->Select_TriAngle(vOrigin, vDir);
+}
+
 _bool	CGameInstance::Check_NeraPos(_float3* fPos)
 {
 	return m_pNavi_Manager->Check_NeraPos(fPos);
@@ -389,13 +398,22 @@ _bool	CGameInstance::Check_First()
 {
 	return m_pNavi_Manager->Check_First();
 }
-void    CGameInstance::Save_Mesh(json& j)
+HRESULT    CGameInstance::Save_Navi(const _wstring& FilePath, const _char* pName)
 {
-	m_pNavi_Manager->Save_Navi(j);
+	return m_pNavi_Manager->Save_Navi(FilePath, pName);
+}
+HRESULT    CGameInstance::Load_Navi(const _wstring& FilePath, const _char* pName)
+{
+
+	return m_pNavi_Manager->Load_Navi(FilePath, pName);
 }
 HRESULT CGameInstance::Render()
 {
 	return m_pNavi_Manager->Render();
+}
+void CGameInstance::Undo_Cell()
+{
+	m_pNavi_Manager->Undo_Cell();
 }
 #pragma endregion
 #pragma region TRIGGER_MANAGER

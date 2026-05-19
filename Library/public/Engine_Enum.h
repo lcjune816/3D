@@ -15,9 +15,11 @@ namespace Engine
 	enum class EPOINT		{A,B,C,END};
 	enum class LINE  {AB, BC, CA ,END};
 	enum class COLLISION { NORMAL, TRIGGER, END };
+	enum class DIMKEYINPUT{F5,F6,F7, TAB,Z,END};
 	enum class DIMK{LBUTTON, RBUTTON, WHEEL, END};
 	enum class DIMM {X,Y,WHEEL,END};
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
+	enum class ENGINE_MOUSE{ HOLD, A_CLICK, B_CLICK };
 	//// Dynamic 컴포넌트 경우 매 프레임마다 갱신해야하는 컴포넌트 집단
 	//enum COMPONENTID { ID_DYNAMIC, ID_STATIC, ID_END };
 

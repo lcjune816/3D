@@ -139,7 +139,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 		}
 	}
 
-	if ((Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)) || Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT))) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
+	if ((Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)) || Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT))) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
 	{
 		uint32_t iFlag = ETOUI(PLAYER_FLAG::ELECTRIC_LONG);
 		if (pHand->Flag_Check(iFlag))
@@ -479,7 +479,6 @@ _bool CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, CTrig
 		//고정은 블루
 		break;
 	case TRIGGER_EVENT::BATTERY:
-		Hand_State_Chand(CHANGE_STATE::PULL);
 		break;
 	case TRIGGER_EVENT::ELECTRICPOLE:
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE)))

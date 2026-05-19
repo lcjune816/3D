@@ -40,7 +40,7 @@ void CPLayer_RightHand::Hand_Pivot()
 
 void	CPLayer_RightHand::State_Move()
 {
-	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON))
+	if (!m_tagHandState.bShoot&& CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::B_CLICK))
 	{
 		m_tagHandState.bShoot = true;
 		m_pStateMachine->Change_State(FSM::HAND);
@@ -107,7 +107,7 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 	m_pArm->Update(fTimeDelta);
 
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPLayer_RightHand));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPLayer_RightHand));
 
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)

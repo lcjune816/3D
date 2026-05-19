@@ -1,6 +1,5 @@
 #include "CollisionManager.h"
 #include "GameInstance.h"
-#include "DirectXCollision.h"
 #include "Layer.h"
 CCollisionManager::CCollisionManager()
 {
@@ -420,7 +419,6 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 }
 _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses)
 {
-
 	auto   SrcTransform = pSrcTransform;
 
 	_matrix SrcWorld = SrcTransform->Get_World();
@@ -447,7 +445,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 
 	XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f);
 	XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
-	
+
 	if (box.Intersects(startPos, RayDir, fDist))
 	{
 
@@ -464,13 +462,13 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 		if (fDist <= SrcLength)
 		{
 			_float3 LastPos{};
-			XMStoreFloat3(&LastPos, XMVector3TransformCoord(WorldHitPos,SrcWorld));
+			XMStoreFloat3(&LastPos, XMVector3TransformCoord(WorldHitPos, SrcWorld));
 			if (!EdgePoses.empty())
 			{
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
-				if (Length < 5.f || PlayerToObjectLength <5.f)
+				if (Length < 5.f || PlayerToObjectLength < 5.f)
 					return false;
 			}
 
@@ -522,8 +520,11 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 	_float   MaxDist{ 0 };
 	if (!EdgePoses.empty())
 	{
-		_float3 Edge{};
+		_float3 Edge{}, EdgeNormalRight{}, EdgeNormalLook{}, EdgeNormalUp{};
 			Edge = EdgePoses.back().fPos;
+			EdgeNormalRight = EdgePoses.back().fNormal[0];
+			EdgeNormalUp    = EdgePoses.back().fNormal[1];
+			EdgeNormalLook  = EdgePoses.back().fNormal[2];
 		_float fEdgeDist{};
 		_bool bCheck{ false };
 		for (auto& Layer : pLayer->Get_ObjectList())
@@ -548,21 +549,21 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 			_vector LocalEdge = XMVector3Transform(XMLoadFloat3(&Edge), XMMatrixInverse(nullptr, SrcWorld));
 			_vector LocalStart = XMVector3Transform(startPos, XMMatrixInverse(nullptr, SrcWorld));
 
-			_vector OffsetDir = XMVectorSetW(XMVector3Normalize(XMLoadFloat3(&box.Center) - LocalEdge ),0.f);
+			_vector OffsetDir = XMVectorSetW(XMVector3Normalize(XMLoadFloat3(&box.Center) - LocalEdge), 0.f);
 			fEdgeDist = 0.f;
 			_vector rayLen = LocalStart - LocalEdge;
 
 			LocalEdge += OffsetDir * 1.2f;
 			_vector LastEdgeDir{};
 			if (!bFinished)
-			LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge ),0.f);
+				LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge), 0.f);
 			else LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalEdge - LocalStart), 0.f);
 
 
 			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
 			{
 				_vector LocalLength = LocalEdge + LastEdgeDir * fEdgeDist;
-	
+
 				LocalLength = LocalStart - LocalLength;
 				LocalLength = XMVector3TransformCoord(LocalLength, SrcWorld);
 				rayLen = XMVector3TransformCoord(rayLen, SrcWorld);

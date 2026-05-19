@@ -63,13 +63,21 @@ _bool CBlueElectric::offsetMatrix(_float4x4* pMatrix)
 
 	_matrix matOffset = XMMatrixIdentity();
 
+	_vector SrcRight = XMVector3Normalize(pTransform->Get_World().r[0]);
+	_vector SrcLook  = XMVector3Normalize(pTransform->Get_World().r[2]);
 	_vector SrcPos = pTransform->Get_World().r[3];
+	
 	_vector DstPos = pDstTransform->Get_World().r[3];
 	_float3 fMax = pTransform->Get_Max();
 	_float3 fMin = pTransform->Get_Min();
 
 	_vector vCenter = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
-	_vector vLook = pDstTransform->Get_World().r[2];
+	_vector vLook = XMVector3Normalize(DstPos - SrcPos);
+
+	if (fabsf(XMVectorGetX(XMVector3Dot(SrcLook,vLook))) > fabsf(XMVectorGetX(XMVector3Dot(SrcRight, vLook))))
+		vLook = XMVectorSetX(XMVectorSetY(vLook, 0.f), 0.f);
+	else
+		vLook = XMVectorSetZ(XMVectorSetY(vLook, 0.f), 0.f);
 
 	vCenter = XMVector3TransformCoord(vCenter, pTransform->Get_World());
 

@@ -89,7 +89,7 @@ void CElectricPannel::Action_Trigger()
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Trigger();
+			TriggerCheck->TriggerToTrigger();
 
 	}
 	else
