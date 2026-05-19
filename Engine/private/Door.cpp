@@ -19,34 +19,41 @@ HRESULT CDoor::Initialize_Prototype()
 
 HRESULT CDoor::Initialize(void* pArg)
 {
-
+	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::DOOR;
-	m_fRotationArrow = 0.25f;
-	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
+	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE)| ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 	return S_OK;
 }
 
 HRESULT CDoor::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 {
-	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER))) return E_FAIL;
-
-	m_fFrameTick += fTimeDelta;
-	if (m_fFrameTick > 0.01f)
+	switch (m_eState)
 	{
-		m_fFrameTick = 0.f;
-		m_fAngle += m_fRotationArrow;
-		Action_Trigger();
-		++m_fFrameTime;
-	}
+	case TRIGGER_STATE::IDLE:
+		break;
+	case TRIGGER_STATE::ACTION:
+		if (Start_Rotation(fTimeDelta))
+		{
+			m_eState = TRIGGER_STATE::IDLE;
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
+		}
+		else
+			Action_Trigger();
+		break;
+	case TRIGGER_STATE::RETURN:
+		if (End_Rotation(fTimeDelta))
+		{
+			m_eState = TRIGGER_STATE::IDLE;
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::DISABLE);
+		}
+		else
+			Action_Trigger();
+		break;
 
-	if (m_fFrameTime > 20.f)
-	{
-
-		m_fFrameTime = 0.f;
-		m_fRotationArrow *= -1.f;
-		m_fAngle = 0.f;
-
-		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	case TRIGGER_STATE::PAUSE:
+		break;
 	}
 	return S_OK;
 }
@@ -57,9 +64,15 @@ HRESULT CDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 void CDoor::Set_Trigger()
 {
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+	{
+		m_eState = TRIGGER_STATE::ACTION;
 		return;
-
-	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+	}
+	else if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
+	{
+		m_eState = TRIGGER_STATE::RETURN;
+		return;
+	}
 }
 void CDoor::Action_Trigger()
 {
@@ -67,7 +80,7 @@ void CDoor::Action_Trigger()
 	if (NULL_TRUE(pObj))
 		return;
 
-	pObj->Get_Transform().lock()->Apply_Rotation(_vector{0,1,0,0}, m_fAngle);
+	pObj->Get_Transform().lock()->Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
 }
 
 unique_ptr<CDoor>CDoor::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

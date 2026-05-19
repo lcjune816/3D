@@ -12,6 +12,12 @@ BOOL ScissorEnable;
 BOOL MultisampleEnable;
 BOOL AntialiasedLineEnable;
 */
+RasterizerState RS_NONCULL
+{
+    FillMode = Solid;
+    CullMode = NONE;
+    FrontCounterClockwise = false;
+};
 
 RasterizerState RS_Default
 {

@@ -2,7 +2,7 @@
 
 
 float4x4 g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
-vector g_vColor = 1.f;
+vector g_Color = 1.f;
 
 struct VS_IN
 {
@@ -47,7 +47,7 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor = g_vColor;       
+    Out.vColor = g_Color;
     
     return Out;
 }
@@ -56,7 +56,7 @@ technique11 DefaultTechnique
 {
     pass DefaultPass
     {
-        SetRasterizerState(RS_Default);
+        SetRasterizerState(RS_NONCULL);
         SetDepthStencilState(DSS_Default, 0);
         SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         VertexShader = compile vs_5_0 VS_MAIN();

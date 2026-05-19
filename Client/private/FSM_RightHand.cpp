@@ -150,7 +150,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		}
 	}
 
-	if (Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT)) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON))
+	if (Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT)) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
 		Hand_State_Chand(CHANGE_STATE::END);
 	
 		
@@ -516,7 +516,6 @@ _bool CFSM_RightHand::Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj, CTr
 		bCheck = true;
 		break;
 	case TRIGGER_EVENT::BATTERY:
-		Hand_State_Chand(CHANGE_STATE::END);
 		bCheck = true;
 		break;
 	case TRIGGER_EVENT::ROLLUPDOOR:

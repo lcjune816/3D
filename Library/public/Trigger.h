@@ -61,12 +61,14 @@ public:
 	virtual void					Set_Trigger() PURE;
 
 	_bool							Check_Flag(uint32_t iFlag);
+	virtual void					TriggerToTrigger();
 	virtual	void					Bind_Resource(shared_ptr<class CShader> pShader, const _char* pConstantName);
 	virtual _bool					offsetMatrix(_float4x4* pMatrix);
 protected:
 	_bool							Start_Rotation(const _float& fTimeDelta);
 	_bool							End_Rotation(const _float& fTimeDelta);
 	_bool							Timer_Flag(TRIGGER_FLAG flag, FLAGVALUE eValue , const _float& fTimeDelta);
+	
 protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
 	_float							m_fFrameTick{}, m_fFrameTickTime{}, m_fFrameTime{}, m_fMaxFrameTime{};

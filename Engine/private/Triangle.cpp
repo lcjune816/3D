@@ -27,7 +27,7 @@ HRESULT CTriAngle::Initialize(void* pArg)
 	m_iNumIndices = 4;
 	m_iIndexStride = 2;
 	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
-	m_ePrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
+	m_ePrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 	if (FAILED(Setup_Mesh(&pDesc->fPos[0])))
 		return E_FAIL;

@@ -80,7 +80,7 @@ void CPlayer_LeftHand::Hand_Pivot()
 
 void	CPlayer_LeftHand::State_Move()
 {
-	if (!m_tagHandState.bShoot && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
+	if (!m_tagHandState.bShoot && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::B_CLICK))
 	{
 		m_tagHandState.bShoot = true;
 		m_pStateMachine->Change_State(FSM::HAND);

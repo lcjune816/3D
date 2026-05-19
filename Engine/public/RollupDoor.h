@@ -20,7 +20,7 @@ public:
 	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false)override;
 
 	virtual void					Set_Trigger() override;
-
+	virtual void					TriggerToTrigger()override;
 private:
 	void			Action_Trigger(_float fTimeDelta);
 private:

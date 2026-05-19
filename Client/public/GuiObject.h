@@ -51,8 +51,9 @@ private:
 	weak_ptr<CGameObject>			m_pObj ;
 	weak_ptr<CGameObject>			m_pConnetObjectFirst  ;
 	weak_ptr<CGameObject>			m_pConnetObjectSecond ;
-
-
+	weak_ptr<class CCell>			m_pCell;
+	_bool							m_bModelCancle = { false };
+	
 	_bool							m_bMouseCheck = { false };
 
 	_float2							m_fMousePickXY = {};

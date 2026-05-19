@@ -59,8 +59,10 @@ HRESULT CRollupDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 
 void CRollupDoor::Set_Trigger()
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
-		return;
+}
+
+void CRollupDoor::TriggerToTrigger()
+{
 
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 }

@@ -65,10 +65,21 @@ HRESULT CGuiObject::Initialize(void* pArg)
 }
 void CGuiObject::Priority_Update(_float fTimeDelta)
 {
-	Save();
-	Load_Data();
-	Add_Decal_Texture();
-	Navi_Creator();
+	if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F6))
+		m_bModelCancle = !m_bModelCancle;
+
+
+
+	if (m_bModelCancle)
+		Navi_Creator();
+	else
+	{
+		Save();
+		Load_Data();
+		Add_Decal_Texture();
+
+	}
+	
 }
 void CGuiObject::Update(_float fTimeDelta)
 {
@@ -77,6 +88,8 @@ void CGuiObject::Update(_float fTimeDelta)
 }
 void CGuiObject::Late_Update(_float fTimeDelta)
 {
+	if (m_bModelCancle)
+		return;
 	POINT pt = {};
 	GetCursorPos(&pt);
 	ScreenToClient(g_hWnd, &pt);
@@ -113,6 +126,8 @@ HRESULT CGuiObject::Render()
 }
 HRESULT CGuiObject::Enable_GUI(string& name)
 {
+	if (m_bModelCancle)
+		return S_OK;
 	static	_bool	bCheck = true;
 	static  _bool	test1 = true;
 	static  _bool	test2 = true;
@@ -1584,9 +1599,14 @@ void CGuiObject::Navi_Creator()
 		POINT tMouse{};
 		GetCursorPos(&tMouse);
 		ScreenToClient(g_hWnd, &tMouse);
-		static _float3 fPos[3]{};
-		static _bool   A{ false }, B{ false }, C{ false }, Check{ false };
+		static _float3 fPos[4]{};
+		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false };
+		
+		static int32_t iSelect{0};
 
+		ImGui::RadioButton(u8"설치", &iSelect, 0);
+		ImGui::RadioButton(u8"선택", &iSelect, 1);
+		
 		_matrix CameProj = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 		_float4x4 Proj = {};
 		XMStoreFloat4x4(&Proj, CameProj);
@@ -1616,68 +1636,142 @@ void CGuiObject::Navi_Creator()
 		_vector TriSecond[3]{ XMVectorSet((TERRIANZ * TERRIANZ)*6,0,(TERRIANZ * TERRIANZ)*6 ,0),
 							  XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,0,0),
 							  XMVectorSet(0,0,0,0) };
-		
-		if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
+		auto& io = ImGui::GetIO(); //마우스 ui에서 사용중이면 리턴
+		if (!io.WantCaptureMouse)
 		{
-			XMStoreFloat3(&LastPos, rayOrigin + rayDir * tDis) ;
-			fMax = tDis;
-		}
-
-		if (TriangleTests::Intersects(rayOrigin, rayDir, TriSecond[0], TriSecond[1], TriSecond[2], t1Dis))
-		{
-			if (fMax > t1Dis)
+			if (iSelect == 0)
 			{
-				XMStoreFloat3(&LastPos, rayOrigin + rayDir * t1Dis);
-			}
-		}
-
-		ImGui::Text("X %f.3f:", LastPos.x); 
-		ImGui::Text("Z %f.3f :", LastPos.z);
-		if (Check = CGameInstance::Get().Check_First())
-		{
-			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
-			{
-				if (!A)
+				if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
 				{
-					fPos[0] = LastPos;
-					A = true;
-				}else if (!B)
-				{
-					fPos[1] = LastPos;
-					B = true;
-				}else if (!C)
-				{
-					fPos[2] = LastPos;
-					C = true;
-				}else
-				{
-					CGameInstance::Get().Check_NeraPos(&fPos[0]);
-					A = false;
+					XMStoreFloat3(&LastPos, rayOrigin + rayDir * tDis);
+					fMax = tDis;
 				}
 
-			}
-		}
-		else
-		{
-			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON))
-			{
-				if (!A)
+				if (TriangleTests::Intersects(rayOrigin, rayDir, TriSecond[0], TriSecond[1], TriSecond[2], t1Dis))
 				{
-					fPos[0] = LastPos;
-					CGameInstance::Get().Check_NeraPos(&fPos[0]);
+					if (fMax > t1Dis)
+					{
+						XMStoreFloat3(&LastPos, rayOrigin + rayDir * t1Dis);
+					}
 				}
 			}
-		}
 
-		
-		A ? ImGui::Text(u8"첫번째점 선택 완료") : ImGui::Text(u8"첫번째점 선택되지 않음");
-		if (Check)
-		{
-			B ? ImGui::Text(u8"두번째점 선택 완료") : ImGui::Text(u8"두번째점 선택되지 않음");
-			C ? ImGui::Text(u8"세번째점 선택 완료") : ImGui::Text(u8"세번째점 선택되지 않음");
-		}
-		
+			LastPos.y = 0;
+			if (iSelect == 0)
+			{
+				if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
+					A = B = C = D=false;
+
+				bSelect = true;
+				auto pCell = m_pCell.lock();
+				if (NULL_FALSE(pCell))
+				{
+					pCell->Set_Choice(false);
+					m_pCell.reset();
+				}
+
+				ImGui::Text("X %f.3f:", LastPos.x);
+				ImGui::Text("Z %f.3f :", LastPos.z);
+
+
+				if (Check = CGameInstance::Get().Check_First())
+				{
+					if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+					{
+						if (!A)
+						{
+							fPos[0] = LastPos;
+							A = true;
+						}
+						else if (!B)
+						{
+							fPos[1] = LastPos;
+							B = true;
+						}
+						else if (!C)
+						{
+							fPos[2] = LastPos;
+							C = true;
+						}
+						else if (!D)
+						{
+							fPos[3] = LastPos;
+							D = true;
+							
+						}
+						
+						if(D)
+						{
+							CGameInstance::Get().Check_NeraPos(&fPos[0]);
+							A = B = C = D = false;
+						}
+
+					}
+				}
+				else
+				{
+					if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+					{
+						if (!A)
+						{
+							fPos[0] = LastPos;
+							A = true;
+						}
+						else if (!B)
+						{
+							fPos[3] = LastPos;
+							B = true;
+						}
+
+						if (B)
+						{
+							CGameInstance::Get().Check_NeraPos(&fPos[0]);
+							A = B = false;
+						}
+					}
+				}
+
+				if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::Z))
+					CGameInstance::Get().Undo_Cell();
+				A ? ImGui::Text(u8"첫번째점 선택 완료") : ImGui::Text(u8"첫번째점 선택되지 않음");
+				B ? ImGui::Text(u8"두번째점 선택 완료") : ImGui::Text(u8"두번째점 선택되지 않음");
+				if (Check)
+				{
+					C ? ImGui::Text(u8"세번째점 선택 완료") : ImGui::Text(u8"세번째점 선택되지 않음");
+					D ? ImGui::Text(u8"네번째점 선택 완료") : ImGui::Text(u8"네번째점 선택되지 않음");
+				}
+			}
+			else if (iSelect == 1)
+			{
+				auto pObj = m_pCell.lock();
+
+
+				if (NULL_TRUE(pObj) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+					m_pCell = CGameInstance::Get().Select_TriAngle(rayOrigin, rayDir);
 	
+				if (NULL_TRUE(pObj))
+					ImGui::Text(u8"선택 안됨");
+				else
+					ImGui::Text(u8"선택 됨");
+
+				if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
+				{
+					if (NULL_FALSE(pObj))
+					{
+						pObj->Set_Choice(false);
+						m_pCell.reset();
+					}
+					A = B = C = D =false;
+				}
+				ImGui::Text(u8"업데이트 예정");
+			}
+
+			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
+				CGameInstance::Get().Save_Navi(L"../../Navi.json", "Navi");
+			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
+				CGameInstance::Get().Load_Navi(L"../../Navi.json", "Navi");
+
+		}
 		ImGui::EndTabBar();
 	}
 

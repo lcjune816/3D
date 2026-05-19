@@ -23,6 +23,7 @@ HRESULT CBattery::Initialize(void* pArg)
 {
 
 	m_eEventTrigger = TRIGGER_EVENT::BATTERY;
+	
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }
@@ -35,93 +36,119 @@ HRESULT CBattery::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 }
 HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::CANCLE)))
-		return E_FAIL;
+	switch (m_eState)
+	{
+	case TRIGGER_STATE::IDLE:
+		Drop(fTimeDelta);
+		break;
+	case TRIGGER_STATE::ACTION:
+		Attached();
+		if (Action_Trigger())
+			m_eState = TRIGGER_STATE::PAUSE;
+		break;
+	case TRIGGER_STATE::RETURN:
+		break;
 
+	case TRIGGER_STATE::PAUSE:
+		break;
+	}
+
+
+	
+	return S_OK;
+}
+void CBattery::Attached()
+{
 	_vector vPos{};
 	auto pObj = m_pParent.lock();
 	auto pDstTransform = m_pDstTransform.lock();
 	if (NULL_TRUE(pObj))
-		return E_FAIL;
+		return;
+	auto pTransform = pObj->Get_Transform().lock();
+	_matrix SrcWorld = pTransform->Get_World();
+	_matrix DstWorld = pDstTransform->Get_World();
+
+	_vector vWorldSrcPos = SrcWorld.r[3];
+
+	_vector vWorldDstPos = DstWorld.r[3];
+	_vector vWorldDstLook = DstWorld.r[2];
+
+	_float3 SrcMax = pTransform->Get_Max();
+	_float3 SrcMin = pTransform->Get_Min();
+
+	_vector SrcCenter = (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f;
+	_vector Right = XMVector3Normalize(pDstTransform->Get_State(STATE::RIGHT));
+	_vector Up = XMVector3Normalize(pDstTransform->Get_State(STATE::UP));
+	_vector Look = XMVector3Normalize(pDstTransform->Get_State(STATE::LOOK));
+
+	Right *= -1.f;
+	_vector SrcPivot =
+		Right * XMVectorGetX(SrcCenter) +
+		Up * XMVectorGetY(SrcCenter) +
+		Look * XMVectorGetX(SrcCenter);
+
+	vPos = vWorldDstPos - SrcPivot - Look * 3.f;
+
+	vPos = XMVectorSetW(vPos, 1.f);
+
+	pTransform->Set_State(STATE::RIGHT, Right);
+	pTransform->Set_State(STATE::UP, Up);
+	pTransform->Set_State(STATE::LOOK, Look);
+	pTransform->Set_State(STATE::POS, vPos);
+	
+}
+void CBattery::Drop(const _float& fTimeDelta)
+{
+	_vector vPos{};
+	auto pObj = m_pParent.lock();
+	auto pDstTransform = m_pDstTransform.lock();
+	if (NULL_TRUE(pObj))
+		return;
 	auto pTransform = pObj->Get_Transform().lock();
 
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::ATTACHED)) && NULL_FALSE(pDstTransform))
+	vPos = pTransform->Get_State(STATE::POS);
+	_float3 Pos{};
+	XMStoreFloat3(&Pos, vPos);
+
+	_float fY = pTransform->Get_Min().y;
+	//배터리는 자기 Pivot Y축 만큼 땅 위로 올리기
+	m_fDropTime += 9.8f * fTimeDelta;
+	if (Pos.y < -fY)
 	{
-		_matrix SrcWorld = pTransform->Get_World();
-		_matrix DstWorld = pDstTransform->Get_World();
-		
-		_vector vWorldSrcPos  = SrcWorld.r[3];
-
-		_vector vWorldDstPos  = DstWorld.r[3];
-		_vector vWorldDstLook = DstWorld.r[2];
-
-		_float3 SrcMax = pTransform->Get_Max();
-		_float3 SrcMin = pTransform->Get_Min();
-	
-		_vector SrcCenter = (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f;
-		_vector Right = XMVector3Normalize(pDstTransform->Get_State(STATE::RIGHT));
-		_vector Up    = XMVector3Normalize(pDstTransform->Get_State(STATE::UP));
-		_vector Look = XMVector3Normalize(pDstTransform->Get_State(STATE::LOOK));
-
-		Right *= -1.f;
-		_vector SrcPivot = 
-							Right * XMVectorGetX(SrcCenter) +
-						   Up * XMVectorGetY(SrcCenter) +
-						   Look * XMVectorGetX(SrcCenter);
-		
-		vPos = vWorldDstPos - SrcPivot - Look *3.f;
-
-		vPos = XMVectorSetW(vPos, 1.f);
-
-		pTransform->Set_State(STATE::RIGHT, Right);
-		pTransform->Set_State(STATE::UP, Up);
-		pTransform->Set_State(STATE::LOOK, Look);
-		pTransform->Set_State(STATE::POS, vPos);
-
+		Pos.y = -fY;
+		m_fDropTime = 0;
 	}
-	else
+	else if (Pos.y > -fY)
+		Pos.y -= m_fDropTime;
+
+	vPos = XMVectorSetW(XMLoadFloat3(&Pos), 1.f);
+
+	pTransform->Set_State(STATE::POS, vPos);
+}
+void CBattery::Set_Trigger()
+{
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
-		vPos = pTransform->Get_State(STATE::POS);
-		_float3 Pos{};
-		XMStoreFloat3(&Pos, vPos);
-
-		_float fY = pTransform->Get_Min().y;
-		//배터리는 자기 Pivot Y축 만큼 땅 위로 올리기
-		m_fDropTime += 9.8f * fTimeDelta;
-		if (Pos.y < -fY)
-		{
-			Pos.y = -fY;
-			m_fDropTime = 0;
-		}
-		else if (Pos.y > -fY)
-			Pos.y -= m_fDropTime;
-
-		vPos = XMVectorSetW(XMLoadFloat3(&Pos), 1.f);
-
-		pTransform->Set_State(STATE::POS, vPos);
+		m_eState = TRIGGER_STATE::ACTION;
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 	}
-
-
-
+		
+}
+_bool CBattery::Action_Trigger()
+{
 	auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
-	if (NULL_TRUE(Target))
-		return E_FAIL;
-	Target->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(Target) || NULL_TRUE(pObj))
+		return false;
+	Target->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 	if (SUCCEEDED(static_pointer_cast<CBatteryCase>(Target)->Action_Trigger(m_pParent.lock()->Get_Transform())))
 	{
 		pObj->Set_EndObject(true);
 		Disconnect_Transform();
 		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
-
+		return true;
 	}
-	return S_OK;
-}
-void CBattery::Set_Trigger()
-{
-	Set_Flag(ETOUI(TRIGGER_FLAG::ATTACHED), FLAGVALUE::ENABLE);
-}
-void CBattery::Action_Trigger()
-{
+	return false;
 }
 
 unique_ptr<CBattery>CBattery::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

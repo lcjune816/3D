@@ -152,6 +152,10 @@ _bool CTrigger::Check_Flag(uint32_t iFlag)
 	return false;
 }
 
+void CTrigger::TriggerToTrigger()
+{
+}
+
 void CTrigger::Bind_Resource(shared_ptr<CShader> pShader, const _char* pConstantName)
 {
 	_float4 fColor = { 1,1,1,1 };

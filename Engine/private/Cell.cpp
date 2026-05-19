@@ -34,8 +34,12 @@ HRESULT CCell::Initialize(const _float3* pPoints, int32_t index)
     {
         XMStoreFloat3(&m_NaviInfo.vNormals[i],
             XMVector3Normalize(XMLoadFloat3(&m_NaviInfo.vNormals[i])));
+        m_NaviInfo.vPoints[i].y = 0.5f;
     }
 
+  
+    XMStoreFloat3(&m_NaviInfo.vCenter, (XMLoadFloat3(&m_NaviInfo.vPoints[0]) + XMLoadFloat3(&m_NaviInfo.vPoints[1])
+        + XMLoadFloat3(&m_NaviInfo.vPoints[2])) * 0.3f);
 #ifdef _DEBUG
     CVIBuffer::BUFFER_DESC pDesc;
     pDesc.fPos[0] = m_NaviInfo.vPoints[0];
@@ -49,12 +53,41 @@ HRESULT CCell::Initialize(const _float3* pPoints, int32_t index)
 #endif
     return S_OK;
 }
-HRESULT CCell::Render()
+json CCell::Save_Data()
 {
+    nlohmann::json j;
+    for (int32_t i = 0; i < 3; ++i)
+    {
+        j["Pos"][i] = { m_NaviInfo.vPoints[i].x,m_NaviInfo.vPoints[i].y,m_NaviInfo.vPoints[i].z };
 
+    }
+    return j;
+}
+HRESULT CCell::Render(CShader* pShader)
+{
+    _float4 fColor{ 1,1,1,1 };
+    if (m_bChoice)
+        fColor = { 0.3f,0.7f,0.4f,1.f };
+    else
+        fColor = { 1,1,1,1.f };
+       
+    if (m_bChoice)
+    {
+        pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+
+        pShader->Begin(0);
+    }
+        
     m_pVIBuffer->Bind_Resource();
 
     m_pVIBuffer->Render();
+    if (m_bChoice)
+    {
+        fColor = { 1,1,1,1 };
+        pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+
+        pShader->Begin(0);
+    }
 
     return S_OK;
 }

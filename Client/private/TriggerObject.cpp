@@ -100,7 +100,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 }
 void CTriggerObject::Priority_Update(_float fTimeDelta)
 {
-
+	
 	m_pTrigger->Pirority_Interaction(fTimeDelta);
 }
 void CTriggerObject::Update(_float fTimeDelta)
