@@ -57,6 +57,7 @@ private:
 
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
+	shared_ptr<class CNavigation>		m_pNavigation;
 
 private:
 	vector<string>						m_ShootBone;

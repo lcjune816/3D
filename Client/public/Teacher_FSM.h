@@ -23,10 +23,10 @@ public:
 	virtual void	 Enter_State() PURE;
 	virtual void	 Update_State(_float fTimeDelta)PURE;
 	virtual void	 Exit_State()  PURE;
-
+	void					Move(const _float& fTimeDelta, MOVE eMove, shared_ptr<class CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation);
 
 public:
-	void					Set_Player(weak_ptr<CBoss_Teacher> pPlayer) { m_pBoss = pPlayer; }
+	void					Set_Boss(weak_ptr<CBoss_Teacher> pPlayer) { m_pBoss = pPlayer; }
 protected:
 	_float4x4*							m_pOtherMatrix;
 	weak_ptr<CBoss_Teacher>				m_pBoss;

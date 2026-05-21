@@ -21,7 +21,11 @@ HRESULT CBoss_Teacher::Ready_Component()
 	importModel.bAllModel = 1;
 	importModel.eType = MESH_TYPE::ANIME;
 
-
+	CNavigation::NAVIGATION_DESC NaviDesc;
+	//NaviDesc.iIndex = 716;
+	NaviDesc.iIndex = 0;
+	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+		return E_FAIL;
 	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
 	if (NULL_TRUE(m_pStateMachine)) return E_FAIL;
 
@@ -43,10 +47,10 @@ HRESULT CBoss_Teacher::Ready_Component()
 	
 	m_pStateMachine->Add_State(FSM::IDLE, idle);
 	m_pStateMachine->Add_State(FSM::MOVE, Move);
-
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Teacher));
 	m_pStateMachine->Change_State(FSM::IDLE);
 
+	//CGameInstance::Get().Connect_Navigaion(m_pNavigation);
 	return S_OK;
 
 }
@@ -70,7 +74,7 @@ HRESULT CBoss_Teacher::Initialize_Prototype()
 HRESULT CBoss_Teacher::Initialize(void* pArg)
 {
 	CTransform::TRANSFORM_DESC desc;
-	desc.m_fRotationPerSec = 5.f;
+	desc.m_fRotationPerSec = 60.f;
 	desc.m_fSpeedPerSec = 30.f;
 
 	if (FAILED(__super::Initialize(&desc)))
@@ -88,7 +92,9 @@ HRESULT CBoss_Teacher::Initialize(void* pArg)
 		return E_FAIL;
 
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
-	m_pTransform->Set_State(STATE::POS, XMVectorSet(0.f, 0.f, 5.f, 1.f));
+
+	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(0),1.f));
 	//플레이어 Look하고
 	//플레이어가 보스한테 raycast해서
 	//그거 두개 내적하면 앞뒤 판정은 되는데
@@ -112,10 +118,9 @@ void CBoss_Teacher::Update(_float fTimeDelta)
 
 	State_Move();
 	m_pAnimator->Update(fTimeDelta);
-	m_pStateMachine->Update_Machine(fTimeDelta);
-	//m_pAnimator->CalculateFinalBoneMatrices();
+ 	m_pStateMachine->Update_Machine(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
-
+	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Teacher));
 
 
@@ -138,6 +143,7 @@ HRESULT CBoss_Teacher::Render()
 		iter->Render();
 
 	}
+	//m_pNavigation->Render();
 	return S_OK;
 }
 string CBoss_Teacher::Model_Animation(const vector<string>& pNames)

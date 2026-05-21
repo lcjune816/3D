@@ -178,7 +178,7 @@ CGameObject* CObject_Manager::Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, co
 
 	for (auto pObj : CLayer->Get_ObjectList())
 	{
-		if (!strcmp(ObjTag, pObj->Get_TagName()))
+		if (pObj->Check_Name(ObjTag))
 			return pObj.get();
 	}
 	return nullptr;

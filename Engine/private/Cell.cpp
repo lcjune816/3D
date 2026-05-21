@@ -15,31 +15,9 @@ CCell::~CCell()
 
 }
 
-HRESULT CCell::Initialize(const _float3* pPoints, int32_t index)
+HRESULT CCell::Initialize(NAVI Navi, CELL_EVENT eEvent, int32_t iIndex, _float3* pPoints)
 {
-    m_NaviInfo.iIndex = index;
-    memcpy(m_NaviInfo.vPoints, pPoints, sizeof(_float3) * ETOUI(EPOINT::END));
-
-    _vector vLine{};
-    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::AB)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
-
-    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::BC)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
-
-    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::CA)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
-
-    for (size_t i = 0; i < ETOUI(LINE::END); ++i)
-    {
-        XMStoreFloat3(&m_NaviInfo.vNormals[i],
-            XMVector3Normalize(XMLoadFloat3(&m_NaviInfo.vNormals[i])));
-        m_NaviInfo.vPoints[i].y = 0.5f;
-    }
-
-  
-    XMStoreFloat3(&m_NaviInfo.vCenter, (XMLoadFloat3(&m_NaviInfo.vPoints[0]) + XMLoadFloat3(&m_NaviInfo.vPoints[1])
-        + XMLoadFloat3(&m_NaviInfo.vPoints[2])) * 0.3f);
+    pPoints == nullptr ? Ready_Load(Navi, eEvent, iIndex) : Ready_New(iIndex, pPoints);
 #ifdef _DEBUG
     CVIBuffer::BUFFER_DESC pDesc;
     pDesc.fPos[0] = m_NaviInfo.vPoints[0];
@@ -53,49 +31,233 @@ HRESULT CCell::Initialize(const _float3* pPoints, int32_t index)
 #endif
     return S_OK;
 }
+HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
+{
+    m_NaviInfo.iIndex = iIndex;
+    memcpy(m_NaviInfo.vPoints, pPoints, sizeof(_float3) * ETOUI(EPOINT::END));
+
+
+    _vector vLine{};
+    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]);
+    m_NaviInfo.vNormals[ETOUI(LINE::AB)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]);
+    m_NaviInfo.vNormals[ETOUI(LINE::BC)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+
+    vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]);
+    m_NaviInfo.vNormals[ETOUI(LINE::CA)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+
+    for (size_t i = 0; i < ETOUI(LINE::END); ++i)
+    {
+        XMStoreFloat3(&m_NaviInfo.vNormals[i],
+            XMVector3Normalize(XMLoadFloat3(&m_NaviInfo.vNormals[i])));
+
+    }
+
+
+    //평면 방정식 ax by cz d 에서 a b c 를 구하는 함수
+    XMStoreFloat4(&m_NaviInfo.m_vPlane, XMPlaneFromPoints(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]),
+        XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]),
+        XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)])));
+    XMStoreFloat3(&m_NaviInfo.vCenter, (XMLoadFloat3(&m_NaviInfo.vPoints[0]) + XMLoadFloat3(&m_NaviInfo.vPoints[1])
+        + XMLoadFloat3(&m_NaviInfo.vPoints[2])) / 3.f);
+    //for(int32_t i=0; i<3; ++i)
+    // m_NaviInfo.vPoints[i].y = 0f;
+    return S_OK;
+}
+HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
+{
+    m_NaviInfo.iIndex = iIndex;
+    m_NaviInfo.m_vPlane = Navi.m_vPlane;
+    m_NaviInfo.vCenter = Navi.vCenter;
+    
+    m_NaviInfo.iNeighborIndices[0] = -1;
+    m_NaviInfo.iNeighborIndices[1] = -1;
+    m_NaviInfo.iNeighborIndices[2] = -1;
+   
+        //memcpy(&m_NaviInfo.iNeighborIndices[i], &Navi.iNeighborIndices[i], sizeof m_NaviInfo.iNeighborIndices);
+        //memcpy(&m_NaviInfo.vNormals[i],&Navi.vNormals[i],sizeof _float3);
+        memcpy(&m_NaviInfo.vPoints, &Navi.vPoints, sizeof _float3 * ETOUI(EPOINT::END));
+        m_NaviInfo.vPoints[0].y = 0;
+        m_NaviInfo.vPoints[1].y = 0;
+        m_NaviInfo.vPoints[2].y = 0;
+
+     Ready_New(iIndex, &m_NaviInfo.vPoints[0]);
+    m_eEvent = eEvent;
+    return S_OK;
+}
+_bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList, list<ENGINE_ASTAR>& CloseList , vector<shared_ptr<CCell>>& CellList,  _fvector vFinalPos, int32_t* iSrcIndex)
+{
+    int a = m_NaviInfo.iIndex;
+    for (int32_t i = 0; i < 3; ++i)
+    {
+        if (-1 != m_NaviInfo.iNeighborIndices[i])
+        {
+            ENGINE_ASTAR Astar{};
+            _bool bCloseCheck{ false };
+            if (CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().iIndex == *iSrcIndex)
+            {
+                Astar.iParent_node = parentsNode.iNode_Nubmer;
+                XMStoreFloat3(&Astar.Pos, XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter));
+                CloseList.push_back(Astar);
+                return true;
+            }
+
+            //닫힌 목록에 없는거만 검사
+            for (auto iter : CloseList)
+            {
+                if (iter.iNode_Nubmer == m_NaviInfo.iNeighborIndices[i])
+                {
+                    bCloseCheck= true;
+                    break;
+                }
+            }
+
+            if (bCloseCheck)
+                continue;
+
+            //내 이웃 노드의 위치랑 마지막 노드 위치랑 h값 구하고
+            Astar.H = XMVectorGetX(XMVector3Length(vFinalPos - XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter)));
+            //내 위치 기준으로 구하고
+            Astar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter) - XMLoadFloat3(&m_NaviInfo.vCenter)))
+                  ;
+            Astar.F = Astar.H + Astar.G;
+            Astar.Pos = CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter;
+            Astar.iNode_Nubmer = m_NaviInfo.iNeighborIndices[i];
+            Astar.iParent_node = parentsNode.iNode_Nubmer;
+            if (!OpenList.empty())
+            {//열린 노드에서 중복된거 있는지 확인
+                _bool OpenCheck{ false };
+                for (auto iter = OpenList.begin(); iter != OpenList.end();)
+                {
+                    if (iter->iNode_Nubmer == m_NaviInfo.iNeighborIndices[i])
+                    {
+                        if (iter->G > Astar.G || fabsf(iter->G - Astar.G) < 0.0001f )
+                        {
+                            OpenCheck = false;
+                            break;
+                        }
+                        else if(iter->G < Astar.G)
+                        {
+                            OpenCheck = true;
+                            iter = OpenList.erase(iter);                 
+                            break;
+                        }
+
+                    }else
+                        OpenCheck = true;
+
+                    ++iter;
+                }
+
+                if (OpenCheck)
+                    OpenList.push_back(Astar);
+            }else
+                OpenList.push_back(Astar);
+            //열린 목록 검사
+        }
+    }
+    return false;
+}
+_bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex)
+{
+
+    for (size_t i = 0; i < ETOUI(LINE::END); ++i)
+    {
+
+        _vector     vDir = XMVector3Normalize(vResultPos - XMLoadFloat3(&m_NaviInfo.vPoints[i]));
+        _float fDot = XMVectorGetX(XMVector3Dot(vDir, XMLoadFloat3(&m_NaviInfo.vNormals[i])));
+        if (0 >  fDot)
+        {//만약 벗어낫을때 내가 가지고있는 이웃 인덱스를 전달
+            
+            *pNeighborIndex = m_NaviInfo.iNeighborIndices[i];
+            return false;
+        }
+
+       
+    }
+    return true;
+}
+_bool CCell::Compare_Points(_fvector vSourPoint, _fvector vDestPoint)
+{
+    //내 A정점이랑 Src 위치랑 같냐
+    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vSourPoint))
+    {
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint))
+            return true;
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint))
+            return true;
+
+    }
+
+    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vSourPoint))
+    {
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint))
+            return true;
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint))
+            return true;
+
+    }
+
+    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vSourPoint))
+    {
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint))
+            return true;
+        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint))
+            return true;
+
+    }
+
+    return false;
+}
+_float CCell::Compute_Height(_fvector vPos)
+{
+    //ax + by + cz +d  =0
+    return ( - m_NaviInfo.m_vPlane.x * XMVectorGetX(vPos)
+          - m_NaviInfo.m_vPlane.z * XMVectorGetZ(vPos) -m_NaviInfo.m_vPlane.w)
+        /m_NaviInfo.m_vPlane.y;
+}
 json CCell::Save_Data()
 {
     nlohmann::json j;
     for (int32_t i = 0; i < 3; ++i)
     {
         j["Pos"][i] = { m_NaviInfo.vPoints[i].x,m_NaviInfo.vPoints[i].y,m_NaviInfo.vPoints[i].z };
-
+        j["Normal"][i] = { m_NaviInfo.vNormals[i].x,m_NaviInfo.vNormals[i].y,m_NaviInfo.vNormals[i].z };
+        
     }
+    j["Center"] = { m_NaviInfo.vCenter.x,m_NaviInfo.vCenter.y,m_NaviInfo.vCenter.z };
+    j["Neightbor"] = { m_NaviInfo.iNeighborIndices[0],m_NaviInfo.iNeighborIndices[1],m_NaviInfo.iNeighborIndices[2] };
+    j["MyIndex"] =  m_NaviInfo.iIndex;
+    j["Plane"] = { m_NaviInfo.m_vPlane.x,m_NaviInfo.m_vPlane.y,m_NaviInfo.m_vPlane.z ,m_NaviInfo.m_vPlane.w};
+    int32_t iEvent = ETOUI(m_eEvent);
+    j["Event"] = iEvent;
     return j;
 }
 HRESULT CCell::Render(CShader* pShader)
 {
-    _float4 fColor{ 1,1,1,1 };
-    if (m_bChoice)
-        fColor = { 0.3f,0.7f,0.4f,1.f };
-    else
-        fColor = { 1,1,1,1.f };
-       
-    if (m_bChoice)
-    {
-        pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+  //  if (m_eEvent != CELL_EVENT::FIRST)
+  //      return E_FAIL;
 
-        pShader->Begin(0);
-    }
+    _float4 fColor = { 0.3f,0.7f,0.4f,1.f };
+    
+ 
+    pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+
+    pShader->Begin(0);
+    
         
     m_pVIBuffer->Bind_Resource();
 
     m_pVIBuffer->Render();
-    if (m_bChoice)
-    {
-        fColor = { 1,1,1,1 };
-        pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
-
-        pShader->Begin(0);
-    }
+   
 
     return S_OK;
 }
-shared_ptr<CCell> CCell::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext, const _float3* pPoints, int32_t iIndex)
+shared_ptr<CCell> CCell::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext, NAVI Navi, CELL_EVENT eEvent, int32_t iIndex, _float3* pPoints)
 {
     auto		pInstance = shared_ptr<CCell>(new CCell(pDevice, pContext));
 
-    if (FAILED(pInstance->Initialize(pPoints, iIndex)))
+    if (FAILED(pInstance->Initialize(Navi, eEvent, iIndex, pPoints)))
     {
         MSG_BOX("Failed to Created : CCell");
         return nullptr;

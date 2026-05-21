@@ -80,7 +80,7 @@ technique11 DefaultTechnique
     pass DefaultPass
     {
         //vsMain에있는거를 컴파일 해라
-        SetRasterizerState(RS_Default);
+        SetRasterizerState(RS_NONCULL);
         SetDepthStencilState(DSS_Default, 0);
         SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         VertexShader = compile vs_5_0 VS_MAIN();

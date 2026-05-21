@@ -18,6 +18,7 @@ public:
 	void CopyLater_Late_Update(_float fTimeDelta);
 	void	MoveToLayer(shared_ptr<CGameObject> pObj);
 	void	Clear_ObjectList();
+	shared_ptr<CGameObject> Find_Object(const _char* pName);
 	list<shared_ptr<CGameObject>>& Get_ObjectList() { return m_GameObjects; }
 
 

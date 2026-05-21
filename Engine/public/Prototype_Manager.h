@@ -28,6 +28,7 @@
 #include "Triangle.h"
 #include "LowerFlip_Flip.h"
 #include "Cell.h"
+#include "Navigation.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

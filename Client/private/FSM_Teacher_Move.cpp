@@ -41,14 +41,12 @@ void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 
 	if (bMove)
 	{
+		auto pNavi = static_pointer_cast<CNavigation>(Boss->Find_Component(L"Com_Navigation"));
+		pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player",fTimeDelta);
+
 		if (Boss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
 			Boss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
 
-		_vector vTargetPos{};
-		_vector Pos = pTransform->Get_State(STATE::POS);
-		memcpy(&vTargetPos, reinterpret_cast<_float*>(&m_pOtherMatrix->m[3]), sizeof _float3);
-		pTransform->LookAt(vTargetPos);
-		pTransform->Chase_Target(fTimeDelta);
 	}
 
 	

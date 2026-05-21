@@ -11,25 +11,25 @@ public:
 
 public:
 	HRESULT Initialize();
-
+public:
 	_bool	Check_NeraPos(_float3* fPos);
-	_bool	Check_First() { if (m_Cells.empty())return true;		return false; }
-	void	Add_NaviMeshInfo(_float3* fPos);
-	HRESULT    Save_Navi(const _wstring& FilePath, const _char* pName);
-	HRESULT    Load_Navi(const _wstring& FilePath, const _char* pName);
+	_bool	Check_First();
+	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
+	HRESULT Save_Navi(const _wstring& FilePath, const _char* pName);
+	HRESULT Load_Navi(const _wstring& FilePath, const _char* pName);
 	void	Undo_Cell();
-	HRESULT Render();
-
+	
+	void		Render();
+	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
 	shared_ptr<class CCell>				Select_TriAngle(_fvector vOrigin, _fvector vDir);
 #ifdef _DEBUG
 private:
 	shared_ptr<class CShader>				m_pShader = { nullptr };
 #endif
 private:
-	vector<shared_ptr<class CCell>>		m_Cells;
-
-	ComPtr<ID3D11Device>				m_pDevice = { nullptr };
-	ComPtr<ID3D11DeviceContext>			m_pContext = { nullptr };
+	weak_ptr<class CNavigation>				m_pNavigations;
+	ComPtr<ID3D11Device>					m_pDevice = { nullptr };
+	ComPtr<ID3D11DeviceContext>				m_pContext = { nullptr };
 public:
 	static unique_ptr<CNavi_Manager>		Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 

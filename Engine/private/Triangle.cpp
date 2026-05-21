@@ -76,7 +76,6 @@ HRESULT CTriAngle::Setup_Mesh(_float3* fPos)
 	pIndices[1] = 1;
 	pIndices[2] = 2;
 	pIndices[3] = 0;
-
 	D3D11_SUBRESOURCE_DATA          IndexInitialData{};
 	IndexInitialData.pSysMem = &pIndices[0];
 

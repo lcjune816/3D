@@ -46,7 +46,7 @@ public:
 	_bool					Get_Finished() { return m_bFinished; }
 	void					Set_Finisihed(_bool bFinishied) { m_bFinished = bFinishied; }
 	void					Set_CheckCopyLater(_bool bLayer) { m_bCopyLayerCheck = bLayer; }
-	const _char* Get_TagName() { return m_pTagName; }
+	_bool					Check_Name(const _char* pName) { if (!strcmp(pName, m_pTagName))return true;   return false; }
 
 	void					Set_Dead() { m_bDead = true; }
 	void					Set_bBoxColor(_bool bColor) { m_bBoxColor = bColor; }

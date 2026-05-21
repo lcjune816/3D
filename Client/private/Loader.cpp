@@ -221,6 +221,11 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Triangle"),
 		CTriAngle::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"),
+		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
+		return E_FAIL;
+
 	Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");
 	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_WorldObject", m_Objects);
 	m_Objects.clear();

@@ -27,7 +27,7 @@ HRESULT CCamera::Initialize(void* pArg)
     FreeDesc.vEye = _float4{ 0.f,10.f,-5.f,1.f };
     FreeDesc.vAt = _float4{ 0.f,0.f,0.f,1.f };
     FreeDesc.fFovy = XMConvertToRadians(60.f);
-    FreeDesc.fNear = 0.1f;
+    FreeDesc.fNear = 0.01f;
     FreeDesc.fFar = 1000.f;
     FreeDesc.m_fSpeedPerSec = 100.f;
    

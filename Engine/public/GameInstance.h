@@ -54,7 +54,7 @@ public:
 		uint32_t iLayerLevelIndex, const _wstring& strLayerTag, void* pArg = nullptr);
 	CGameObject* Get_ObjectPtr(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _char* ObjTag);
 	class CLayer* Find_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag);
-	HRESULT    Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, int32_t iResize);
+	HRESULT     Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, int32_t iResize);
 	void		Save_Data(uint32_t iNumLevel,_wstring path, const _wstring& strLayerName, const string& pSaveArrayName);
 	
 	HRESULT Add_GameObject_ToCopyLayer(uint32_t iPrototypeLevelIndex, const _wstring strPrototypeTag, void* pArg);
@@ -119,13 +119,16 @@ public:
 #pragma endregion
 #pragma region NAVI_MANAGER
 	shared_ptr<class CCell>  Select_TriAngle(_fvector vOrigin, _fvector vDir);
+	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
 	_bool	Check_NeraPos(_float3* fPos);
 	_bool	Check_First();
 	HRESULT    Save_Navi(const _wstring& FilePath, const _char* pName);
 	HRESULT    Load_Navi(const _wstring& FilePath, const _char* pName);
 
-	HRESULT Render();
+	void Render_Navi();
 	void Undo_Cell();
+
+	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
 #pragma endregion
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);

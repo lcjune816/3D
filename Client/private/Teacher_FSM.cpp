@@ -32,3 +32,22 @@ HRESULT CTeacher_FSM::Initialize_State(weak_ptr<CGameObject> pObj)
 	m_pOtherMatrix = m_pBoss.lock()->Get_OtherMatrixPtr();
 	return S_OK;
 }
+
+void CTeacher_FSM::Move(const _float& fTimeDelta, MOVE eMove, shared_ptr<CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation)
+{
+	switch (eMove)
+	{
+	case MOVE::RIGHT:
+		pTransform->Go_Right(fTimeDelta, pNavigation);
+		break;
+	case MOVE::FORWARD:
+		pTransform->Go_Straight(fTimeDelta, pNavigation);
+		break;
+	case MOVE::LEFT:
+		pTransform->Go_Left(fTimeDelta, pNavigation);
+		break;
+	case MOVE::BACKWARD:
+		pTransform->Go_BackWard(fTimeDelta, pNavigation);
+		break;
+	}
+}

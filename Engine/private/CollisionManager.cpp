@@ -302,7 +302,7 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 	auto SrcTransform = pSrcTransform.lock();
 	for (auto& pLayerInObj : pLayer->Get_ObjectList())
 	{
-		if (!strcmp(tagName,pLayerInObj->Get_TagName()))
+		if (pLayerInObj->Check_Name(tagName))
 		{
 			auto DstTransform = pLayerInObj->Get_Transform().lock();
 			if (NULL_TRUE(DstTransform) || NULL_TRUE(SrcTransform))
@@ -468,7 +468,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
-				if (Length < 5.f || PlayerToObjectLength < 5.f)
+				if (Length < 0.1f || PlayerToObjectLength < 3.f)
 					return false;
 			}
 
@@ -514,7 +514,7 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 		return {};
 	}
 	uint32_t iCnt{};
-	_float offset = {8.f};
+	_float offset = {15.f};
 	if (bFinished)
 		offset = -1.f;
 	_float   MaxDist{ 0 };
