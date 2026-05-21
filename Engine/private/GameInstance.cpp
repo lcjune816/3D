@@ -394,6 +394,7 @@ _bool	CGameInstance::Check_NeraPos(_float3* fPos)
 {
 	return m_pNavi_Manager->Check_NeraPos(fPos);
 }
+
 _bool	CGameInstance::Check_First()
 {
 	return m_pNavi_Manager->Check_First();
@@ -407,13 +408,21 @@ HRESULT    CGameInstance::Load_Navi(const _wstring& FilePath, const _char* pName
 
 	return m_pNavi_Manager->Load_Navi(FilePath, pName);
 }
-HRESULT CGameInstance::Render()
+void	CGameInstance::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
 {
-	return m_pNavi_Manager->Render();
+	m_pNavi_Manager->Add_NaviMeshInfo(fPos, eEvent);
+}
+void CGameInstance::Connect_Navigaion(shared_ptr<class CNavigation> pNavigation)
+{
+	m_pNavi_Manager->Connect_Navigaion(pNavigation);
 }
 void CGameInstance::Undo_Cell()
 {
 	m_pNavi_Manager->Undo_Cell();
+}
+void CGameInstance::Render_Navi()
+{
+	m_pNavi_Manager->Render();
 }
 #pragma endregion
 #pragma region TRIGGER_MANAGER

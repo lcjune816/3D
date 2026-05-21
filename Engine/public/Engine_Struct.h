@@ -71,7 +71,8 @@ namespace Engine
 	}LIGHT_VALUE;
 	typedef struct AstarNode
 	{
-		uint32_t   iParent_node, iNode_Nubmer, G, H, F;
+		_float	  G, H, F;
+		int32_t   iParent_node{-1}, iNode_Nubmer;
 		_float3	  Pos;
 
 	}ENGINE_ASTAR;
@@ -81,6 +82,8 @@ namespace Engine
 		int32_t		iIndex = { -1 };
 		_float3     vPoints[ETOUI(EPOINT::END)];
 		_float3		vNormals[ETOUI(LINE::END)];
+		int32_t		iNeighborIndices[ETOUI(LINE::END)] = { -1,-1,-1 };
+		_float4     m_vPlane;
 		_float3		vCenter;
 	}NAVI;
 

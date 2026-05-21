@@ -23,7 +23,7 @@ void CFSM_Jump::Enter_State()
 	m_bJump = true;
 	m_bFalling = false;
 	m_bReFinished = false;
-	m_fJumpTick = 0.f;
+ 	m_fJumpTick = 0.f;
 	m_fDropTime = 0.f;
 	m_fMaxHeight = 15.f;
 	m_fJumpCnt = 0.f;
@@ -44,12 +44,8 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 
 	_float4 vPos{};
 	XMStoreFloat4(&vPos, pTransform->Get_State(STATE::POS));
-	if (!m_bJump && vPos.y <= 5.f)
+	if (!m_bJump && vPos.y <= 6.f)
 	{
-		_float offset = vPos.y;
-		vPos.y = 0.f + offset;
-
-		pTransform->Set_State(STATE::POS, XMLoadFloat4(&vPos));
 
 		if (!m_bReFinished)
 		{
@@ -71,7 +67,7 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 
 	if (!m_bJump)
 	{
-		m_fDropTime += 9.8f * fTimeDelta;
+		m_fDropTime += 4.8f * fTimeDelta;
 		vPos.y -= m_fDropTime;
 	}
 
@@ -91,23 +87,10 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 			
 	}
 
-	pTransform->Set_State( STATE::POS, XMLoadFloat4(&vPos));
+	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), vPos.y));
+	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
+	Move(fTimeDelta, eMove, pTransform, pNavi);
 
-	switch (eMove)
-	{
-	case MOVE::RIGHT:
-		pTransform->Go_Right(fTimeDelta);
-		break;
-	case MOVE::FORWARD:
-		pTransform->Go_Straight(fTimeDelta);
-		break;
-	case MOVE::LEFT:
-		pTransform->Go_Left(fTimeDelta);
-		break;
-	case MOVE::BACKWARD:
-		pTransform->Go_BackWard(fTimeDelta);
-		break;
-	}
 }
 
 void CFSM_Jump::Exit_State()

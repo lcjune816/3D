@@ -56,21 +56,9 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 	if (Player->Get_Finished() && Player->Get_Animation_State() != PLAYER_ANIME::CROUCH_POSE)
 			Player->Change_Animation(PLAYER_ANIME::CROUCH_POSE, true);
 
-	switch (eMove)
-	{
-	case MOVE::RIGHT:
-		pTransform->Go_Right(fTimeDelta * 0.5f);
-		break;
-	case MOVE::FORWARD:
-		pTransform->Go_Straight(fTimeDelta * 0.5f);
-		break;
-	case MOVE::LEFT:
-		pTransform->Go_Left(fTimeDelta * 0.5f);
-		break;
-	case MOVE::BACKWARD:
-		pTransform->Go_BackWard(fTimeDelta * 0.5f);
-		break;
-	}
+
+	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
+	Move(fTimeDelta, eMove, pTransform, pNavi);
 }
 
 void CFSM_Crouch::Exit_State()

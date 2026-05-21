@@ -62,6 +62,8 @@ HRESULT CLevel_GamePlay::Render()
 HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _wstring& strLayerTag)
 {
 	auto pObj = static_cast<CPlayer*>(CGameInstance::Get().Get_ObjectPtr(ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player"));
+	if (NULL_TRUE(pObj))
+		return E_FAIL;
 	uint32_t index = pObj->GetAnimator()->Find_Key("JNT_Camera");
 	_float4x4 Matrix = pObj->GetAnimator()->Find_Matrix(index);
 

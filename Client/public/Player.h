@@ -5,6 +5,7 @@ namespace Engine
 {
 	class CAnimator;
 	class CFSM_Machine;
+	class CNavigation;
 }
 NS_BEGIN(Client)
 //Couch enter 앉을때 애니메이션 couch pose 앉은 후 애니메이션 couch exit 일어날대 애니메이션
@@ -76,6 +77,7 @@ protected:
 private:
 	shared_ptr<class CPlayer_LeftHand>	m_pPlayerLHand;
 	shared_ptr<class CPLayer_RightHand>	m_pPlayerRHand;
+	shared_ptr<class CNavigation>		m_pNavigation;
 
 	vector<string>						m_ShootBone;
 	_float								m_fTimerTick{ 0 }, m_fTimerCnt{ 0 };

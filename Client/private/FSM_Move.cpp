@@ -46,22 +46,11 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 		if(Player->Get_Animation_State() != PLAYER_ANIME::WALK)
 			Player->Change_Animation(PLAYER_ANIME::WALK, true);
 	}
-		
-	switch (eMove)
-	{
-	case MOVE::RIGHT:
-		pTransform->Go_Right(fTimeDelta);
-		break;
-	case MOVE::FORWARD:
-		pTransform->Go_Straight(fTimeDelta);
-		break;
-	case MOVE::LEFT:
-		pTransform->Go_Left(fTimeDelta);
-		break;
-	case MOVE::BACKWARD:
-		pTransform->Go_BackWard(fTimeDelta);
-		break;
-	}
+	
+	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
+	Move(fTimeDelta, eMove, pTransform, pNavi);
+
+
 }
 
 void CFSM_Move::Exit_State()

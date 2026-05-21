@@ -1,0 +1,496 @@
+#include "Navigation.h"
+#include "Layer.h"
+#include "GameInstance.h"
+CNavigation::CNavigation(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
+    :CComponent(pDevice,pContext)
+{
+}
+
+CNavigation::~CNavigation()
+{
+}
+HRESULT CNavigation::Initialize_Prototype(const _wstring& FilePath, const _char* pName)
+{
+   // Make_NaviToTerrain();
+  // Load_Navi(FilePath, pName);
+#ifdef _DEBUG
+
+    m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
+    if (nullptr == m_pShader)
+        return E_FAIL;
+#endif
+
+}
+HRESULT CNavigation::Initialize(void* pArg)
+{
+    if (NULL_TRUE(pArg))
+        return S_OK;
+
+    auto pDesc = static_cast<NAVIGATION_DESC*>(pArg);
+
+    m_iCurretnCellindex = pDesc->iIndex;
+
+    return S_OK;
+
+}
+
+HRESULT CNavigation::Ready_Neightbors()
+{
+    for (auto& pSourCell : m_Cells)
+    {
+      
+
+        for (auto& pDestCell : m_Cells)
+        {
+            if (pSourCell == pDestCell )
+                continue;
+
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::A)), pSourCell->Get_CellPos(ETOUI(EPOINT::B))))
+            {
+                pSourCell->Set_Neighbor(LINE::AB, pDestCell);
+            }
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::B)), pSourCell->Get_CellPos(ETOUI(EPOINT::C))))
+            {
+                pSourCell->Set_Neighbor(LINE::BC, pDestCell);
+            }
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::C)), pSourCell->Get_CellPos(ETOUI(EPOINT::A))))
+            {
+                pSourCell->Set_Neighbor(LINE::CA, pDestCell);
+            }
+        }
+    }
+
+    return S_OK;
+}
+
+void CNavigation::Make_NaviToTerrain()
+{
+    _float offset = 10.f;
+    for (uint32_t i = 0; i < TERRIANX - 1; ++i)
+    {
+        for (uint32_t j = 0; j < TERRIANZ - 1 ; ++j)
+        {
+            uint32_t index = i * TERRIANX + j;
+            
+            _float3 fPos[3]{};
+            //129 130
+            // 0 1  
+            fPos[0]   = { j     * offset , 0 , (i * offset) };
+            fPos[1]   = { (j+1) * offset , 0 , (i * offset) };
+            fPos[2]   = { j     * offset , 0 , ((i + 1)* offset)};
+            auto Cell = CCell::Create(m_pDevice, m_pContext, {}, CELL_EVENT::END, m_Cells.size(),&fPos[0]);
+
+
+
+            fPos[0] = { offset * j       , 0  , (i + 1) * offset };
+            fPos[1] = { offset * (j + 1), 0  , (i + 1) *  offset };
+            fPos[2] = { offset * (j + 1), 0  , (i * offset) };
+            auto Cell2 = CCell::Create(m_pDevice, m_pContext, {}, CELL_EVENT::END, m_Cells.size() + 1, &fPos[0]);
+
+
+            m_Cells.push_back(Cell);
+            m_Cells.push_back(Cell2);
+        }
+        
+    }
+
+}
+
+_bool CNavigation::InMove(_fvector vResultPos)
+{
+    //더이상 갈수있는 노드가 없을경우
+    if (-1 == m_iCurretnCellindex || m_Cells.empty())
+        return false;
+
+    int32_t     iNeighborIndex = { -1 };
+    //인접한 노드가있고 해당 위치에 오브젝트가 위치할경우
+    if (true == m_Cells[m_iCurretnCellindex]->IsIn(vResultPos, &iNeighborIndex))
+    {
+        return true;
+    }
+    else
+    {
+        //나간 방향에 이웃이 존재할경우
+        if (-1 != iNeighborIndex)
+        {
+            while (true)
+            {
+                //진짜 그 위치에 있는지 재탐색
+                if (true == m_Cells[iNeighborIndex]->IsIn(vResultPos, &iNeighborIndex))
+                {
+                    break;
+                }
+       
+
+                if (-1 == iNeighborIndex)
+                    return false;
+
+            }
+
+            m_iCurretnCellindex = iNeighborIndex;
+            return true;
+        }
+        else
+            return false;
+
+    }
+}
+_vector CNavigation::SetUp_OnNavigation(_fvector vPos, _float offsetY)
+{
+    if (m_Cells.empty() || m_iCurretnCellindex == -1.f)
+        return vPos;
+
+    return XMVectorSetY(vPos, m_Cells[m_iCurretnCellindex]->Compute_Height(vPos) + offsetY);
+    
+}
+_bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring& LayerName, const _char* tagName, _fvector SrcPos)
+{
+    if (m_Cells.empty())
+        return false;
+    if (-1 == m_iCurretnCellindex)
+        return false;
+
+    auto pObj = Find_Object(endLayerIndex, LayerName, tagName);
+    if (NULL_TRUE(pObj))
+        return false;
+
+
+    auto pDestNavi = static_pointer_cast<CNavigation>(pObj->Find_Component(L"Com_Navigation"));
+    if (NULL_TRUE(pDestNavi))
+        return false;
+    int32_t index = { -1 };
+    _vector LastPos = pDestNavi->Get_CurrentCell_Info(&index);
+    if (-1 == index)
+        return false;
+     if (index == m_iDestIndex && !m_MoveToList.empty())
+            return true;
+     _vector DestPos = pObj->Get_Transform().lock()->Get_State(STATE::POS);
+
+     m_AstarCloseList.clear();
+     m_AstarOpenList.clear();
+     m_MoveToList.clear();
+     _float Huritices = XMVectorGetX(XMVector3Length(DestPos - SrcPos));
+     ENGINE_ASTAR FirstAstar{};
+     
+     FirstAstar.H = Huritices;
+     FirstAstar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter)));
+     FirstAstar.F = FirstAstar.G + FirstAstar.H;
+     FirstAstar.iParent_node = -1;
+     FirstAstar.iNode_Nubmer = m_iCurretnCellindex;
+     m_AstarCloseList.push_back(FirstAstar);
+
+     while (true)
+     {
+         _bool bFinished = false;
+         if (bFinished)
+             return true;
+
+         if (!m_AstarOpenList.empty())
+         {
+             m_AstarOpenList.sort([](const ENGINE_ASTAR& a, const ENGINE_ASTAR& b) {
+
+                 return a.F < b.F;
+                 });
+             m_AstarCloseList.push_back(m_AstarOpenList.front());
+             m_AstarOpenList.pop_front();
+         }
+        
+         if (m_Cells[m_AstarCloseList.back().iNode_Nubmer]->CheckAstar(m_AstarCloseList.back(),
+             m_AstarOpenList, m_AstarCloseList, m_Cells, DestPos, &index))
+         {
+                 m_MoveToList.push_back(m_AstarCloseList.back());
+                 m_AstarCloseList.pop_back();
+                 while (true)
+                 {
+                     for (auto iter = m_AstarCloseList.begin(); iter != m_AstarCloseList.end();)
+                     {
+
+                         if (m_MoveToList.front().iParent_node == iter->iNode_Nubmer)
+                         {
+                             m_MoveToList.push_front(*iter);
+                             iter = m_AstarCloseList.erase(iter);
+                             continue;
+                         }
+                         ++iter;
+                     }
+                     if (m_MoveToList.front().iParent_node == -1)
+                     {
+                         m_MoveToList.pop_front();
+                         m_iDestIndex = index;
+                         bFinished = true;
+                         return true;
+                     }
+                 }
+         }
+             
+
+     }
+     //해냈다 지렸고
+     //열린 목록, 닫힌 목록
+     //열린 목록은 최단거리 갱신을 위해 계속 계산 되는곳
+     // F G H 값이 필요 
+     // H.는 휴리틱스로 해당 목적지에 도달하는데 소요될거라고 추정되는 시간
+     // G는 시작노드
+     // f는 g h 더한값
+     //닫힌 목록은 담는거
+
+
+    return false;
+}
+_vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook)
+{
+    if (m_MoveToList.empty())
+        return vPos;
+    
+    _vector vSrcPos{};
+    if (!m_MoveToList.empty())
+        vSrcPos = XMLoadFloat3(&m_MoveToList.front().Pos);
+        
+    
+        
+     _vector vDir = XMVector3Normalize(vSrcPos - vPos);
+     XMStoreFloat3(vLook, vSrcPos);
+     _vector FinalPos = vPos + vDir * fSpeed * fTimeDelta;
+
+     if (XMVectorGetX(XMVector3Length(FinalPos - vSrcPos)) < 15.f)
+     {
+         m_MoveToList.pop_front();
+ 
+
+     }
+
+     if (!InMove(FinalPos))
+         return vPos;
+
+    return XMVectorSetW(FinalPos,1.f);
+}
+shared_ptr<CGameObject> CNavigation::Find_Object(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName)
+{
+    CLayer* pLayer = nullptr;
+   
+    pLayer = CGameInstance::Get().Find_Layer(endLayerIndex, LayerName);
+    if (NULL_TRUE(pLayer))
+        return nullptr;
+  
+    auto pObj = pLayer->Find_Object(tagName);
+    if (NULL_FALSE(pObj))
+        return pObj;
+
+    return nullptr;
+}
+_bool CNavigation::Check_NeraPos(_float3* fPos)
+{
+    if (m_Cells.empty())
+    {
+        return false;
+    }
+    _float firstNearDistance{ FLT_MAX };
+    _float SecondNearDistance{ FLT_MAX };
+
+    EPOINT  FirstNear = {};
+    EPOINT  SecondNear = {};
+    int32_t iFirstCellCnt{ -1 };
+    int32_t iSecondCellCnt{ -1 };
+
+    for (size_t i = 0; i < m_Cells.size(); ++i)
+    {
+        for (int32_t j = 0; j < 3; ++j)
+        {
+            _float Length = XMVectorGetX(XMVector3Length(m_Cells[i]->Get_CellPos(j) - XMLoadFloat3(fPos)));
+
+            if (firstNearDistance > Length)
+            {
+                firstNearDistance = Length;
+                FirstNear = static_cast<EPOINT>(j);
+                iFirstCellCnt = i;
+            }
+
+        }
+    }
+
+    XMStoreFloat3(fPos ,m_Cells[iFirstCellCnt]->Get_CellPos(ETOUI(FirstNear)));
+    return true;
+}
+void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
+{
+   auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,fPos);
+   
+   if (NULL_TRUE(Cell))
+        return;
+   
+     m_Cells.push_back(Cell);
+
+    Ready_Neightbors();
+
+}
+HRESULT CNavigation::Save_Navi(const _wstring& FilePath, const _char* pName)
+{
+    Ready_Neightbors();
+
+    json j;
+    for (auto& iter : m_Cells)
+    {
+        if (iter->Save_Data() == nullptr)
+            continue;
+
+        j[pName].push_back(iter->Save_Data());
+    }
+
+    ofstream file(FilePath);
+    file << j.dump(4);
+
+    file.close();
+
+    MSG_BOX("된듯?");
+
+    return S_OK;
+}
+
+HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
+{
+    json j;
+    ifstream file(FilePath);
+    if (!file.is_open())
+    {
+        MSG_BOX("로드할 파일이 없음");
+        return E_FAIL;
+    }
+    j = json::parse(file);
+    int32_t index = 0;
+    for (auto& iter : j[pName])
+    {
+        _float3 fPos[3] = {};
+        NAVI eNavi{};
+        CELL_EVENT eEvent{};
+        for (int32_t i = 0; i < 3; ++i)
+        {
+            fPos[i].x = iter["Pos"][i][0];
+            fPos[i].y = iter["Pos"][i][1];
+            fPos[i].z = iter["Pos"][i][2];
+           // eNavi.vNormals[i].x = iter["Normal"][i][0];
+           // eNavi.vNormals[i].y = iter["Normal"][i][1];
+           // eNavi.vNormals[i].z = iter["Normal"][i][2];   
+           // eNavi.iNeighborIndices[i] = iter["Neightbor"][i];
+        }
+       //eNavi.vCenter = { iter["Center"][0],iter["Center"][1],iter["Center"][2] };
+       //eNavi.m_vPlane = { iter["Plane"][0],iter["Plane"][1],iter["Plane"][2],iter["Plane"][3]};
+        eNavi.iIndex = iter["MyIndex"];
+        int32_t iEvent = iter["Event"];
+           eEvent = static_cast<CELL_EVENT>(iEvent);
+
+           auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
+        m_Cells.push_back(Cell);
+    }
+    file.close();
+
+    MSG_BOX("로드 된듯?");
+
+      Ready_Neightbors();
+    return S_OK;
+}
+void CNavigation::Undo_Cell()
+{
+    if (!m_Cells.empty())
+        m_Cells.pop_back();
+}
+void CNavigation::Reset_Astar()
+{
+   	m_iDestIndex =  -1;
+
+   	m_AstarOpenList.clear();
+   	m_AstarCloseList.clear();
+   	m_MoveToList.clear();
+   
+}
+_vector CNavigation::Find_CellPos(int32_t index)
+{
+    for (size_t i = 0; i < m_Cells.size(); ++i)
+    {
+        if (m_Cells[i]->Get_NaviInfo().iIndex == index)
+            return XMLoadFloat3(&m_Cells[i]->Get_NaviInfo().vCenter);
+    }
+    return XMVectorSet(0, 0, 0, 1);
+}
+const _vector CNavigation::Get_CurrentCell_Info(int32_t* iDestIndex)
+{
+    *iDestIndex = m_iCurretnCellindex;
+    if (m_Cells.empty())
+    {
+        *iDestIndex = -1;
+        return XMVectorSet(0,0,0,0);
+    }
+    return XMLoadFloat3(&m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter);
+}
+#ifdef _DEBUG
+HRESULT CNavigation::Render()
+{
+    _float4x4       WorldMatrix = {};
+    XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
+
+    if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
+        return E_FAIL;
+    if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW))))
+        return E_FAIL;
+    if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ))))
+        return E_FAIL;
+
+    m_pShader->Begin(0);
+
+    for (auto& pCell : m_Cells)
+    {
+        if (nullptr != pCell)
+            pCell->Render(m_pShader.get());
+    }
+
+   //_float4 fColor = { 1,1,1,1 };
+   //m_pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+   //
+   //m_pShader->Begin(0);
+
+    return S_OK;
+}
+shared_ptr<class CCell> CNavigation::Select_TriAngle(_fvector vOrigin, _fvector vDir)
+{
+
+    _float fDist{};
+    for (auto& iter : m_Cells)
+    {
+
+        if (TriangleTests::Intersects(vOrigin, vDir, iter->Get_CellPos(ETOUI(EPOINT::A)),
+            iter->Get_CellPos(ETOUI(EPOINT::B)), iter->Get_CellPos(ETOUI(EPOINT::C)), fDist))
+        {
+            iter->Set_Choice(true);
+            return iter;
+
+        }
+
+    }
+
+
+    return nullptr;
+}
+#endif
+unique_ptr<CNavigation>		CNavigation::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext, const _wstring& FilePath, const _char* pName)
+{
+    auto pInstance = unique_ptr<CNavigation>(new CNavigation(pDevice, pContext));
+
+    if (FAILED(pInstance->Initialize_Prototype(FilePath,pName)))
+    {
+        MSG_BOX("Create Failed CNavigation");
+        return nullptr;
+    }
+    return pInstance;
+}
+
+shared_ptr<CPrototype> CNavigation::Clone(void* pArg)
+{
+    auto		pInstance = shared_ptr<CNavigation>(new CNavigation(*this));
+
+    if (FAILED(pInstance->Initialize(pArg)))
+    {
+        MSG_BOX("Failed to Created : CNavigation");
+        return nullptr;
+    }
+
+    return pInstance;
+}

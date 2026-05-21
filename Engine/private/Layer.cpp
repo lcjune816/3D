@@ -84,6 +84,17 @@ void CLayer::Clear_ObjectList()
 	m_GameObjects.clear();
 }
 
+shared_ptr<CGameObject> CLayer::Find_Object(const _char* pName)
+{
+	for (auto& pObj : m_GameObjects)
+	{
+		if (pObj->Check_Name(pName))
+			return pObj;
+	}
+
+	return nullptr;
+}
+
 unique_ptr<CLayer> CLayer::Create()
 {
 	return unique_ptr<CLayer>(new CLayer());

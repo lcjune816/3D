@@ -38,9 +38,14 @@ HRESULT CPlayer::Ready_Component()
 	mat = XMMatrixRotationY(XMConvertToRadians(180.f));
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
+	CNavigation::NAVIGATION_DESC NaviDesc;
+	NaviDesc.iIndex = 0;
+	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+		return E_FAIL;
 
-		m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
-		if (NULL_TRUE(m_pStateMachine)) return E_FAIL;
+	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
+	if (NULL_TRUE(m_pStateMachine)) return E_FAIL;
+
 
 	
 	auto Idle = static_pointer_cast<CFSM_Idle>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Idle", nullptr));
@@ -105,7 +110,8 @@ HRESULT CPlayer::Ready_Component()
 	m_pStateMachine->Add_State(FSM::JUMP, Jump);
 	m_pStateMachine->Add_State(FSM::CROUCH, Crouch);
 	m_pStateMachine->Change_State(FSM::IDLE);
-
+	//17537
+	CGameInstance::Get().Connect_Navigaion(m_pNavigation);
 	
 	return S_OK;
 
@@ -119,7 +125,6 @@ void CPlayer::State_Move()
 {
 	m_ePlayer.bMove = false;
 	m_ePlayer.bCrouch = false;
-
 
 	if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
 	{
@@ -157,13 +162,8 @@ void CPlayer::State_Move()
 	}
 
 	//////////////기본 동작/////////////////////
-	if (m_ePlayer.bFalling)
-		return;
-
-
 	if (m_ePlayer.bJump )
 	{
-		m_ePlayer.bFalling = true;
 		m_pStateMachine->Change_State(FSM::JUMP);
 		return;
 	}
@@ -215,7 +215,8 @@ HRESULT CPlayer::Initialize(void* pArg)
 		return E_FAIL;
 	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
-
+	m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
+	//m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
 }
@@ -239,6 +240,10 @@ void CPlayer::Update(_float fTimeDelta)
 
  	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
+	if (!m_ePlayer.bJump)
+	{
+		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 6.f));
+	}
 
 	m_bFinished = m_pAnimator->Animation_End();
 
@@ -246,17 +251,8 @@ void CPlayer::Update(_float fTimeDelta)
 	Hnad_State_Check();
 	m_pPlayerRHand->Update(fTimeDelta);
 
-	if (!m_ePlayer.bFalling && !m_ePlayer.bJump)
-	{
-		_float4 vPos{};
-		XMStoreFloat4(&vPos,
-		m_pTransform->Get_State(STATE::POS));
-		_float offset = vPos.y;
-		vPos.y = 0 + offset;
-	
-		m_pTransform->Set_State(STATE::POS, XMLoadFloat4(&vPos));
-	}
-		CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CPlayer));
+
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));
 
 
 }
@@ -267,6 +263,9 @@ void CPlayer::Late_Update(_float fTimeDelta)
 }
 HRESULT CPlayer::Render()
 {
+
+//	m_pNavigation->Render();
+
 	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
@@ -283,6 +282,9 @@ HRESULT CPlayer::Render()
 	}
 	m_pPlayerRHand->Render();
 	m_pPlayerLHand->Render();
+	
+
+	
 	return S_OK;
 }
 string CPlayer::Model_Animation(const vector<string>& pNames)
@@ -404,6 +406,7 @@ _bool CPlayer::Flag_Check(uint32_t iFlag)
 
 	return false;
 }
+
 void CPlayer::Timer(const _float& fTimeDelta)
 {
 
