@@ -57,6 +57,7 @@ public:
 	HRESULT     Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, int32_t iResize);
 	void		Save_Data(uint32_t iNumLevel,_wstring path, const _wstring& strLayerName, const string& pSaveArrayName);
 	
+
 	HRESULT Add_GameObject_ToCopyLayer(uint32_t iPrototypeLevelIndex, const _wstring strPrototypeTag, void* pArg);
 	HRESULT Move_CopyLayer_ToObjectLayer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag);
 	void	Reset_CopyLayer();
@@ -124,7 +125,7 @@ public:
 	_bool	Check_First();
 	HRESULT    Save_Navi(const _wstring& FilePath, const _char* pName);
 	HRESULT    Load_Navi(const _wstring& FilePath, const _char* pName);
-
+	void Ready_Neightbors();
 	void Render_Navi();
 	void Undo_Cell();
 

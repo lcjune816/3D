@@ -1660,9 +1660,7 @@ void CGuiObject::Navi_Creator()
 		_vector TriSecond[3]{ XMVectorSet((TERRIANZ * TERRIANZ)*6,0,(TERRIANZ * TERRIANZ)*6 ,0),
 							  XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,0,0),
 							  XMVectorSet(0,0,0,0) };
-		auto& io = ImGui::GetIO(); //마우스 ui에서 사용중이면 리턴
-		if (!io.WantCaptureMouse)
-		{
+		
 			if (iSelect == 0)
 			{
 				if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
@@ -1752,7 +1750,10 @@ void CGuiObject::Navi_Creator()
 				if (NULL_TRUE(pObj))
 					ImGui::Text(u8"선택 안됨");
 				else
+				{
 					ImGui::Text(u8"선택 됨");
+					pObj->Set_Choice(true);
+				}
 
 				if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
 				{
@@ -1780,21 +1781,28 @@ void CGuiObject::Navi_Creator()
 
 					ImGui::Text(u8"현재 이벤트 상태 : %s ", pName);
 
+					if (NULL_FALSE(pObj) && CGameInstance::Get().Get_DIKeyState(DIK_DELETE))
+					{
+						pObj->Get_NaviInfo().bDead = true;
+						m_pCell.reset();
+					}
 					if (NULL_FALSE(pObj))
 					{
 						pObj->Set_CellEvent(event_Select_Index);
-						m_pCell.reset();
+					//	m_pCell.reset();
 					}
 						
 				}
 			}
-			
+			if(CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F7))
+				CGameInstance::Get().Ready_Neightbors();
+
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
 				CGameInstance::Get().Save_Navi(L"../../Navi.json", "Navi");
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
 				CGameInstance::Get().Load_Navi(L"../../Navi.json", "Navi");
 
-		}
+		
 		ImGui::EndTabBar();
 	}
 

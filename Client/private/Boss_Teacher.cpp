@@ -22,7 +22,6 @@ HRESULT CBoss_Teacher::Ready_Component()
 	importModel.eType = MESH_TYPE::ANIME;
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	//NaviDesc.iIndex = 716;
 	NaviDesc.iIndex = 0;
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;

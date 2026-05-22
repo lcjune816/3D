@@ -39,7 +39,7 @@ HRESULT CPlayer::Ready_Component()
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 0;
+	NaviDesc.iIndex = 27;
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 
@@ -202,7 +202,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 {
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 5.f;
-	desc.m_fSpeedPerSec = 100.f;
+	desc.m_fSpeedPerSec = 50.f;
 
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
@@ -215,8 +215,8 @@ HRESULT CPlayer::Initialize(void* pArg)
 		return E_FAIL;
 	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
-	m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	//m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
+	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
 }
@@ -242,7 +242,7 @@ void CPlayer::Update(_float fTimeDelta)
 	m_pStateMachine->Update_Machine(fTimeDelta);
 	if (!m_ePlayer.bJump)
 	{
-		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 6.f));
+		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 11.f));
 	}
 
 	m_bFinished = m_pAnimator->Animation_End();

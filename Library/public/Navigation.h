@@ -35,7 +35,7 @@ public:
 	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
 	void	Undo_Cell();
 	void	Reset_Astar();
-
+	void    Dead_Check();
 	_vector Find_CellPos(int32_t index);
 private:
 	const _vector Get_CurrentCell_Info(int32_t* iDestIndex);

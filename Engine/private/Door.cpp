@@ -21,6 +21,10 @@ HRESULT CDoor::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::DOOR;
+
+	m_fEndAngle = 90.f;
+	m_fMaxFrameTime = 1.f;
+	m_fRotation = { 0,1,0,0 };
 	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE)| ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 	return S_OK;
 }
@@ -63,6 +67,7 @@ HRESULT CDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 }
 void CDoor::Set_Trigger()
 {
+
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		m_eState = TRIGGER_STATE::ACTION;

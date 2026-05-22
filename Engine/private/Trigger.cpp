@@ -50,7 +50,6 @@ _bool						CTrigger::Start_Rotation(const _float& fTimeDelta )
 	if (t >= 1.f)
 	{
 		m_fFrameTick = 0.f;
-		m_fAngle = m_fEndAngle;
 		return true;
 	}
 	return false;

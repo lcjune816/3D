@@ -12,7 +12,7 @@ CNavigation::~CNavigation()
 HRESULT CNavigation::Initialize_Prototype(const _wstring& FilePath, const _char* pName)
 {
    // Make_NaviToTerrain();
-  // Load_Navi(FilePath, pName);
+   Load_Navi(FilePath, pName);
 #ifdef _DEBUG
 
     m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
@@ -38,8 +38,6 @@ HRESULT CNavigation::Ready_Neightbors()
 {
     for (auto& pSourCell : m_Cells)
     {
-      
-
         for (auto& pDestCell : m_Cells)
         {
             if (pSourCell == pDestCell )
@@ -103,6 +101,8 @@ _bool CNavigation::InMove(_fvector vResultPos)
         return false;
 
     int32_t     iNeighborIndex = { -1 };
+    int32_t     iCheckNext = { -1 };
+    int32_t     iCheckCurrent = { -1 };
     //인접한 노드가있고 해당 위치에 오브젝트가 위치할경우
     if (true == m_Cells[m_iCurretnCellindex]->IsIn(vResultPos, &iNeighborIndex))
     {
@@ -116,15 +116,22 @@ _bool CNavigation::InMove(_fvector vResultPos)
             while (true)
             {
                 //진짜 그 위치에 있는지 재탐색
+                iCheckNext = iCheckCurrent;
+                iCheckCurrent = iNeighborIndex;
                 if (true == m_Cells[iNeighborIndex]->IsIn(vResultPos, &iNeighborIndex))
                 {
                     break;
                 }
        
+                 
 
                 if (-1 == iNeighborIndex)
                     return false;
 
+                //if ((-1 != iCheckNext )&& iCheckNext == iNeighborIndex)
+                //{
+                //    return true;
+                //}
             }
 
             m_iCurretnCellindex = iNeighborIndex;
@@ -196,7 +203,7 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
          }
         
          if (m_Cells[m_AstarCloseList.back().iNode_Nubmer]->CheckAstar(m_AstarCloseList.back(),
-             m_AstarOpenList, m_AstarCloseList, m_Cells, DestPos, &index))
+             m_AstarOpenList, m_AstarCloseList, m_Cells, DestPos, &index) )
          {
                  m_MoveToList.push_back(m_AstarCloseList.back());
                  m_AstarCloseList.pop_back();
@@ -222,7 +229,8 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
                      }
                  }
          }
-             
+
+   
 
      }
      //해냈다 지렸고
@@ -313,19 +321,33 @@ _bool CNavigation::Check_NeraPos(_float3* fPos)
 }
 void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
 {
-   auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,fPos);
+
+    _float3 Pos[3] = {};
+
+    memcpy(&Pos, fPos, sizeof _float3 * ETOUI(EPOINT::END));
+
+    _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
+    _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
+
+    sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
+
+        _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+        _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+
+        return ALastAngle > BLastAngle;
+        });
+
+   auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,Pos);
    
    if (NULL_TRUE(Cell))
         return;
    
      m_Cells.push_back(Cell);
 
-    Ready_Neightbors();
-
 }
 HRESULT CNavigation::Save_Navi(const _wstring& FilePath, const _char* pName)
 {
-    Ready_Neightbors();
+   // Ready_Neightbors();
 
     json j;
     for (auto& iter : m_Cells)
@@ -367,17 +389,25 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
             fPos[i].x = iter["Pos"][i][0];
             fPos[i].y = iter["Pos"][i][1];
             fPos[i].z = iter["Pos"][i][2];
-           // eNavi.vNormals[i].x = iter["Normal"][i][0];
-           // eNavi.vNormals[i].y = iter["Normal"][i][1];
-           // eNavi.vNormals[i].z = iter["Normal"][i][2];   
-           // eNavi.iNeighborIndices[i] = iter["Neightbor"][i];
+
+      
+
         }
        //eNavi.vCenter = { iter["Center"][0],iter["Center"][1],iter["Center"][2] };
        //eNavi.m_vPlane = { iter["Plane"][0],iter["Plane"][1],iter["Plane"][2],iter["Plane"][3]};
         eNavi.iIndex = iter["MyIndex"];
         int32_t iEvent = iter["Event"];
            eEvent = static_cast<CELL_EVENT>(iEvent);
+           _float AngleX = (fPos[0].x + fPos[1].x + fPos[2].x) / 3.f;
+           _float AngleZ = (fPos[0].z + fPos[1].z + fPos[2].z) / 3.f;
 
+           sort(begin(fPos), end(fPos), [AngleX, AngleZ](_float3 a, _float3 b) {
+
+               _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+               _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+
+               return ALastAngle > BLastAngle;
+               });
            auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
         m_Cells.push_back(Cell);
     }
@@ -385,7 +415,7 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
 
     MSG_BOX("로드 된듯?");
 
-      Ready_Neightbors();
+    Ready_Neightbors();
     return S_OK;
 }
 void CNavigation::Undo_Cell()
@@ -401,6 +431,19 @@ void CNavigation::Reset_Astar()
    	m_AstarCloseList.clear();
    	m_MoveToList.clear();
    
+}
+void CNavigation::Dead_Check()
+{
+
+    for (auto iter = m_Cells.begin(); iter != m_Cells.end();)
+    {
+        if ((*iter)->Get_NaviInfo().bDead == true)
+        {
+            iter = m_Cells.erase(iter);
+            continue;
+        }
+        ++iter;
+    }
 }
 _vector CNavigation::Find_CellPos(int32_t index)
 {

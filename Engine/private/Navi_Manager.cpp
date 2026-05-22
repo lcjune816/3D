@@ -21,6 +21,14 @@ HRESULT CNavi_Manager::Initialize()
 	return S_OK;
 
 }
+void CNavi_Manager::Ready_Neightbors()
+{
+    auto pNavi = m_pNavigations.lock();
+    if (NULL_TRUE(pNavi))
+        return;
+
+    pNavi->Ready_Neightbors();
+}
 _bool CNavi_Manager::Check_NeraPos(_float3* fPos)
 {
     auto pNavi = m_pNavigations.lock();
@@ -35,6 +43,8 @@ void CNavi_Manager::Render()
     auto pNavi = m_pNavigations.lock();
     if (NULL_TRUE(pNavi))
         return ;
+    pNavi->Dead_Check();
+
     pNavi->Render();
 }
 void CNavi_Manager::Add_NaviMeshInfo( _float3* fPos, CELL_EVENT eEvent)

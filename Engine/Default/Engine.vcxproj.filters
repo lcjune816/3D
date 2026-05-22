@@ -148,9 +148,6 @@
     <Filter Include="13.Instancing">
       <UniqueIdentifier>{57aa9aa9-98dd-42f8-b9df-e0da899795ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="14.Navigation">
-      <UniqueIdentifier>{abc6d1f4-dc7d-4f19-8f8b-beccefceea6e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="97.ShaderFiles">
       <UniqueIdentifier>{fb5b2ed1-fa8d-4a31-90e5-bbb4203c4fb6}</UniqueIdentifier>
     </Filter>
@@ -172,7 +169,10 @@
     <Filter Include="10.Trigger_Manager\Trigger\RotationPuzzle">
       <UniqueIdentifier>{33b9c142-49da-4963-80fa-a460973c99e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="14.Navigation\Navi">
+    <Filter Include="13.Instancing\14.Navigation">
+      <UniqueIdentifier>{abc6d1f4-dc7d-4f19-8f8b-beccefceea6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="13.Instancing\14.Navigation\Navi">
       <UniqueIdentifier>{563afbc1-4464-4f4e-a610-56a07a329dfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -338,7 +338,7 @@
       <Filter>13.Instancing</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Navi_Manager.h">
-      <Filter>14.Navigation</Filter>
+      <Filter>13.Instancing\14.Navigation</Filter>
     </ClInclude>
     <ClInclude Include="..\public\GreenEletric.h">
       <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
@@ -365,10 +365,10 @@
       <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Cell.h">
-      <Filter>14.Navigation\Navi</Filter>
+      <Filter>13.Instancing\14.Navigation\Navi</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Navigation.h">
-      <Filter>14.Navigation\Navi</Filter>
+      <Filter>13.Instancing\14.Navigation\Navi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -547,7 +547,7 @@
       <Filter>13.Instancing</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Navi_Manager.cpp">
-      <Filter>14.Navigation</Filter>
+      <Filter>13.Instancing\14.Navigation</Filter>
     </ClCompile>
     <ClCompile Include="..\private\GreenEletric.cpp">
       <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
@@ -574,10 +574,10 @@
       <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Cell.cpp">
-      <Filter>14.Navigation\Navi</Filter>
+      <Filter>13.Instancing\14.Navigation\Navi</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Navigation.cpp">
-      <Filter>14.Navigation\Navi</Filter>
+      <Filter>13.Instancing\14.Navigation\Navi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

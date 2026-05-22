@@ -20,6 +20,7 @@ typedef struct tagTriggerdesc
 	_float fFrameTickTime{0.f};
 	_float fRotationArrow{0.f};
 	_float fArrrowRotation{0.f};
+	_float3 vLook = {};
  }TRIGGER_DESC;
 
 public:
@@ -71,7 +72,7 @@ protected:
 	
 protected:
 	_bool							m_bTriggerOn = { false }, m_bOtherTrigger = { false };
-	_float							m_fFrameTick{}, m_fFrameTickTime{}, m_fFrameTime{}, m_fMaxFrameTime{};
+	_float							m_fFrameTick{0.f}, m_fFrameTickTime{ 0.f }, m_fFrameTime{ 0.f }, m_fMaxFrameTime{ 0.f };
 	_float							m_fAngle{}, m_fStartAngle{ 0 }, m_fEndAngle{ 180.f }, m_fRotationArrow = { 1.f }, m_fFlagCnt{0 };
 	_float4x4*						m_pMatrixPtr = { nullptr };
 
@@ -80,7 +81,7 @@ protected:
 	uint32_t						m_iFlag = { 0 };
 	TRIGGER_EVENT					m_eEventTrigger;
 	BIND_RESOURCE					m_BindValue;
-	TRIGGER_STATE					m_eState;
+	TRIGGER_STATE					m_eState{ TRIGGER_STATE::IDLE };
 	_float4							m_fRotation{};
 	weak_ptr<class CGameObject>		m_pParent;
 public:
