@@ -384,7 +384,10 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 }
 #pragma endregion
 #pragma region NAVI_MANAGER
-
+void CGameInstance::Ready_Neightbors()
+{
+	m_pNavi_Manager->Ready_Neightbors();
+}
 shared_ptr<CCell>  CGameInstance::Select_TriAngle(_fvector vOrigin, _fvector vDir)
 {
 	return m_pNavi_Manager->Select_TriAngle(vOrigin, vDir);

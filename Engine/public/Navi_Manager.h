@@ -21,6 +21,7 @@ public:
 	
 	void		Render();
 	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
+	void Ready_Neightbors();
 	shared_ptr<class CCell>				Select_TriAngle(_fvector vOrigin, _fvector vDir);
 #ifdef _DEBUG
 private:

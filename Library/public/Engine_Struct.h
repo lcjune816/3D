@@ -85,6 +85,7 @@ namespace Engine
 		int32_t		iNeighborIndices[ETOUI(LINE::END)] = { -1,-1,-1 };
 		_float4     m_vPlane;
 		_float3		vCenter;
+		_bool		bDead{ false };
 	}NAVI;
 
 	typedef struct filepath

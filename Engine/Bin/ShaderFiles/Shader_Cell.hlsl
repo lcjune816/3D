@@ -3,6 +3,7 @@
 
 float4x4 g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 vector g_Color = 1.f;
+bool g_bWire = false;
 
 struct VS_IN
 {
@@ -56,11 +57,20 @@ technique11 DefaultTechnique
 {
     pass DefaultPass
     {
-        SetRasterizerState(RS_NONCULL);
+        SetRasterizerState(RS_Wireframe);
         SetDepthStencilState(DSS_Default, 0);
         SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         VertexShader = compile vs_5_0 VS_MAIN();
         PixelShader = compile ps_5_0 PS_MAIN();
     }  
+
+    pass WireFramePass
+    {
+        SetRasterizerState(RS_NONCULL);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        PixelShader = compile ps_5_0 PS_MAIN();
+    }
 }
 

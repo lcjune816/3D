@@ -166,7 +166,7 @@ _bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex)
 
         _vector     vDir = XMVector3Normalize(vResultPos - XMLoadFloat3(&m_NaviInfo.vPoints[i]));
         _float fDot = XMVectorGetX(XMVector3Dot(vDir, XMLoadFloat3(&m_NaviInfo.vNormals[i])));
-        if (0 >  fDot)
+        if (0 <  fDot)
         {//만약 벗어낫을때 내가 가지고있는 이웃 인덱스를 전달
             
             *pNeighborIndex = m_NaviInfo.iNeighborIndices[i];
@@ -235,15 +235,18 @@ json CCell::Save_Data()
 }
 HRESULT CCell::Render(CShader* pShader)
 {
-  //  if (m_eEvent != CELL_EVENT::FIRST)
-  //      return E_FAIL;
-
-    _float4 fColor = { 0.3f,0.7f,0.4f,1.f };
     
+    _float4 fColor = { 1.f,1.f,1.f,1.f };
+
+    if (m_bChoice)
+        fColor = { 1,0,0,1 };
  
     pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
 
-    pShader->Begin(0);
+    if (m_bChoice)
+        pShader->Begin(1);
+    else
+        pShader->Begin(0);
     
         
     m_pVIBuffer->Bind_Resource();

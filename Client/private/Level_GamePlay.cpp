@@ -87,9 +87,9 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(const _wstring& strLayerTag)
 }
 HRESULT CLevel_GamePlay::Ready_Layer_Boss(const _wstring& strLayerTag)
 {
-	//if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Teacher"),
-	//	ETOUI(LEVEL::GAMEPLAY), strLayerTag)))
-	//	return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Teacher"),
+		ETOUI(LEVEL::GAMEPLAY), strLayerTag)))
+		return E_FAIL;
 
 	return S_OK;
 }
