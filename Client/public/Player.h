@@ -16,7 +16,8 @@ enum class PLAYER_ANIME {CROUCH_ENTER, CROUCH_EXIT, CROUCH_POSE, FALLING, SHOOT_
 						SHOOTIN_L,SHOOTIN_R, SHOOTOUT_L, SHOOTOUT_R,END};
 enum class PLAYER_MACHINE{NORMAL, LEFT_HAND, RIGHT_HAND,END};
 
-enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002, TIMER = 0x00000004,CONNECTHAND = 0x00000008, END = 0xffffffff };
+enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002, TIMER = 0x00000004,CONNECTHAND = 0x00000008,
+				RUN = 0x00000010, CROUCH = 0x00000020, IDLE = 0x00000040, MOVE = 0x00000080, JUMP = 0x00000100, FALLING = 0x00000200,	END = 0xffffffff };
 class CPlayer : public CGameObject
 {
 protected:
@@ -49,7 +50,7 @@ public:
 	PLAYER_STATE&			Get_AnimeState()	  { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
 
 	void					Set_ActionState(_bool	bAction)	{ m_bOnlyActionState = bAction; }
-	void					Change_Animation(PLAYER_ANIME eAnime, _bool bLoop = true);
+	void					Change_Animation(PLAYER_ANIME eAnime, _bool bLoop = true, _bool bForce = false, _bool Blend = true);
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 	CAnimator*				GetAnimator() { return m_pAnimator.get(); }
 	void					Set_Flag(uint32_t eState, FLAGVALUE eValue);
@@ -86,7 +87,7 @@ private:
 
 	PLAYER_ANIME						m_eAnimeState = {};
 	PLAYER_STATE						m_ePlayer = {}; //플레이어 상태 조정 bool값 모음ㄱ
-
+	PLAYER_FLAG							m_eFlag = {};
 	_bool								m_bOnlyActionState = { false };
 	MOVE								m_eState = {MOVE::END};
 public:

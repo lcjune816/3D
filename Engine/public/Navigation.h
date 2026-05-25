@@ -23,7 +23,7 @@ public:
 	HRESULT Render();
 
 	void   Make_NaviToTerrain();
-	_bool  InMove(_fvector vResultPos);
+	_bool  InMove(_fvector vResultPos, _float3* fDir = nullptr);
 	_vector SetUp_OnNavigation(_fvector vPos, _float offsetY);
 public:
 	_bool	AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring& LayerName, const _char* tagName,_fvector SrcPos);

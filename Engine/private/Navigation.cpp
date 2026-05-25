@@ -43,18 +43,19 @@ HRESULT CNavigation::Ready_Neightbors()
             if (pSourCell == pDestCell )
                 continue;
 
-            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::A)), pSourCell->Get_CellPos(ETOUI(EPOINT::B))))
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::B)), pSourCell->Get_CellPos(ETOUI(EPOINT::A))))
             {
                 pSourCell->Set_Neighbor(LINE::AB, pDestCell);
             }
-            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::B)), pSourCell->Get_CellPos(ETOUI(EPOINT::C))))
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::C)), pSourCell->Get_CellPos(ETOUI(EPOINT::B))))
             {
                 pSourCell->Set_Neighbor(LINE::BC, pDestCell);
             }
-            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::C)), pSourCell->Get_CellPos(ETOUI(EPOINT::A))))
+            if (true == pDestCell->Compare_Points(pSourCell->Get_CellPos(ETOUI(EPOINT::A)), pSourCell->Get_CellPos(ETOUI(EPOINT::C))))
             {
                 pSourCell->Set_Neighbor(LINE::CA, pDestCell);
             }
+
         }
     }
 
@@ -94,7 +95,7 @@ void CNavigation::Make_NaviToTerrain()
 
 }
 
-_bool CNavigation::InMove(_fvector vResultPos)
+_bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
 {
     //더이상 갈수있는 노드가 없을경우
     if (-1 == m_iCurretnCellindex || m_Cells.empty())
@@ -104,7 +105,7 @@ _bool CNavigation::InMove(_fvector vResultPos)
     int32_t     iCheckNext = { -1 };
     int32_t     iCheckCurrent = { -1 };
     //인접한 노드가있고 해당 위치에 오브젝트가 위치할경우
-    if (true == m_Cells[m_iCurretnCellindex]->IsIn(vResultPos, &iNeighborIndex))
+    if (true == m_Cells[m_iCurretnCellindex]->IsIn(vResultPos, &iNeighborIndex, fDir))
     {
         return true;
     }
@@ -118,7 +119,7 @@ _bool CNavigation::InMove(_fvector vResultPos)
                 //진짜 그 위치에 있는지 재탐색
                 iCheckNext = iCheckCurrent;
                 iCheckCurrent = iNeighborIndex;
-                if (true == m_Cells[iNeighborIndex]->IsIn(vResultPos, &iNeighborIndex))
+                if (true == m_Cells[iNeighborIndex]->IsIn(vResultPos, &iNeighborIndex, fDir))
                 {
                     break;
                 }
@@ -293,12 +294,8 @@ _bool CNavigation::Check_NeraPos(_float3* fPos)
         return false;
     }
     _float firstNearDistance{ FLT_MAX };
-    _float SecondNearDistance{ FLT_MAX };
-
     EPOINT  FirstNear = {};
-    EPOINT  SecondNear = {};
     int32_t iFirstCellCnt{ -1 };
-    int32_t iSecondCellCnt{ -1 };
 
     for (size_t i = 0; i < m_Cells.size(); ++i)
     {
@@ -326,16 +323,20 @@ void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
 
     memcpy(&Pos, fPos, sizeof _float3 * ETOUI(EPOINT::END));
 
-    _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
-    _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
 
-    sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
-
-        _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-        _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-
-        return ALastAngle > BLastAngle;
-        });
+    _float fDot = ((Pos[1].x - Pos[0].x) * (Pos[2].z - Pos[0].z)) - ((Pos[1].z - Pos[0].z) * (Pos[2].x - Pos[0].x));
+    if (fDot > 0)
+        swap(Pos[1], Pos[2]);
+  // _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
+  // _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
+  //
+  // sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
+  //
+  //     _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+  //     _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+  //
+  //     return ALastAngle > BLastAngle;
+  //     });
 
    auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,Pos);
    
@@ -398,16 +399,18 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
         eNavi.iIndex = iter["MyIndex"];
         int32_t iEvent = iter["Event"];
            eEvent = static_cast<CELL_EVENT>(iEvent);
+
+
            _float AngleX = (fPos[0].x + fPos[1].x + fPos[2].x) / 3.f;
-           _float AngleZ = (fPos[0].z + fPos[1].z + fPos[2].z) / 3.f;
-
-           sort(begin(fPos), end(fPos), [AngleX, AngleZ](_float3 a, _float3 b) {
-
-               _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-               _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-
-               return ALastAngle > BLastAngle;
-               });
+           //_float AngleZ = (fPos[0].z + fPos[1].z + fPos[2].z) / 3.f;
+           //
+           //sort(begin(fPos), end(fPos), [AngleX, AngleZ](_float3 a, _float3 b) {
+           //
+           //    _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+           //    _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+           //
+           //    return ALastAngle > BLastAngle;
+           //    });
            auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
         m_Cells.push_back(Cell);
     }

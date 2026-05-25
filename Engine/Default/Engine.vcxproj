@@ -177,10 +177,12 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Engine_Macro.h" />
     <ClInclude Include="..\public\Engine_Struct.h" />
     <ClInclude Include="..\public\Engine_Typedef.h" />
+    <ClInclude Include="..\public\Event_Manager.h" />
     <ClInclude Include="..\public\FSM_Machine.h" />
     <ClInclude Include="..\public\FSM_STATE.h" />
     <ClInclude Include="..\public\GameInstance.h" />
     <ClInclude Include="..\public\GameObject.h" />
+    <ClInclude Include="..\public\Generator.h" />
     <ClInclude Include="..\public\Graphic_Device.h" />
     <ClInclude Include="..\public\GreenEletric.h" />
     <ClInclude Include="..\public\ImGuiManager.h" />
@@ -200,6 +202,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Navi_Manager.h" />
     <ClInclude Include="..\public\NonModel.h" />
     <ClInclude Include="..\public\Object_Manager.h" />
+    <ClInclude Include="..\public\Observer.h" />
     <ClInclude Include="..\public\PipeLine.h" />
     <ClInclude Include="..\public\Prototype.h" />
     <ClInclude Include="..\public\Prototype_Manager.h" />
@@ -251,10 +254,12 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\ElectricPannel.cpp" />
     <ClCompile Include="..\private\ElectricPole.cpp" />
     <ClCompile Include="..\private\ElectricPoleHead.cpp" />
+    <ClCompile Include="..\private\Event_Manager.cpp" />
     <ClCompile Include="..\private\FSM_Machine.cpp" />
     <ClCompile Include="..\private\FSM_STATE.cpp" />
     <ClCompile Include="..\private\GameInstance.cpp" />
     <ClCompile Include="..\private\GameObject.cpp" />
+    <ClCompile Include="..\private\Generator.cpp" />
     <ClCompile Include="..\private\Graphic_Device.cpp" />
     <ClCompile Include="..\private\GreenEletric.cpp" />
     <ClCompile Include="..\private\ImGuiManager.cpp" />

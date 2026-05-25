@@ -40,12 +40,17 @@ HRESULT CBoss_Teacher::Ready_Component()
 	if(NULL_TRUE(idle))
 		return E_FAIL;
 	
-	auto Move = static_pointer_cast<CFSM_Teacher_IDLE>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Move"),&pDesc));
+	auto Move = static_pointer_cast<CFSM_Teacher_Move>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Move"),&pDesc));
 	if (NULL_TRUE(Move))
 		return E_FAIL;
 	
+	auto Spawn = static_pointer_cast<CFSM_Teacher_Spawn>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Spawn"), &pDesc));
+	if (NULL_TRUE(Spawn))
+		return E_FAIL;
+
 	m_pStateMachine->Add_State(FSM::IDLE, idle);
 	m_pStateMachine->Add_State(FSM::MOVE, Move);
+	m_pStateMachine->Add_State(FSM::SPAWN, Spawn);
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Teacher));
 	m_pStateMachine->Change_State(FSM::IDLE);
 
@@ -53,19 +58,7 @@ HRESULT CBoss_Teacher::Ready_Component()
 	return S_OK;
 
 }
-void CBoss_Teacher::State_Move()
-{
-	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject",L"Layer_Player", "Player", m_pTransform, XMVectorSet(0.f,5.f,0.f,1.f)))
-	{
-		m_eBoss.bMove = false;
-	}
-	else 
-	{
-		m_eBoss.bMove = true;
-		m_pStateMachine->Change_State(FSM::MOVE);
-	}
 
-}
 HRESULT CBoss_Teacher::Initialize_Prototype()
 {
 	return S_OK;
@@ -93,11 +86,14 @@ HRESULT CBoss_Teacher::Initialize(void* pArg)
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(0),1.f));
+	_vector vPos = m_pNavigation->Find_CellPos(0) - XMVectorSet(2, 0, 0, 0);
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(vPos,1.f));
+
 	//플레이어 Look하고
 	//플레이어가 보스한테 raycast해서
 	//그거 두개 내적하면 앞뒤 판정은 되는데
 	//중간에 벽끼면? 그거먼저 체크해서 있으면 skip 해야되네
+	m_pTransform->Rotation(XMVectorSet(0, 1, 0, 0), 180.f);
 	return S_OK;
 }
 void CBoss_Teacher::Priority_Update(_float fTimeDelta)
@@ -115,7 +111,6 @@ void CBoss_Teacher::Update(_float fTimeDelta)
 	if (name != "")
 		m_pAnimator->Change_Animation(name);
 
-	State_Move();
 	m_pAnimator->Update(fTimeDelta);
  	m_pStateMachine->Update_Machine(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
@@ -218,13 +213,13 @@ string CBoss_Teacher::Model_Animation(const vector<string>& pNames)
 }
 
 
-void CBoss_Teacher::Change_Animation(TEACHER_ANIME eAnime, _bool bLoop)
+void CBoss_Teacher::Change_Animation(TEACHER_ANIME eAnime, _bool bLoop, _bool bForce)
 {
 	if (m_bOnlyActionState)
 		return;
 
 	m_bFinished = bLoop;
-	m_pAnimator->Change_Animation_Enum(ETOUI(eAnime), bLoop);
+	m_pAnimator->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
 	m_eAnimeState = eAnime;
 }
 unique_ptr<CBoss_Teacher> CBoss_Teacher::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

@@ -20,14 +20,12 @@ void CFSM_Jump::Enter_State()
 
 	Player->Change_Animation(PLAYER_ANIME::JUMP, false);
 
-	m_bJump = true;
-	m_bFalling = false;
-	m_bReFinished = false;
- 	m_fJumpTick = 0.f;
-	m_fDropTime = 0.f;
-	m_fMaxHeight = 15.f;
+	m_fMaxHeight = 25.f;
 	m_fJumpCnt = 0.f;
-	m_fJumpSpeed = 50.f;
+	m_fJumpSpeed =30.f;
+	m_LastHeight = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+	m_fCurrentHeight = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+	m_eAction = FSM_ACTION::ACTION;
 }
 
 void CFSM_Jump::Update_State(_float fTimeDelta)
@@ -35,66 +33,79 @@ void CFSM_Jump::Update_State(_float fTimeDelta)
 
 	auto Player = m_pPlayer.lock();
 	auto pTransform = Player->Get_Transform().lock();
-	auto Machine = m_pMachine.lock();
 	if (NULL_TRUE(Player)) return;
-	if (NULL_TRUE(Machine)) return;
 	if (NULL_TRUE(pTransform)) return;
 
 	MOVE eMove = Player->Get_State();
 
-	_float4 vPos{};
-	XMStoreFloat4(&vPos, pTransform->Get_State(STATE::POS));
-	if (!m_bJump && vPos.y <= 6.f)
+	switch (m_eAction)
 	{
-
-		if (!m_bReFinished)
-		{
-			Player->Change_Animation(PLAYER_ANIME::LAND);
-			m_bReFinished = true;
-
-		}
-		if (Player->Get_Finished())
-		{
-			auto& PlayerState = Player->Get_AnimeState();
-			PlayerState.bFalling = false;
-			PlayerState.bJump = false;
-			Machine->Change_State(FSM::IDLE);
-			return;
-		}
-		m_bFalling = false;
-		return;
+	case FSM_ACTION::IDLE:
+		break;
+	case FSM_ACTION::ACTION:
+		Action_Jump(Player, pTransform,fTimeDelta);
+		break;
+	case FSM_ACTION::RETURN:
+		Action_Return(Player, pTransform,fTimeDelta);
+		break;
+	case FSM_ACTION::END:
+		Action_End(Player, pTransform);
+		break;
 	}
 
-	if (!m_bJump)
-	{
-		m_fDropTime += 4.8f * fTimeDelta;
-		vPos.y -= m_fDropTime;
-	}
-
-	
-
-	if(m_bJump)
-	{
-		m_fJumpTick += m_fJumpSpeed * fTimeDelta;
-
-		vPos.y += m_fJumpTick * fTimeDelta;
-
-		if (vPos.y >= m_fMaxHeight)
-		{
-			Player->Change_Animation(PLAYER_ANIME::FALLING);
-			m_bJump = false;
-		}
-			
-	}
-
-	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), vPos.y));
 	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
-	Move(fTimeDelta, eMove, pTransform, pNavi);
-
+	Move(fTimeDelta,  pTransform, pNavi);
 }
 
 void CFSM_Jump::Exit_State()
 {
+	auto Player = m_pPlayer.lock();
+	Player->Set_Flag(ETOUI(PLAYER_FLAG::JUMP), FLAGVALUE::DISABLE);
+}
+
+void CFSM_Jump::Action_Jump(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
+{
+	m_fJumpSpeed += 4.8f * fTimeDelta;
+	m_fCurrentHeight += m_fJumpSpeed * fTimeDelta;
+	
+	if (m_fCurrentHeight >= m_fMaxHeight)
+	{
+		pPlayer->Change_Animation(PLAYER_ANIME::FALLING);
+		m_eAction = FSM_ACTION::RETURN;
+		m_fCurrentHeight = XMVectorGetY(pTransform->Get_State(STATE::POS));
+	}
+	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_fCurrentHeight));
+}
+
+void CFSM_Jump::Action_Return(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
+{
+
+	m_fJumpSpeed += -150.f* fTimeDelta;
+	m_fCurrentHeight += m_fJumpSpeed * fTimeDelta;
+
+	if (m_fCurrentHeight <= m_LastHeight)
+	{
+		pPlayer->Change_Animation(PLAYER_ANIME::LAND,false , true,false);
+		m_eAction = FSM_ACTION::END;
+	}
+	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_fCurrentHeight));
+
+}
+
+
+
+void CFSM_Jump::Action_End(shared_ptr<CPlayer> pPlayer ,shared_ptr<class CTransform>pTransform )
+{
+	auto Machine = m_pMachine.lock();
+	if (NULL_TRUE(Machine))
+		return;
+	if (pPlayer->Get_Finished())
+	{
+		auto& PlayerState = pPlayer->Get_AnimeState();
+		Machine->Change_State(FSM::IDLE);
+		return;
+	}else
+		pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_LastHeight));
 }
 
 unique_ptr<CFSM_Jump>		CFSM_Jump::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

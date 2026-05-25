@@ -23,6 +23,28 @@ void CFSM_Idle::Enter_State()
 
 void CFSM_Idle::Update_State(_float fTimeDelta)
 {
+	auto Player = m_pPlayer.lock();
+
+	if (NULL_TRUE(Player))return;
+	
+	
+	if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
+	{
+		m_pMachine.lock()->Change_State(FSM::CROUCH);
+		Player->Set_Flag(ETOUI(PLAYER_FLAG::CROUCH), FLAGVALUE::ENABLE);
+	}
+
+	if (CGameInstance::Get().Get_DIKeyState(DIK_SPACE) & 0x80)
+	{
+		m_pMachine.lock()->Change_State(FSM::JUMP);
+		Player->Set_Flag(ETOUI(PLAYER_FLAG::JUMP), FLAGVALUE::ENABLE);
+	}
+
+	if ((CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80))
+	{
+		m_pMachine.lock()->Change_State(FSM::MOVE);
+		Player->Set_Flag(ETOUI(PLAYER_FLAG::MOVE), FLAGVALUE::ENABLE);
+	}
 
 }
 

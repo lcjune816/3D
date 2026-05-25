@@ -37,6 +37,10 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
     memcpy(m_NaviInfo.vPoints, pPoints, sizeof(_float3) * ETOUI(EPOINT::END));
 
 
+    _float fDaot = ((m_NaviInfo.vPoints[1].x - m_NaviInfo.vPoints[0].x) * (m_NaviInfo.vPoints[2].z - m_NaviInfo.vPoints[0].z)) - ((m_NaviInfo.vPoints[1].z - m_NaviInfo.vPoints[0].z) * (m_NaviInfo.vPoints[2].x - m_NaviInfo.vPoints[0].x));
+    if (fDaot > 0)
+        swap(m_NaviInfo.vPoints[1], m_NaviInfo.vPoints[2]);
+
     _vector vLine{};
     vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]);
     m_NaviInfo.vNormals[ETOUI(LINE::AB)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
@@ -46,6 +50,7 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
     vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]);
     m_NaviInfo.vNormals[ETOUI(LINE::CA)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
 
+ 
     for (size_t i = 0; i < ETOUI(LINE::END); ++i)
     {
         XMStoreFloat3(&m_NaviInfo.vNormals[i],
@@ -60,8 +65,7 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
         XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)])));
     XMStoreFloat3(&m_NaviInfo.vCenter, (XMLoadFloat3(&m_NaviInfo.vPoints[0]) + XMLoadFloat3(&m_NaviInfo.vPoints[1])
         + XMLoadFloat3(&m_NaviInfo.vPoints[2])) / 3.f);
-    //for(int32_t i=0; i<3; ++i)
-    // m_NaviInfo.vPoints[i].y = 0f;
+\
     return S_OK;
 }
 HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
@@ -74,12 +78,12 @@ HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
     m_NaviInfo.iNeighborIndices[1] = -1;
     m_NaviInfo.iNeighborIndices[2] = -1;
    
-        //memcpy(&m_NaviInfo.iNeighborIndices[i], &Navi.iNeighborIndices[i], sizeof m_NaviInfo.iNeighborIndices);
-        //memcpy(&m_NaviInfo.vNormals[i],&Navi.vNormals[i],sizeof _float3);
-        memcpy(&m_NaviInfo.vPoints, &Navi.vPoints, sizeof _float3 * ETOUI(EPOINT::END));
-        m_NaviInfo.vPoints[0].y = 0;
-        m_NaviInfo.vPoints[1].y = 0;
-        m_NaviInfo.vPoints[2].y = 0;
+    //memcpy(&m_NaviInfo.iNeighborIndices[i], &Navi.iNeighborIndices[i], sizeof m_NaviInfo.iNeighborIndices);
+    //memcpy(&m_NaviInfo.vNormals[i],&Navi.vNormals[i],sizeof _float3);
+    memcpy(&m_NaviInfo.vPoints, &Navi.vPoints, sizeof _float3 * ETOUI(EPOINT::END));
+    m_NaviInfo.vPoints[0].y = 0;
+    m_NaviInfo.vPoints[1].y = 0;
+    m_NaviInfo.vPoints[2].y = 0;
 
      Ready_New(iIndex, &m_NaviInfo.vPoints[0]);
     m_eEvent = eEvent;
@@ -158,7 +162,7 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
     }
     return false;
 }
-_bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex)
+_bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex,_float3* vNormal)
 {
 
     for (size_t i = 0; i < ETOUI(LINE::END); ++i)
@@ -166,9 +170,10 @@ _bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex)
 
         _vector     vDir = XMVector3Normalize(vResultPos - XMLoadFloat3(&m_NaviInfo.vPoints[i]));
         _float fDot = XMVectorGetX(XMVector3Dot(vDir, XMLoadFloat3(&m_NaviInfo.vNormals[i])));
-        if (0 <  fDot)
+        if (0.001f <  fDot)
         {//¸¸¾à ¹þ¾î³´À»¶§ ³»°¡ °¡Áö°íÀÖ´Â ÀÌ¿ô ÀÎµ¦½º¸¦ Àü´Þ
-            
+            if(NULL_FALSE(vNormal))
+                *vNormal = m_NaviInfo.vNormals[i];
             *pNeighborIndex = m_NaviInfo.iNeighborIndices[i];
             return false;
         }
@@ -180,29 +185,30 @@ _bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex)
 _bool CCell::Compare_Points(_fvector vSourPoint, _fvector vDestPoint)
 {
     //³» AÁ¤Á¡ÀÌ¶û Src À§Ä¡¶û °°³Ä
-    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vSourPoint))
+    _vector Equal = { 0.001f,0.001f ,0.001f ,0 };
+    if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vSourPoint,Equal))
     {
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint, Equal))
             return true;
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint, Equal))
             return true;
 
     }
 
-    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vSourPoint))
+    if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vSourPoint, Equal))
     {
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vDestPoint, Equal))
             return true;
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint, Equal))
             return true;
 
     }
 
-    if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vSourPoint))
+    if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]), vSourPoint, Equal))
     {
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]), vDestPoint, Equal))
             return true;
-        if (true == XMVector3Equal(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint))
+        if (true == XMVector3NearEqual(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]), vDestPoint,Equal))
             return true;
 
     }

@@ -77,7 +77,7 @@ public:
 	void			 Set_Collision(_bool bCollision);
 	_bool				 Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform,_bool bBack = true, COLLISION_INFO* pstrCollision = nullptr);
 	class CGameObject*		AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj);
-	weak_ptr<CGameObject>	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses,  _bool bFinished);
+	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses,  vector<uint32_t>& iSizecnt,_bool bFinished, _bool bCheck = false);
 	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay);
 	void					Add_Check_Collision(COLLISION eCollisionValue, weak_ptr<CGameObject> pObj);
 	weak_ptr<CGameObject>	Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue);
@@ -125,12 +125,18 @@ public:
 	_bool	Check_First();
 	HRESULT    Save_Navi(const _wstring& FilePath, const _char* pName);
 	HRESULT    Load_Navi(const _wstring& FilePath, const _char* pName);
-	void Ready_Neightbors();
-	void Render_Navi();
-	void Undo_Cell();
+	void		 Ready_Neightbors();
+	void		 Render_Navi();
+	void		 Undo_Cell();
 
 	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
 #pragma endregion
+
+#pragma region
+	void				  Notify(const WORLD_EVENT& eEvent, const EVENT& event);
+	HRESULT				  Add_Observers(const WORLD_EVENT& eEvent, shared_ptr<class CObserver> pObserver);
+#pragma endregion
+
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);
 	HRESULT		ImportModel_Anime(const IMPORTMODEL_DESC& tagModel, vector<shared_ptr<class CVIBuffer>>& pPrototype, shared_ptr<class CAnimator>& pAnimator, weak_ptr<class CTransform> pTransform, _matrix Premat);
@@ -167,6 +173,7 @@ private:
 	unique_ptr<class CLight_Manager>			m_pLight_Manager = { nullptr };
 	unique_ptr<class CInstancing>				m_pInstancing = { nullptr };
 	unique_ptr<class CNavi_Manager>				m_pNavi_Manager = { nullptr };
+	unique_ptr<class CEvent_Manager>			m_pEvent_Manager = { nullptr };
 
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };

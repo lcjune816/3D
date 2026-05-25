@@ -67,6 +67,7 @@ private:
 	_float4x4						m_CopyWorld = {};
 	_bool							m_bCopy = {false};
 
+	int32_t							m_iModelSelect{0};
 	LEVEL							m_eLevel = {};
 
 	list<ComPtr<ID3D11ShaderResourceView>> m_GuiResources;

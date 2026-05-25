@@ -165,6 +165,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CFSM_Teacher_Move::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Spawn"),
+		CFSM_Teacher_Spawn::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	//////////////////////////聽粽天天天////////////////////////////////////////////////////
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube",
 		Engine::CCube::Create(m_pDevice, m_pContext))))
@@ -221,6 +225,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Triangle"),
 		CTriAngle::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Generator"),
+		CGenerator::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"),
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
@@ -234,9 +242,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
 	m_Objects.clear();
 	
-	Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
-	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
-	m_Objects.clear();
+	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
+	//m_Objects.clear();
 
 	m_isFinished = true;
 	return S_OK;

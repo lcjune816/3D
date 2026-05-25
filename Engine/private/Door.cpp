@@ -19,8 +19,17 @@ HRESULT CDoor::Initialize_Prototype()
 
 HRESULT CDoor::Initialize(void* pArg)
 {
+	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+
+	if (pDesc->eWroldEvent == WORLD_EVENT::DOOR)
+	{
+ 		CGameInstance::Get().Add_Observers(pDesc->eWroldEvent, SHARED_THIS(CDoor));
+
+	}
+
 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::DOOR;
+		
 
 	m_fEndAngle = 90.f;
 	m_fMaxFrameTime = 1.f;
@@ -57,6 +66,13 @@ HRESULT CDoor::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 		break;
 
 	case TRIGGER_STATE::PAUSE:
+
+		break;
+	case TRIGGER_STATE::WORLD:
+		if(Start_Rotation(fTimeDelta))
+			m_eState = TRIGGER_STATE::IDLE;
+		else
+			Action_Trigger();
 		break;
 	}
 	return S_OK;
@@ -79,13 +95,24 @@ void CDoor::Set_Trigger()
 		return;
 	}
 }
+void CDoor::OnNotify(const EVENT& event)
+{
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		return;
+
+	m_eState = TRIGGER_STATE::WORLD;
+	m_fEndAngle = 140.f;
+	m_fMaxFrameTime = 1.f;
+	m_fRotation = { 0,1,0,0 };
+	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+}
 void CDoor::Action_Trigger()
 {
 	auto pObj = m_pParent.lock();
 	if (NULL_TRUE(pObj))
 		return;
 
-	pObj->Get_Transform().lock()->Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
+	pObj->Get_Transform().lock()->Rotation_Origin(XMLoadFloat4(&m_fRotation), m_fAngle);
 }
 
 unique_ptr<CDoor>CDoor::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
