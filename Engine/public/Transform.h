@@ -57,10 +57,12 @@ public:
 	void MoveToAstar(shared_ptr<class CNavigation> pNavi, const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, const _float& fTimeDelta);
 	void Rotation(_float fAngleX, _float fAngleY, _float fAngleZ);
 	void Rotation(_fvector vAxis, _float fAngle);
-	
+	void Rotation_Origin(_fvector vAxis, _float fAngle);
+
 	void Turn(_fvector vAxis, _float fTimeDelta);
 	
 	void LookAt(_fvector vAt);
+	_bool Chase_NaviTarget(const _float& fTimeDelta, uint32_t iCellIndex, shared_ptr<CNavigation> pNavi);
 	void Chase_Target(const _float& fTimeDelta);
 	void Velocity_Speed(_float fSpeed) { m_fSpeedPerSec = m_fOriginSpeed + fSpeed; }
 private:
@@ -72,7 +74,7 @@ private:
 	_float3							m_fMin = {};
 	_float3							m_fMax = {};
 
-
+	_float4x4						m_OriginMatrix = {};
 	_float4x4						m_WorldMatrix = {};
 public:
     static shared_ptr<CTransform> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

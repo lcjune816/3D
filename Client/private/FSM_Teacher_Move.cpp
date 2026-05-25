@@ -18,6 +18,7 @@ HRESULT CFSM_Teacher_Move::Initialize(void* pArg)
 }
 void CFSM_Teacher_Move::Enter_State()
 {
+	m_eAction = FSM_ACTION::RETURN;
 }
 
 void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
@@ -28,34 +29,56 @@ void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 	if (NULL_TRUE(Boss)) return;
 	if (NULL_TRUE(pTransform)) return;
 
-	MOVE eMove = Boss->Get_State();
-	_bool bMove = Boss->Get_AnimeState().bMove;
-
-	if (!bMove)
+	Action_Change(Boss, pTransform);
+	switch(m_eAction)
 	{
-		auto machine = m_pMachine.lock();
-		if (NULL_TRUE(machine)) return;
-		machine->Change_State(FSM::IDLE);
-		return;
+	case FSM_ACTION::IDLE:
+		break;
+
+	case FSM_ACTION::ACTION:
+		Action_Chase(Boss,pTransform,fTimeDelta);
+		break;
+
+	case FSM_ACTION::RETURN:
+		if (Boss->Get_Finished())
+			m_eAction = FSM_ACTION::ACTION;
+		break;
 	}
 
-	if (bMove)
-	{
-		auto pNavi = static_pointer_cast<CNavigation>(Boss->Find_Component(L"Com_Navigation"));
-		pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player",fTimeDelta);
 
-		if (Boss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
-			Boss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
-
-	}
-
-	
-	
 }
 
 void CFSM_Teacher_Move::Exit_State()
 {
 
+}
+
+void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform)
+{
+	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject", L"Layer_Player", "Player", pTransform, XMVectorSet(0.f, 5.f, 0.f, 1.f)))
+	{
+
+		pBoss->GetAnimator()->Stop_Animation(true);
+		m_eAction = FSM_ACTION::IDLE;
+	}
+	else
+	{
+		pBoss->GetAnimator()->Stop_Animation(false);
+		m_eAction = FSM_ACTION::ACTION;
+	}
+
+}
+void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta)
+{
+	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
+	pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
+
+	if (pBoss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
+		pBoss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
+}
+
+void CFSM_Teacher_Move::Return_StopMove()
+{
 }
 
 unique_ptr<CFSM_Teacher_Move>		CFSM_Teacher_Move::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

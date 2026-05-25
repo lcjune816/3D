@@ -124,6 +124,61 @@ _float CBone::Get_ScaleFactor(_float lastTimeStamp, _float nextTimeStamp, _float
 	return scaleFactor;
 }
 
+_vector CBone::Blend_Pos(const _float& fTimeDelta)
+{
+	if (1 == m_iNumPosition)
+	{
+		return XMLoadFloat3(&m_pBoneAnimation.vecPos[0].fPos);
+
+	}
+	uint32_t p0Index = Get_PositionIndex(fTimeDelta);
+	uint32_t p1Index = p0Index + 1;
+	_float	scaleFactor = Get_ScaleFactor(m_pBoneAnimation.vecPos[p0Index].fTimeStamp,
+		m_pBoneAnimation.vecPos[p1Index].fTimeStamp, fTimeDelta);
+
+	return XMVectorLerp(XMLoadFloat3(&m_pBoneAnimation.vecPos[p0Index].fPos),
+		XMLoadFloat3(&m_pBoneAnimation.vecPos[p1Index].fPos), scaleFactor);
+}
+_vector CBone::Blend_Rot(const _float& fTimeDelta)
+{
+	if (1 == m_iNumRotation)
+	{
+		return XMQuaternionNormalize(XMLoadFloat4(&m_pBoneAnimation.vecRot[0].orientation));
+	}
+
+	uint32_t p0Index = Get_RotationIndex(fTimeDelta);
+	uint32_t p1Index = p0Index + 1;
+
+	_float fScaleFactor = Get_ScaleFactor(m_pBoneAnimation.vecRot[p0Index].fTimeStamp,
+		m_pBoneAnimation.vecRot[p1Index].fTimeStamp, fTimeDelta);
+
+	return  XMQuaternionSlerp(XMLoadFloat4(&m_pBoneAnimation.vecRot[p0Index].orientation),
+		XMLoadFloat4(&m_pBoneAnimation.vecRot[p1Index].orientation), fScaleFactor);
+}
+_vector CBone::Blend_Scale(const _float& fTimeDelta)
+{
+	if (1 == m_iNumScale)
+	{
+		return XMLoadFloat3(&m_pBoneAnimation.vecScale[0].fScale);
+	}
+
+	uint32_t p0Index = Get_ScaleIndex(fTimeDelta);
+	uint32_t p1Index = p0Index + 1;
+	_float fScaleFactor = Get_ScaleFactor(m_pBoneAnimation.vecScale[p0Index].fTimeStamp,
+		m_pBoneAnimation.vecScale[p1Index].fTimeStamp, fTimeDelta);
+
+	return  XMVectorLerp(XMLoadFloat3(&m_pBoneAnimation.vecScale[p0Index].fScale),
+		XMLoadFloat3(&m_pBoneAnimation.vecScale[p1Index].fScale), fScaleFactor);;
+}
+BONE_BLEND CBone::Bone_Update_Blend(_float fTimeDelta)
+{
+	BONE_BLEND blend{};
+	blend.vPos   = Blend_Pos(fTimeDelta);
+	blend.vRot   = Blend_Rot(fTimeDelta);
+	blend.vScale = Blend_Scale(fTimeDelta);
+
+	return blend;
+}
 XMMATRIX CBone::InterpolatePosition(_float fTimeDelta)
 {
 	if (1 == m_iNumPosition)
@@ -176,6 +231,8 @@ XMMATRIX CBone::InterpolateScale(_float fTimeDelta)
 						      	   XMLoadFloat3(&m_pBoneAnimation.vecScale[p1Index].fScale), fScaleFactor);
 	return  XMMatrixScalingFromVector(vScale);
 }
+
+
 
 XMMATRIX  CBone::Bone_Update(_float fTimeDelta)
 {

@@ -2,7 +2,7 @@
 #include "Player_FSM.h"
 
 NS_BEGIN(Client)
-class  CFSM_Move : public CPlayer_FSM
+class  CFSM_Move final : public CPlayer_FSM
 {
 private:
 	CFSM_Move(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

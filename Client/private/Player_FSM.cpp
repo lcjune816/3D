@@ -29,7 +29,7 @@ _bool CPlayer_FSM::Flag_Check(uint32_t iFlag)
 
 	return false;
 }
-
+ 
 void CPlayer_FSM::Set_Flag(uint32_t eState, FLAGVALUE eValue)
 {
 	switch (eValue)
@@ -72,26 +72,36 @@ void CPlayer_FSM::Timer(const _float& fTimeDelta)
 
 	if (m_fTimerTime > 30.f)
 	{
-		Hand_State_Chand(CHANGE_STATE::PULL);
+		Hand_State_Chand(CHANGE_STATE::END);
 	}
 
 }
 
-void CPlayer_FSM::Move(const _float& fTimeDelta, MOVE eMove, shared_ptr<CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation)
+_bool CPlayer_FSM::Move(const _float& fTimeDelta, shared_ptr<CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation)
 {
-	switch (eMove)
+	if (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80)
 	{
-	case MOVE::RIGHT:
 		pTransform->Go_Right(fTimeDelta, pNavigation);
-		break;
-	case MOVE::FORWARD:
-		pTransform->Go_Straight(fTimeDelta, pNavigation);
-		break;
-	case MOVE::LEFT:
-		pTransform->Go_Left(fTimeDelta, pNavigation);
-		break;
-	case MOVE::BACKWARD:
-		pTransform->Go_BackWard(fTimeDelta, pNavigation);
-		break;
+		return true;
 	}
+	if (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80)
+	{
+		pTransform->Go_Straight(fTimeDelta, pNavigation);
+		return true;
+	}
+		
+	if (CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80)
+	{
+		pTransform->Go_Left(fTimeDelta, pNavigation);
+		return true;
+	}
+		
+	if (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80)
+	{
+		pTransform->Go_BackWard(fTimeDelta, pNavigation);
+		return true;
+	}
+		
+
+	return false;
 }

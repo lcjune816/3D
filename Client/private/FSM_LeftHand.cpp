@@ -29,9 +29,8 @@ void CFSM_LeftHand::Enter_State()
 
 	if (NULL_TRUE(Player)) return;
 
-	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_L, true);
+	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_L, false);
 	Player->Get_AnimeState().bRHand = false;
-	Player->Set_ActionState(true);
 
 	m_fShootMaxTime = 30.f;
 	m_fShootTime = 0.f;
@@ -200,8 +199,8 @@ void CFSM_LeftHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPla
 	_float	LenCheck{};
 	list<_float> LenCheckList;
 	_bool bCollisionDeleteCheck = {};
-	uint32_t iCurrentCnt = 0;
-	uint32_t iNextCnt = 0;
+	int32_t iCurrentCnt = 0;
+	int32_t iNextCnt = 0;
 
 	ArmMatrix.CollisionIndex.clear(); //충돌지점 인덱스 초기화
 	if (Flag_Check(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE))) //오브젝트에 고정 될 경우만 기둥과 충돌한다는거임
@@ -219,46 +218,34 @@ void CFSM_LeftHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPla
 					++iCurrentCnt;
 			}
 			bCollisionDeleteCheck = m_EdgePoses.front().bCheck;
-
-		}
-		auto pObj = CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject",
-			XMLoadFloat3(&m_fLastHandPos), startPos, emdPos, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses, bFinished).lock();
-		if (!m_EdgePoses.empty())
-		{
-			for (size_t i = 0; i < m_EdgePoses.size(); ++i)
-			{
-				if (m_EdgePoses[i].bCheck) //이후에 충돌나서 담은거
-					++iNextCnt;
-			}
 		}
 
-		if (iCurrentCnt - iNextCnt >= 0)//혹시 삭제된거 있으면 삭제하라.
-		{
-			for (uint32_t i = 0; i < iCurrentCnt - iNextCnt; ++i)
-			{
-				if (bFinished)
-					m_iSizeCnt.erase(m_iSizeCnt.begin());
-				else
-					m_iSizeCnt.pop_back();
-			}
-		}
-
-		if (NULL_FALSE(pObj))
-		{
-			m_EdgePoses.back().bCheck = false;
-			if (static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerPtr()->Check_Trigger_Event(TRIGGER_EVENT::ELECTRICPOLE))
-			{
-				m_EdgePoses.back().bCheck = true;
-				CGameInstance::Get().Add_Check_Collision(COLLISION::TRIGGER, pObj);
-				m_iSizeCnt.push_back(m_EdgePoses.size() - 1);
+			if (CGameInstance::Get().AABB_CheckinLayer(ETOUI(LEVEL::END), L"Layer_TriggerObject",
+				XMLoadFloat3(&m_fLastHandPos), startPos, emdPos, pPlayer->Get_Transform().lock()->Get_World(), m_EdgePoses, m_iSizeCnt, bFinished))
 				iCheck = 1;
 
+			if (!m_EdgePoses.empty())
+			{
+				for (size_t i = 0; i < m_EdgePoses.size(); ++i)
+				{
+					if (m_EdgePoses[i].bCheck) //이후에 충돌나서 담은거
+						++iNextCnt;
+				}
 			}
-		}
+
+			if (iCurrentCnt - iNextCnt >= 0)//혹시 삭제된거 있으면 삭제하라.
+			{
+				for (uint32_t i = 0; i < iCurrentCnt - iNextCnt; ++i)
+				{
+					if (bFinished)
+						m_iSizeCnt.erase(m_iSizeCnt.begin());
+					else
+						m_iSizeCnt.pop_back();
+				}
+			}
 
 
-
-
+		
 	}
 
 	if (!m_EdgePoses.empty() && bFinished) //돌아올떄
@@ -405,15 +392,12 @@ void CFSM_LeftHand::Hand_End(CPlayer* Player)
 	{
 		m_EdgePoses.clear();
 		m_bReFinished = true;
-		Player->Set_ActionState(false);
 		Player->Change_Animation(PLAYER_ANIME::SHOOTIN_L, false);
-		Player->Set_ActionState(true);
 	}
 
 	if (m_bReFinished && (Player->Get_Finished() || CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80))
 	{
 		Player->Get_AnimeState().bRHand = false;
-		Player->Set_ActionState(false);
 
 		Player->Change_Animation(PLAYER_ANIME::IDLE, true);
 		auto pMachine = m_pMachine.lock();

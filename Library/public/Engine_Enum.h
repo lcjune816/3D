@@ -9,8 +9,7 @@ namespace Engine
 	enum class STATE { RIGHT, UP, LOOK, POS, END };
 	enum class MESH_TYPE { ANIME, NONANIME, TRIGGER ,DECAL,NAVI,END };
 	enum class D3DTS   {VIEW, PROJ, END};
-	enum class FSM     {IDLE, MOVE, JUMP,CROUCH, HAND,PULL_HAND, END};
-	enum class FSM_ACTION {HAND, END};
+	enum class FSM     {IDLE, MOVE, JUMP,CROUCH, HAND,PULL_HAND, SPAWN, END};
 	enum class FLAGVALUE { ENABLE, DISABLE, TOGGLE,RESET, END };
 	enum class EPOINT		{A,B,C,END};
 	enum class LINE  {AB, BC, CA ,END};
@@ -21,6 +20,7 @@ namespace Engine
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
 	enum class ENGINE_MOUSE{ HOLD, A_CLICK, B_CLICK };
 
+	enum class WORLD_EVENT { DOOR, GENERATOR, TEACHER_SPAWN , BATTERY,END};
 	enum class CELL_EVENT { FIRST, SECOND, THIRD, END };
 	//// Dynamic 컴포넌트 경우 매 프레임마다 갱신해야하는 컴포넌트 집단
 	//enum COMPONENTID { ID_DYNAMIC, ID_STATIC, ID_END };

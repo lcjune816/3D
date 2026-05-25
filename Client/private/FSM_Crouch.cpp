@@ -19,11 +19,16 @@ void CFSM_Crouch::Enter_State()
 	if (NULL_TRUE(Player))return;
 	
 	_bool bCrouch = Player->Get_AnimeState().bCrouch;
-
-	if(bCrouch)
-		Player->Change_Animation(PLAYER_ANIME::CROUCH_ENTER, false);
+	
+	Player->Change_Animation(PLAYER_ANIME::CROUCH_ENTER, false);
 		
-	m_bReFinished = true;
+	m_fTimerTick = 0.f;
+	m_fTimerTime = 0.3f;
+	m_fMaxCrouch = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+	m_fMinCrouch = 10.f;
+	m_bReFinished = false;
+	m_bhmm = false;
+	m_eAction = FSM_ACTION::ACTION;
 }
 
 void CFSM_Crouch::Update_State(_float fTimeDelta)
@@ -34,36 +39,69 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 	if (NULL_TRUE(Player)) return;
 	
 	MOVE eMove = Player->Get_State();
-	_bool bCrouch = Player->Get_AnimeState().bCrouch;
-	if (!bCrouch)
-	{
-		if (!m_bReFinished)
-		{
-			Player->Change_Animation(PLAYER_ANIME::CROUCH_EXIT, false);
-			m_bReFinished = true;
-		}
+	_bool bCrouch = false;
 
-		if (Player->Get_Finished())
+
+	m_fTimerTick += fTimeDelta;
+
+	_float t = min(1.f, m_fTimerTick / m_fTimerTime);
+	
+	_float Height{};
+	switch (m_eAction)
+	{
+	case FSM_ACTION::IDLE:
+			break;
+	case FSM_ACTION::ACTION:
+		if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
 		{
+			Height = m_fMaxCrouch + (m_fMinCrouch - m_fMaxCrouch) * t;
+			pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), Height));
+
+			if (Player->Get_Finished() && Player->Get_Animation_State() != PLAYER_ANIME::CROUCH_POSE)
+				Player->Change_Animation(PLAYER_ANIME::CROUCH_POSE, true);
+
+
+
+		}
+		else
+		{
+			m_fMinCrouch = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+			m_fTimerTick = 0.f;
+			m_eAction = FSM_ACTION::RETURN;
+			m_fTimerTime = 1.f;
+			Player->Change_Animation(PLAYER_ANIME::CROUCH_EXIT, false,false,false);
+
+		}
+		break;
+	case FSM_ACTION::RETURN:
+		Height = m_fMinCrouch + (m_fMaxCrouch - m_fMinCrouch) * t;
+		pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), Height));
+
+		if (Player->Get_Finished() && t >= 1.f)
+		{
+			m_eAction = FSM_ACTION::END;
+		}
+		break;
+
+	case FSM_ACTION::END:
+		
 			auto machine = m_pMachine.lock();
 			if (NULL_TRUE(machine)) return;
 			machine->Change_State(FSM::IDLE);
-			return;
-		}
-		return;
-	}
-	
-	if (Player->Get_Finished() && Player->Get_Animation_State() != PLAYER_ANIME::CROUCH_POSE)
-			Player->Change_Animation(PLAYER_ANIME::CROUCH_POSE, true);
 
+			return;
+		
+		break;
+	}
 
 	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
-	Move(fTimeDelta, eMove, pTransform, pNavi);
+	Move(fTimeDelta, pTransform, pNavi);
 }
 
 void CFSM_Crouch::Exit_State()
 {
-	
+	auto Player = m_pPlayer.lock();
+	Player->Set_Flag(ETOUI(PLAYER_FLAG::CROUCH), FLAGVALUE::DISABLE);
 }
 
 unique_ptr<CFSM_Crouch>		CFSM_Crouch::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

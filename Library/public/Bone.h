@@ -37,6 +37,10 @@ private:
 
 	_float						Get_ScaleFactor(_float lastTimeStamp, _float nextTimeStamp,_float fTimeDelta);
 	
+	_vector						Blend_Pos(const _float& fTimeDelta);
+	_vector						Blend_Rot(const _float& fTimeDelta);
+	_vector						Blend_Scale(const _float& fTimeDelta);
+
 	XMMATRIX					InterpolatePosition(_float fTimeDelta);
 	XMMATRIX					InterpolateRotation(_float fTimeDelta);
 	XMMATRIX					InterpolateScale(_float fTimeDelta);
@@ -47,6 +51,7 @@ public:
 
 
 public:
+	BONE_BLEND					Bone_Update_Blend(_float fTimeDelta);
 	XMMATRIX					Bone_Update(_float fTimeDelta);
 
 private:

@@ -28,7 +28,9 @@
 #include "Triangle.h"
 #include "LowerFlip_Flip.h"
 #include "Cell.h"
+#include "Observer.h"
 #include "Navigation.h"
+#include "Generator.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

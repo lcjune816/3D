@@ -18,8 +18,9 @@ public:
 	void			 Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm);
 
 private:
-	void			 Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta, class CPlayer_Arm* PlayerArm, class CPLayer_RightHand* pRHand, _bool bFinished = false);
-					 
+	void			 Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> pPlayer, shared_ptr<CPLayer_RightHand> pHand, shared_ptr<CPlayer_Arm> pArm);
+	void			 Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta, class CPlayer_Arm* PlayerArm, class CPLayer_RightHand* pRHand, _bool bFinished = false);				 
+	void			 Return_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> pPlayer, shared_ptr<CPLayer_RightHand> pHand, shared_ptr<CPlayer_Arm> pArm);
 	void			 Hand_End(CPlayer* Player);
 	void			 Hand_Collision_Check(shared_ptr<CPLayer_RightHand> pObj, shared_ptr<CPlayer_Arm> pArm ,const _float& fTimeDelta);
 	void			 Update_LastPos(class CTriggerObject* pTrigger, class CTransform* pTransform);
