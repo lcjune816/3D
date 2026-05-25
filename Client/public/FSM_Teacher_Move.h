@@ -18,6 +18,10 @@ public:
 	virtual void Exit_State()  override;
 
 
+private:
+	void Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform);
+	void Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+	void Return_StopMove();
 public:
 	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

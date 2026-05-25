@@ -14,6 +14,7 @@
 #include "Light_Manager.h"
 #include "Navi_Manager.h"
 #include "Instancing.h"
+#include "Event_Manager.h"
 CGameInstance::CGameInstance()
 {
 
@@ -90,6 +91,11 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	m_pNavi_Manager = CNavi_Manager::Create(pOutDevice,pOutContext);
 	if (NULL_TRUE(m_pNavi_Manager))
 		return E_FAIL;
+
+	m_pEvent_Manager = CEvent_Manager::Create();
+	if (NULL_TRUE(m_pEvent_Manager))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -362,9 +368,9 @@ _bool			CGameInstance::Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransf
 	return m_pCollision_Manager->Only_AABB_Collision(pSrcTransform, pDstTransform, bBack, pstrCollision);
 }
 
-weak_ptr<CGameObject>	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses, _bool bFinished)
+_bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses, vector<uint32_t>& iSizecnt, _bool bFinished ,_bool bCheck )
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses, bFinished);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses,iSizecnt, bFinished, bCheck);
 }
 CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj)
 {
@@ -383,6 +389,18 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 	return m_pCollision_Manager->Matrix_Check_Collision(Checck, eCollisionValue);
 }
 #pragma endregion
+
+#pragma  region
+void				  CGameInstance::Notify(const WORLD_EVENT& eEvent,const EVENT& event)
+{
+	m_pEvent_Manager->Notify(eEvent, event);
+}
+HRESULT				  CGameInstance::Add_Observers(const WORLD_EVENT& eEvent, shared_ptr<CObserver> pObserver)
+{
+	return m_pEvent_Manager->Add_Observers(eEvent, pObserver);
+}
+#pragma endregion
+
 #pragma region NAVI_MANAGER
 void CGameInstance::Ready_Neightbors()
 {

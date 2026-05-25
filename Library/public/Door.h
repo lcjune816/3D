@@ -1,9 +1,9 @@
 #pragma once
 #include "Trigger.h"
-
+#include "Observer.h"
 NS_BEGIN(Engine)
 
-class ENGINE_DLL CDoor final : public CTrigger
+class ENGINE_DLL CDoor final : public CTrigger, public CObserver
 {
 protected:
 	CDoor(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -18,7 +18,7 @@ public:
 	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false) ;
 	virtual HRESULT Late_Interaction(_float fTimeDelta, _bool bOtherTrigger = false);
 	virtual void					Set_Trigger() override;
-
+	virtual void					 OnNotify(const EVENT& event) override;
 private:
 	void			Action_Trigger();
 private:

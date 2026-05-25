@@ -43,6 +43,7 @@ public:
 	CTransform*				Get_TransformPtr() { return m_pTransform.get(); }
 	const string			Get_PathName()  { return m_PathName; }
 
+	virtual void			Mesh_Change(vector<uint32_t> MeshList) {}
 	_bool					Get_Finished() { return m_bFinished; }
 	void					Set_Finisihed(_bool bFinishied) { m_bFinished = bFinishied; }
 	void					Set_CheckCopyLater(_bool bLayer) { m_bCopyLayerCheck = bLayer; }

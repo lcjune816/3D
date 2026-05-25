@@ -155,6 +155,7 @@
     <ClInclude Include="..\public\FSM_RightHand.h" />
     <ClInclude Include="..\public\FSM_Teacher_IDLE.h" />
     <ClInclude Include="..\public\FSM_Teacher_Move.h" />
+    <ClInclude Include="..\public\FSM_Teacher_Spawn.h" />
     <ClInclude Include="..\public\GuiObject.h" />
     <ClInclude Include="..\public\Level_GamePlay.h" />
     <ClInclude Include="..\public\Level_GasProduction.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="..\private\FSM_RightHand.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_IDLE.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_Move.cpp" />
+    <ClCompile Include="..\private\FSM_Teacher_Spawn.cpp" />
     <ClCompile Include="..\private\GuiObject.cpp" />
     <ClCompile Include="..\private\Level_GamePlay.cpp" />
     <ClCompile Include="..\private\Level_GasProduction.cpp" />

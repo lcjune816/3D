@@ -26,16 +26,7 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 
 	MOVE eMove = Player->Get_State();
 	_bool bRun = Player->Get_AnimeState().bRun;
-	_bool bMove = Player->Get_AnimeState().bMove;
-	
-	if (!bMove)
-	{
-		auto machine = m_pMachine.lock();
-		if (NULL_TRUE(machine)) return;
-		machine->Change_State(FSM::IDLE);
-		return;
-	}
-	
+
 	if (bRun)
 	{
 		if(Player->Get_Animation_State() != PLAYER_ANIME::RUN)
@@ -48,14 +39,29 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 	}
 	
 	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
-	Move(fTimeDelta, eMove, pTransform, pNavi);
-
-
+	if (!Move(fTimeDelta, pTransform, pNavi))
+	{
+		auto machine = m_pMachine.lock();
+		if (NULL_TRUE(machine)) return;
+		machine->Change_State(FSM::IDLE);
+		return;
+	}
+	if (CGameInstance::Get().Get_DIKeyState(DIK_SPACE) & 0x80)
+	{
+		m_pMachine.lock()->Change_State(FSM::JUMP);
+		Player->Set_Flag(ETOUI(PLAYER_FLAG::JUMP), FLAGVALUE::ENABLE);
+	}
+	if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
+	{
+		m_pMachine.lock()->Change_State(FSM::CROUCH);
+		Player->Set_Flag(ETOUI(PLAYER_FLAG::CROUCH), FLAGVALUE::ENABLE);
+	}
 }
 
 void CFSM_Move::Exit_State()
 {
-
+	auto Player = m_pPlayer.lock();
+	Player->Set_Flag(ETOUI(PLAYER_FLAG::MOVE), FLAGVALUE::DISABLE);
 }
 
 unique_ptr<CFSM_Move>		CFSM_Move::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

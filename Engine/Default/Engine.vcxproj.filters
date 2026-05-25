@@ -151,21 +151,6 @@
     <Filter Include="97.ShaderFiles">
       <UniqueIdentifier>{fb5b2ed1-fa8d-4a31-90e5-bbb4203c4fb6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric">
-      <UniqueIdentifier>{f9a68142-f5bc-43ce-96c0-6d0ff9461757}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric\Green">
-      <UniqueIdentifier>{6a65da39-a2a2-400c-940f-18c89e4fbdd0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric\Blue">
-      <UniqueIdentifier>{30c75205-db54-4d5a-8015-51c721d3e35e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pannel">
-      <UniqueIdentifier>{f599515a-e54b-4ffa-b759-d8984809b939}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="10.Trigger_Manager\Trigger\Electric\Pole">
-      <UniqueIdentifier>{08c08048-ec08-4ddd-aba6-133148ee4bcb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="10.Trigger_Manager\Trigger\RotationPuzzle">
       <UniqueIdentifier>{33b9c142-49da-4963-80fa-a460973c99e1}</UniqueIdentifier>
     </Filter>
@@ -174,6 +159,30 @@
     </Filter>
     <Filter Include="13.Instancing\14.Navigation\Navi">
       <UniqueIdentifier>{563afbc1-4464-4f4e-a610-56a07a329dfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="14.Event_Manager">
+      <UniqueIdentifier>{0871baff-cb82-4ccf-a677-49ed14737587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="14.Event_Manager\Observer">
+      <UniqueIdentifier>{d023a55c-80d5-4795-93fa-9c38dd5707a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Generator">
+      <UniqueIdentifier>{f91ce623-d752-4b23-99e0-d75bab3cbd85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Electric">
+      <UniqueIdentifier>{f9a68142-f5bc-43ce-96c0-6d0ff9461757}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Electric\Green">
+      <UniqueIdentifier>{6a65da39-a2a2-400c-940f-18c89e4fbdd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Electric\Blue">
+      <UniqueIdentifier>{30c75205-db54-4d5a-8015-51c721d3e35e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Electric\Pannel">
+      <UniqueIdentifier>{f599515a-e54b-4ffa-b759-d8984809b939}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Electric\Pole">
+      <UniqueIdentifier>{08c08048-ec08-4ddd-aba6-133148ee4bcb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -341,22 +350,22 @@
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClInclude>
     <ClInclude Include="..\public\GreenEletric.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
+      <Filter>10.Trigger_Manager\Electric\Green</Filter>
     </ClInclude>
     <ClInclude Include="..\public\ElectricPole.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pole</Filter>
     </ClInclude>
     <ClInclude Include="..\public\BlueElectric.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
+      <Filter>10.Trigger_Manager\Electric\Blue</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Triangle.h">
       <Filter>06.Component\VIBuffer\Rect</Filter>
     </ClInclude>
     <ClInclude Include="..\public\ElectricPannel.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pannel</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pannel</Filter>
     </ClInclude>
     <ClInclude Include="..\public\ElectricPoleHead.h">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pole</Filter>
     </ClInclude>
     <ClInclude Include="..\public\LowerFlip.h">
       <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
@@ -369,6 +378,15 @@
     </ClInclude>
     <ClInclude Include="..\public\Navigation.h">
       <Filter>13.Instancing\14.Navigation\Navi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Event_Manager.h">
+      <Filter>14.Event_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Observer.h">
+      <Filter>14.Event_Manager\Observer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Generator.h">
+      <Filter>10.Trigger_Manager\Trigger\Generator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -550,22 +568,22 @@
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClCompile>
     <ClCompile Include="..\private\GreenEletric.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Green</Filter>
+      <Filter>10.Trigger_Manager\Electric\Green</Filter>
     </ClCompile>
     <ClCompile Include="..\private\ElectricPole.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pole</Filter>
     </ClCompile>
     <ClCompile Include="..\private\BlueElectric.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Blue</Filter>
+      <Filter>10.Trigger_Manager\Electric\Blue</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Triangle.cpp">
       <Filter>06.Component\VIBuffer\Rect</Filter>
     </ClCompile>
     <ClCompile Include="..\private\ElectricPannel.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pannel</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pannel</Filter>
     </ClCompile>
     <ClCompile Include="..\private\ElectricPoleHead.cpp">
-      <Filter>10.Trigger_Manager\Trigger\Electric\Pole</Filter>
+      <Filter>10.Trigger_Manager\Electric\Pole</Filter>
     </ClCompile>
     <ClCompile Include="..\private\LowerFlip.cpp">
       <Filter>10.Trigger_Manager\Trigger\RotationPuzzle</Filter>
@@ -578,6 +596,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Navigation.cpp">
       <Filter>13.Instancing\14.Navigation\Navi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Event_Manager.cpp">
+      <Filter>14.Event_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Generator.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Generator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

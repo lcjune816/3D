@@ -123,68 +123,6 @@ void CPlayer::Default_Height()
 
 void CPlayer::State_Move()
 {
-	m_ePlayer.bMove = false;
-	m_ePlayer.bCrouch = false;
-
-	if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
-	{
-		m_ePlayer.bCrouch = true;
-	}
-	if (CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80)
-	{
-		m_eState = MOVE::LEFT;
-		m_ePlayer.bMove = true;
-	}
-	else if (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80)
-	{
-		m_eState = MOVE::RIGHT;
-		m_ePlayer.bMove = true;
-	}
-	else if (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80)
-	{
-		m_eState = MOVE::FORWARD;
-		m_ePlayer.bMove = true;
-	}
-	else if (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80)
-	{
-		m_eState = MOVE::BACKWARD;
-		m_ePlayer.bMove = true;
-	}
-	else
-	{
-		m_eState = MOVE::IDLE;
-	}
-		
-	if (CGameInstance::Get().Get_DIKeyState(DIK_SPACE) & 0x80 && !m_ePlayer.bJump)
-	{
-		m_eState = MOVE::JUMP;
-		m_ePlayer.bJump = true;
-	}
-
-	//////////////기본 동작/////////////////////
-	if (m_ePlayer.bJump )
-	{
-		m_pStateMachine->Change_State(FSM::JUMP);
-		return;
-	}
-
-	if (m_ePlayer.bCrouch)
-	{
-		m_pStateMachine->Change_State(FSM::CROUCH);
-		return;
-	}
-
-	if (m_ePlayer.bMove)
-	{
-		if (CGameInstance::Get().Get_DIKeyState(DIK_LSHIFT) & 0x80)
-		{
-			m_ePlayer.bRun = true;
-			m_pTransform->Velocity_Speed(10.f);
-		}
-		else
-			m_ePlayer.bRun = false;
-		m_pStateMachine->Change_State(FSM::MOVE);
-	}
 
 }
 void CPlayer::Hnad_State_Check()
@@ -217,6 +155,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
 	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
+
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
 }
@@ -226,6 +165,8 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 }
 void CPlayer::Update(_float fTimeDelta)
 {
+	if(CGameInstance::Get().Get_DIKeyState(DIK_T) & 0x80)
+		CGameInstance::Get().Notify(WORLD_EVENT::BATTERY, {});
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
@@ -238,19 +179,21 @@ void CPlayer::Update(_float fTimeDelta)
 	Turn(fTimeDelta);
 	State_Move();
 
- 	m_pAnimator->Update(fTimeDelta);
+  	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
-	if (!m_ePlayer.bJump)
+
+	uint32_t iFlag = ETOUI(PLAYER_FLAG::JUMP) | ETOUI(PLAYER_FLAG::CROUCH);
+	if (!Flag_Check(iFlag))
 	{
-		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 11.f));
+		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f));
 	}
 
-	m_bFinished = m_pAnimator->Animation_End();
 
 	m_pPlayerLHand->Update(fTimeDelta);
 	Hnad_State_Check();
 	m_pPlayerRHand->Update(fTimeDelta);
 
+	m_bFinished = m_pAnimator->Animation_End();
 
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));
 
@@ -399,6 +342,7 @@ void CPlayer::Set_Flag(uint32_t eState, FLAGVALUE eValue)
 
 	}
 }
+
 _bool CPlayer::Flag_Check(uint32_t iFlag)
 {
 	if (m_iStateFlag & iFlag)
@@ -429,14 +373,13 @@ void CPlayer::Timer(const _float& fTimeDelta)
 	}
 
 }
-void CPlayer::Change_Animation(PLAYER_ANIME eAnime, _bool bLoop)
+void CPlayer::Change_Animation(PLAYER_ANIME eAnime, _bool bLoop, _bool bForce, _bool Blend )
 {
-	if (m_bOnlyActionState)
-		return;
-
-	m_bFinished = bLoop;
-	m_pAnimator->Change_Animation_Enum(ETOUI(eAnime),bLoop);
-	m_eAnimeState = eAnime;
+	//if (m_bOnlyActionState)
+	//	return;
+	
+	if(m_pAnimator->Change_Animation_Enum(ETOUI(eAnime),bLoop, bForce, Blend))
+		m_eAnimeState = eAnime;
 }
 unique_ptr<CPlayer> CPlayer::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

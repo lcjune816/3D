@@ -24,6 +24,8 @@ HRESULT CTrigger::Initialize(void* pArg)
 	m_fEndAngle = pDesc->fFrameTickTime;
 	m_fMaxFrameTime  = pDesc->fMaxFrameTime;
 	m_fRotationArrow = pDesc->fArrrowRotation;
+
+
 	switch (pDesc->eRot)
 	{
 	case TRIGGER_ROT::X:

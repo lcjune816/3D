@@ -1,13 +1,13 @@
 #pragma once
 #include "Transform.h"
 NS_BEGIN(Engine)
-enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT, END};
+enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT,GENERATOR, END};
 enum class TRIGGER_FLAG
 {
-	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,PAUSE = 0x00000020,END = 0xffffffff
+	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,PAUSE = 0x00000020, WORLD_EVENT = 0x00000040, END = 0xffffffff
 };
 enum class TRIGGER_ROT{X,Y,Z};
-enum class TRIGGER_STATE{ IDLE, ACTION, RETURN, PAUSE};
+enum class TRIGGER_STATE{ IDLE, ACTION, RETURN, PAUSE, WORLD, END};
 class ENGINE_DLL CTrigger abstract : public CComponent
 {
 
@@ -16,6 +16,7 @@ typedef struct tagTriggerdesc
 {
 	_bool bTrigger;
 	TRIGGER_ROT eRot{TRIGGER_ROT::X};
+	WORLD_EVENT eWroldEvent{ WORLD_EVENT::END };
 	_float fMaxFrameTime{0.f};
 	_float fFrameTickTime{0.f};
 	_float fRotationArrow{0.f};
@@ -37,11 +38,11 @@ public:
 	virtual ~CTrigger();
 
 public:
-	virtual HRESULT Initialize_Prototype();
-	virtual HRESULT Initialize(void* pArg);
-	virtual HRESULT Pirority_Interaction( _float fTimeDelta, _bool bOtherTrigger = false);
-	virtual HRESULT Interaction(_float fTimeDelta, _bool bOtherTrigger = false) PURE;
-	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false)PURE;
+	virtual HRESULT					Initialize_Prototype();
+	virtual HRESULT					Initialize(void* pArg);
+	virtual HRESULT					Pirority_Interaction( _float fTimeDelta, _bool bOtherTrigger = false);
+	virtual HRESULT					Interaction(_float fTimeDelta, _bool bOtherTrigger = false) PURE;
+	virtual HRESULT					Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false)PURE;
 
 	void							Set_Parent(shared_ptr<class CGameObject> pObj);
 	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }

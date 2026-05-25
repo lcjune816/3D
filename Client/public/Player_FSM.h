@@ -30,12 +30,13 @@ public:
 	void					Timer(const _float& fTimeDelta);
 protected:
 	virtual void			Hand_State_Chand(CHANGE_STATE eChange) {};
-	void					Move(const _float& fTimeDelta,MOVE eMove,shared_ptr<class CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation);
+	_bool					Move(const _float& fTimeDelta, shared_ptr<class CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation);
 public:
 	void					Set_Player(weak_ptr<CPlayer> pPlayer) { m_pPlayer = pPlayer; }
 protected:
 
 	uint32_t							m_iStateFlag{ 0 };
+	FSM_ACTION							m_eAction;
 	weak_ptr<CPlayer>					m_pPlayer;
 	_float m_fShootMaxTime{}, m_fShootTime{}, m_fShootTimeTick{}, m_fSpeed{}, m_fBackShootTime{}, m_fBackShootTick{}, m_fTimerTick{}, m_fTimerTime{};
 

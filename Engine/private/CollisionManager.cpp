@@ -468,7 +468,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
-				if (Length < 0.1f || PlayerToObjectLength < 3.f)
+				if (Length <3.f || PlayerToObjectLength < 3.f)
 					return false;
 			}
 
@@ -484,7 +484,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 	return false;
 
 }
-weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<GRAB_ARM_EDGE>& EdgePoses, _bool bFinished)
+_bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix , vector<GRAB_ARM_EDGE>& EdgePoses, vector<uint32_t>& iSizecnt,_bool bFinished, _bool bCheck)
 {
 	_bool bEnd = false;
 	CLayer* pLayer = nullptr;
@@ -497,7 +497,7 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 	}
 
 	if (NULL_TRUE(pLayer))
-		return {};
+		return false;
 
 	if (bFinished)
 	{
@@ -514,11 +514,11 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 		return {};
 	}
 	uint32_t iCnt{};
-	_float offset = {15.f};
+	_float offset = {8.f};
 	if (bFinished)
 		offset = -1.f;
 	_float   MaxDist{ 0 };
-	if (!EdgePoses.empty())
+	if (!EdgePoses.empty() && !bCheck)
 	{
 		_float3 Edge{}, EdgeNormalRight{}, EdgeNormalLook{}, EdgeNormalUp{};
 			Edge = EdgePoses.back().fPos;
@@ -553,7 +553,7 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 			fEdgeDist = 0.f;
 			_vector rayLen = LocalStart - LocalEdge;
 
-			LocalEdge += OffsetDir * 1.2f;
+			LocalEdge += OffsetDir * 1.4f;
 			_vector LastEdgeDir{};
 			if (!bFinished)
 				LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge), 0.f);
@@ -579,25 +579,35 @@ weak_ptr<CGameObject> CCollisionManager::AABB_CheckinLayer(const uint32_t endLay
 		{
 			
 			EdgePoses.pop_back();
-			return {};
+			return false;
 			
 		}
 	
 	}
 	if (bFinished)
-		return {};
+		return false;
 
 	for (auto& pObj : pLayer->Get_ObjectList())
 	{
 		if (Only_AABB_Collision(pObj->Get_TransformPtr(), readStart, startmat, endMat, OriginMatrix, EdgePoses))
-				return pObj;
+		{
+			auto pTrigger = pObj->Find_Component(L"Trigger");
+			EdgePoses.back().bCheck = false;
+			if (static_pointer_cast<CTrigger>(pTrigger)->Check_Trigger_Event(TRIGGER_EVENT::ELECTRICPOLE))
+			{
+				EdgePoses.back().bCheck = true;
+				CGameInstance::Get().Add_Check_Collision(COLLISION::TRIGGER, pObj);
+				iSizecnt.push_back(EdgePoses.size() - 1);
+
+			}
+		}
 		
 			
 	}
 
 	
 	
-	return {};
+	return true;
 
 }
 

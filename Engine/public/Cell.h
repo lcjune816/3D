@@ -21,6 +21,7 @@ public:
 	{
 		memcpy(m_NaviInfo.iNeighborIndices, pNeighborIndices, sizeof(int32_t) * 3);
 	}
+	
 	_vector Get_CellPos(int32_t iPointIndex) { 
 		return XMLoadFloat3(&m_NaviInfo.vPoints[iPointIndex]); }
 
@@ -30,7 +31,7 @@ private:
 public:
 	_bool			CheckAstar(ENGINE_ASTAR& parentsNode,  list<ENGINE_ASTAR>& OpenList, list<ENGINE_ASTAR>& CloseList, vector<shared_ptr<CCell>>& CellList,_fvector vFinalPos, int32_t* iSrcIndex);
 
-	_bool			IsIn(_fvector vResultPos, int32_t* pNeighborIndex);
+	_bool			IsIn(_fvector vResultPos, int32_t* pNeighborIndex, _float3* vNormal);
 	_bool			Compare_Points(_fvector vSourPoint, _fvector vDestPoint);
 	_float			Compute_Height(_fvector vPos);
 	void			Set_Choice(_bool bCheck) { m_bChoice = bCheck; }

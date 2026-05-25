@@ -12,7 +12,7 @@ NS_BEGIN(Client)
 //grabpack shoot in 다시 들어왔을떄 out 나갈떄 두개로 분리됨
 // 
 enum class TEACHER_ANIME {
-	WALK,DEAD_SLOW,DEAD_FAST,OVERSHOOTWALK,OVERWAL,DOORKICK ,JUMPSCALE,SMASH, END
+	WALK,DEAD_SLOW,DEAD_FAST,OVERSHOOTWALK, OVERWAL, DOORKICK ,JUMPSCALE,SMASH, END
 };
 
 class CBoss_Teacher final : public CGameObject
@@ -43,7 +43,7 @@ public:
 	TEACHER_STATE&			Get_AnimeState() { return m_eBoss; }   //이걸로 fsm에서 bool값 조정하기
 	_float4x4*				 Get_OtherMatrixPtr() { return m_pOtherMatrix; }
 	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }
-	void					Change_Animation(TEACHER_ANIME eAnime, _bool bLoop = true);
+	void					Change_Animation(TEACHER_ANIME eAnime, _bool bLoop = true, _bool bForce =false);
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
 	CAnimator*				GetAnimator() { return m_pAnimator.get(); }
 private:
