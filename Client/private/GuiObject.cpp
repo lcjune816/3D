@@ -749,6 +749,7 @@ void CGuiObject::Select_Model()
 	static int32_t		iLayerMode(0);
 	static string		strTriggerName;
 	static int32_t		iOtherTriggerMode(1);
+	static WORLD_EVENT  eEvent{ WORLD_EVENT::END };
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
@@ -795,12 +796,16 @@ void CGuiObject::Select_Model()
 			{
 
 				ImGui::Text(u8"트리거 옵션");
-				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" };
+				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" 
+										, "OBJ_Generator"};
 				const char* Rotitems[] = { "X","Y","Z" };
+				const char* WorldEventItem[] = { "DOOR","GENERATOR","TEACHER_SPAWN" ,"BATTERY","END"};
+				static int item_WorldEvent = 0;
 				static int item_selected_idx = 0;
 				static int imte_rotselected_idx = 0;
 				const char* combo_preview_value = items[item_selected_idx];
 				const char* combo_preview_Rotvalue = Rotitems[imte_rotselected_idx];
+				const char* combo_preview_Eventvalue = WorldEventItem[item_WorldEvent];
 				if (ImGui::BeginCombo(u8"옵션", combo_preview_value, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
 				{
 					for (int i = 0; i < IM_COUNTOF(items); ++i)
@@ -814,7 +819,25 @@ void CGuiObject::Select_Model()
 						//선택된 아이템을 포커스하라
 					}
 					ImGui::EndCombo();
-				} ImGui::SameLine(200);
+				}
+				ImGui::SameLine(150);
+				if (ImGui::BeginCombo(u8"월드 이벤트", combo_preview_Eventvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
+				{
+					for (int i = 0; i < IM_COUNTOF(WorldEventItem); ++i)
+					{
+						const bool is_selected = (item_WorldEvent == i);
+						if (ImGui::Selectable(WorldEventItem[i], is_selected)) // 선택한 문자열
+							item_WorldEvent = i;
+
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+						//선택된 아이템을 포커스하라
+					}
+					ImGui::EndCombo();
+				}
+
+				eEvent = static_cast<WORLD_EVENT>(item_WorldEvent);
+				ImGui::SameLine(300);
 				if (ImGui::BeginCombo(u8"회전방향", combo_preview_Rotvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
 				{
 					for (int j = 0; j < IM_COUNTOF(Rotitems); ++j)
@@ -973,7 +996,8 @@ void CGuiObject::Select_Model()
 								break;
 							case MESH_TYPE::TRIGGER:
 								desc.strTriggerName = strTriggerName;
-								desc.bTrigger = iOtherTriggerMode;
+								desc.bTrigger       = iOtherTriggerMode;
+								desc.eWroldEvent = eEvent;
 								CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_Trigger",
 									ETOUI(m_eLevel), L"Layer_TriggerObject", &desc);
 								break;
@@ -1178,15 +1202,14 @@ void CGuiObject::Light_Setting()
 void CGuiObject::Connect_Model()
 {
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-	static int32_t iSelectModel = 0;
 	static int32_t iTargetModel = 0;
 	if (ImGui::BeginTabBar(u8"탭슛", tab_bar_flags))
 	{
 		if (ImGui::BeginTabItem(u8"모델"))
 		{
-			ImGui::RadioButton(u8"첫번째 모델 선택", &iSelectModel, 0);  ImGui::SameLine();
-			ImGui::RadioButton(u8"두번째 모델 선택", &iSelectModel, 1);
-			switch (iSelectModel)
+			ImGui::RadioButton(u8"첫번째 모델 선택", &m_iModelSelect, 0);  ImGui::SameLine();
+			ImGui::RadioButton(u8"두번째 모델 선택", &m_iModelSelect, 1);
+			switch (m_iModelSelect)
 			{
 			case 0:
 				if(NULL_TRUE(m_pConnetObjectFirst.lock()))

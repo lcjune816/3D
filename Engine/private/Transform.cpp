@@ -46,6 +46,7 @@ HRESULT CTransform::Initialize(void* Arg)
 
 	}
 	
+	m_OriginMatrix = m_WorldMatrix;
 	return S_OK;
 }
 void CTransform::Set_Matrix(_fmatrix matrix)
@@ -55,13 +56,26 @@ void CTransform::Set_Matrix(_fmatrix matrix)
 void CTransform::Go_Straight(_float fTimeDelta, shared_ptr<CNavigation> pNavigation)
 {
 	_vector		vPos = Get_State(STATE::POS);
+	_vector     vSlide = Get_State(STATE::POS);
 	_vector		vLook = Get_State(STATE::LOOK);
 
 		vPos += XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
+		_float3 fDir = {};
 	if (nullptr == pNavigation ||
-		true == pNavigation->InMove(vPos))
+		true == pNavigation->InMove(vPos, &fDir))
 		Set_State(STATE::POS, vPos);
+	else
+	{
+		//원래 가려했던 힘 P
+		_vector Move = XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
+		_vector vDir = XMLoadFloat3(&fDir);
+		//R = P + n(-P * n)    
+		_vector FinalLook = Move + vDir * (XMVectorGetX(XMVector3Dot(-Move, vDir)));
+
+		vSlide += XMVector3Normalize(FinalLook)  * m_fSpeedPerSec * fTimeDelta;
+		Set_State(STATE::POS, vSlide);
+	}
 }
 
 void CTransform::Go_BackWard(_float fTimeDelta, shared_ptr<CNavigation> pNavigation)
@@ -98,9 +112,7 @@ void CTransform::Go_Right(_float fTimeDelta, shared_ptr<class CNavigation> pNavi
 
 	vPos += XMVector3Normalize(vRight) * m_fSpeedPerSec * fTimeDelta;
 
-
-	if (nullptr == pNavigation ||
-		true == pNavigation->InMove(vPos))
+	if (nullptr == pNavigation || true == pNavigation->InMove(vPos))
 		Set_State(STATE::POS, vPos);
 }
 
@@ -177,14 +189,32 @@ void CTransform::Rotation(_fvector vAxis, _float fAngle)
 
 }
 
+void CTransform::Rotation_Origin(_fvector vAxis, _float fAngle)
+{
+
+	_matrix matOrigin = XMLoadFloat4x4(&m_OriginMatrix);
+	_float3 fScale = Get_Scaled();
+	
+	_vector vRight = XMVector3Normalize(matOrigin.r[0]) * fScale.x;
+	_vector vUp    = XMVector3Normalize(matOrigin.r[1]) * fScale.y;
+	_vector vLook  = XMVector3Normalize(matOrigin.r[2]) * fScale.z;
+
+	_matrix matRot = XMMatrixRotationAxis(vAxis, XMConvertToRadians(fAngle));
+
+	Set_State(STATE::RIGHT, XMVector3TransformNormal(vRight,matRot));
+	Set_State(STATE::UP,    XMVector3TransformNormal(vUp,matRot));
+	Set_State(STATE::LOOK,  XMVector3TransformNormal(vLook,matRot));
+
+}
+
 void CTransform::Turn(_fvector vAxis, _float fTimeDelta)
 {
 
 	_float3     vScaled = Get_Scaled();
 
 	_vector     vRight = Get_State(STATE::RIGHT);
-	_vector     vUp = Get_State(STATE::UP);
-	_vector     vLook = Get_State(STATE::LOOK);
+	_vector     vUp    = Get_State(STATE::UP);
+	_vector     vLook  = Get_State(STATE::LOOK);
 
 	_matrix     RotationMatrix = XMMatrixRotationAxis(vAxis, XMConvertToRadians(m_fRotationPerSec) * fTimeDelta);
 
@@ -209,6 +239,25 @@ void CTransform::LookAt(_fvector vAt)
 	Set_State(STATE::UP, XMVector3Normalize(vUp) * vScaled.y);
 	Set_State(STATE::LOOK, XMVector3Normalize(vLook) * vScaled.z);
 
+}
+
+_bool CTransform::Chase_NaviTarget(const _float& fTimeDelta, uint32_t iCellIndex, shared_ptr<CNavigation> pNavi)
+{
+	_vector vDestPos = pNavi->Find_CellPos(iCellIndex);
+	_vector vPos = Get_State(STATE::POS);
+	
+	_vector vLook = XMVector3Normalize(vDestPos - vPos);
+
+	_float  fLength = XMVectorGetX(XMVector3Length(vDestPos - vPos));
+
+	if (fLength < 3.f)
+		return true;
+	
+	vPos += vLook * fTimeDelta * m_fSpeedPerSec;
+
+	Set_State(STATE::POS, XMVectorSetW(vPos,1.f));
+
+	return false;
 }
 
 void CTransform::Chase_Target(const _float& fTimeDelta)

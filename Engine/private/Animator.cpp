@@ -24,6 +24,7 @@ HRESULT CAnimator::Initialize(void* pArg)
 	auto Desc = static_cast<ANIMATOR_DESC*>(pArg);
 
 	m_pCurrentAnimation = static_pointer_cast<CAnimation>(Desc->pCurretAnimation);
+	m_pPreAnimation    = static_pointer_cast<CAnimation>(Desc->pCurretAnimation);
 	m_iBoneCnt = Desc->iBoneCnt;
 	m_BoneList = Desc->m_BoneList;
 	m_PreTransform = Desc->PreTransform;
@@ -76,22 +77,84 @@ void CAnimator::Update(_float fTimeDelta)
 		return;
 
 	m_fDeltaTime = fTimeDelta;
-	
-	if (m_pCurrentAnimation)
+	if (m_bIsBlending)
 	{
-		m_fNoLoopTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
 		m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+		m_fNoLoopTime  += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+
+		_float fCurDuration = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+
 		if (!m_bLoop)
 		{
 			if (!m_bFinished && m_fNoLoopTime >= m_pCurrentAnimation->Get_Duration(m_iAnimationNumber))
 			{
-				m_bFinished = true; //한번
 				m_fCurrentTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
 			}
+			else if (m_bFinished)
+			{
+
+				m_fNoLoopTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+				m_fCurrentTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+
+			}
 		}
+		else
+		{
+			m_fCurrentTime = fmod(m_fCurrentTime, m_pCurrentAnimation->Get_Duration(m_iAnimationNumber));
+		}
+	
+		m_fBlendElapsed += fTimeDelta;
+		_float fBlendTime = max(0.f,min(1.f, m_fBlendElapsed / m_fBlendDuration));
+		
+		BlendingBoneAnimation(&m_pCurrentAnimation->Get_RootNode(), &m_pPreAnimation->Get_RootNode(), XMMatrixIdentity() * XMLoadFloat4x4(&m_PreTransform), fBlendTime);
+		if (fBlendTime >= 1.f)
+		{
+
+			m_iPreAnimation = UINT_MAX;
+		
+			//m_fPreCurrentTime = 0.f;
+			//m_fPreNoLoopTime = 0.f;
+			m_bIsBlending = false;
+
+
 			
-		m_fCurrentTime = fmod(m_fCurrentTime, m_pCurrentAnimation->Get_Duration(m_iAnimationNumber));
-		CalculateBoneAnimation(&m_pCurrentAnimation->Get_RootNode(), XMMatrixIdentity() *XMLoadFloat4x4(&m_PreTransform));
+			CalculateBoneAnimation(&m_pCurrentAnimation->Get_RootNode(), XMMatrixIdentity() * XMLoadFloat4x4(&m_PreTransform));
+		}
+	}
+	else
+	{
+		if (m_pCurrentAnimation)
+		{
+		
+			m_fNoLoopTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+			m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+			
+
+ 			if (!m_bLoop)
+			{
+				if (!m_bFinished && m_fNoLoopTime >= m_pCurrentAnimation->Get_Duration(m_iAnimationNumber))
+				{
+					m_bFinished = true; //한번
+					m_bForce = false;
+					m_fCurrentTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+				}
+				else if (m_bFinished)
+				{
+					
+					m_fNoLoopTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+					m_fCurrentTime = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
+					
+				}
+			}
+			else
+			{
+				m_fCurrentTime = fmod(m_fCurrentTime, m_pCurrentAnimation->Get_Duration(m_iAnimationNumber));
+
+			}
+			
+			
+			CalculateBoneAnimation(&m_pCurrentAnimation->Get_RootNode(), XMMatrixIdentity() * XMLoadFloat4x4(&m_PreTransform));
+		}
 	}
 
 }
@@ -143,19 +206,76 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 
 		XMStoreFloat4x4(&m_FinalBoneMatrices[index], offset * globalTransform);
 		m_beforeOffsetMatrix[index] = m_FinalBoneMatrices[index];
-		//m_beforeOffsetMatrix[i] = m_FinalBoneMatrices[index];
-		//XMStoreFloat4x4(&m_GlobalBoneMatrices[idex],globalTransform);
-		//m_GlobalBoneMap[index] = idex;
-		//
-		//_float4x4 insertMatrix;
-		//XMStoreFloat4x4(&insertMatrix, globalTransform);
-		//m_beforeOffsetMatrix[index] = insertMatrix;
-		
+
 	}
 	
 	for (uint32_t i = 0; i < node->iChildrenCount; ++i)
 		CalculateBoneAnimation(&node->vecChildern[i], globalTransform);
 
+}
+
+void CAnimator::BlendingBoneAnimation(const AssimpNodeData* Currentnode, const AssimpNodeData* PreNode, FXMMATRIX PreMatrix, const _float& fBlendTime)
+{
+	//JNT_R_Grabpack_Tube_0
+	if (nullptr == Currentnode || nullptr == PreNode)
+		return;
+	uint32_t Curindex = Currentnode->index;
+	CBone* CurBone = nullptr;
+	CBone* PreBone = nullptr;
+	if (Curindex != UINT32_MAX)
+		CurBone = m_pCurrentAnimation->Find_Bone(Curindex, m_iAnimationNumber);
+
+	const AssimpNodeData* pPreNode = Find_Node_By_Name(PreNode, Currentnode->index);
+
+	uint32_t Preindex = pPreNode->index;
+	if (Preindex != UINT32_MAX)
+		PreBone = m_pPreAnimation->Find_Bone(Preindex, m_iPreAnimation);
+	BONE_BLEND CurBoneBlend{};
+	BONE_BLEND PreBoneBlend{};
+
+	_matrix	  FinalLerpMatrix = XMLoadFloat4x4(&Currentnode->transformation);
+	if (CurBone)
+	{
+		CurBoneBlend = CurBone->Bone_Update_Blend(m_fCurrentTime);
+
+		FinalLerpMatrix = XMMatrixScalingFromVector(CurBoneBlend.vScale) * XMMatrixRotationQuaternion(CurBoneBlend.vRot) * XMMatrixTranslationFromVector(CurBoneBlend.vPos);
+	}
+		
+	if (PreBone)
+	{
+		PreBoneBlend = PreBone->Bone_Update_Blend(m_fPreCurrentTime);
+
+		FinalLerpMatrix = XMMatrixScalingFromVector(PreBoneBlend.vScale) * XMMatrixRotationQuaternion(PreBoneBlend.vRot) * XMMatrixTranslationFromVector(PreBoneBlend.vPos);
+	}
+	
+	if (CurBone && PreBone)
+	{
+		_vector vFinalLerpPos = XMVectorLerp(PreBoneBlend.vPos, CurBoneBlend.vPos, fBlendTime);
+		_vector vFinalLerpRot = XMQuaternionSlerp(PreBoneBlend.vRot, CurBoneBlend.vRot, fBlendTime);
+		_vector vFinalLerpScale = XMVectorLerp(PreBoneBlend.vScale, CurBoneBlend.vScale, fBlendTime);
+
+		
+		FinalLerpMatrix = XMMatrixScalingFromVector(vFinalLerpScale)* XMMatrixRotationQuaternion(vFinalLerpRot) * XMMatrixTranslationFromVector(vFinalLerpPos);
+	}
+	XMMATRIX globalTransform;
+
+	globalTransform =  FinalLerpMatrix * PreMatrix;
+
+
+	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();
+
+	if (Curindex < mesh.size())
+	{
+		uint32_t idex = mesh[Curindex].index;
+		_matrix offset = XMLoadFloat4x4(&mesh[Curindex].matBone);
+
+		XMStoreFloat4x4(&m_FinalBoneMatrices[Curindex], offset * globalTransform);
+		m_beforeOffsetMatrix[Curindex] = m_FinalBoneMatrices[Curindex];
+
+	}
+
+	for (uint32_t i = 0; i < Currentnode->iChildrenCount; ++i)
+		BlendingBoneAnimation(&Currentnode->vecChildern[i], PreNode, globalTransform,fBlendTime);
 }
 
 void CAnimator::CalculateFinalBoneMatrices()
@@ -174,6 +294,18 @@ void CAnimator::CalculateFinalBoneMatrices()
 
 
 }
+const AssimpNodeData* CAnimator::Find_Node_By_Name(const AssimpNodeData* pNode, const uint32_t& index)
+{
+	if (pNode == nullptr) return nullptr;
+	if (pNode->index == index) return pNode; // 프로젝트의 이름 변수명(szName 등)에 맞추세요
+
+	for (uint32_t i = 0; i < pNode->iChildrenCount; ++i)
+	{
+		auto pFound = Find_Node_By_Name(&pNode->vecChildern[i], index);
+		if (pFound) return pFound;
+	}
+	return nullptr;
+}
 void CAnimator::Change_Animation(const string& name)
 {
 	uint32_t i = 0;
@@ -181,32 +313,78 @@ void CAnimator::Change_Animation(const string& name)
 	{
 		if (name == iter)
 		{
-
-			if (m_iCurrentAnimation != m_iAnimationNumber)
+			if (m_iAnimationNumber != i)
 			{
-				m_iCurrentAnimation = i;
-				m_bBeforeAnime = true;
+				m_iPreAnimation = m_iAnimationNumber;
+
+				m_fPreCurrentTime = m_fCurrentTime;
+				m_fPreNoLoopTime = m_fNoLoopTime;
+
+				m_iAnimationNumber = i;
+
+				m_fCurrentTime = 0.f;
+				m_fNoLoopTime = 0.f;
+
+				m_fBlendElapsed = 0.f;
+
+				m_bIsBlending = true;
 			}
-			else m_bBeforeAnime = false;
-
-			m_iAnimationNumber = i;
-
-
 			return;
 		}
 			++i;
 	}
 }
 
-void CAnimator::Change_Animation_Enum(uint32_t iNumber, _bool bLoop)
+_bool CAnimator::Change_Animation_Enum(uint32_t iNumber, _bool bLoop,_bool bForce, _bool Blend)
 {
-	m_iAnimationNumber = iNumber;
+	if (m_bForce)
+		return false;
+
+
+	if (m_iAnimationNumber != iNumber)
+	{
+		m_iPreAnimation = m_iAnimationNumber;
+
+		m_fPreCurrentTime = m_fCurrentTime;
+
+		m_iAnimationNumber = iNumber;
+
+		m_fCurrentTime = 0.f;
+		m_fNoLoopTime = 0.f;
+
+		m_fBlendElapsed = 0.f;
+
+		m_bIsBlending = Blend;
+	}
+	else
+	{
+		if (!m_bLoop)
+		{
+
+			if (m_bFinished)
+			{
+			}
+			else
+			{
+				return true;
+			}
+		}
+		else
+		{
+			m_fCurrentTime = 0.f;
+			m_fNoLoopTime = 0.f;
+
+		}
+	}
+
+	if (bForce)
+		m_bForce = true;
+
 	m_bLoop = bLoop;
-	m_fNoLoopTime = 0.f;
-	m_fCurrentTime = 0.f;
 
+	m_bFinished = false;
 
-	m_bFinished = bLoop;
+	return true;
 }
 
 void CAnimator::Change_Final_BoneMatices(const uint32_t str, _float4x4 boneMatrix)

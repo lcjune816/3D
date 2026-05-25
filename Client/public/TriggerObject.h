@@ -32,6 +32,7 @@ private:
 		_float			fFrameTickTime{};
 		_float			fRotationArrow{};
 		_float			fArrrowRotation{};
+		WORLD_EVENT		eWorldEvent{WORLD_EVENT::END};
 	}TRIGGER_INFO;
 private:
 	CTriggerObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -56,7 +57,8 @@ public:
 	CTrigger*			Get_TriggerPtr() { return m_pTrigger.get(); }
 	void				Set_TargetIDNumber(uint32_t iTargetNumber) { m_TriggerInfo.iTargetObjectID = iTargetNumber; m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID); }
 	void				Set_Trigger(); 
-	
+
+	virtual void		Mesh_Change(vector<uint32_t> MeshList)override;
 private: 
 	HRESULT				Create_Component(void* pArg);
 

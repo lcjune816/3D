@@ -1,9 +1,9 @@
 #pragma once
 #include "Trigger.h"
-
+#include "Observer.h"
 NS_BEGIN(Engine)
 
-class ENGINE_DLL CBattery final : public CTrigger
+class ENGINE_DLL CBattery final : public CTrigger, public CObserver
 {
 protected:
 	CBattery(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -19,13 +19,16 @@ public:
 	virtual HRESULT Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger = false);
 	void    Attached();
 	void	Drop(const _float& fTimeDelta);
+	void	parabola(const _float& fTimeDelta);
 	virtual void					Set_Trigger() override;
-
+	virtual void					 OnNotify(const EVENT& event) override;
 private:
 	_bool			Action_Trigger();
 private:
 	_float						m_fRotationArrow = { 1.f };
-	_float						m_fDropTime = {};
+	_float						m_fDropTime = {0};
+	_float						m_fHeight{ 0 };
+	_float3						m_fVelocity = {};
 public:
 	static unique_ptr<CBattery>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

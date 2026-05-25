@@ -3,6 +3,7 @@
 
 
 NS_BEGIN(Engine)
+enum class FSM_ACTION{IDLE,ACTION,RETURN,END};
 class ENGINE_DLL CFSM_STATE  abstract : public CComponent
 {
 

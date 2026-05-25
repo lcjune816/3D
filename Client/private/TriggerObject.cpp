@@ -30,7 +30,8 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fArrrowRotation = m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime  = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime   = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
-	
+  	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent		= m_TriggerInfo.eWorldEvent    = desc->eWroldEvent;
+
 	if (FAILED(Create_Component(pArg)))
 		return E_FAIL;
 
@@ -80,7 +81,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 
 	if (m_TriggerInfo.iObjectID == 0)
 	{
-		//오브젝트 ID 안겹치게 하는건데 처음부터 순회해서 찾아서함
+		//오브젝트 ID 안겹치게 하는건데 처음부터 순회해서 찾아서함 비효울의 극
 		uint32_t iObjectCnt = 0;
 		while (true)
 		{
@@ -95,6 +96,8 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID);
 	m_pTrigger->Set_Parent(SHARED_THIS(CTriggerObject));
  //	CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
+
+	m_Components.emplace(L"Trigger", m_pTrigger);
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	return S_OK;
 }
@@ -288,7 +291,11 @@ HRESULT CTriggerObject::Render()
 	return S_OK;
 }
 
-
+void CTriggerObject::Mesh_Change(vector<uint32_t> MeshList)
+{
+	m_MeshNameList.clear();
+	m_MeshNameList = MeshList;
+}
 void CTriggerObject::Set_Trigger()
 {
 	m_pTrigger->Set_Trigger();
@@ -325,7 +332,7 @@ json CTriggerObject::Save_Data()
 	j["TriggerArrow"] = m_TriggerInfo.fArrrowRotation;
 	j["FrameTick"] = m_TriggerInfo.fFrameTickTime ;
 	j["FrameMaxTime"] = m_TriggerInfo.fMaxFrameTime;
-
+	//j["WorldEvent"] = static_cast<int32>t(m_TriggerInfo.eWorldEvent);
 	return j;
 }
 HRESULT CTriggerObject::Ready_Component()

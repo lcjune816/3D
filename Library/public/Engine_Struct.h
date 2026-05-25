@@ -21,7 +21,10 @@ namespace Engine
 		_float3 fPos;
 		_float3 fNormal[3];
 	}GRAB_ARM_EDGE;
-
+	typedef struct tagevent
+	{
+		void* pArg = nullptr;
+	}EVENT;
 	typedef struct strcollisioninfo
 	{
 		_float3 DstLocalPos;
@@ -32,6 +35,12 @@ namespace Engine
 		_float fDist;
 	}COLLISION_INFO;
 
+	typedef struct strblend
+	{
+		_vector vPos;
+		_vector vRot;
+		_vector vScale;
+	}BONE_BLEND;
 	typedef struct tagEngineCollisionDesc
 	{
 		_float2 fMouse;

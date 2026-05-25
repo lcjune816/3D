@@ -23,7 +23,12 @@ HRESULT CBattery::Initialize(void* pArg)
 {
 
 	m_eEventTrigger = TRIGGER_EVENT::BATTERY;
-	
+	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+	if (pDesc->eWroldEvent == WORLD_EVENT::BATTERY)
+	{
+		m_eState = TRIGGER_STATE::PAUSE;
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::BATTERY, SHARED_THIS(CBattery));
+	}
 	m_fRotationArrow = 0.25f;
 	return S_OK;
 }
@@ -51,6 +56,10 @@ HRESULT CBattery::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 
 	case TRIGGER_STATE::PAUSE:
 		break;
+	case TRIGGER_STATE::WORLD:
+		parabola(fTimeDelta);
+		break;
+
 	}
 
 
@@ -125,6 +134,29 @@ void CBattery::Drop(const _float& fTimeDelta)
 
 	pTransform->Set_State(STATE::POS, vPos);
 }
+void CBattery::parabola(const _float& fTimeDelta)
+{
+
+	auto pObj = m_pParent.lock();
+	auto pDstTransform = m_pDstTransform.lock();
+	if (NULL_TRUE(pObj))
+		return;
+	auto pTransform = pObj->Get_Transform().lock();
+	_vector vLook = XMVectorSetY(XMVector3Normalize(pTransform->Get_State(STATE::LOOK)),0.f);
+	m_fDropTime += fTimeDelta;
+	_float t = m_fDropTime / 0.5f;
+	
+
+	_vector FinalPos = pTransform->Get_State(STATE::POS) + vLook * 40.f * fTimeDelta;
+	_float Height = m_fHeight + 40 * t * (1 - t);
+	pTransform->Set_State(STATE::POS,XMVectorSetW(XMVectorSetY(FinalPos, Height),1.f));
+	_float fY = pTransform->Get_Min().y;
+	if (XMVectorGetY(FinalPos) < -fY)
+	{
+		m_fDropTime = 0.f;
+		m_eState = TRIGGER_STATE::IDLE;
+	}
+}
 void CBattery::Set_Trigger()
 {
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
@@ -133,6 +165,16 @@ void CBattery::Set_Trigger()
 		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 	}
 		
+}
+void CBattery::OnNotify(const EVENT& event)
+{
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(pObj))
+		return;
+	auto pTransform = pObj->Get_Transform().lock();
+	m_eState = TRIGGER_STATE::WORLD;
+	m_fHeight = XMVectorGetY(pTransform->Get_State(STATE::POS));
+
 }
 _bool CBattery::Action_Trigger()
 {

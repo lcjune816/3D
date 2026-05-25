@@ -28,7 +28,7 @@ public:
 	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName , const _char* tagName, weak_ptr<class CTransform> pSrcTransform, _fvector OffsetRay = {0,0,0,1});
 	void					RayCalculator(class CTransform* pSrcTrasnform, class CTransform* pDstTransform, _vector& SrcPos,  _vector& vCenter, _vector& Extern, _hvector offset);
 	CGameObject*			AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName,weak_ptr<CGameObject> pObj, _bool bBack = true);
-	weak_ptr<CGameObject>	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses,_bool bFinished = false);
+	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses, vector<uint32_t>& iSizecnt, _bool bFinished = false,  _bool bCheck = false);
 	
 	void					Add_Check_Collision(COLLISION eCollisionValue, weak_ptr<CGameObject> pObj)
 	{
