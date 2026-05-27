@@ -156,9 +156,9 @@ void CCamera::OneMouseMove(_float x, _float y,_float fDeltaTime)
 
     if (m_bMouseMoveCheck)
     {
-
-        _float dx = XMConvertToRadians( 10.f * fDeltaTime * static_cast<_float>(m_fLastMousePos.x - 1280.f / 2.f));
-        _float dy = XMConvertToRadians( 10.f * fDeltaTime * static_cast<_float>(m_fLastMousePos.y - 720.f/2.f  ));
+        _float2 ViewPort = CGameInstance::Get().Get_ViewportSize();
+        _float dx = XMConvertToRadians( 10.f * fDeltaTime * static_cast<_float>(m_fLastMousePos.x - ViewPort.x/ 2.f));
+        _float dy = XMConvertToRadians( 10.f * fDeltaTime * static_cast<_float>(m_fLastMousePos.y - ViewPort.y/2.f  ));
 
         Pitch(dy);
         RotationY(dx);

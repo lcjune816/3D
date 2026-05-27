@@ -79,9 +79,21 @@ void CAnimator::Update(_float fTimeDelta)
 	m_fDeltaTime = fTimeDelta;
 	if (m_bIsBlending)
 	{
-		m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
-		m_fNoLoopTime  += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+		if (m_bNoRoot)
+		{
+			m_fNoLoopTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta * m_fDoubleSpeed;
+			m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta * m_fDoubleSpeed;
 
+		}
+		else
+		{
+			m_fLerpTick += fTimeDelta;
+			_float t = min(1.f, m_fLerpTick / 2.2f);
+			m_fNoLoopTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t *fTimeDelta;
+			m_fCurrentTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t*fTimeDelta;
+		
+
+		}
 		_float fCurDuration = m_pCurrentAnimation->Get_Duration(m_iAnimationNumber);
 
 		if (!m_bLoop)
@@ -126,8 +138,19 @@ void CAnimator::Update(_float fTimeDelta)
 		if (m_pCurrentAnimation)
 		{
 		
-			m_fNoLoopTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
-			m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta;
+			if (m_bNoRoot)
+			{
+				m_fNoLoopTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta * m_fDoubleSpeed;
+				m_fCurrentTime += m_pCurrentAnimation->Get_Tick(m_iAnimationNumber) * fTimeDelta * m_fDoubleSpeed;
+
+			}
+			else
+			{
+				m_fLerpTick += fTimeDelta;
+				_float t = min(1.f,m_fLerpTick / 2.2f);
+				m_fNoLoopTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t;
+				m_fCurrentTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t;
+			}
 			
 
  			if (!m_bLoop)
@@ -176,11 +199,10 @@ void CAnimator::Bind_Resource_BoneMatrix(CShader* pShader, const _char* constNam
 void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans)
 {
 	//JNT_R_Grabpack_Tube_01
-	uint32_t index = node->index;
+	int32_t index = node->index;
 	CBone* Bone = nullptr;
 	if(index != -1)
 		Bone = m_pCurrentAnimation->Find_Bone(index,m_iAnimationNumber);
-
 	XMMATRIX nodeTransform = XMLoadFloat4x4(&node->transformation);
 	
 	if (Bone)
@@ -195,13 +217,15 @@ void CAnimator::CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX par
 	XMMATRIX globalTransform;
 	
 	globalTransform =  nodeTransform * parentsTrans ;
-	
+	if (index == -1 && !m_bNoRoot)
+		globalTransform.r[3] = XMVectorSet(0, 0, 0, 1);
+
 
 	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();
 
 	if (index < mesh.size())
 	{
-		uint32_t idex = mesh[index].index;
+		int32_t idex = mesh[index].index;
 		_matrix offset = XMLoadFloat4x4(&mesh[index].matBone);
 
 		XMStoreFloat4x4(&m_FinalBoneMatrices[index], offset * globalTransform);
@@ -261,6 +285,9 @@ void CAnimator::BlendingBoneAnimation(const AssimpNodeData* Currentnode, const A
 
 	globalTransform =  FinalLerpMatrix * PreMatrix;
 
+
+	if (Curindex == 0 && !m_bNoRoot)
+		globalTransform.r[3] = XMVectorSet(0, 0, 0, 1);
 
 	auto& mesh = m_pCurrentAnimation->Get_BoneInfo();
 

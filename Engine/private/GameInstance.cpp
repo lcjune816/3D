@@ -291,6 +291,10 @@ HRESULT CGameInstance::Change_Level(uint32_t iNewLevelIndex, unique_ptr<class CL
 {
 	return m_pLevel_Manager->Change_Level(iNewLevelIndex, std::move(pNewLevel));
 }
+const uint32_t              CGameInstance::Get_CurrentLevel()
+{
+	return m_pLevel_Manager->Get_CurrentLevel();
+}
 #pragma endregion
 #pragma region PROTOTYPE_MANAGER
 HRESULT CGameInstance::Add_Prototype(uint32_t iLevelIndex, const _wstring& strPrototypeTag, unique_ptr<CPrototype> pPrototype)

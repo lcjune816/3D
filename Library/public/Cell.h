@@ -28,6 +28,7 @@ public:
 private:
 	HRESULT Ready_New(int32_t iIndex, _float3* pPoints);
 	HRESULT Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex);
+	
 public:
 	_bool			CheckAstar(ENGINE_ASTAR& parentsNode,  list<ENGINE_ASTAR>& OpenList, list<ENGINE_ASTAR>& CloseList, vector<shared_ptr<CCell>>& CellList,_fvector vFinalPos, int32_t* iSrcIndex);
 
@@ -38,6 +39,8 @@ public:
 	json			Save_Data();
 	CELL_EVENT		Get_Event() { return m_eEvent; }
 	NAVI&			Get_NaviInfo() { return m_NaviInfo;}
+
+	_bool			Event_Check(CELL_EVENT eEvent);
 	void			Set_CellEvent(CELL_EVENT eEvent) {
 		m_eEvent = eEvent;}
 	

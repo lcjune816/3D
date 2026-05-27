@@ -169,6 +169,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CFSM_Teacher_Spawn::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Dead"),
+		CFSM_Teacher_Daed::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	//////////////////////////聽粽天天天////////////////////////////////////////////////////
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube",
 		Engine::CCube::Create(m_pDevice, m_pContext))))
@@ -242,9 +245,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
 	m_Objects.clear();
 	
-	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
-	//m_Objects.clear();
+	Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
+	m_Objects.clear();
 
 	m_isFinished = true;
 	return S_OK;
@@ -282,15 +285,15 @@ HRESULT CLoader::Loading_For_GasProduction()
 	
 	
 
-	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_WorldObject", m_Objects);
-	//m_Objects.clear();
+	Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_WorldObject", m_Objects);
+	m_Objects.clear();
 	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Trigger.json", L"Layer_TriggerObject", L"OBJ_Trigger", "GasZone_Trigger");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_TriggerObject", m_Objects);
 	//m_Objects.clear();
-	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Decal.json", L"Layer_Decal", L"OBJ_Decal", "GasZone_Decal");
-	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
-	//m_Objects.clear();
+	Load_Data(LEVEL::GASZONE, L"../../GasZone_Decal.json", L"Layer_Decal", L"OBJ_Decal", "GasZone_Decal");
+	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
+	m_Objects.clear();
 
 	m_isFinished = true;
 
@@ -323,7 +326,10 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 			desc.fArrrowRotation = iter["TriggerArrow"];
 			desc.fFrameTickTime =  iter["FrameTick"];
 			desc.fMaxFrameTime =   iter["FrameMaxTime"];
+
+			int32_t WorldEvent = iter["WorldEvent"];
 			int32_t Rot = iter["TriggerRot"];
+			desc.eWroldEvent = static_cast<WORLD_EVENT>(WorldEvent);
 			desc.eRot= static_cast<TRIGGER_ROT>(Rot);
 		}
 		m_Objects.push_back(static_pointer_cast<CGameObject>(CGameInstance::Get().Clone_Prototype(ETOUI(eLevel),strObjName,&desc)));

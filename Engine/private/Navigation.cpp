@@ -28,12 +28,12 @@ HRESULT CNavigation::Initialize(void* pArg)
 
     auto pDesc = static_cast<NAVIGATION_DESC*>(pArg);
 
+    m_eOwner = pDesc->eOwner;
     m_iCurretnCellindex = pDesc->iIndex;
 
     return S_OK;
 
 }
-
 HRESULT CNavigation::Ready_Neightbors()
 {
     for (auto& pSourCell : m_Cells)
@@ -61,7 +61,6 @@ HRESULT CNavigation::Ready_Neightbors()
 
     return S_OK;
 }
-
 void CNavigation::Make_NaviToTerrain()
 {
     _float offset = 10.f;
@@ -94,16 +93,20 @@ void CNavigation::Make_NaviToTerrain()
     }
 
 }
-
 _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
 {
     //더이상 갈수있는 노드가 없을경우
     if (-1 == m_iCurretnCellindex || m_Cells.empty())
         return false;
+    
+    if (m_iPreCellIndex != m_iCurretnCellindex)
+    {
+        Event_Check(m_Cells[m_iCurretnCellindex]->Get_Event());
+        m_iPreCellIndex = m_iCurretnCellindex;
+    }
 
+    _bool       bFinished{ false };
     int32_t     iNeighborIndex = { -1 };
-    int32_t     iCheckNext = { -1 };
-    int32_t     iCheckCurrent = { -1 };
     //인접한 노드가있고 해당 위치에 오브젝트가 위치할경우
     if (true == m_Cells[m_iCurretnCellindex]->IsIn(vResultPos, &iNeighborIndex, fDir))
     {
@@ -117,22 +120,13 @@ _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
             while (true)
             {
                 //진짜 그 위치에 있는지 재탐색
-                iCheckNext = iCheckCurrent;
-                iCheckCurrent = iNeighborIndex;
                 if (true == m_Cells[iNeighborIndex]->IsIn(vResultPos, &iNeighborIndex, fDir))
                 {
                     break;
                 }
-       
-                 
-
+                
                 if (-1 == iNeighborIndex)
                     return false;
-
-                //if ((-1 != iCheckNext )&& iCheckNext == iNeighborIndex)
-                //{
-                //    return true;
-                //}
             }
 
             m_iCurretnCellindex = iNeighborIndex;
@@ -324,19 +318,16 @@ void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
     memcpy(&Pos, fPos, sizeof _float3 * ETOUI(EPOINT::END));
 
 
-    _float fDot = ((Pos[1].x - Pos[0].x) * (Pos[2].z - Pos[0].z)) - ((Pos[1].z - Pos[0].z) * (Pos[2].x - Pos[0].x));
-    if (fDot > 0)
-        swap(Pos[1], Pos[2]);
-  // _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
-  // _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
-  //
-  // sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
-  //
-  //     _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-  //     _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-  //
-  //     return ALastAngle > BLastAngle;
-  //     });
+   _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
+   _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
+  
+   sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
+  
+       _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+       _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+  
+       return ALastAngle > BLastAngle;
+       });
 
    auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,Pos);
    
@@ -398,26 +389,28 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
        //eNavi.m_vPlane = { iter["Plane"][0],iter["Plane"][1],iter["Plane"][2],iter["Plane"][3]};
         eNavi.iIndex = iter["MyIndex"];
         int32_t iEvent = iter["Event"];
-           eEvent = static_cast<CELL_EVENT>(iEvent);
-
-
-           _float AngleX = (fPos[0].x + fPos[1].x + fPos[2].x) / 3.f;
-           //_float AngleZ = (fPos[0].z + fPos[1].z + fPos[2].z) / 3.f;
-           //
-           //sort(begin(fPos), end(fPos), [AngleX, AngleZ](_float3 a, _float3 b) {
-           //
-           //    _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-           //    _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-           //
-           //    return ALastAngle > BLastAngle;
-           //    });
-           auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
+          eEvent = static_cast<CELL_EVENT>(iEvent);
+          auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
         m_Cells.push_back(Cell);
     }
     file.close();
 
     MSG_BOX("로드 된듯?");
+    for (auto Cell = m_Cells.begin(); Cell != m_Cells.end();)
+    {
+        
+        _vector Near = { 0.001f, 0.001f, 0.001f, 0 };
 
+        if(XMVector3NearEqual(XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[0]), XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[1]), Near) ||
+            XMVector3NearEqual(XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[1]), XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[2]), Near)||
+            XMVector3NearEqual(XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[0]), XMLoadFloat3(&(*Cell)->Get_NaviInfo().vPoints[2]), Near))
+        {
+            Cell = m_Cells.erase(Cell);
+            continue;
+        }
+
+        ++Cell;
+    }
     Ready_Neightbors();
     return S_OK;
 }
@@ -448,6 +441,19 @@ void CNavigation::Dead_Check()
         ++iter;
     }
 }
+void CNavigation::Event_Check(CELL_EVENT eCellEvent)
+{
+    if (eCellEvent == CELL_EVENT::BOSSTP)
+    {
+        EVENT eEvent;
+        eEvent.eEvent = WORLD_EVENT::BOSS_TP;
+        eEvent.iIndex = m_iCurretnCellindex;
+        eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
+        CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP,eEvent);
+    }
+
+
+}
 _vector CNavigation::Find_CellPos(int32_t index)
 {
     for (size_t i = 0; i < m_Cells.size(); ++i)
@@ -457,6 +463,7 @@ _vector CNavigation::Find_CellPos(int32_t index)
     }
     return XMVectorSet(0, 0, 0, 1);
 }
+
 const _vector CNavigation::Get_CurrentCell_Info(int32_t* iDestIndex)
 {
     *iDestIndex = m_iCurretnCellindex;

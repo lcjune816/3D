@@ -80,6 +80,10 @@ void CGreenElectric::Set_Trigger()
 {
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER), FLAGVALUE::ENABLE);
 }
+void CGreenElectric::TriggerToTrigger()
+{
+	Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::OTHERTRIGGER),FLAGVALUE::ENABLE);
+}
 HRESULT CGreenElectric::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger )
 {//손에 전기 뭍은상태로 닿으면 문 열리게 바꿔야지
 

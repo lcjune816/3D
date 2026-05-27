@@ -88,6 +88,9 @@
     <Filter Include="03.Boss\Teacher\FSM_Teacher_Spawn">
       <UniqueIdentifier>{f1c6b921-0210-471d-9e97-fb0b1253be57}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Boss\Teacher\FSM_Teacher_Dead">
+      <UniqueIdentifier>{50904bbd-c986-4455-8c48-0d4974b473cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -204,6 +207,9 @@
     <ClInclude Include="..\public\FSM_Teacher_Spawn.h">
       <Filter>03.Boss\Teacher\FSM_Teacher_Spawn</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\FSM_Teacher_Dead.h">
+      <Filter>03.Boss\Teacher\FSM_Teacher_Dead</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -317,6 +323,9 @@
     </ClCompile>
     <ClCompile Include="..\private\FSM_Teacher_Spawn.cpp">
       <Filter>03.Boss\Teacher\FSM_Teacher_Spawn</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Teacher_Dead.cpp">
+      <Filter>03.Boss\Teacher\FSM_Teacher_Dead</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

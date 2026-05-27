@@ -19,11 +19,13 @@ public:
 	virtual HRESULT Late_Interaction(_float fTimeDelta,_bool bOtherTrigger = false);
 	virtual void					Set_Trigger() override;
 
+	const TRIGGER_ROT				 Get_Rotation_State() { return m_eRot; }
 public:
 	HRESULT			Action_Trigger(weak_ptr<class CTransform> pTransform);
 private:
 	_float						m_fRotationArrow = { 1.f };
 	weak_ptr<class CTransform>		m_pTransform = {};
+	TRIGGER_ROT						m_eRot = {};
 public:
 	static unique_ptr<CBatteryCase>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

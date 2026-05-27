@@ -1,5 +1,5 @@
 #include "Engine_Shader_Defines.hlsli"
-float4x4 g_World, g_View , g_Projection, g_Bone[256];
+float4x4 g_World, g_View , g_Projection, g_Bone[512];
 Texture2D g_Diffuse;
 sampler DefaultSampler = sampler_state
 {

@@ -74,7 +74,8 @@ void CTransform::Go_Straight(_float fTimeDelta, shared_ptr<CNavigation> pNavigat
 		_vector FinalLook = Move + vDir * (XMVectorGetX(XMVector3Dot(-Move, vDir)));
 
 		vSlide += XMVector3Normalize(FinalLook)  * m_fSpeedPerSec * fTimeDelta;
-		Set_State(STATE::POS, vSlide);
+		if(true == pNavigation->InMove(vSlide))
+			Set_State(STATE::POS, vSlide);
 	}
 }
 
@@ -255,7 +256,8 @@ _bool CTransform::Chase_NaviTarget(const _float& fTimeDelta, uint32_t iCellIndex
 	
 	vPos += vLook * fTimeDelta * m_fSpeedPerSec;
 
-	Set_State(STATE::POS, XMVectorSetW(vPos,1.f));
+	if(pNavi->InMove(vPos))
+		Set_State(STATE::POS, XMVectorSetW(vPos,1.f));
 
 	return false;
 }

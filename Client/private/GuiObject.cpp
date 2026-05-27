@@ -790,17 +790,16 @@ void CGuiObject::Select_Model()
 				ImGui::EndTabItem();
 				ImGui::EndTabBar();
 				return;
-			}
+			}//233 230
 			GAMEOBJECT_DESC desc{};
 			if (iModelButton == ETOUI(MESH_TYPE::TRIGGER))
 			{
-
 				ImGui::Text(u8"트리거 옵션");
 				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" 
 										, "OBJ_Generator"};
 				const char* Rotitems[] = { "X","Y","Z" };
-				const char* WorldEventItem[] = { "DOOR","GENERATOR","TEACHER_SPAWN" ,"BATTERY","END"};
-				static int item_WorldEvent = 0;
+				const char* WorldEventItem[] = { "DOOR","GENERATOR","TEACHER_SPAWN" ,"BATTERY","ROLLUP_DOOR","TEACHER_DEAD","BOSS_TP","END"};
+				static int item_WorldEvent = IM_COUNTOF(WorldEventItem) - 1;
 				static int item_selected_idx = 0;
 				static int imte_rotselected_idx = 0;
 				const char* combo_preview_value = items[item_selected_idx];
@@ -823,7 +822,7 @@ void CGuiObject::Select_Model()
 				ImGui::SameLine(150);
 				if (ImGui::BeginCombo(u8"월드 이벤트", combo_preview_Eventvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
 				{
-					for (int i = 0; i < IM_COUNTOF(WorldEventItem); ++i)
+					for (int i = IM_COUNTOF(WorldEventItem) - 1; i >= 0; --i)
 					{
 						const bool is_selected = (item_WorldEvent == i);
 						if (ImGui::Selectable(WorldEventItem[i], is_selected)) // 선택한 문자열
@@ -1658,8 +1657,9 @@ void CGuiObject::Navi_Creator()
 		_float4x4 Proj = {};
 		XMStoreFloat4x4(&Proj, CameProj);
 
-		_float rayX = (2.f  * tMouse.x / 1280.f - 1.f) / Proj(0, 0);
-		_float rayY = (-2.f * tMouse.y / 720.f + 1.f) / Proj(1, 1);
+		_float2 ViewPort = CGameInstance::Get().Get_ViewportSize();
+		_float rayX = (2.f  * tMouse.x / ViewPort.x - 1.f) / Proj(0, 0);
+		_float rayY = (-2.f * tMouse.y / ViewPort.y+ 1.f) / Proj(1, 1);
 
 		//뷰포트에서의 광선 정의9
 		_vector rayOrigin = XMVectorSet(0.f, 0.f, 0.f, 1.f);
@@ -1797,7 +1797,7 @@ void CGuiObject::Navi_Creator()
 						pName = "FIRST";
 					if (pObj->Get_Event() == CELL_EVENT::SECOND)
 						pName = "SECOND";
-					if (pObj->Get_Event() == CELL_EVENT::THIRD)
+					if (pObj->Get_Event() == CELL_EVENT::BOSSTP)
 						pName = "THIRD";
 					if (pObj->Get_Event() == CELL_EVENT::END)
 						pName = "END";

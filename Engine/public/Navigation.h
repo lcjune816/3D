@@ -3,11 +3,14 @@
 
 NS_BEGIN(Engine)
 
+enum class OWNER{PLAYER,BOSS,END};
 class ENGINE_DLL CNavigation final : public CComponent
 {
+
 public:
 	typedef struct strnavigationdesc
 	{
+		OWNER eOwner;
 		CELL_EVENT eEvent;
 		int32_t iIndex;
 	}NAVIGATION_DESC;
@@ -25,16 +28,18 @@ public:
 	void   Make_NaviToTerrain();
 	_bool  InMove(_fvector vResultPos, _float3* fDir = nullptr);
 	_vector SetUp_OnNavigation(_fvector vPos, _float offsetY);
-public:
-	_bool	AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring& LayerName, const _char* tagName,_fvector SrcPos);
+	_bool	AStartAlgorithm(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, _fvector SrcPos);
 	_vector	MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook);
+	void	Event_Check(CELL_EVENT eCellEvent);
+	void	Reset_Astar();
+	void   Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
+public:
 
-
+//GUI¿ë
 	_bool	Check_NeraPos(_float3* fPos);
 	_bool	Check_First() { if (m_Cells.empty())return true;		return false; }
 	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
 	void	Undo_Cell();
-	void	Reset_Astar();
 	void    Dead_Check();
 	_vector Find_CellPos(int32_t index);
 private:
@@ -52,11 +57,13 @@ private:
 private:
 
 	int32_t								m_iDestIndex = { -1 };
+	int32_t								m_iPreCellIndex;
 	int32_t								m_iCurretnCellindex = { -1 };
-	list<ENGINE_ASTAR>				m_AstarOpenList;
-	list<ENGINE_ASTAR>				m_AstarCloseList;
+	list<ENGINE_ASTAR>					m_AstarOpenList;
+	list<ENGINE_ASTAR>					m_AstarCloseList;
+	list<ENGINE_ASTAR>					m_MoveToList;
 
-	list<ENGINE_ASTAR>				m_MoveToList;
+	OWNER								m_eOwner;
 	vector<shared_ptr<class CCell>>		m_Cells;
 	
 public:

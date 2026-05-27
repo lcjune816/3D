@@ -41,6 +41,7 @@ public:
 
 #pragma region LEVEL_MANAGER
 	HRESULT Change_Level(uint32_t iNewLEvelIndex, unique_ptr<class CLevel> pNewLevel);
+	const uint32_t              Get_CurrentLevel();
 #pragma endregion
 
 

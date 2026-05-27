@@ -39,7 +39,9 @@ HRESULT CPlayer::Ready_Component()
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 27;
+	NaviDesc.iIndex = 233;
+	//27
+	//233
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 
@@ -154,7 +156,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(233),1.f));
 
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
@@ -165,8 +167,6 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 }
 void CPlayer::Update(_float fTimeDelta)
 {
-	if(CGameInstance::Get().Get_DIKeyState(DIK_T) & 0x80)
-		CGameInstance::Get().Notify(WORLD_EVENT::BATTERY, {});
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
@@ -188,11 +188,9 @@ void CPlayer::Update(_float fTimeDelta)
 		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f));
 	}
 
-
 	m_pPlayerLHand->Update(fTimeDelta);
 	Hnad_State_Check();
 	m_pPlayerRHand->Update(fTimeDelta);
-
 	m_bFinished = m_pAnimator->Animation_End();
 
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));

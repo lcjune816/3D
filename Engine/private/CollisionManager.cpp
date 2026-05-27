@@ -21,9 +21,10 @@ weak_ptr<CGameObject>  CCollisionManager::Check_Ray(int32_t iLayerLevelIndex, co
 	_float4x4 Proj = {};
 	 
 	XMStoreFloat4x4(&Proj, CameProj);
-	
-	_float rayX = (2.f *  tagCollision.fMouse.x / 1280.f - 1.f) / Proj(0, 0);
-	_float rayY = (-2.f * tagCollision.fMouse.y / 720.f  + 1.f) / Proj(1, 1);
+
+	_float2 ViewPort = CGameInstance::Get().Get_ViewportSize();
+	_float rayX = (2.f *  tagCollision.fMouse.x / ViewPort.x - 1.f) / Proj(0, 0);
+	_float rayY = (-2.f * tagCollision.fMouse.y / ViewPort.y+ 1.f) / Proj(1, 1);
 
 	//ºäÆ÷Æ®¿¡¼­ÀÇ ±¤¼± Á¤ÀÇ9
 	_vector rayOrigin = XMVectorSet(0.f, 0.f, 0.f, 1.f);

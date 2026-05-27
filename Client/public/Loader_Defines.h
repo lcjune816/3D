@@ -26,3 +26,4 @@
 #include "FSM_Teacher_IDLE.h"
 #include "FSM_Teacher_Move.h"
 #include "FSM_Teacher_Spawn.h"
+#include "FSM_Teacher_Dead.h"
