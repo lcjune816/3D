@@ -27,6 +27,7 @@
                 0.9999924302101135,
                 2.153770037693903e-05
             ],
+            "WorldEvent": 6,
             "fPos": [
                 555.4852905273438,
                 0.0,
@@ -37,9 +38,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                0.9999960064888,
-                0.00036114288377575576,
-                -1.1123716831207275e-05
+                0.9999350309371948,
+                -0.0034046543296426535,
+                -1.1153382729389705e-05
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -48,18 +49,19 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                -1.1205673217773438e-05,
-                -9.428422345081344e-06,
-                -0.999992311000824
+                -1.1184828508703504e-05,
+                -9.410899110662285e-06,
+                -0.9998814463615417
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
-                -0.00036113764508627355,
-                0.9999808669090271,
-                -9.424182280781679e-06
+                0.003404602874070406,
+                0.9999198913574219,
+                -9.449344361200929e-06
             ],
+            "WorldEvent": 6,
             "fPos": [
                 555.2271728515625,
                 0.0,
@@ -93,6 +95,7 @@
                 1.0,
                 0.0
             ],
+            "WorldEvent": 6,
             "fPos": [
                 428.3966369628906,
                 0.0,
@@ -126,6 +129,7 @@
                 0.9999960064888,
                 -1.1337476367879323e-13
             ],
+            "WorldEvent": 6,
             "fPos": [
                 706.037353515625,
                 0.0,
@@ -136,9 +140,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                0.9999951720237732,
-                6.8843032750010025e-06,
-                -9.553299605613574e-06
+                -0.0402403324842453,
+                6.8842750806652475e-06,
+                -0.9991811513900757
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -147,18 +151,19 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                -9.553342351864558e-06,
-                7.832908522686921e-06,
-                -0.9999938607215881
+                -0.9991794228553772,
+                7.832873052393552e-06,
+                0.04024025797843933
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
-                -6.884292815811932e-06,
+                8.103595973807387e-06,
                 0.9999936819076538,
-                7.832973096810747e-06
+                6.563589977304218e-06
             ],
+            "WorldEvent": 6,
             "fPos": [
                 586.99072265625,
                 0.0,
@@ -169,9 +174,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                4.164873189438367e-06,
+                0.5387753248214722,
                 0.0,
-                0.9999980926513672
+                0.8424695134162903
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -180,9 +185,9 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                0.9999980926513672,
+                0.8424695134162903,
                 0.0,
-                -4.164873189438367e-06
+                -0.5387753248214722
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
@@ -192,6 +197,7 @@
                 1.0,
                 0.0
             ],
+            "WorldEvent": 6,
             "fPos": [
                 608.2025146484375,
                 0.0,
@@ -225,9 +231,10 @@
                 1.0,
                 0.0
             ],
+            "WorldEvent": 6,
             "fPos": [
                 246.3199920654297,
-                71.53485870361328,
+                698.659912109375,
                 99.17831420898438
             ]
         },
@@ -258,6 +265,7 @@
                 1.0,
                 0.0
             ],
+            "WorldEvent": 6,
             "fPos": [
                 232.79132080078125,
                 115.74745178222656,
@@ -291,10 +299,657 @@
                 0.9999911189079285,
                 -7.556099717476172e-06
             ],
+            "WorldEvent": 6,
             "fPos": [
                 1111.071044921875,
                 0.20000000298023224,
                 957.2378540039063
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.0,
+                -3.639851684056339e-06,
+                -9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_B.bin",
+            "ObjectID": 10,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                -9.099629210140847e-07,
+                -1.6560650420438527e-12,
+                1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_BlueElectric",
+            "Up": [
+                -3.639838951130514e-06,
+                0.9999964833259583,
+                -1.6560591873521213e-12
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                542.33544921875,
+                36.36141586303711,
+                646.3915405273438
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 11,
+            "ObjectTargetID": 12,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                480.02191162109375,
+                12.002641677856445,
+                702.6699829101563
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 12,
+            "ObjectTargetID": 13,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                479.8551025390625,
+                -0.5376348495483398,
+                703.1326293945313
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_B.bin",
+            "ObjectID": 13,
+            "ObjectTargetID": 14,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPannel",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                409.6697998046875,
+                36.81764221191406,
+                664.5031127929688
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Door\\SM_Door_F_Grey.fbx",
+            "ObjectID": 16,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Door",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 0,
+            "fPos": [
+                392.40771484375,
+                0.0,
+                822.7960205078125
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                3.3121300840877055e-12,
+                1.8199258420281694e-06,
+                -1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\ElectricalBox\\ElectricalPanel_A.fbx",
+            "ObjectID": 15,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                -1.0,
+                1.8199258420281694e-06,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_GreenElectric",
+            "Up": [
+                1.8199258420281694e-06,
+                1.0,
+                1.8199258420281694e-06
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                734.4215698242188,
+                42.88117218017578,
+                192.8089599609375
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_A.bin",
+            "ObjectID": 17,
+            "ObjectTargetID": 22,
+            "OtherTriggerValue": false,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_GreenElectric",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                496.70001220703125,
+                29.988435745239258,
+                314.1559753417969
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                3.3121300840877055e-12,
+                1.8199258420281694e-06,
+                -1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUp_Door_A.fbx",
+            "ObjectID": 22,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -1.0,
+                1.8199258420281694e-06,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                1.8199258420281694e-06,
+                1.0,
+                1.8199258420281694e-06
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                524.0458374023438,
+                0.0,
+                334.3023986816406
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                1.0,
+                0.0,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Battery.bin",
+            "ObjectID": 23,
+            "ObjectTargetID": 25,
+            "OtherTriggerValue": false,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                -1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Battery",
+            "Up": [
+                0.0,
+                0.9999953508377075,
+                1.6560550673838659e-12
+            ],
+            "WorldEvent": 3,
+            "fPos": [
+                386.1937255859375,
+                23.760717391967773,
+                732.17431640625
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                0.699999988079071
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Battery.bin",
+            "ObjectID": 18,
+            "ObjectTargetID": 21,
+            "OtherTriggerValue": true,
+            "Right": [
+                0.699999988079071,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Battery",
+            "Up": [
+                0.0,
+                0.699999988079071,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                233.0718231201172,
+                10.834656715393066,
+                373.0183410644531
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                3.3121300840877055e-12,
+                1.8199258420281694e-06,
+                -1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_A.bin",
+            "ObjectID": 20,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -1.0,
+                1.8199258420281694e-06,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_GreenElectric",
+            "Up": [
+                1.8199258420281694e-06,
+                1.0,
+                1.8199258420281694e-06
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                854.2615356445313,
+                38.49677658081055,
+                510.6651306152344
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                1.0,
+                0.0,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Battery_Frame.bin",
+            "ObjectID": 21,
+            "ObjectTargetID": 20,
+            "OtherTriggerValue": false,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                -1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_BatteryCase",
+            "Up": [
+                0.0,
+                0.9999891519546509,
+                1.6560447674632273e-12
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                854.6378173828125,
+                14.75947380065918,
+                483.8447570800781
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.0,
+                -3.639851684056339e-06,
+                -9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUp_Door_A.fbx",
+            "ObjectID": 34,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -9.099629210140847e-07,
+                -1.6560650420438527e-12,
+                1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                -3.6398423617356457e-06,
+                0.9999974370002747,
+                -1.65606081365538e-12
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                766.6175537109375,
+                0.32421302795410156,
+                887.7166748046875
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                1.0,
+                0.0,
+                -9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Battery_Frame.bin",
+            "ObjectID": 25,
+            "ObjectTargetID": 34,
+            "OtherTriggerValue": true,
+            "Right": [
+                -9.099629210140847e-07,
+                -1.6560650420438527e-12,
+                -1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_BatteryCase",
+            "Up": [
+                0.0,
+                0.9999988675117493,
+                -1.6560631989001595e-12
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                766.2757568359375,
+                14.908822059631348,
+                807.8289184570313
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.5,
+                -5.459638032334624e-06,
+                1.3649444099428365e-06
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Generator\\SM_NormalGenerator_A.fbx",
+            "ObjectID": 14,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.3649444099428365e-06,
+                2.4840912746931787e-12,
+                1.5
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Generator",
+            "Up": [
+                -5.45962075193529e-06,
+                1.499995231628418,
+                2.4839694103689913e-12
+            ],
+            "WorldEvent": 1,
+            "fPos": [
+                380.9883117675781,
+                0.0,
+                722.333251953125
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_A.bin",
+            "ObjectID": 19,
+            "ObjectTargetID": 24,
+            "OtherTriggerValue": false,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_GreenElectric",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                651.20263671875,
+                30.417808532714844,
+                626.0913696289063
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                3.3121300840877055e-12,
+                -1.8199258420281694e-06,
+                -1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUp_Door_A.fbx",
+            "ObjectID": 24,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": false,
+            "Right": [
+                -1.0,
+                -1.8199258420281694e-06,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                -1.8199258420281694e-06,
+                1.0,
+                -1.8199258420281694e-06
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                676.3192138671875,
+                0.0,
+                646.8433227539063
+            ]
+        },
+        {
+            "FrameMaxTime": 1.0,
+            "FrameTick": 60.0,
+            "Look": [
+                0.0,
+                -0.8660253882408142,
+                -0.5000000596046448
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Switches_Levers\\SM_Switch_A_Lever.fbx",
+            "ObjectID": 29,
+            "ObjectTargetID": 27,
+            "OtherTriggerValue": true,
+            "Right": [
+                0.9999241232872009,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Lever",
+            "Up": [
+                0.0,
+                -0.5000000596046448,
+                0.8660253882408142
+            ],
+            "WorldEvent": 6,
+            "fPos": [
+                802.051513671875,
+                30.30474281311035,
+                1019.4424438476563
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.0,
+                -3.639846681835479e-06,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUpDoor_C_Red.fbx",
+            "ObjectID": 27,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                -3.639838951130514e-06,
+                0.9999978542327881,
+                1.6560591873521213e-12
+            ],
+            "WorldEvent": 4,
+            "fPos": [
+                815.83544921875,
+                42.48138427734375,
+                1042.7509765625
             ]
         }
     ]

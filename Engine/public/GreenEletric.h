@@ -20,8 +20,8 @@ public:
 	virtual HRESULT Late_Interaction( _float fTimeDelta, _bool bOtherTrigger = false);
 
 	virtual _bool					offsetMatrix(_float4x4* pMatrix)override;
-		virtual void				Set_Trigger() override;
-
+	virtual void				Set_Trigger() override;
+	virtual void				TriggerToTrigger() override;
 private:
 	void			Action_Trigger();
 private:

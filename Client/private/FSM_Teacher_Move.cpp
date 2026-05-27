@@ -14,11 +14,14 @@ CFSM_Teacher_Move::~CFSM_Teacher_Move()
 HRESULT CFSM_Teacher_Move::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::TEACHER_DEAD, SHARED_THIS(CFSM_Teacher_Move));
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Teacher_Move));
 	return S_OK;
 }
 void CFSM_Teacher_Move::Enter_State()
 {
 	m_eAction = FSM_ACTION::RETURN;
+
 }
 
 void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
@@ -43,6 +46,9 @@ void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 		if (Boss->Get_Finished())
 			m_eAction = FSM_ACTION::ACTION;
 		break;
+	case FSM_ACTION::EVENT:
+		Boss_Tp(Boss, pTransform, fTimeDelta);
+		break;
 	}
 
 
@@ -53,9 +59,24 @@ void CFSM_Teacher_Move::Exit_State()
 
 }
 
+void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
+{
+	auto pMachine = m_pMachine.lock();
+	if (NULL_TRUE(pMachine))
+		return;
+	
+	if (eEvent.eEvent == WORLD_EVENT::BOSS_TP)
+	{
+		m_fPos = eEvent.fPos;
+		m_iIndex = eEvent.iIndex;
+		m_eAction = FSM_ACTION::EVENT;
+	}else
+		pMachine->Change_State(FSM::END);
+}
+
 void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform)
 {
-	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject", L"Layer_Player", "Player", pTransform, XMVectorSet(0.f, 5.f, 0.f, 1.f)))
+	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject", L"Layer_Player", "Player", pTransform, XMVectorSet(0.f, 8.f, 0.f, 1.f)))
 	{
 
 		pBoss->GetAnimator()->Stop_Animation(true);
@@ -79,6 +100,27 @@ void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr
 
 void CFSM_Teacher_Move::Return_StopMove()
 {
+}
+
+void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta)
+{
+	
+	m_fTick += fTimeDelta;
+	if (m_fTick > 1.f)
+	{
+		m_fTick = 0.f;
+		++m_fTimeCnt;
+	}
+
+	if (m_fTimeCnt >= 3.f)
+	{
+		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
+		pNavi->Set_CurrentIndex(m_iIndex);
+
+		pBoss->Get_Transform().lock()->Set_State(STATE::POS, XMVectorSetW(XMLoadFloat3(&m_fPos), 1.f));
+		m_eAction = FSM_ACTION::ACTION;
+	}
+	
 }
 
 unique_ptr<CFSM_Teacher_Move>		CFSM_Teacher_Move::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

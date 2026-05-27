@@ -218,9 +218,8 @@ void CAssimp_Manager::ProcessNode(aiNode* pNode, const aiScene* pScene, const st
 void CAssimp_Manager::Load_Animation(const aiScene* pScene, void* pArg)
 {
 	assert(pScene && pScene->mRootNode);
-	Read_HeirarchyData(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, pScene->mRootNode);
-
-	Save_Binary_Data_NoArray(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, m_strbinary);
+	
+	//Save_Binary_Data_NoArray(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, m_strbinary);
 	if (NULL_TRUE(pScene->mAnimations))
 	return;
 		
@@ -249,13 +248,14 @@ void CAssimp_Manager::Load_Animation(const aiScene* pScene, void* pArg)
 		Save_Binary_Data_NoArray(Time, m_strbinary);
 		Save_Binary_Data_String(name, m_strbinary);
 	}
+	Read_HeirarchyData(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, pScene->mRootNode);
 
 }
 
 void CAssimp_Manager::Read_MissingBones(vector<shared_ptr<class CBone>>& pbone, const aiAnimation* animation)
 {
 	uint32_t size = animation->mNumChannels;
-	
+
 	ofstream path(m_strbinary, std::ios::binary | std::ios::app);
 	path.write((char*)(&size), sizeof(size_t));
 	path.close();
@@ -273,21 +273,71 @@ void CAssimp_Manager::Read_MissingBones(vector<shared_ptr<class CBone>>& pbone, 
 			desc.ID = m_Bones[iter->second].index;
 			desc.index = iter->second;
 			desc.pChannel = channel;
-			
+
 
 			Save_Binary_Data_String(boneName, m_strbinary);
 			Save_Binary_Data_SizeT(desc.ID, m_strbinary);
 
 			pbone.push_back(static_pointer_cast<CBone>(m_pBone->Clone(&desc)));
-			
+
 		}
 		else
 		{
 			string name = "";
 			Save_Binary_Data_String(name, m_strbinary);
-			
+
 		}
 	}
+	//uint32_t size = animation->mNumChannels;
+	//
+	//ofstream path(m_strbinary, std::ios::binary | std::ios::app);
+	//path.write((char*)(&size), sizeof(size_t));
+	//path.close();
+	//
+	//for (uint32_t i = 0; i < size; ++i)
+	//{
+	//
+	//	CBone::BONE_DESC desc;
+	//	auto channel = animation->mChannels[i];
+	//	string boneName = channel->mNodeName.data;
+	//
+	//	auto iter = m_BoneList.find(boneName);
+	//	if (iter != m_BoneList.end())
+	//	{
+	//		desc.ID = m_Bones[iter->second].index;
+	//		desc.index = iter->second;
+	//		desc.pChannel = channel;
+	//		
+	//
+	//		Save_Binary_Data_String(boneName, m_strbinary);
+	//		Save_Binary_Data_SizeT(desc.ID, m_strbinary);
+	//
+	//		pbone.push_back(static_pointer_cast<CBone>(m_pBone->Clone(&desc)));
+	//		
+	//	}
+	//	else
+	//	{
+	//
+	//		BONE mat{};
+	//		XMStoreFloat4x4(&mat.matBone ,XMMatrixIdentity());
+	//		mat.index = m_BoneList.size();
+	//		
+	//		m_BoneList.emplace(boneName, m_BoneList.size());
+	//		m_Bones.push_back(mat);
+	//	//	m_Bones[boneName] = m_Bones.size();
+	//		desc.ID = m_BoneList[boneName];
+	//		desc.index = m_BoneList[boneName];
+	//		desc.pChannel = channel;
+	//		//Save_Binary_Data_String(boneName, m_strbinary);
+	//		//Save_Binary_Data_SizeT(desc.ID, m_strbinary);
+	//
+	//		++m_BoneCounter;
+	//		pbone.push_back(static_pointer_cast<CBone>(m_pBone->Clone(&desc)));
+	//		//string name = "";
+	//		//Save_Binary_Data_String(name, m_strbinary);
+	//		
+	//	}
+	//}
 	
 }
 
@@ -368,11 +418,11 @@ shared_ptr<CPrototype> CAssimp_Manager::ProcessMesh(aiMesh* pMesh, const aiScene
 
 			if (iter == m_BoneList.end())
 			{
-				uint32_t i = bone.size();
+				//uint32_t i = bone.size();
 				mat.matBone = mat_Copy(pMesh->mBones[i]->mOffsetMatrix);
 				mat.index = m_BoneCounter;
 				boneID = m_BoneCounter;
-				bone.emplace(BoneName, i);
+				bone.emplace(BoneName, bone.size());
 
 				m_Bones.push_back(mat);
 				++m_BoneCounter;

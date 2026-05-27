@@ -15,6 +15,7 @@ public:
     void Update(_float fTimeDelta);
     HRESULT Render();
 
+    const uint32_t              Get_CurrentLevel() { return m_iCurrentLevelIndex; }
 private:
     uint32_t                m_iCurrentLevelIndex = {};
     unique_ptr<class CLevel>        m_pCurrentLevel = { nullptr };

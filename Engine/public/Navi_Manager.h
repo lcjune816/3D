@@ -10,18 +10,17 @@ public:
 	~CNavi_Manager();
 
 public:
-	HRESULT Initialize();
+	HRESULT								Initialize();
 public:
-	_bool	Check_NeraPos(_float3* fPos);
-	_bool	Check_First();
-	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
-	HRESULT Save_Navi(const _wstring& FilePath, const _char* pName);
-	HRESULT Load_Navi(const _wstring& FilePath, const _char* pName);
-	void	Undo_Cell();
-	
-	void		Render();
-	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
-	void Ready_Neightbors();
+	_bool								Check_NeraPos(_float3* fPos);
+	_bool								Check_First();
+	void								Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
+	HRESULT								Save_Navi(const _wstring& FilePath, const _char* pName);
+	HRESULT								Load_Navi(const _wstring& FilePath, const _char* pName);
+	void								Undo_Cell();
+	void								Render();
+	void								Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
+	void								Ready_Neightbors();
 	shared_ptr<class CCell>				Select_TriAngle(_fvector vOrigin, _fvector vDir);
 #ifdef _DEBUG
 private:

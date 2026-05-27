@@ -74,6 +74,7 @@ void CBattery::Attached()
 	if (NULL_TRUE(pObj))
 		return;
 	auto pTransform = pObj->Get_Transform().lock();
+	_float3 fScale = pTransform->Get_Scaled();
 	_matrix SrcWorld = pTransform->Get_World();
 	_matrix DstWorld = pDstTransform->Get_World();
 
@@ -86,11 +87,11 @@ void CBattery::Attached()
 	_float3 SrcMin = pTransform->Get_Min();
 
 	_vector SrcCenter = (XMLoadFloat3(&SrcMax) + XMLoadFloat3(&SrcMin)) * 0.5f;
-	_vector Right = XMVector3Normalize(pDstTransform->Get_State(STATE::RIGHT));
-	_vector Up = XMVector3Normalize(pDstTransform->Get_State(STATE::UP));
-	_vector Look = XMVector3Normalize(pDstTransform->Get_State(STATE::LOOK));
+	_vector Right =  XMVector3Normalize(pDstTransform->Get_State(STATE::RIGHT));
+	_vector Up    =  XMVector3Normalize(pDstTransform->Get_State(STATE::UP));
+	_vector Look  =  XMVector3Normalize(pDstTransform->Get_State(STATE::LOOK));
 
-	Right *= -1.f;
+	
 	_vector SrcPivot =
 		Right * XMVectorGetX(SrcCenter) +
 		Up * XMVectorGetY(SrcCenter) +
@@ -100,10 +101,10 @@ void CBattery::Attached()
 
 	vPos = XMVectorSetW(vPos, 1.f);
 
-	pTransform->Set_State(STATE::RIGHT, Right);
-	pTransform->Set_State(STATE::UP, Up);
-	pTransform->Set_State(STATE::LOOK, Look);
-	pTransform->Set_State(STATE::POS, vPos);
+	pTransform->Set_State(STATE::RIGHT, Right* fScale.x);
+	pTransform->Set_State(STATE::UP,    Up * fScale.y );
+	pTransform->Set_State(STATE::LOOK, Look * fScale.z);
+	pTransform->Set_State(STATE::POS, vPos - XMVectorSet(0, 2, 0, 0));
 	
 }
 void CBattery::Drop(const _float& fTimeDelta)

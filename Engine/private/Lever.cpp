@@ -21,7 +21,12 @@ HRESULT CLever::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::LEVER;
-	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+	
+	m_eState = TRIGGER_STATE::WORLD;
+	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
+
+
 	return S_OK;
 }
 
@@ -32,11 +37,14 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	case TRIGGER_STATE::IDLE:
 		break;
 	case TRIGGER_STATE::ACTION:
+		if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+			return S_OK;
 		if (Start_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::PAUSE;
+
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::ENABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
 			TriggerToTrigger();
 		}
 		else
@@ -46,15 +54,26 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		if (End_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
-			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::DISABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 		}
 		else
 			Action_Trigger();
 		break;
 
+	
 	case TRIGGER_STATE::PAUSE:
 
+		break;
+	case TRIGGER_STATE::WORLD:
+ 		if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+			return S_OK;
+		if (Start_Rotation(fTimeDelta))
+		{
+			CGameInstance::Get().Notify(WORLD_EVENT::ROLLUP_DOOR, {});
+			m_eState = TRIGGER_STATE::PAUSE;		
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+			TriggerToTrigger();
+		}
 		break;
 	}
 	return S_OK;
@@ -75,14 +94,13 @@ void CLever::TriggerToTrigger()
 
 void CLever::Set_Trigger()
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
-		m_eState = TRIGGER_STATE::ACTION;
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
 		return;
 	}
-	else if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
+	else if(Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
-		Set_Flag(ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::DISABLE);
 		m_eState = TRIGGER_STATE::RETURN;
 		return;
 	}

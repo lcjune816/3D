@@ -36,6 +36,10 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
     m_NaviInfo.iIndex = iIndex;
     memcpy(m_NaviInfo.vPoints, pPoints, sizeof(_float3) * ETOUI(EPOINT::END));
 
+    for (int32_t i = 0; i < 3; ++i)
+    {
+        m_NaviInfo.vPoints[i].y =0.f;
+    }
 
     _float fDaot = ((m_NaviInfo.vPoints[1].x - m_NaviInfo.vPoints[0].x) * (m_NaviInfo.vPoints[2].z - m_NaviInfo.vPoints[0].z)) - ((m_NaviInfo.vPoints[1].z - m_NaviInfo.vPoints[0].z) * (m_NaviInfo.vPoints[2].x - m_NaviInfo.vPoints[0].x));
     if (fDaot > 0)
@@ -58,21 +62,35 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
 
     }
 
-
+     
     //평면 방정식 ax by cz d 에서 a b c 를 구하는 함수
     XMStoreFloat4(&m_NaviInfo.m_vPlane, XMPlaneFromPoints(XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]),
         XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]),
         XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)])));
+    
     XMStoreFloat3(&m_NaviInfo.vCenter, (XMLoadFloat3(&m_NaviInfo.vPoints[0]) + XMLoadFloat3(&m_NaviInfo.vPoints[1])
         + XMLoadFloat3(&m_NaviInfo.vPoints[2])) / 3.f);
-\
+
+    for (int32_t i = 0; i < 3; ++i)
+    {
+        _vector vLook = XMVector3Normalize(XMLoadFloat3(&m_NaviInfo.vCenter) - XMLoadFloat3(&m_NaviInfo.vPoints[i]));
+
+        if(0 < XMVectorGetX(XMVector3Dot(vLook, XMLoadFloat3(&m_NaviInfo.vNormals[i]))))
+        {
+            XMStoreFloat3(&m_NaviInfo.vNormals[i], XMLoadFloat3(&m_NaviInfo.vNormals[i]) * -1.f);
+            break;
+        }
+    }
+    
+    for (int32_t i = 0; i < 3; ++i)
+        m_NaviInfo.vPoints[i].y = 0.5f;
     return S_OK;
 }
 HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
 {
     m_NaviInfo.iIndex = iIndex;
     m_NaviInfo.m_vPlane = Navi.m_vPlane;
-    m_NaviInfo.vCenter = Navi.vCenter;
+    //m_NaviInfo.vCenter = Navi.vCenter;
     
     m_NaviInfo.iNeighborIndices[0] = -1;
     m_NaviInfo.iNeighborIndices[1] = -1;
@@ -82,7 +100,7 @@ HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
     //memcpy(&m_NaviInfo.vNormals[i],&Navi.vNormals[i],sizeof _float3);
     memcpy(&m_NaviInfo.vPoints, &Navi.vPoints, sizeof _float3 * ETOUI(EPOINT::END));
     m_NaviInfo.vPoints[0].y = 0;
-    m_NaviInfo.vPoints[1].y = 0;
+    m_NaviInfo.vPoints[1].y = 0.f;
     m_NaviInfo.vPoints[2].y = 0;
 
      Ready_New(iIndex, &m_NaviInfo.vPoints[0]);
@@ -107,7 +125,7 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
             }
 
             //닫힌 목록에 없는거만 검사
-            for (auto iter : CloseList)
+            for (auto& iter : CloseList)
             {
                 if (iter.iNode_Nubmer == m_NaviInfo.iNeighborIndices[i])
                 {
@@ -122,8 +140,7 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
             //내 이웃 노드의 위치랑 마지막 노드 위치랑 h값 구하고
             Astar.H = XMVectorGetX(XMVector3Length(vFinalPos - XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter)));
             //내 위치 기준으로 구하고
-            Astar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter) - XMLoadFloat3(&m_NaviInfo.vCenter)))
-                  ;
+            Astar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter) - XMLoadFloat3(&m_NaviInfo.vCenter)));
             Astar.F = Astar.H + Astar.G;
             Astar.Pos = CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter;
             Astar.iNode_Nubmer = m_NaviInfo.iNeighborIndices[i];
@@ -167,7 +184,6 @@ _bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex,_float3* vNormal)
 
     for (size_t i = 0; i < ETOUI(LINE::END); ++i)
     {
-
         _vector     vDir = XMVector3Normalize(vResultPos - XMLoadFloat3(&m_NaviInfo.vPoints[i]));
         _float fDot = XMVectorGetX(XMVector3Dot(vDir, XMLoadFloat3(&m_NaviInfo.vNormals[i])));
         if (0.001f <  fDot)
@@ -177,10 +193,17 @@ _bool CCell::IsIn(_fvector vResultPos, int32_t* pNeighborIndex,_float3* vNormal)
             *pNeighborIndex = m_NaviInfo.iNeighborIndices[i];
             return false;
         }
-
-       
     }
+
+
     return true;
+}
+_bool   CCell::Event_Check(CELL_EVENT eEvent)
+{
+    if (m_eEvent == eEvent)
+        return true;
+
+    return false;
 }
 _bool CCell::Compare_Points(_fvector vSourPoint, _fvector vDestPoint)
 {
@@ -239,6 +262,8 @@ json CCell::Save_Data()
     j["Event"] = iEvent;
     return j;
 }
+
+
 HRESULT CCell::Render(CShader* pShader)
 {
     

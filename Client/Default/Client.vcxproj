@@ -153,6 +153,7 @@
     <ClInclude Include="..\public\FSM_LeftHand.h" />
     <ClInclude Include="..\public\FSM_Move.h" />
     <ClInclude Include="..\public\FSM_RightHand.h" />
+    <ClInclude Include="..\public\FSM_Teacher_Dead.h" />
     <ClInclude Include="..\public\FSM_Teacher_IDLE.h" />
     <ClInclude Include="..\public\FSM_Teacher_Move.h" />
     <ClInclude Include="..\public\FSM_Teacher_Spawn.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="..\private\FSM_LeftHand.cpp" />
     <ClCompile Include="..\private\FSM_Move.cpp" />
     <ClCompile Include="..\private\FSM_RightHand.cpp" />
+    <ClCompile Include="..\private\FSM_Teacher_Dead.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_IDLE.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_Move.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_Spawn.cpp" />

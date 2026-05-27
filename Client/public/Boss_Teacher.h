@@ -12,7 +12,7 @@ NS_BEGIN(Client)
 //grabpack shoot in 다시 들어왔을떄 out 나갈떄 두개로 분리됨
 // 
 enum class TEACHER_ANIME {
-	WALK,DEAD_SLOW,DEAD_FAST,OVERSHOOTWALK, OVERWAL, DOORKICK ,JUMPSCALE,SMASH, END
+	DEAD_SLOW,DEAD_FAST, OVERSHOOTWALK, OVERWAL, DOORKICK ,JUMPSCALE,SMASH, WALK,END
 };
 
 class CBoss_Teacher final : public CGameObject

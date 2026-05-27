@@ -18,7 +18,9 @@ HRESULT CFSM_Teacher_Spawn::Initialize(void* pArg)
 	auto pDesc = static_cast<TEACHER_SPAWN_DESC*>(pArg);
 
 	m_iNaviEventIndex = pDesc->iNaviEventIndex;
-	m_iNaviEventIndex = 131;
+	m_iNaviEventIndex = 126;
+	//126
+
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::TEACHER_SPAWN,SHARED_THIS(CFSM_Teacher_Spawn));
 	return S_OK;
 }

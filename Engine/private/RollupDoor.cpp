@@ -21,6 +21,15 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 {
 	m_eEventTrigger = TRIGGER_EVENT::ROLLUPDOOR;
 	m_fRotationArrow = 10.f;
+
+	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+	
+	m_eState = TRIGGER_STATE::ACTION;
+	if (WORLD_EVENT::ROLLUP_DOOR == pDesc->eWroldEvent)
+	{
+ 		m_eState = TRIGGER_STATE::WORLD;
+	}
+	
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	return S_OK;
 }
@@ -33,22 +42,20 @@ HRESULT CRollupDoor::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger
 HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
 
-	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)) || Check_Flag(ETOUI(TRIGGER_FLAG::CANCLE))) return E_FAIL;
-
-	m_fFrameTick += fTimeDelta;
-	if (m_fFrameTick > 0.03f)
+	switch (m_eState)
 	{
-		m_fFrameTick = 0.f;
-		Action_Trigger(fTimeDelta);
-		++m_fFrameTime;
-	}
+	case	TRIGGER_STATE::IDLE:
+		break;
 
-	if (m_fFrameTime > 60.f)
-	{
-		m_fFrameTime = 0.f;
-		m_fRotationArrow *= -1.f;
-		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
+	case	TRIGGER_STATE::ACTION:
+			Down_Door(fTimeDelta);
+		break;
+	case	TRIGGER_STATE::WORLD:
+		Down_DeadDoor(fTimeDelta);
+		break;
+	
 	}
+	
 	return S_OK;
 }
 
@@ -65,6 +72,96 @@ void CRollupDoor::TriggerToTrigger()
 {
 
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+	if (m_eState == TRIGGER_STATE::WORLD)
+	{
+		OnNotify({});
+	}
+}
+
+void CRollupDoor::OnNotify(const EVENT& event)
+{
+	auto pObj = CGameInstance::Get().Get_ObjectPtr(3, L"Layer_Boss", "Boss_Teacher");
+	Set_DstTransform(pObj->Get_Transform().lock());
+	auto pParent= m_pParent.lock();
+	if (NULL_TRUE(pParent))
+		return;
+	auto pTransform = pParent->Get_Transform().lock();
+	if (NULL_TRUE(pTransform))
+		return;
+	auto pDestTransform = m_pDstTransform.lock();
+	if (NULL_TRUE(pDestTransform))
+		return;
+
+	_vector vPos = pTransform->Get_State(STATE::POS);
+	_vector vSrcPos = XMVectorSetY(vPos, 0.f);
+	_vector vDestPos = pDestTransform->Get_State(STATE::POS);
+	 m_fCurHeight = XMVectorGetY(vPos);
+	m_fSrcLength = XMVectorGetX(XMVector3Length(vSrcPos));
+	m_fDestLength = XMVectorGetX(XMVector3Length(vSrcPos - vDestPos));
+
+	EVENT eEvent;
+	eEvent.pArg = &m_fWorldTime;
+	CGameInstance::Get().Notify(WORLD_EVENT::TEACHER_DEAD, eEvent);
+	XMStoreFloat3(&m_fDestPos, vDestPos);
+}
+
+void CRollupDoor::Down_Door(const _float& fTimeDelta)
+{
+
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		return;
+
+		m_fFrameTick += fTimeDelta;
+	if (m_fFrameTick > 0.03f)
+	{
+		m_fFrameTick = 0.f;
+		Action_Trigger(fTimeDelta);
+		++m_fFrameTime;
+	}
+
+	if (m_fFrameTime > 300.f)
+	{
+		m_eState = TRIGGER_STATE::IDLE;
+		m_fFrameTime = 0.f;
+		Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
+	}
+}
+
+void CRollupDoor::Down_DeadDoor(const _float& fTimeDelta)
+{
+	auto pObj = m_pParent.lock();
+	if (NULL_TRUE(pObj))
+		return;
+	auto pTransform = pObj->Get_Transform().lock();
+	if (NULL_TRUE(pTransform))
+		return;
+	auto pDestTransform = m_pDstTransform.lock();
+	if (NULL_TRUE(pDestTransform))
+		return;
+
+
+	_vector vPos = pTransform->Get_State(STATE::POS);
+	_vector vSrcPos = XMVectorSetY(vPos,0.f);
+	_vector vDestPos = pDestTransform->Get_State(STATE::POS);
+	_float3 fScale = pDestTransform->Get_Scaled();
+
+	m_fFrameTick += fTimeDelta;
+	 
+	
+	m_fWorldTime = min(1.f, m_fFrameTick / 1.4f);
+	_vector vPosLerp = XMVectorLerp(XMLoadFloat3(&m_fDestPos), vSrcPos, m_fWorldTime);
+	_float Height = m_fCurHeight + ( 1- m_fCurHeight) * m_fWorldTime;
+		
+	pDestTransform->Set_State(STATE::POS, XMVectorSetW(vPosLerp,1.f));
+	pTransform->Set_State(STATE::POS,XMVectorSetW(XMVectorSetY(vPos,Height),1.f));
+
+
+	if (m_fWorldTime >= 1.f)
+	{
+		CGameInstance::Get().Notify(WORLD_EVENT::TEACHER_DEAD, {});
+		pTransform->Set_State(STATE::POS, XMVectorSetY(vPos, 5));
+		m_eState = TRIGGER_STATE::PAUSE;
+	}
 }
 
 void CRollupDoor::Action_Trigger(_float fTimeDelta)

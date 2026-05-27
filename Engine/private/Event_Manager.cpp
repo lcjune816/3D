@@ -18,7 +18,9 @@ HRESULT CEvent_Manager::Initialize()
 }
 void CEvent_Manager::Notify(const WORLD_EVENT& eEvent, const EVENT& event)
 {
-    
+    if (m_Observers[eEvent].empty())
+        return;
+
     for (auto& List : m_Observers[eEvent])
     {
         auto pObserver = List.lock();
@@ -27,6 +29,7 @@ void CEvent_Manager::Notify(const WORLD_EVENT& eEvent, const EVENT& event)
 
         pObserver->OnNotify(event);
     }
+    m_Observers[eEvent].clear();
 }
 HRESULT CEvent_Manager::Add_Observers(const WORLD_EVENT& eEvent, shared_ptr<CObserver> pObserver)
 {

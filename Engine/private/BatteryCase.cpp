@@ -20,7 +20,9 @@ HRESULT CBatteryCase::Initialize_Prototype()
 HRESULT CBatteryCase::Initialize(void* pArg)
 {
 
+	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::BATTERYCASE;
+ 	m_eRot = pDesc->eRot;
 	m_fRotationArrow = 0.25f;
 
 	return S_OK;
@@ -60,40 +62,62 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 		_vector vSrcLook = SrcTransform->Get_World().r[2];
 
 		_vector vUp = { 0,1,0,0 };
-		_vector vRight = { 1,0,0,0 };
+		_vector vRot = { 1,0,0,0 };
+		_vector vRight = { 1,0,0 ,0};
 		_vector vLook = { 0,0,1,0 };
 		_float fAngel = 90.f;
-		_float SrcX = XMVectorGetX(SrcTransform->Get_State(STATE::LOOK));
-		_float SrcZ = XMVectorGetX(SrcTransform->Get_State(STATE::LOOK));
+		_float3 fScale = { 2.f,2.f,2.f };
 
-
-		_float X{}, Z{}, MX{}, MZ{};
 		_matrix matRot{};
-		X = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), vRight));
-		Z = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), vLook));
-		MX = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), -vRight));
-		MZ = XMVectorGetX(XMVector3Dot(XMVector3Length(vPos), -vLook));
 
-	
-		if (XMVectorGetX(XMVector3Dot(vSrcLook, vLook)) > 0)
-			fAngel *= -1;
 
-		matRot = XMMatrixRotationAxis(vRight, XMConvertToRadians(fAngel));
-		vUp = XMVector3TransformNormal(vUp, matRot);
-		vLook = XMVector3TransformNormal(vLook, matRot);
+		if (m_eRot == TRIGGER_ROT::X)
+		{
+			vRot = { 0,0,1,0 };
+
+			if (XMVectorGetX(XMVector3Dot(vSrcLook, vRight)) < 0)
+				fAngel *= -1;
+
+			matRot = XMMatrixRotationAxis(vRot, XMConvertToRadians(fAngel));
+			vUp = XMVector3TransformNormal(vUp, matRot);
+			vRight = XMVector3TransformNormal(vRight, matRot);
+
+			DstTransform->Set_State(STATE::RIGHT, vRight * fScale.x);
+			DstTransform->Set_State(STATE::UP, vUp * fScale.y);
+			DstTransform->Set_State(STATE::LOOK, vRot * fScale.z);
+
+		}
+		if (m_eRot == TRIGGER_ROT::Z)
+		{
+			vRot = { 1,0,0,0 };
+			if (XMVectorGetX(XMVector3Dot(vSrcLook, vLook)) < 0)
+				fAngel *= -1;
+			matRot = XMMatrixRotationAxis(vRot, XMConvertToRadians(fAngel));
+			vUp = XMVector3TransformNormal(vUp, matRot);
+			vLook = XMVector3TransformNormal(vLook, matRot);
+
+			DstTransform->Set_State(STATE::RIGHT, vRot * fScale.x);
+			DstTransform->Set_State(STATE::UP,     vUp * fScale.y);
+			DstTransform->Set_State(STATE::LOOK, vLook * fScale.z);
+		}
 		
 	
-	
+
+
+
+
 
 		vPos = XMVectorSetW(vPos, 1.f);
-		DstTransform->Set_State(STATE::RIGHT, vRight);
-		DstTransform->Set_State(STATE::UP, vUp);
-		DstTransform->Set_State(STATE::LOOK, vLook);
-
 		DstTransform->Set_State(STATE::POS, vPos);
 
 		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 
+		auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+
+		if (NULL_FALSE(Target))
+		{
+			Target->TriggerToTrigger();
+		}
 		return S_OK;
 	}
 

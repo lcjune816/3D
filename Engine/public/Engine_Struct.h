@@ -23,6 +23,9 @@ namespace Engine
 	}GRAB_ARM_EDGE;
 	typedef struct tagevent
 	{
+		WORLD_EVENT eEvent;
+		int32_t iIndex = { -1 };
+		_float3 fPos{};
 		void* pArg = nullptr;
 	}EVENT;
 	typedef struct strcollisioninfo

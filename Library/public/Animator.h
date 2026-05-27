@@ -26,8 +26,9 @@ private:
 	virtual HRESULT				Initialize(void* pArg);
 public:
 	void						Update(_float fTimeDelta);
-	
+	void						Set_RootNode(_bool bRoot) { m_bNoRoot = bRoot; }
 
+	void						Set_Double_Speed(_float fDouble) { m_fDoubleSpeed = fDouble; }
 	void						Player_Animation(unique_ptr<CAnimation> pAin);						 
 	void						CalculateBoneAnimation(const AssimpNodeData* node, FXMMATRIX parentsTrans);
 	void						BlendingBoneAnimation(const AssimpNodeData* Currentnode,const AssimpNodeData* PreNode, FXMMATRIX PreMatrix, const _float& fBlendTime);
@@ -83,9 +84,11 @@ private:
 	_float						m_fPreNoLoopTime = { 0 };
 	_float						m_fPreDeltaTime = { 0 };
 
+	_float						m_fDoubleSpeed = { 1.f };
 	_float						m_fBlendDuration{ 0.3 };
 	_float						m_fBlendElapsed{ 0 };
 
+	_float						m_fLerpTick = {0};
 	_float						m_fStopTick = { 0 };
 	_float						m_fStopTime = { 0.f };
 	uint32_t					m_iAnimationNumber		= { 0 };
@@ -96,6 +99,7 @@ private:
 	_bool						m_bLoop = { true };
 	_bool						m_bStop = { false };
 	_bool						m_bForce = {false};
+	_bool						m_bNoRoot = { true };
 	_float4x4					m_PreTransform;
 	_float4x4					m_matScale;
 	_float4x4					m_RootNode;

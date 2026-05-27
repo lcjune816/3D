@@ -53,8 +53,8 @@ HRESULT CPlayer_LeftHand::Initialize(void* pArg)
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	_matrix offset = XMMatrixIdentity();
-	offset *= XMMatrixScaling(0.1f, 0.1f, 0.1f);
-	offset.r[3] = XMVectorSet(2.f, -1.26f, -2.970f, 1.f);
+	offset *= XMMatrixScaling(0.12f, 0.12f, 0.12f);
+	offset.r[3] = XMVectorSet(2.f, -1.31f, -2.980f, 1.f);
 	XMStoreFloat4x4(&m_fOffsetMatrix, offset);
 	return S_OK;
 }

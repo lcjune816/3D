@@ -30,7 +30,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fArrrowRotation = m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime  = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime   = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
-  	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent		= m_TriggerInfo.eWorldEvent    = desc->eWroldEvent;
+   	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent		= m_TriggerInfo.eWorldEvent    = desc->eWroldEvent;
 
 	if (FAILED(Create_Component(pArg)))
 		return E_FAIL;
@@ -332,7 +332,7 @@ json CTriggerObject::Save_Data()
 	j["TriggerArrow"] = m_TriggerInfo.fArrrowRotation;
 	j["FrameTick"] = m_TriggerInfo.fFrameTickTime ;
 	j["FrameMaxTime"] = m_TriggerInfo.fMaxFrameTime;
-	//j["WorldEvent"] = static_cast<int32>t(m_TriggerInfo.eWorldEvent);
+	j["WorldEvent"] = static_cast<int32_t>(m_TriggerInfo.eWorldEvent);
 	return j;
 }
 HRESULT CTriggerObject::Ready_Component()
