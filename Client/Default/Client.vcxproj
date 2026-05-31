@@ -144,8 +144,10 @@
     <ClInclude Include="..\public\Boss_Teacher.h" />
     <ClInclude Include="..\public\Camera.h" />
     <ClInclude Include="..\public\Cat.h" />
+    <ClInclude Include="..\public\Cat_FSM.h" />
     <ClInclude Include="..\public\Client_Defines.h" />
     <ClInclude Include="..\public\DecalObject.h" />
+    <ClInclude Include="..\public\FSM_Cat_Spawn.h" />
     <ClInclude Include="..\public\FSM_Crouch.h" />
     <ClInclude Include="..\public\FSM_Hand.h" />
     <ClInclude Include="..\public\FSM_Idle.h" />
@@ -186,7 +188,9 @@
     <ClCompile Include="..\private\Boss_Teacher.cpp" />
     <ClCompile Include="..\private\Camera.cpp" />
     <ClCompile Include="..\private\Cat.cpp" />
+    <ClCompile Include="..\private\Cat_FSM.cpp" />
     <ClCompile Include="..\private\DecalObject.cpp" />
+    <ClCompile Include="..\private\FSM_Cat_Spawn.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
     <ClCompile Include="..\private\FSM_Hand.cpp" />
     <ClCompile Include="..\private\FSM_Idle.cpp" />

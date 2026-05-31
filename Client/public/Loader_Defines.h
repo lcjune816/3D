@@ -28,3 +28,6 @@
 #include "FSM_Teacher_Move.h"
 #include "FSM_Teacher_Spawn.h"
 #include "FSM_Teacher_Dead.h"
+#include "Cat.h"
+#include "Cat_FSM.h"
+#include "FSM_Cat_Spawn.h"

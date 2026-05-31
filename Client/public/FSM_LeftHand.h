@@ -35,7 +35,7 @@ private:
 	vector<GRAB_ARM_EDGE>						m_EdgePoses;
 
 	_float4x4* m_StartMatrix = { nullptr };
-	uint32_t									m_iEdgeCnt = {};
+	uint32_t									m_iEdgeCnt = {}, m_iMaxSpeed{ 400 };
 	vector<uint32_t>							m_iSizeCnt;
 	weak_ptr<class CPlayer_Arm>					m_pArm;
 	weak_ptr<class CPlayer_LeftHand>			m_pHand;
