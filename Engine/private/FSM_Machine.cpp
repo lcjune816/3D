@@ -59,8 +59,8 @@ void CFSM_Machine::Change_State(FSM eMachineState )
 	if (machine != m_States.end())
 	{
 		m_pCurrentState = machine->second;
-		m_pCurrentState.lock()->Enter_State();
 		m_pCurrentState.lock()->Set_Machine(SHARED_THIS(CFSM_Machine));
+		m_pCurrentState.lock()->Enter_State();
 
 	}
 	else

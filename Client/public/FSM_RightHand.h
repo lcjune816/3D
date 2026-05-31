@@ -29,12 +29,12 @@ private:
 private:
 
 	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{}, m_fForce{};
-	_bool			m_bTimeStop{ false }, m_bOnlyone{ false };
+	_bool			m_bTimeStop{ false }, m_bOnlyone{ false }, m_bStop{false};
 
 	vector<GRAB_ARM_EDGE>						m_EdgePoses;
 
 	_float4x4*									m_StartMatrix = { nullptr };
-	uint32_t									m_iEdgeCnt = {};
+	uint32_t									m_iEdgeCnt = {}, m_iMaxSpeed{400};
 	_float										m_fLength = {}, Velocity = {};
 	vector<uint32_t>							m_iSizeCnt;
 	_bool										m_bFront = { false };

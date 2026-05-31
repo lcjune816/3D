@@ -29,6 +29,9 @@ HRESULT CLevel_GasProduction::Initialize()
 	if (FAILED(Ready_Layer_WorldObject(L"Layer_WorldObject")))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_Boss(L"Layer_Boss")))
+		return E_FAIL;
+
 	if (FAILED(Ready_ProtoType()))
 		return E_FAIL;
 	return S_OK;
@@ -65,6 +68,14 @@ HRESULT CLevel_GasProduction::Ready_Layer_Camera(const _wstring& strLayerTag)
 HRESULT CLevel_GasProduction::Ready_Layer_Player(const _wstring& strLayerTag)
 {
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Player"),
+		ETOUI(LEVEL::GASZONE), strLayerTag)))
+		return E_FAIL;
+
+	return S_OK;
+}
+HRESULT CLevel_GasProduction::Ready_Layer_Boss(const _wstring& strLayerTag)
+{
+	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Cat"),
 		ETOUI(LEVEL::GASZONE), strLayerTag)))
 		return E_FAIL;
 
