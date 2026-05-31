@@ -219,7 +219,10 @@ void CAssimp_Manager::Load_Animation(const aiScene* pScene, void* pArg)
 {
 	assert(pScene && pScene->mRootNode);
 	
-	//Save_Binary_Data_NoArray(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, m_strbinary);
+	
+	Read_HeirarchyData(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, pScene->mRootNode);
+	Save_Binary_Data_NoArray(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, m_strbinary);
+
 	if (NULL_TRUE(pScene->mAnimations))
 	return;
 		
@@ -248,7 +251,6 @@ void CAssimp_Manager::Load_Animation(const aiScene* pScene, void* pArg)
 		Save_Binary_Data_NoArray(Time, m_strbinary);
 		Save_Binary_Data_String(name, m_strbinary);
 	}
-	Read_HeirarchyData(static_cast<CAnimation::ANIMATION_DESC*>(pArg)->RootNode, pScene->mRootNode);
 
 }
 
@@ -1053,7 +1055,7 @@ void CAssimp_Manager::Binary_File_Import_Animation(ifstream& readFile, void* des
 
 	readFile.read((char*)(&iAnimationNameSize), sizeof(size_t));
 	readFile.read((char*)(&Name), sizeof(char)* iAnimationNameSize);
-	string na = Name;
+ 	string na = Name;
 	static_cast<CAnimation::ANIMATION_DESC*>(dest)->AniTime.push_back(Time);
 	static_cast<CAnimation::ANIMATION_DESC*>(dest)->AnimantionName.push_back(na);
 }

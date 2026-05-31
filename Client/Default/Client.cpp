@@ -75,17 +75,19 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
         CGameInstance::Get().Compute_TimeDelta(TEXT("Timer_Default"));
-        fTimeAcc += CGameInstance::Get().Get_TimeDelta(TEXT("Timer_Default"));
-        fpsTime += CGameInstance::Get().Get_TimeDelta(TEXT("Timer_60"));
-     
-        ++fps;
-        if (fTimeAcc >= 1.f / 60.f)
-        {
-            CGameInstance::Get().Compute_TimeDelta(TEXT("Timer_60"));
-            pMainApp->Update(CGameInstance::Get().Get_TimeDelta(TEXT("Timer_60")));
-            pMainApp->Render();     
+        _float fTime = CGameInstance::Get().Get_TimeDelta(TEXT("Timer_Default"));
 
-            fTimeAcc = 0.f;
+        fTimeAcc += fTime;
+        fpsTime += fTime;
+     
+        _float fTargetTime = 1.f / 60.f;
+        if (fTimeAcc >= fTargetTime)
+        {
+          
+            pMainApp->Update(fTargetTime);
+            pMainApp->Render();
+            ++fps;
+            fTimeAcc  -= fTargetTime;
         }
         if (fpsTime >= 1.f)
         {
@@ -93,7 +95,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             swprintf_s(buffer, L"Client - FPS: %.0f", fps);
 
             SetWindowText(g_hWnd, buffer);
-            fpsTime = 0.f;
+            fpsTime -= 1.f;
             fps = 0.f;
 
         }

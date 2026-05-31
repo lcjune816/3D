@@ -21,7 +21,7 @@ public:
 	}TRIGGER_DESC;
 private:
 	typedef struct TriggerInfo
-	{
+	{//»Ï;;
 		string			strTriggerName;
 		uint32_t		iTargetObjectID = { 0 };
 		uint32_t		iObjectID = {};
