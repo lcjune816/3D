@@ -36,7 +36,8 @@ void CFSM_LeftHand::Enter_State()
 	m_fShootTime = 0.f;
 	m_fShootTimeTick = 0.f;
 	m_bReFinished = false;
-	m_fSpeed = 100.f;
+	m_fSpeed = 150.f;
+	m_iMaxSpeed = 200;
 	m_fBackShootTime = 0.f;
 	m_fBackShootTick = 0.f;
 	m_fForce = {};
@@ -75,6 +76,8 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 		}
 		_matrix matrix = XMLoadFloat4x4(m_StartMatrix);
 		_vector StartPos = matrix.r[3];
+		m_fSpeed += 100.f * fTimeDelta;
+		m_fSpeed = min(m_fSpeed, 500.f);
 
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)))
 		{
@@ -105,20 +108,19 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 			Look = XMVector3Normalize(StartPos - XMLoadFloat3(&m_fLastHandPos));
 			StartLen = XMVectorGetX(XMVector3Length(StartPos));
 			LastLen = XMVectorGetX(XMVector3Length((StartPos - XMLoadFloat3(&m_fLastHandPos))));
-
 		}
 		else
 		{
 			Look = XMVector3Normalize((XMLoadFloat3(&m_EdgePoses.front().fPos) - XMLoadFloat3(&m_fLastHandPos)));
 			StartLen = XMVectorGetX(XMVector3Length(StartPos));
-			StartLen = XMVectorGetX(XMVector3Length((XMLoadFloat3(&m_EdgePoses.front().fPos) - XMLoadFloat3(&m_fLastHandPos))));
+			LastLen = XMVectorGetX(XMVector3Length((XMLoadFloat3(&m_EdgePoses.front().fPos) - XMLoadFloat3(&m_fLastHandPos))));
 		}
 
-		_float Length = LastLen * LastLen * 0.5f;
-		Length += m_fSpeed;
-		if (Length > 300)
-			Length = 300.f;
-		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * Length * fTimeDelta);
+		_float fAccel = max(LastLen * 120.f, m_iMaxSpeed);
+		m_fSpeed += fAccel * fTimeDelta;
+		m_fSpeed *= 0.8f;
+		m_fSpeed = min(m_fSpeed, 600.f);
+		XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed * fTimeDelta);
 
 		//위치 줄이기
 		Shoot_Hand(StartPos, Player, fTimeDelta, pArm.get(), pHand.get(), Flag_Check(ETOUI(FSM_HAND_FLAG::PULL) | ETOUI(FSM_HAND_FLAG::ALL_STOP)));
@@ -127,11 +129,16 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 		pHand->Get_Transform().lock()->Set_State(STATE::POS, XMVectorSetW(XMLoadFloat3(&m_fLastHandPos), 1.f));
 
 		_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - StartPos));
-		if (fDis < 0.9f * 0.9f)
+		if (fDis < 60.f)
+		{
+			m_iMaxSpeed = 200;
+		}
+		if (fDis < 15.f)
 		{
 			pArm->Get_ArmMatrix().Matrix.clear();
 			pArm->Get_ArmMatrix().CollisionIndex.clear();
 
+			Player->Change_Animation(PLAYER_ANIME::SHOOTIN_L, false);
 			Set_Flag(ETOUI(FSM_HAND_FLAG::PULLEND), FLAGVALUE::ENABLE);
 			Set_Flag(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE), FLAGVALUE::DISABLE);
 
@@ -392,14 +399,11 @@ void CFSM_LeftHand::Hand_End(CPlayer* Player)
 	{
 		m_EdgePoses.clear();
 		m_bReFinished = true;
-		Player->Change_Animation(PLAYER_ANIME::SHOOTIN_L, false);
 	}
 
 	if (m_bReFinished)
 	{
 		Player->Get_AnimeState().bRHand = false;
-
-		Player->Change_Animation(PLAYER_ANIME::IDLE, true);
 		auto pMachine = m_pMachine.lock();
 		if (NULL_TRUE(pMachine)) return;
 

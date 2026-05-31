@@ -248,15 +248,21 @@ HRESULT CLoader::Loading_For_GamePlay()
 	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_TriggerObject", m_Objects);
 	m_Objects.clear();
 	
-	Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
-	CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
-	m_Objects.clear();
+	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
+	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
+	//m_Objects.clear();
 
 	m_isFinished = true;
 	return S_OK;
 }
 HRESULT CLoader::Loading_For_GasProduction()
 {
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Cat"), CBoss_Cat::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Spawn"), CFSM_Cat_Spawn::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_BackGround"),
 		CBackGround::Create(m_pDevice, m_pContext))))
 		return E_FAIL;

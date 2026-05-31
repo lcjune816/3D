@@ -33,19 +33,18 @@ void CFSM_RightHand::Enter_State()
 	Player->Change_Animation(PLAYER_ANIME::SHOOTOUT_R, false);
 	Player->Get_AnimeState().bRHand = false;
 
-	m_fShootMaxTime = 60.f;
+	m_fShootMaxTime = 30.f;
 	m_fShootTime = 0.f;
 	m_fShootTimeTick = 0.f;
-	m_bReFinished = false;
-	m_fSpeed = 100.f;
+	m_fSpeed = 150.f;
 	m_fBackShootTime = 0.f;
 	m_fBackShootTick = 0.f;
 	m_fForce = {};
 	m_iEdgeCnt = 0;
 	m_fTimerTick = 0; 
 	m_fTimerTime = 10.f;
-	m_bFront = false;
-	m_bOnlyone = false;
+	m_bStop = m_bOnlyone = m_bFront = m_bReFinished = false;
+	m_iMaxSpeed = 400;
 	XMStoreFloat3(&m_fFirstLook,Player->Get_Transform().lock()->Get_State(STATE::LOOK));
 	m_fOffset = { 0.f,0.f,0.f};
 	_float4x4 matrix = *m_StartMatrix;
@@ -59,8 +58,6 @@ void CFSM_RightHand::Enter_State()
 
 void CFSM_RightHand::Update_State(_float fTimeDelta)
 {
-	//F = -KX -CV
-	// K 스프링 강도 X 목표 위치와 거리 C 감쇠 계수 V속도
 	auto Player = m_pPlayer.lock();
 	auto pHand  = m_pHand.lock();
 	auto pArm   =m_pArm.lock();
@@ -109,6 +106,8 @@ void CFSM_RightHand::Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGam
 }
 void CFSM_RightHand::Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> pPlayer, shared_ptr<CPLayer_RightHand> pHand, shared_ptr<CPlayer_Arm> pArm)
 {
+	//F = -KX -CV
+	// K 스프링 강도 X 목표 위치와 거리 C 감쇠 계수 V속도
 	if (!Flag_Check(ETOUI(FSM_HAND_FLAG::ALL_STOP)) && (Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT)) || Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))))
 	{
 		_matrix matrix = XMLoadFloat4x4(m_StartMatrix);
@@ -116,7 +115,10 @@ void CFSM_RightHand::Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 		_float  Length = {};
 		_vector NewForce = {};
 		_float t{};
-		if (!(Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))))
+		m_fSpeed += 100.f * fTimeDelta;
+		
+		m_fSpeed = min(m_fSpeed, 500.f);
+		if (!(Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))) && !m_bStop)
 		{
 			m_fShootTimeTick += fTimeDelta;
 			if (m_fShootTimeTick > 0.05f)
@@ -126,7 +128,7 @@ void CFSM_RightHand::Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 			}
 			XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * m_fSpeed * fTimeDelta); //마지막 위치 늘려서 보간하기
 
-		}
+		}else XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * 100.f * fTimeDelta);
 
 		Shoot_Hand(StartPos, pPlayer, fTimeDelta, pArm.get(), pHand.get()); ////손 늘리기//////			
 
@@ -144,7 +146,7 @@ void CFSM_RightHand::Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 
 	}
 
-	if (Flag_Check(ETOUI(FSM_HAND_FLAG::SHOT)) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
+	if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
 		Hand_State_Chand(CHANGE_STATE::END);
 }
 void CFSM_RightHand::Shoot_Hand(_fvector startPos, const shared_ptr<CPlayer> pPlayer, const _float& fTimeDelta,  CPlayer_Arm* PlayerArm, CPLayer_RightHand* pRHand, _bool bFinished )
@@ -378,17 +380,16 @@ void CFSM_RightHand::Return_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 	_matrix matrix = XMLoadFloat4x4(m_StartMatrix);
 	_vector StartPos = matrix.r[3];
 
-	_vector Look{};  // a + (b - a ) * t 
+	_vector Look{}, EdgePos{}, LastPos{};  // a + (b - a ) * t 
+	//
 	_float  StartLen{}, LastLen{};
 	if (m_EdgePoses.empty())
 	{
 		Look = XMVector3Normalize(StartPos - XMLoadFloat3(&m_fLastHandPos));
-		StartLen = XMVectorGetX(XMVector3Length(StartPos));
-		LastLen = XMVectorGetX(XMVector3Length((StartPos - XMLoadFloat3(&m_fLastHandPos))));
+		LastPos = StartPos;
 	}
 	else
 	{
-		_vector EdgePos{};
 		if (m_bFront)
 			EdgePos = XMLoadFloat3(&m_EdgePoses.back().fPos);
 		else
@@ -396,14 +397,17 @@ void CFSM_RightHand::Return_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 		
 		Look = XMVector3Normalize((EdgePos - XMLoadFloat3(&m_fLastHandPos)));
 		StartLen = XMVectorGetX(XMVector3Length(StartPos));
-		StartLen = XMVectorGetX(XMVector3Length((EdgePos - XMLoadFloat3(&m_fLastHandPos))));
+		LastPos = EdgePos;
 	}
 
-	_float Length = LastLen * LastLen * 0.5f;
-	Length += m_fSpeed;
-	if (Length > 100)
-		Length = 100.f;
-	XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * Length * fTimeDelta);
+	LastLen = XMVectorGetX(XMVector3Length((LastPos - XMLoadFloat3(&m_fLastHandPos))));
+	//_float Length = LastLen * LastLen * 0.5f;
+
+	_float fAccel = max(LastLen * 120.f, m_iMaxSpeed);
+	m_fSpeed += fAccel * fTimeDelta;
+	m_fSpeed *= 0.8f;
+	m_fSpeed = min(m_fSpeed, 600.f);
+	XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + Look * m_fSpeed * fTimeDelta);
 
 	//위치 줄이기
 	Shoot_Hand(StartPos, pPlayer, fTimeDelta, pArm.get(), pHand.get(), Flag_Check(ETOUI(FSM_HAND_FLAG::PULL) | ETOUI(FSM_HAND_FLAG::ALL_STOP)));
@@ -413,11 +417,16 @@ void CFSM_RightHand::Return_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 
 
 	_float fDis = XMVectorGetX(XMVector3LengthSq(XMLoadFloat3(&m_fLastHandPos) - StartPos));
-	if (fDis < 0.9f * 0.9f)
+	if (fDis < 60.f)
+	{
+		m_iMaxSpeed = 200;
+	}
+	if (fDis < 15.f)
 	{
 		pArm->Get_ArmMatrix().Matrix.clear();
 		pArm->Get_ArmMatrix().CollisionIndex.clear();
 
+		pPlayer->Change_Animation(PLAYER_ANIME::SHOOTIN_R, false);
 		Set_Flag(ETOUI(FSM_HAND_FLAG::PULLEND), FLAGVALUE::ENABLE);
 		Set_Flag(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE), FLAGVALUE::DISABLE);
 		m_eAction = FSM_ACTION::IDLE;
@@ -432,15 +441,13 @@ void CFSM_RightHand::Hand_End(CPlayer* Player)
 	{
 		m_EdgePoses.clear();
 		m_bReFinished = true;
-		Player->Change_Animation(PLAYER_ANIME::SHOOTIN_R, false);
+		Set_Flag(ETOUI(FSM_HAND_FLAG::PAUSE), FLAGVALUE::DISABLE);
 	}
 
 	if (m_bReFinished )
 	{
 		Player->Get_AnimeState().bRHand = false;
 		Player->Set_ActionState(false);
-
-		Player->Change_Animation(PLAYER_ANIME::IDLE, true);
 		auto pMachine = m_pMachine.lock();
 		if (NULL_TRUE(pMachine)) return;
 
@@ -451,8 +458,8 @@ void CFSM_RightHand::Hand_End(CPlayer* Player)
 
 void CFSM_RightHand::Hand_Collision_Check(shared_ptr<CPLayer_RightHand> pObj, shared_ptr<CPlayer_Arm> pArm,const _float& fTimeDelta)
 {
-	uint32_t iFlag =  ETOUI(FSM_HAND_FLAG::TIMER);
-	if (Flag_Check(iFlag) )
+	uint32_t iFlag =  ETOUI(FSM_HAND_FLAG::TIMER) | ETOUI(FSM_HAND_FLAG::ALL_STOP);
+	if (Flag_Check(iFlag) && (!Flag_Check(ETOUI(FSM_HAND_FLAG::PAUSE))))
 		return;
 
 	auto pTransform = pObj->Get_Transform().lock();
@@ -492,7 +499,7 @@ _bool CFSM_RightHand::Update_LastPos(CTriggerObject* pTrigger, CTransform* pTran
 	pTransform->Set_State(STATE::RIGHT,offsetmat.r[0] * fScale.x);
 	pTransform->Set_State(STATE::UP   ,offsetmat.r[1] * fScale.y);
 	pTransform->Set_State(STATE::LOOK ,offsetmat.r[2] * fScale.z);
-	pTransform->Set_State(STATE::POS, offsetmat.r[3]);
+	pTransform->Set_State(STATE::POS  ,offsetmat.r[3]);
 
 	return true;
 }
@@ -562,10 +569,12 @@ _bool CFSM_RightHand::Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj, CTr
 		m_bFront = true;
 		if (!(Update_LastPos(pTrigger, pTransform)))
 		{
+			m_bStop = false;
 			return false;
 		}
 		else
 		{
+			m_bStop = true;
 			if(!m_bOnlyone)
 				m_fShootMaxTime += 0.001f;
 
@@ -603,7 +612,7 @@ void CFSM_RightHand::Hand_State_Chand(CHANGE_STATE eChange)
 		iFlag = ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::TIMER);
 		break;
 	case CHANGE_STATE::PULL:
-		Set_Flag(ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::SHOT) | ETOUI(FSM_HAND_FLAG::PAUSE), FLAGVALUE::DISABLE);
+		Set_Flag(ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::SHOT) , FLAGVALUE::DISABLE);
 		m_fShootTimeTick = 0.f;
 		m_bOnlyone = true;
 		m_eAction = FSM_ACTION::RETURN;
@@ -612,7 +621,7 @@ void CFSM_RightHand::Hand_State_Chand(CHANGE_STATE eChange)
 	case CHANGE_STATE::END:
 		if (m_bFront)
 			return;
-		Set_Flag(ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::SHOT) | ETOUI(FSM_HAND_FLAG::PAUSE) | ETOUI(FSM_HAND_FLAG::TIMER), FLAGVALUE::DISABLE);
+		Set_Flag(ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::SHOT) | ETOUI(FSM_HAND_FLAG::TIMER), FLAGVALUE::DISABLE);
 		m_eAction = FSM_ACTION::RETURN;
 		iFlag = ETOUI(FSM_HAND_FLAG::ALL_STOP);
 		break;
