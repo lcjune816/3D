@@ -77,28 +77,28 @@ void CPlayer_FSM::Timer(const _float& fTimeDelta)
 
 }
 
-_bool CPlayer_FSM::Move(const _float& fTimeDelta, shared_ptr<CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation)
+_bool CPlayer_FSM::Move(const _float& fTimeDelta, shared_ptr<CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation, _float fOffset)
 {
 	if (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80)
 	{
-		pTransform->Go_Right(fTimeDelta, pNavigation);
+		pTransform->Go_Right(fTimeDelta * fOffset, pNavigation);
 		return true;
 	}
 	if (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80)
 	{
-		pTransform->Go_Straight(fTimeDelta, pNavigation);
+		pTransform->Go_Straight(fTimeDelta * fOffset, pNavigation);
 		return true;
 	}
 		
 	if (CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80)
 	{
-		pTransform->Go_Left(fTimeDelta, pNavigation);
+		pTransform->Go_Left(fTimeDelta * fOffset, pNavigation);
 		return true;
 	}
 		
 	if (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80)
 	{
-		pTransform->Go_BackWard(fTimeDelta, pNavigation);
+		pTransform->Go_BackWard(fTimeDelta * fOffset, pNavigation);
 		return true;
 	}
 		

@@ -395,7 +395,7 @@ void CFSM_LeftHand::Hand_End(CPlayer* Player)
 		Player->Change_Animation(PLAYER_ANIME::SHOOTIN_L, false);
 	}
 
-	if (m_bReFinished && (Player->Get_Finished() || CGameInstance::Get().Get_DIMouseState(DIMK::LBUTTON) & 0x80))
+	if (m_bReFinished)
 	{
 		Player->Get_AnimeState().bRHand = false;
 

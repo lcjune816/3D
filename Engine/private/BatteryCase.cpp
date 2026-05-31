@@ -1,5 +1,5 @@
 #include "BatteryCase.h"
-#include "GameObject.h"
+#include "GameInstance.h"
 CBatteryCase::CBatteryCase(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }

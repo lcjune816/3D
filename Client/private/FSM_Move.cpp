@@ -37,15 +37,28 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 		if(Player->Get_Animation_State() != PLAYER_ANIME::WALK)
 			Player->Change_Animation(PLAYER_ANIME::WALK, true);
 	}
-	
+
+	if (CGameInstance::Get().Get_DIKeyState(DIK_LSHIFT) & 0x80)
+	{
+		Player->GetAnimator()->Set_Double_Speed(2.5f);
+		m_fVelocity = 2.f;
+	}
+	else
+	{
+		Player->GetAnimator()->Set_Double_Speed(1.f);
+		m_fVelocity = 1.f;
+
+	}
+
 	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
-	if (!Move(fTimeDelta, pTransform, pNavi))
+	if (!Move(fTimeDelta, pTransform, pNavi, m_fVelocity))
 	{
 		auto machine = m_pMachine.lock();
 		if (NULL_TRUE(machine)) return;
 		machine->Change_State(FSM::IDLE);
 		return;
 	}
+	
 	if (CGameInstance::Get().Get_DIKeyState(DIK_SPACE) & 0x80)
 	{
 		m_pMachine.lock()->Change_State(FSM::JUMP);

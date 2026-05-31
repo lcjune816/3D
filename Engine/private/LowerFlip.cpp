@@ -1,5 +1,5 @@
 #include "LowerFlip.h"
-#include "GameObject.h"
+#include "GameInstance.h"
 CLowerFlip::CLowerFlip(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }
@@ -21,7 +21,7 @@ HRESULT CLowerFlip::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::PUZZLEROT;
-	Set_Flag(ETOUI(TRIGGER_FLAG::ATTACHED) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+	Set_Flag(ETOUI(TRIGGER_FLAG::ATTACHED) | ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE) , FLAGVALUE::ENABLE);
 	m_eState = TRIGGER_STATE::IDLE;
 	return S_OK;
 }
@@ -43,8 +43,9 @@ HRESULT CLowerFlip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		if (Start_Rotation(fTimeDelta))
 		{
 			m_eState = TRIGGER_STATE::PAUSE;
-			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE) , FLAGVALUE::ENABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::DISABLE);
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
+			
 		}
 		else
 			Action_Trigger();
@@ -52,18 +53,19 @@ HRESULT CLowerFlip::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 	case TRIGGER_STATE::RETURN:
 		if (End_Rotation(fTimeDelta))
 		{
-			m_eState = TRIGGER_STATE::IDLE;
+			m_eState = TRIGGER_STATE::PAUSE;
+			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER) | ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::DISABLE);
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
-			Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::DISABLE);
 		}
 		else
 			Action_Trigger();
 		break;
 
 	case TRIGGER_STATE::PAUSE:
-
-		if (Timer_Flag(TRIGGER_FLAG::PAUSE, FLAGVALUE::DISABLE, fTimeDelta))
-			m_eState = TRIGGER_STATE::IDLE;
+		
+		if (Timer_Flag(ETOUI(TRIGGER_FLAG::PAUSE) , FLAGVALUE::ENABLE, fTimeDelta))
+				m_eState = TRIGGER_STATE::IDLE;
+		
 		break;
 	}
 	
@@ -86,7 +88,6 @@ void CLowerFlip::Set_Trigger()
 	}
 	else if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
-		Set_Flag(ETOUI(TRIGGER_FLAG::PAUSE), FLAGVALUE::DISABLE);
 		m_eState = TRIGGER_STATE::RETURN;
 		return;
 	}
@@ -109,8 +110,9 @@ void CLowerFlip::Action_Trigger()
 }
 _bool CLowerFlip::offsetMatrix(_float4x4* pMatrix)
 {
-	if (Check_Flag(ETOUI(TRIGGER_FLAG::PAUSE)))
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::PAUSE)))
 		return false;
+
 	auto pObj = m_pParent.lock();
 	auto pDstTransform = m_pDstTransform.lock();
 	if (NULL_TRUE(pObj) || (NULL_TRUE(pDstTransform) && !m_bOtherTrigger))
@@ -134,7 +136,9 @@ _bool CLowerFlip::offsetMatrix(_float4x4* pMatrix)
 
 
 	vCenter = XMVector3TransformCoord(vLocal, pTransform->Get_World());
-	matOffset.r[2] = pTransform->Get_State(STATE::LOOK);
+	matOffset.r[0] = XMVector3Normalize(pTransform->Get_State(STATE::RIGHT));
+	matOffset.r[1] = XMVector3Normalize(pTransform->Get_State(STATE::UP));
+	matOffset.r[2] = XMVector3Normalize(pTransform->Get_State(STATE::LOOK));
 	matOffset.r[3] = vCenter;
 	XMStoreFloat4x4(pMatrix, matOffset);
 	return true;

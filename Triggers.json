@@ -140,9 +140,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                -0.0402403324842453,
-                6.8842750806652475e-06,
-                -0.9991811513900757
+                -0.052163828164339066,
+                6.884274171170546e-06,
+                -0.9986295700073242
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -151,17 +151,17 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                -0.9991794228553772,
-                7.832873052393552e-06,
-                0.04024025797843933
+                -0.9986270070075989,
+                7.832864866941236e-06,
+                0.05216369032859802
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
-                8.103595973807387e-06,
+                8.181362318282481e-06,
                 0.9999936819076538,
-                6.563589977304218e-06
+                6.466396825999254e-06
             ],
             "WorldEvent": 6,
             "fPos": [
@@ -174,9 +174,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                0.5387753248214722,
+                -0.5130985379219055,
                 0.0,
-                0.8424695134162903
+                -0.8583502769470215
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -185,9 +185,9 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                0.8424695134162903,
+                -0.8583502769470215,
                 0.0,
-                -0.5387753248214722
+                0.5130985379219055
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
@@ -234,7 +234,7 @@
             "WorldEvent": 6,
             "fPos": [
                 246.3199920654297,
-                698.659912109375,
+                821.7218017578125,
                 99.17831420898438
             ]
         },
@@ -276,9 +276,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                0.9999966025352478,
-                0.00012332158803474158,
-                9.773758392839227e-06
+                0.012515071779489517,
+                0.00012332147161941975,
+                -0.9999173283576965
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -287,17 +287,17 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": true,
             "Right": [
-                9.774686986929737e-06,
-                -7.554932835773798e-06,
-                -0.9999961853027344
+                -0.9999172687530518,
+                -7.554928288300289e-06,
+                -0.012515071779489517
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
             "TriggerValue": "OBJ_Door",
             "Up": [
-                -0.00012332091864664108,
+                -9.097680958802812e-06,
                 0.9999911189079285,
-                -7.556099717476172e-06
+                0.00012321678514126688
             ],
             "WorldEvent": 6,
             "fPos": [
@@ -889,8 +889,8 @@
             "FrameTick": 60.0,
             "Look": [
                 0.0,
-                -0.8660253882408142,
-                -0.5000000596046448
+                0.8660242557525635,
+                -0.49999940395355225
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -899,7 +899,7 @@
             "ObjectTargetID": 27,
             "OtherTriggerValue": true,
             "Right": [
-                0.9999241232872009,
+                0.9998728632926941,
                 0.0,
                 0.0
             ],
@@ -908,14 +908,14 @@
             "TriggerValue": "OBJ_Lever",
             "Up": [
                 0.0,
-                -0.5000000596046448,
-                0.8660253882408142
+                -0.49999940395355225,
+                -0.8660242557525635
             ],
             "WorldEvent": 6,
             "fPos": [
                 802.051513671875,
-                30.30474281311035,
-                1019.4424438476563
+                33.8472785949707,
+                1020.3025512695313
             ]
         },
         {
@@ -950,6 +950,346 @@
                 815.83544921875,
                 42.48138427734375,
                 1042.7509765625
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 28,
+            "ObjectTargetID": 33,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1173.7730712890625,
+                16.24733543395996,
+                980.40625
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 30,
+            "ObjectTargetID": 35,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1274.209228515625,
+                16.778993606567383,
+                982.9913940429688
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 31,
+            "ObjectTargetID": 37,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1277.348876953125,
+                16.287059783935547,
+                1092.1756591796875
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 32,
+            "ObjectTargetID": 36,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1174.58837890625,
+                16.64634132385254,
+                1079.6307373046875
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 33,
+            "ObjectTargetID": 35,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1173.1661376953125,
+                -3.291074752807617,
+                980.8418579101563
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 35,
+            "ObjectTargetID": 37,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1273.8028564453125,
+                -2.818476676940918,
+                983.449462890625
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 36,
+            "ObjectTargetID": 39,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1174.27001953125,
+                -2.435166358947754,
+                1080.12060546875
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 37,
+            "ObjectTargetID": 36,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1276.740966796875,
+                -3.6803436279296875,
+                1092.6346435546875
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_B.bin",
+            "ObjectID": 38,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_BlueElectric",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1110.6226806640625,
+                35.491580963134766,
+                999.9166870117188
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\ElectricalPanel_B.bin",
+            "ObjectID": 39,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPannel",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1110.665771484375,
+                34.96296310424805,
+                1079.9332275390625
             ]
         }
     ]

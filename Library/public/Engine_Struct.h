@@ -20,6 +20,7 @@ namespace Engine
 		_bool bCheck;
 		_float3 fPos;
 		_float3 fNormal[3];
+		_bool	m_bLeft{ true };
 	}GRAB_ARM_EDGE;
 	typedef struct tagevent
 	{

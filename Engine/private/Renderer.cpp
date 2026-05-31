@@ -133,7 +133,7 @@ HRESULT CRenderer::Draw()
     if (FAILED(Render_UI()))
         return E_FAIL;
 
-    CGameInstance::Get().Render_Navi();
+    //CGameInstance::Get().Render_Navi();
     return S_OK;
 }
 

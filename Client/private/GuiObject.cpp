@@ -1624,7 +1624,7 @@ void CGuiObject::Navi_Creator()
 		static _float3 fPos[3]{};
 		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false }, bOnlyTwo{ false };
 		ImGui::Text(u8"이벤트 선택");
-		const char* items[] = { "FIRST","SECOND","THIRD","END" };
+		const char* items[] = { "FIRST","SECOND","BOSS_TP","END" };
 		const _char* pTwogae = nullptr;
 		static CELL_EVENT event_Select_Index = CELL_EVENT::END;
 		
@@ -1798,7 +1798,7 @@ void CGuiObject::Navi_Creator()
 					if (pObj->Get_Event() == CELL_EVENT::SECOND)
 						pName = "SECOND";
 					if (pObj->Get_Event() == CELL_EVENT::BOSSTP)
-						pName = "THIRD";
+						pName = "BOSS_TP";
 					if (pObj->Get_Event() == CELL_EVENT::END)
 						pName = "END";
 

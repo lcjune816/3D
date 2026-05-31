@@ -70,12 +70,16 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 		m_fPos = eEvent.fPos;
 		m_iIndex = eEvent.iIndex;
 		m_eAction = FSM_ACTION::EVENT;
+		m_bStop = false;
 	}else
 		pMachine->Change_State(FSM::END);
 }
 
 void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform)
 {
+	if (!m_bStop)
+		return;
+
 	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject", L"Layer_Player", "Player", pTransform, XMVectorSet(0.f, 8.f, 0.f, 1.f)))
 	{
 
@@ -119,6 +123,7 @@ void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTran
 
 		pBoss->Get_Transform().lock()->Set_State(STATE::POS, XMVectorSetW(XMLoadFloat3(&m_fPos), 1.f));
 		m_eAction = FSM_ACTION::ACTION;
+	
 	}
 	
 }

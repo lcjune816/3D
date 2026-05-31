@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "GameInstance.h"
 CCamera::CCamera(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 : CCameraNS(pDevice, pContext)
 {

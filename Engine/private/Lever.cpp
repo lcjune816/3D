@@ -1,5 +1,5 @@
 #include "Lever.h"
-#include "GameObject.h"
+#include "GameInstance.h"
 CLever::CLever(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }
@@ -19,11 +19,12 @@ HRESULT CLever::Initialize_Prototype()
 
 HRESULT CLever::Initialize(void* pArg)
 {
-	__super::Initialize(pArg);
+ 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::LEVER;
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	
 	m_eState = TRIGGER_STATE::WORLD;
+	m_fEndAngle = -120.f;
 	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 
 
@@ -74,6 +75,8 @@ HRESULT CLever::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
 			TriggerToTrigger();
 		}
+		else
+			Action_Trigger();
 		break;
 	}
 	return S_OK;
@@ -112,7 +115,7 @@ void CLever::Action_Trigger()
 	if (NULL_TRUE(pObj))
 		return;
 
-	pObj->Get_Transform().lock()->Apply_Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
+	pObj->Get_Transform().lock()->Rotation_Origin(XMLoadFloat4(&m_fRotation), m_fAngle);
 }
 
 unique_ptr<CLever>CLever::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

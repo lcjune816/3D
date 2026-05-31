@@ -23,7 +23,7 @@ void CFSM_Crouch::Enter_State()
 	Player->Change_Animation(PLAYER_ANIME::CROUCH_ENTER, false);
 		
 	m_fTimerTick = 0.f;
-	m_fTimerTime = 0.3f;
+	m_fTimerTime = 0.2f;
 	m_fMaxCrouch = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
 	m_fMinCrouch = 10.f;
 	m_bReFinished = false;
@@ -69,6 +69,8 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 			m_fTimerTick = 0.f;
 			m_eAction = FSM_ACTION::RETURN;
 			m_fTimerTime = 1.f;
+
+			Player->GetAnimator()->Set_Double_Speed(1.5f);
 			Player->Change_Animation(PLAYER_ANIME::CROUCH_EXIT, false,false,false);
 
 		}
@@ -79,6 +81,8 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 
 		if (Player->Get_Finished() && t >= 1.f)
 		{
+
+			Player->GetAnimator()->Set_Double_Speed(1.f);
 			m_eAction = FSM_ACTION::END;
 		}
 		break;
@@ -95,7 +99,7 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 	}
 
 	auto pNavi = static_pointer_cast<CNavigation>(Player->Find_Component(L"Com_Navigation"));
-	Move(fTimeDelta, pTransform, pNavi);
+	Move(fTimeDelta, pTransform, pNavi,0.5f);
 }
 
 void CFSM_Crouch::Exit_State()

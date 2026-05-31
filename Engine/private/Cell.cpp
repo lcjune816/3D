@@ -18,6 +18,7 @@ CCell::~CCell()
 HRESULT CCell::Initialize(NAVI Navi, CELL_EVENT eEvent, int32_t iIndex, _float3* pPoints)
 {
     pPoints == nullptr ? Ready_Load(Navi, eEvent, iIndex) : Ready_New(iIndex, pPoints);
+    m_eEvent = eEvent;
 #ifdef _DEBUG
     CVIBuffer::BUFFER_DESC pDesc;
     pDesc.fPos[0] = m_NaviInfo.vPoints[0];

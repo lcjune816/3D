@@ -31,6 +31,7 @@
 #include "Observer.h"
 #include "Navigation.h"
 #include "Generator.h"
+#include "UIObject.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

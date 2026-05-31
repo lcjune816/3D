@@ -91,6 +91,9 @@
     <Filter Include="03.Boss\Teacher\FSM_Teacher_Dead">
       <UniqueIdentifier>{50904bbd-c986-4455-8c48-0d4974b473cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\02.Player\UI">
+      <UniqueIdentifier>{ee702847-d147-4b60-bc8d-e315aef169fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -210,6 +213,9 @@
     <ClInclude Include="..\public\FSM_Teacher_Dead.h">
       <Filter>03.Boss\Teacher\FSM_Teacher_Dead</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\PlayerAim.h">
+      <Filter>02.GameObject\02.Player\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -327,6 +333,9 @@
     <ClCompile Include="..\private\FSM_Teacher_Dead.cpp">
       <Filter>03.Boss\Teacher\FSM_Teacher_Dead</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\PlayerAim.cpp">
+      <Filter>02.GameObject\02.Player\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
@@ -345,6 +354,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Array_VtxTex.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\UIShader.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

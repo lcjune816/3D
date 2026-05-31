@@ -1,6 +1,8 @@
 #pragma once
 #include "GameObject.h"
 #include "Client_Defines.h"
+
+#include "GameInstance.h"
 namespace Engine
 {
 	class CAnimator;
@@ -21,14 +23,14 @@ enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002
 class CPlayer : public CGameObject
 {
 protected:
-typedef struct HandState
-{
-	_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false }, bCollect{ false };
-}HAND_STATE;
+	typedef struct HandState
+	{
+		_bool bHandAttached{ false }, bShoot{ false }, EndForce{ false }, bElectric{ false }, bCollect{ false };
+	}HAND_STATE;
 private:
 	typedef struct PlayerState
 	{
-		_bool bRun{ false }, bCrouch{ false }, bIdle{ false }, bMove{ false }, bJump{ false }, bFalling{ false },  bLHand{ false }, bTwoHand{ false }, bRHand{};
+		_bool bRun{ false }, bCrouch{ false }, bIdle{ false }, bMove{ false }, bJump{ false }, bFalling{ false }, bLHand{ false }, bTwoHand{ false }, bRHand{};
 	}PLAYER_STATE;
 protected:
 	CPlayer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -45,20 +47,20 @@ public:
 
 public:
 	string					Model_Animation(const vector<string>& pNames);
-	const MOVE&				Get_State() { return m_eState; }
+	const MOVE& Get_State() { return m_eState; }
 	PLAYER_ANIME			Get_Animation_State() { return m_eAnimeState; }
-	PLAYER_STATE&			Get_AnimeState()	  { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
+	PLAYER_STATE& Get_AnimeState() { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
 
-	void					Set_ActionState(_bool	bAction)	{ m_bOnlyActionState = bAction; }
+	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }
 	void					Change_Animation(PLAYER_ANIME eAnime, _bool bLoop = true, _bool bForce = false, _bool Blend = true);
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
-	CAnimator*				GetAnimator() { return m_pAnimator.get(); }
+	CAnimator* GetAnimator() { return m_pAnimator.get(); }
 	void					Set_Flag(uint32_t eState, FLAGVALUE eValue);
 	_bool					Flag_Check(uint32_t iFlag);
 
 protected:
 	void					Timer(const _float& fTimeDelta);
-		
+
 private:
 	void					Turn(const _float& fTimeDelta);
 	HRESULT					Ready_Component();
@@ -75,21 +77,23 @@ protected:
 
 
 	uint32_t							m_iStateFlag{ 0 };
+	_float2								m_iMousePos{ 0 ,0}, m_iCurrentPos{0,0}, m_fTimerAim{ 0,0 }, m_fTimerAimCnt{ 0 ,0};
 private:
-	shared_ptr<class CPlayer_LeftHand>	m_pPlayerLHand;
-	shared_ptr<class CPLayer_RightHand>	m_pPlayerRHand;
-	shared_ptr<class CNavigation>		m_pNavigation;
-
+	shared_ptr<class CPlayer_LeftHand>	m_pPlayerLHand = { nullptr };
+	shared_ptr<class CPLayer_RightHand>	m_pPlayerRHand = { nullptr };
+	shared_ptr<class CNavigation>		m_pNavigation = { nullptr };
+	shared_ptr<class CPlayerAim>		m_pAim = { nullptr };
 	vector<string>						m_ShootBone;
+private:
 	_float								m_fTimerTick{ 0 }, m_fTimerCnt{ 0 };
-
 	_float4x4							m_bones[BONE_MATRIX];
 
 	PLAYER_ANIME						m_eAnimeState = {};
 	PLAYER_STATE						m_ePlayer = {}; //플레이어 상태 조정 bool값 모음ㄱ
 	PLAYER_FLAG							m_eFlag = {};
-	_bool								m_bOnlyActionState = { false };
-	MOVE								m_eState = {MOVE::END};
+	MOVE								m_eState = { MOVE::END };
+private:
+	_bool								m_bOnlyActionState = { false }, m_bDelay[2] = {};
 public:
 	static unique_ptr<CPlayer> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

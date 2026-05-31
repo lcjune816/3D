@@ -1,18 +1,6 @@
 #include "GameInstance.h"
 #include "Player.h"
-#include "Camera.h"
-#include "Player_FSM.h"
-#include "FSM_Idle.h"
-#include "FSM_Move.h"
-#include "FSM_Jump.h"
-#include "FSM_Crouch.h"
-#include "FSM_Hand.h"
-#include "FSM_LeftHand.h"
-#include "FSM_RightHand.h"
-
-#include "Player_LeftHand.h"
-
-#include "Player_RightHand.h"
+#include "Loader_Defines.h"
 CPlayer::CPlayer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -39,7 +27,8 @@ HRESULT CPlayer::Ready_Component()
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 233;
+	NaviDesc.iIndex = 27;
+	NaviDesc.eOwner = OWNER::PLAYER;
 	//27
 	//233
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
@@ -62,7 +51,8 @@ HRESULT CPlayer::Ready_Component()
 	auto Crouch = static_pointer_cast<CFSM_Crouch>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Crouch", nullptr));
 	if (NULL_TRUE(Crouch)) return E_FAIL;
 	
-
+	m_pAim= static_pointer_cast<CPlayerAim>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_Aim", nullptr));
+	if (NULL_TRUE(m_pAim)) return E_FAIL;
 
 	///////////////////////////////////////Ме//////////////////////////////////////////////////////////////////////////////////
 	CFSM_RightHand::FSM_PLAYER_DESC pFsmDesc;
@@ -156,7 +146,7 @@ HRESULT CPlayer::Initialize(void* pArg)
 	
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(233),1.f));
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
 
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
@@ -192,7 +182,7 @@ void CPlayer::Update(_float fTimeDelta)
 	Hnad_State_Check();
 	m_pPlayerRHand->Update(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
-
+	m_pAim->Update(fTimeDelta);
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));
 
 
@@ -201,6 +191,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
 {
 	m_pPlayerRHand->Late_Update(fTimeDelta);
 	m_pPlayerLHand->Late_Update(fTimeDelta);
+	m_pAim->Late_Update(fTimeDelta);
 }
 HRESULT CPlayer::Render()
 {
@@ -224,7 +215,7 @@ HRESULT CPlayer::Render()
 	m_pPlayerRHand->Render();
 	m_pPlayerLHand->Render();
 	
-
+	m_pAim->Render();
 	
 	return S_OK;
 }

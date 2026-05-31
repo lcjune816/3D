@@ -1,5 +1,5 @@
 #include "ElectricPannel.h"
-#include "GameObject.h"
+#include "GameInstance.h"
 CElectricPannel::CElectricPannel(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CTrigger{ pDevice, pContext }
 {
 }

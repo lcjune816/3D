@@ -4,6 +4,7 @@
 namespace Engine
 {
 	class CNonModel;
+	class CCell;
 }
 NS_BEGIN(Client)
 class CGuiObject final : public CGameObject

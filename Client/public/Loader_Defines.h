@@ -6,9 +6,10 @@
 #include "Stageone_Terrain.h"
 #include "TriggerObject.h"
 #include "DecalObject.h"
-
+#include "Camera.h"
 ///////////플레이어/////////
 #include "Player.h"
+#include "PlayerAim.h"
 #include "FSM_Idle.h"
 #include "FSM_Move.h"
 #include "FSM_Jump.h"

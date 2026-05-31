@@ -85,6 +85,8 @@ void CFSM_Jump::Action_Return(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform
 
 	if (m_fCurrentHeight <= m_LastHeight)
 	{
+
+		pPlayer->GetAnimator()->Set_Double_Speed(1.5f);
 		pPlayer->Change_Animation(PLAYER_ANIME::LAND,false , true,false);
 		m_eAction = FSM_ACTION::END;
 	}
@@ -102,6 +104,7 @@ void CFSM_Jump::Action_End(shared_ptr<CPlayer> pPlayer ,shared_ptr<class CTransf
 	if (pPlayer->Get_Finished())
 	{
 		auto& PlayerState = pPlayer->Get_AnimeState();
+		pPlayer->GetAnimator()->Set_Double_Speed(1.f);
 		Machine->Change_State(FSM::IDLE);
 		return;
 	}else
