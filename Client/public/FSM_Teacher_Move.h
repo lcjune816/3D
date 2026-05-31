@@ -27,6 +27,7 @@ private:
 private:
 	_float3			m_fPos{};
 	int32_t			m_iIndex{};
+	_bool			m_bStop{ true };
 public:
 	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

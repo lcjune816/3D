@@ -1,7 +1,8 @@
 #pragma once
 
-#include "GameInstance.h"
+#include "Trigger.h"
 NS_BEGIN(Engine)
+class CGameInstance;
 class ENGINE_DLL CGameObject abstract : public CPrototype
 {
 public:

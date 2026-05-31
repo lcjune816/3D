@@ -97,6 +97,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CPlayer_Arm::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Aim"),
+		CPlayerAim::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_PlayerLeftHand"),
 		CPlayer_LeftHand::Create(m_pDevice, m_pContext))))
 		return E_FAIL;

@@ -99,7 +99,7 @@ _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
     if (-1 == m_iCurretnCellindex || m_Cells.empty())
         return false;
     
-    if (m_iPreCellIndex != m_iCurretnCellindex)
+    if (m_eOwner == OWNER::PLAYER && m_iPreCellIndex != m_iCurretnCellindex)
     {
         Event_Check(m_Cells[m_iCurretnCellindex]->Get_Event());
         m_iPreCellIndex = m_iCurretnCellindex;

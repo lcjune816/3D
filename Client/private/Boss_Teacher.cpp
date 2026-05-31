@@ -24,7 +24,8 @@ HRESULT CBoss_Teacher::Ready_Component()
 	importModel.eType = MESH_TYPE::ANIME;
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 230;
+	NaviDesc.iIndex = 0;
+	NaviDesc.eOwner = OWNER::BOSS;
 	//0
 	//230
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
@@ -61,8 +62,8 @@ HRESULT CBoss_Teacher::Ready_Component()
 	m_pStateMachine->Add_State(FSM::SPAWN, Spawn);
 	m_pStateMachine->Add_State(FSM::END, Dead);
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Teacher));
-	//m_pStateMachine->Change_State(FSM::IDLE);
-	m_pStateMachine->Change_State(FSM::MOVE);
+	m_pStateMachine->Change_State(FSM::IDLE);
+	//m_pStateMachine->Change_State(FSM::MOVE);
 
 	strcpy_s(m_pTagName ,"Boss_Teacher");
 	//CGameInstance::Get().Connect_Navigaion(m_pNavigation);
@@ -97,7 +98,7 @@ HRESULT CBoss_Teacher::Initialize(void* pArg)
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	_vector vPos = m_pNavigation->Find_CellPos(230) - XMVectorSet(2, 0, 0, 0);
+	_vector vPos = m_pNavigation->Find_CellPos(0) - XMVectorSet(2, 0, 0, 0);
 	m_pTransform->Set_State(STATE::POS, XMVectorSetW(vPos,1.f));
 
 	//플레이어 Look하고

@@ -30,7 +30,7 @@ public:
 	void					Timer(const _float& fTimeDelta);
 protected:
 	virtual void			Hand_State_Chand(CHANGE_STATE eChange) {};
-	_bool					Move(const _float& fTimeDelta, shared_ptr<class CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation);
+	_bool					Move(const _float& fTimeDelta, shared_ptr<class CTransform>& pTransform, shared_ptr<class CNavigation>& pNavigation,_float fOffset = 1.f);
 public:
 	void					Set_Player(weak_ptr<CPlayer> pPlayer) { m_pPlayer = pPlayer; }
 protected:

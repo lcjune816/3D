@@ -16,6 +16,12 @@ _float3 CTransform::Get_Scaled()
 				    XMVectorGetX(XMVector3Length(Get_State(STATE::UP))),
 				    XMVectorGetX(XMVector3Length(Get_State(STATE::LOOK))));
 }
+void CTransform::Set_Scale(_float fScaleX, _float fScaleY, _float fScaleZ)
+{
+	Set_State(STATE::RIGHT, XMVector3Normalize(Get_State(STATE::RIGHT)) * fScaleX);
+	Set_State(STATE::UP, XMVector3Normalize(Get_State(STATE::UP)) * fScaleY);
+	Set_State(STATE::LOOK, XMVector3Normalize(Get_State(STATE::LOOK)) * fScaleZ);
+}
 HRESULT CTransform::Bind_Matrix(shared_ptr<class CShader> pShader, const char* pBindName)
 {
 	return pShader->Bind_Matrix(pBindName, &m_WorldMatrix);

@@ -34074,6 +34074,131 @@
                 0.0,
                 498.9668884277344
             ]
+        },
+        {
+            "Look": [
+                3.3121300840877055e-12,
+                -1.8199258420281694e-06,
+                -1.0
+            ],
+            "MeshType": 1,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Switches_Levers\\SM_Switch_A.fbx",
+            "Right": [
+                -1.0,
+                -1.8199258420281694e-06,
+                0.0
+            ],
+            "Up": [
+                -1.8199258420281694e-06,
+                1.0,
+                -1.8199258420281694e-06
+            ],
+            "fPos": [
+                801.9451293945313,
+                31.645605087280273,
+                1019.2429809570313
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 1,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\PuzzlePole_Base.fbx",
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                1173.42236328125,
+                0.0,
+                980.777099609375
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 1,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\PuzzlePole_Base.fbx",
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                1273.875732421875,
+                0.0,
+                983.6661376953125
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 1,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\PuzzlePole_Base.fbx",
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                1276.8228759765625,
+                0.0,
+                1092.6781005859375
+            ]
+        },
+        {
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 1,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\PuzzlePole_Base.fbx",
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "fPos": [
+                1174.26123046875,
+                0.0,
+                1080.122802734375
+            ]
         }
     ]
 }

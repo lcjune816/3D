@@ -218,6 +218,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Triangle.h" />
     <ClInclude Include="..\public\Trigger.h" />
     <ClInclude Include="..\public\Trigger_Manager.h" />
+    <ClInclude Include="..\public\UIObject.h" />
     <ClInclude Include="..\public\VIBuffer.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -294,6 +295,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Triangle.cpp" />
     <ClCompile Include="..\private\Trigger.cpp" />
     <ClCompile Include="..\private\Trigger_Manager.cpp" />
+    <ClCompile Include="..\private\UIObject.cpp" />
     <ClCompile Include="..\private\VIBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>

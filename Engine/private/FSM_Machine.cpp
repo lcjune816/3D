@@ -1,4 +1,4 @@
-#include "GameObject.h"
+#include "GameInstance.h"
 CFSM_Machine::CFSM_Machine(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext):CComponent{pDevice,pContext}
 { }
 CFSM_Machine::CFSM_Machine(const CFSM_Machine& Prototype): CComponent{ Prototype }

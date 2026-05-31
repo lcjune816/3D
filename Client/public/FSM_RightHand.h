@@ -23,13 +23,13 @@ private:
 	void			 Return_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> pPlayer, shared_ptr<CPLayer_RightHand> pHand, shared_ptr<CPlayer_Arm> pArm);
 	void			 Hand_End(CPlayer* Player);
 	void			 Hand_Collision_Check(shared_ptr<CPLayer_RightHand> pObj, shared_ptr<CPlayer_Arm> pArm ,const _float& fTimeDelta);
-	void			 Update_LastPos(class CTriggerObject* pTrigger, class CTransform* pTransform);
+	_bool			 Update_LastPos(class CTriggerObject* pTrigger, class CTransform* pTransform);
 	_bool			 Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj,class CTriggerObject* pTrigger, TRIGGER_EVENT eTrigger,CTransform* pTransform,const _float& fTimeDelta);
 	virtual void	 Hand_State_Chand(CHANGE_STATE eChange)override;
 private:
 
 	_float3			m_fLastHandPos{}, m_fMouseLook{}, m_fFirstLook{}, m_fStartPos{}, m_fOffset{}, m_fForce{};
-	_bool			m_bTimeStop{ false };
+	_bool			m_bTimeStop{ false }, m_bOnlyone{ false };
 
 	vector<GRAB_ARM_EDGE>						m_EdgePoses;
 
@@ -37,7 +37,7 @@ private:
 	uint32_t									m_iEdgeCnt = {};
 	_float										m_fLength = {}, Velocity = {};
 	vector<uint32_t>							m_iSizeCnt;
-	_bool										m_bOnlyone = { false };
+	_bool										m_bFront = { false };
 	
 	weak_ptr<class CPlayer_Arm>					m_pArm;
 	weak_ptr<class CPLayer_RightHand>			m_pHand;

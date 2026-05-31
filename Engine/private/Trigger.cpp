@@ -1,5 +1,5 @@
 #include "Trigger.h"
-#include "GameObject.h"
+#include "GameInstance.h"
 CTrigger::CTrigger(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CComponent{pDevice, pContext}
 {
 }
@@ -72,7 +72,7 @@ _bool						CTrigger::End_Rotation(const _float& fTimeDelta)
 
 	return false;
 }
-_bool CTrigger::Timer_Flag(TRIGGER_FLAG flag, FLAGVALUE eValue , const _float& fTimeDelta)
+_bool CTrigger::Timer_Flag(uint32_t flag, FLAGVALUE eValue , const _float& fTimeDelta)
 {
 	m_fFrameTick += fTimeDelta;
 
@@ -87,7 +87,7 @@ _bool CTrigger::Timer_Flag(TRIGGER_FLAG flag, FLAGVALUE eValue , const _float& f
 	{
 		m_fFlagCnt = 0;
 		m_fFrameTick = 0;
-		Set_Flag(ETOUI(flag), eValue);
+		Set_Flag(flag, eValue);
 		return true;
 	}
 

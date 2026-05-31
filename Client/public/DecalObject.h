@@ -5,6 +5,7 @@ NS_BEGIN(Engine)
 class CNonModel;
 class CRect;
 class CShader;
+class CCube;
 NS_END
 
 NS_BEGIN(Client)

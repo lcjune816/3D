@@ -15,7 +15,8 @@ public:
 	virtual void Update_State(_float fTimeDelta)override;
 	virtual void Exit_State()  override;
 
-
+private:
+	_float			m_fVelocity{};
 public:
 	static unique_ptr<CFSM_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

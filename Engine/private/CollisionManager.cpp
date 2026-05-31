@@ -423,6 +423,8 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 	auto   SrcTransform = pSrcTransform;
 
 	_matrix SrcWorld = SrcTransform->Get_World();
+	_vector SrcWorldPos = SrcTransform->Get_State(STATE::POS);
+	_vector vUp = SrcTransform->Get_State(STATE::UP);
 	_matrix InverseSrcWorld = XMMatrixInverse(nullptr, SrcWorld);
 	_vector Test = SrcWorld.r[3];
 	//Ray 시작점
@@ -456,7 +458,7 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 		_float SrcLength = XMVectorGetX(XMVector3Length(LastendPos - startPos));
 
 		_vector offsetDir = XMVector3Normalize(WorldHitPos - XMLoadFloat3(&WorldBox.Center));
-		WorldHitPos += offsetDir * 1.2f;
+		WorldHitPos += offsetDir * 0.8f;
 
 		_float WordDis = XMVectorGetX(XMVector3Length(WorldHitPos - startPos));
 
@@ -469,12 +471,22 @@ _bool CCollisionManager::Only_AABB_Collision(CTransform* pSrcTransform, _vector 
 				_vector ObjectWorld = XMVector3TransformCoord(XMLoadFloat3(&box.Center), SrcWorld);
 				_float PlayerToObjectLength = XMVectorGetX(XMVector3Length(ObjectWorld - startorigin));
 				_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - XMLoadFloat3(&LastPos)));
-				if (Length <3.f || PlayerToObjectLength < 3.f)
+				if (Length < 3.f || PlayerToObjectLength < 3.f)
 					return false;
 			}
 
 			GRAB_ARM_EDGE Edge{};
+			_float3 Normal = {}; 
+
+			XMStoreFloat3(&Normal,XMVector3Normalize(XMLoadFloat3(&LastPos) - SrcWorldPos ));
+
+			
 			Edge.fPos = LastPos;
+			Edge.fNormal[0] = {-Normal.z , 0, Normal.x};
+			_float fArrow = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&Edge.fNormal[0]),XMVector3Normalize(XMVectorSetY(OriginMatrix.r[3],0.f) - XMVectorSetY(XMLoadFloat3(&LastPos),0.f))));
+			if (fArrow < 0)
+				Edge.m_bLeft = true;
+			else Edge.m_bLeft = false;
 			EdgePoses.push_back(Edge);
 			return true;
 		}
@@ -504,12 +516,25 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	{
 		if (EdgePoses.empty())
 			return {};
-
-		_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.front().fPos) - readStart));
-		if (Length < 1.5f)
+		if (!bCheck)
 		{
-			EdgePoses.erase(EdgePoses.begin());
-			return {};
+
+			_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.front().fPos) - readStart));
+			if (Length < 1.5f)
+			{
+				EdgePoses.erase(EdgePoses.begin());
+				return {};
+			}
+		}
+		else
+		{
+
+			_float Length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&EdgePoses.back().fPos) - readStart));
+			if (Length < 1.5f)
+			{
+				EdgePoses.pop_back();
+				return {};
+			}
 		}
 		
 		return {};
@@ -521,62 +546,26 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	_float   MaxDist{ 0 };
 	if (!EdgePoses.empty() && !bCheck)
 	{
-		_float3 Edge{}, EdgeNormalRight{}, EdgeNormalLook{}, EdgeNormalUp{};
+		_float3 Edge{}, EdgeNormalUp;
 			Edge = EdgePoses.back().fPos;
-			EdgeNormalRight = EdgePoses.back().fNormal[0];
-			EdgeNormalUp    = EdgePoses.back().fNormal[1];
-			EdgeNormalLook  = EdgePoses.back().fNormal[2];
+			EdgeNormalUp = EdgePoses.back().fNormal[0];
 		_float fEdgeDist{};
-		_bool bCheck{ false };
-		for (auto& Layer : pLayer->Get_ObjectList())
+		_bool bDel{ false };
+		_vector vLook = XMVector3Normalize(XMVectorSetY(OriginMatrix.r[3],0.f) - XMVectorSetY(XMLoadFloat3(&Edge),0.f));
+
+		if (EdgePoses.back().m_bLeft)
 		{
-			
-			auto   SrcTransform = Layer->Get_TransformPtr();
-			_matrix SrcWorld = SrcTransform->Get_World();
-			_vector OriginPos = OriginMatrix.r[3];
-			//Ray 시작점
-			//현재 직선손 직선구간에 ray 쏴서 걸리는 물체가 있는지 확인
-			_vector startPos = XMVectorSetW(startmat, 1.f);
-			_vector SrcPos = SrcWorld.r[3];
-		
-			BoundingBox box;
-			_float3 SrcMin = SrcTransform->Get_Min();
-			_float3 SrcMax = SrcTransform->Get_Max();
-	
-	
-			XMStoreFloat3(&box.Center, (XMLoadFloat3(&SrcMin) + XMLoadFloat3(&SrcMax)) * 0.5f);
-			XMStoreFloat3(&box.Extents, (XMLoadFloat3(&SrcMax) - XMLoadFloat3(&SrcMin)) * 0.5f);
-
-			_vector LocalEdge = XMVector3Transform(XMLoadFloat3(&Edge), XMMatrixInverse(nullptr, SrcWorld));
-			_vector LocalStart = XMVector3Transform(startPos, XMMatrixInverse(nullptr, SrcWorld));
-
-			_vector OffsetDir = XMVectorSetW(XMVector3Normalize(XMLoadFloat3(&box.Center) - LocalEdge), 0.f);
-			fEdgeDist = 0.f;
-			_vector rayLen = LocalStart - LocalEdge;
-
-			LocalEdge += OffsetDir * 1.4f;
-			_vector LastEdgeDir{};
-			if (!bFinished)
-				LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalStart - LocalEdge), 0.f);
-			else LastEdgeDir = XMVectorSetW(XMVector3Normalize(LocalEdge - LocalStart), 0.f);
-
-
-			if (box.Intersects(LocalEdge, LastEdgeDir, fEdgeDist))
-			{
-				_vector LocalLength = LocalEdge + LastEdgeDir * fEdgeDist;
-
-				LocalLength = LocalStart - LocalLength;
-				LocalLength = XMVector3TransformCoord(LocalLength, SrcWorld);
-				rayLen = XMVector3TransformCoord(rayLen, SrcWorld);
-				_float a = XMVectorGetX(XMVector3Length((LocalLength - rayLen)));
-				if (XMVectorGetX(XMVector3Length((LocalLength - rayLen))) < offset)
-				{
-					bCheck = true;
-					break;
-				}
-			}
+			_float DOt = XMVectorGetX(XMVector3Dot(-XMLoadFloat3(&EdgeNormalUp), vLook));
+			if(DOt > 0 )
+				bDel =true;
 		}
-		if (!bCheck)
+		else
+		{
+			_float DOt = XMVectorGetX(XMVector3Dot(-XMLoadFloat3(&EdgeNormalUp), vLook));
+			if (DOt < 0)
+				bDel = true;
+		}
+		if (!bDel && !bCheck)
 		{
 			
 			EdgePoses.pop_back();

@@ -30,7 +30,7 @@ public:
 
 	_float3									Get_Max() { return m_fMax; }
 	_float3									Get_Min() { return m_fMin; }
-
+	void Set_Scale(_float fScaleX, _float fScaleY, _float fScaleZ);
 	void									Set_MaxMin(_float3 fMin, _float3 fMax) { m_fMin = fMin; m_fMax = fMax; }
 	void Set_State(STATE eState, _fvector vState) {
 		XMStoreFloat4(reinterpret_cast<_float4*>(&m_WorldMatrix.m[ETOUI(eState)][0]), vState);

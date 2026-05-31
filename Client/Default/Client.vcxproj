@@ -167,6 +167,7 @@
     <ClInclude Include="..\public\MainApp.h" />
     <ClInclude Include="..\public\NaviObject.h" />
     <ClInclude Include="..\public\Player.h" />
+    <ClInclude Include="..\public\PlayerAim.h" />
     <ClInclude Include="..\public\Player_Arm.h" />
     <ClInclude Include="..\public\Player_FSM.h" />
     <ClInclude Include="..\public\Player_LeftHand.h" />
@@ -206,6 +207,7 @@
     <ClCompile Include="..\private\MainApp.cpp" />
     <ClCompile Include="..\private\NaviObject.cpp" />
     <ClCompile Include="..\private\Player.cpp" />
+    <ClCompile Include="..\private\PlayerAim.cpp" />
     <ClCompile Include="..\private\Player_Arm.cpp" />
     <ClCompile Include="..\private\Player_FSM.cpp" />
     <ClCompile Include="..\private\Player_LeftHand.cpp" />
@@ -253,6 +255,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\UIShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\VertexShader.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
