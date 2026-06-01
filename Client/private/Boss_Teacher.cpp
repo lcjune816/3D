@@ -28,7 +28,7 @@ HRESULT CBoss_Teacher::Ready_Component()
 	NaviDesc.eOwner = OWNER::BOSS;
 	//0
 	//230
-	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	if (FAILED(Add_Component(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
 	if (NULL_TRUE(m_pStateMachine)) return E_FAIL;

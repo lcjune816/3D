@@ -23,7 +23,7 @@ public:
 
 	HRESULT Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag ,int32_t iResize);
 
-
+	void	ReBindComponents(uint32_t iLayerLevelIndex);
 	HRESULT Add_GameObject_ToCopyLayer(uint32_t iPrototypeLevelIndex, const _wstring strPrototypeTag, void* pArg);
 	HRESULT Move_CopyLayer_ToObjectLayer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag);
 	void	Move_To_Layer(uint32_t iLayerCurrentLevelIndex, const _wstring& strCurrentLayerTag, const _wstring& strNextLayerTag, shared_ptr<class CGameObject> pObj);

@@ -36,12 +36,6 @@ HRESULT CVIBuffer::Bind_Resource()
 		0,
 	};
 
-	//if (!m_TextureList.empty())
-	//{
-	//	auto iter = CGameInstance::Get().Find_Texture(m_TextureList[0].path);
-	//	m_pContext->PSSetShaderResources(0, 1, &iter);
-	//}
-	
 	m_pContext->IASetVertexBuffers(0, m_iNumVertexBuffers, pVertexBuffers, iVertexStrides, iOffsets);
 	m_pContext->IASetIndexBuffer(m_pIB.Get(), m_eIndexFormat, 0);
 	m_pContext->IASetPrimitiveTopology(m_ePrimitiveType);

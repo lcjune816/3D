@@ -36,7 +36,7 @@ public:
 	virtual void	Late_Update(_float fTimeDelta);
 	virtual HRESULT	Render();
 
-
+	virtual  void			ReBindsComponnet(uint32_t iLevelIndex);
 	_bool					Get_Dead()      { return m_bDead; }
 	MESH_TYPE				Get_MeshType()  { return m_eMeshType; }
 	weak_ptr<CTransform>	Get_Transform() { return m_pTransform; }
@@ -53,7 +53,7 @@ public:
 	void					Set_Dead() { m_bDead = true; }
 	void					Set_bBoxColor(_bool bColor) { m_bBoxColor = bColor; }
 	void					Set_EndObject(_bool bEnd) { m_bEndObject = bEnd; }
-
+	void					Set_Render(_bool bRender) { m_bRender = bRender; }
 	virtual void            Load_Data(void* pDesc, const json& j);
 	virtual json			Save_Data();
 
@@ -93,7 +93,7 @@ protected:
 	_bool								m_bEndObject = { false };
 	_bool								m_bBoxColor = { false };
 	_bool								m_bCopyLayerCheck = { false };
-
+	_bool								m_bRender = { true };
 	_char					m_pTagName[64];
 	string						m_PathName;
 protected:

@@ -236,7 +236,15 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CGenerator::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"),
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Instance_Mesh"),
+		CVIBuffer_Instance_Mesh::Create(m_pDevice, m_pContext,nullptr))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
+		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Navigation"),
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
 		return E_FAIL;
 
@@ -291,7 +299,9 @@ HRESULT CLoader::Loading_For_GasProduction()
 		CDecalObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
-	
+	//if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("Component_Navigation"),
+	//	CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
+	//	return E_FAIL;
 	
 
 	Load_Data(LEVEL::GASZONE, L"../../GasZone_Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GasZone_Object");

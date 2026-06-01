@@ -11,12 +11,6 @@ CNavi_Manager::~CNavi_Manager()
 
 HRESULT CNavi_Manager::Initialize()
 {
-#ifdef _DEBUG
-
-	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
-	if (nullptr == m_pShader)
-		return E_FAIL;
-#endif
 
 	return S_OK;
 

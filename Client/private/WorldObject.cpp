@@ -71,15 +71,15 @@ HRESULT CWorldObject::Initialize(void* pArg)
 		return E_FAIL;
 
 	CGameInstance::Get().Add_LightMtrl(m_PathName);
-	INSTANCING_DATA Data;
-	XMStoreFloat4x4(&Data.matWorld,m_pTransform->Get_World());
-	//CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
-	//CGameInstance::Get().Add_Instancing_Data(m_MeshNameList, Data);
+	for (size_t i = 0; i < m_MeshNameList.size(); ++i)
+	{
+		CGameInstance::Get().Add_Instancing_ObjectData(m_MeshNameList[i], m_pTransform->Get_World(), SHARED_THIS(CWorldObject));
+	}
 	return S_OK;
 }
 void CWorldObject::Priority_Update(_float fTimeDelta)
 {
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CWorldObject));
+
 }
 void CWorldObject::Update(_float fTimeDelta)
 {
@@ -92,11 +92,14 @@ void CWorldObject::Update(_float fTimeDelta)
 }
 void CWorldObject::Late_Update(_float fTimeDelta)
 {
+	if (m_bRender)
+		CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CWorldObject));
+	else
+		int a = 0;
 
 }
 HRESULT CWorldObject::Render()
 {
-
 	_float4x4 matWorld{};
 	_float4 fColor = {};
 	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
