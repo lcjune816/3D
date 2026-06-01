@@ -865,9 +865,12 @@ void CAssimp_Manager::NonAnime_Binary_File_Import_Mesh(vector<uint32_t>& idList,
 			//매쉬 id는 0번쨰부터
 			m_MeshMapIdList.emplace(name, id);
 			//해당 이름에 해당하는 id가 없을경우 매쉬를 새로 추가하고
+			INSTANCING_DESC InstanceData{};
+			Desc.InstanceData = &InstanceData;
 			m_MeshLists.emplace_back(static_pointer_cast<CMeshNonAnime>(static_pointer_cast<CMeshNonAnime>(m_pMeshNonAnime->Clone(&Desc))));
 			// 그 배열 번호를 담는다
 			idList.push_back(id);
+			CGameInstance::Get().Add_Instancing_Data(id, move(InstanceData));
 
 
 		}

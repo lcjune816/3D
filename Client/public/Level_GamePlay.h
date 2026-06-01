@@ -31,6 +31,7 @@ private:
 	HRESULT		Ready_Layer_BackGround(const _wstring& strLayerTag);
 	HRESULT		Ready_Layer_WorldObject(const _wstring& strLayerTag);
 	HRESULT		Ready_Layer_TriggerObject(const _wstring& strLayerTag);
+	HRESULT		Ready_Layer_WorldObjectInstance(const _wstring& strLayerTag);
 	HRESULT		Ready_ProtoType();
 
 

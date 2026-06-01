@@ -32,6 +32,7 @@
 #include "Navigation.h"
 #include "Generator.h"
 #include "UIObject.h"
+#include "VIBuffer_Instance_Mesh.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

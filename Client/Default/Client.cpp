@@ -59,7 +59,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
 
     _float      fTimeAcc = {};
-    _float fps (0);
+    int32_t fps (0);
     _float fpsTime (0);
     while (true)
     {
@@ -79,24 +79,25 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         fTimeAcc += fTime;
         fpsTime += fTime;
-     
+
         _float fTargetTime = 1.f / 60.f;
         if (fTimeAcc >= fTargetTime)
         {
-          
-            pMainApp->Update(fTargetTime);
-            pMainApp->Render();
+            CGameInstance::Get().Compute_TimeDelta(TEXT("Timer_60"));
+            
+            pMainApp->Update(CGameInstance::Get().Get_TimeDelta(TEXT("Timer_60")));
             ++fps;
-            fTimeAcc  -= fTargetTime;
+            fTimeAcc = 0.f;
+            pMainApp->Render();
+            CGameInstance::Get().ImGuiRender();
         }
-        if (fpsTime >= 1.f)
+        if(fpsTime >=1.f)
         {
             wchar_t buffer[256];
-            swprintf_s(buffer, L"Client - FPS: %.0f", fps);
-
+            swprintf_s(buffer, L"Client - FPS: %d", fps);
             SetWindowText(g_hWnd, buffer);
-            fpsTime -= 1.f;
-            fps = 0.f;
+            fps = 0;
+            fpsTime = 0.f;
 
         }
         

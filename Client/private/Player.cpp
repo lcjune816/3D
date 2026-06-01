@@ -31,7 +31,7 @@ HRESULT CPlayer::Ready_Component()
 	NaviDesc.eOwner = OWNER::PLAYER;
 	//27
 	//233
-	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	if (FAILED(Add_Component(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 
 	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
@@ -338,6 +338,18 @@ _bool CPlayer::Flag_Check(uint32_t iFlag)
 		return true;
 
 	return false;
+}
+
+void CPlayer::ReBindsComponnet(uint32_t iLevelIndex)
+{
+	//CNavigation::NAVIGATION_DESC NaviDesc;
+	//NaviDesc.iIndex = 0;
+	//NaviDesc.eOwner = OWNER::PLAYER;
+	//
+	//m_Components[TEXT("Com_Navigation")].reset();
+	//m_pNavigation.reset();
+	//if (FAILED(Add_Component(iLevelIndex, TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	//	return;
 }
 
 void CPlayer::Timer(const _float& fTimeDelta)

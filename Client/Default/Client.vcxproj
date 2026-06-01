@@ -160,6 +160,7 @@
     <ClInclude Include="..\public\FSM_Teacher_Move.h" />
     <ClInclude Include="..\public\FSM_Teacher_Spawn.h" />
     <ClInclude Include="..\public\GuiObject.h" />
+    <ClInclude Include="..\public\Instance_WorldObject.h" />
     <ClInclude Include="..\public\Level_GamePlay.h" />
     <ClInclude Include="..\public\Level_GasProduction.h" />
     <ClInclude Include="..\public\Level_Loading.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="..\private\FSM_Teacher_Move.cpp" />
     <ClCompile Include="..\private\FSM_Teacher_Spawn.cpp" />
     <ClCompile Include="..\private\GuiObject.cpp" />
+    <ClCompile Include="..\private\Instance_WorldObject.cpp" />
     <ClCompile Include="..\private\Level_GamePlay.cpp" />
     <ClCompile Include="..\private\Level_GasProduction.cpp" />
     <ClCompile Include="..\private\Level_Loading.cpp" />
@@ -253,6 +255,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Mesh.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>

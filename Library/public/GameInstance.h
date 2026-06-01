@@ -58,7 +58,7 @@ public:
 	HRESULT     Resize_Layer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, int32_t iResize);
 	void		Save_Data(uint32_t iNumLevel,_wstring path, const _wstring& strLayerName, const string& pSaveArrayName);
 	
-
+	void ReBindComponents(uint32_t iLayerLevelIndex);
 	HRESULT Add_GameObject_ToCopyLayer(uint32_t iPrototypeLevelIndex, const _wstring strPrototypeTag, void* pArg);
 	HRESULT Move_CopyLayer_ToObjectLayer(uint32_t iLayerLevelIndex, const _wstring& strLayerTag);
 	void	Reset_CopyLayer();
@@ -86,10 +86,9 @@ public:
  
 #pragma region INSTANCING
 
-	HRESULT				   Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data);
-	const INSTANCING_DESC* Find_Instancing_Data(const uint32_t meshindex);
-	HRESULT				   Add_Instancing_Shader(shared_ptr<CShader> pShader);
-	HRESULT					Draw_Instancing();
+	HRESULT				   Add_Instancing_Data(uint32_t iIndex, INSTANCING_DESC InstanceData);
+	_bool					Create_Instancing_Desc(INSTANCING_DESC& InstanceData);
+	HRESULT					Add_Instancing_ObjectData(const uint32_t iIndex, _fmatrix World, shared_ptr<CGameObject> pObj);
 #pragma endregion
 
 #pragma region PIPELINE
@@ -154,6 +153,7 @@ public:
 	const vector<string>&	Get_FileNameList();
 	string					Model_Animation(const vector<string>& pNames);
 	void					Add_FilePath(const string fileName, const string filePath);
+	void					ImGuiRender();
 #pragma endregion
 
 

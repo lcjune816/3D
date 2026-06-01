@@ -47,17 +47,18 @@ public:
 
 public:
 	string					Model_Animation(const vector<string>& pNames);
-	const MOVE& Get_State() { return m_eState; }
+	const MOVE&				Get_State() { return m_eState; }
 	PLAYER_ANIME			Get_Animation_State() { return m_eAnimeState; }
-	PLAYER_STATE& Get_AnimeState() { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
+	PLAYER_STATE&			Get_AnimeState() { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기
 
 	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }
 	void					Change_Animation(PLAYER_ANIME eAnime, _bool bLoop = true, _bool bForce = false, _bool Blend = true);
 	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
-	CAnimator* GetAnimator() { return m_pAnimator.get(); }
+	CAnimator*				GetAnimator() { return m_pAnimator.get(); }
 	void					Set_Flag(uint32_t eState, FLAGVALUE eValue);
 	_bool					Flag_Check(uint32_t iFlag);
 
+	virtual			void ReBindsComponnet(uint32_t iLevelIndex)override;
 protected:
 	void					Timer(const _float& fTimeDelta);
 

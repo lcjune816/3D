@@ -143,17 +143,17 @@ HRESULT CRenderer::Render_Priority()
  
    //절두체의 가까운 평면을 계산
    _vector vPlane[6];
-   Culling_Calcurator(vPlane);
+  // Culling_Calcurator(vPlane);
 
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::PRIORITY)])
     {
         if (nullptr != pRenderObject)
         {
-           if (Culling(pRenderObject.get(), vPlane))
-           {
+          //if (Culling(pRenderObject.get(), vPlane))
+          //{
                 ++iRanderCall;
                 pRenderObject->Render();
-           }
+           //}
         }
     }
 
@@ -167,18 +167,18 @@ HRESULT CRenderer::Render_NonBlend()
 
     //절두체의 가까운 평면을 계산
     _vector vPlane[6];
-    Culling_Calcurator(vPlane);
+    //Culling_Calcurator(vPlane);
 
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::NONBLEND)])
     {
         if (nullptr != pRenderObject)
         {
-            if (Culling(pRenderObject.get(), vPlane))
-            {
+           // if (Culling(pRenderObject.get(), vPlane))
+           // {
                 ++iRanderCall;
 
                 pRenderObject->Render();
-            }
+           // }
         }
     }
 
@@ -190,17 +190,17 @@ HRESULT CRenderer::Render_NonBlend()
 HRESULT CRenderer::Render_Blend()
 {
     _vector vPlane[6];
-    Culling_Calcurator(vPlane);
+   // Culling_Calcurator(vPlane);
 
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::BLEND)])
     {
         if (nullptr != pRenderObject)
         {
-            if (Culling(pRenderObject.get(), vPlane))
-            {
+           //if (Culling(pRenderObject.get(), vPlane))
+           //{
                 ++iRanderCall;
                 pRenderObject->Render();
-            }
+           // }
         }
     }
 

@@ -6,6 +6,7 @@
 #include "Stageone_Terrain.h"
 #include "TriggerObject.h"
 #include "DecalObject.h"
+#include "Instance_WorldObject.h"
 #include "Camera.h"
 ///////////플레이어/////////
 #include "Player.h"
