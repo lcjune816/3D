@@ -222,6 +222,9 @@
     <ClInclude Include="..\public\Cat_FSM.h">
       <Filter>02.GameObject\03.Boss\Cat</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Instance_WorldObject.h">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -348,6 +351,9 @@
     <ClCompile Include="..\private\Cat_FSM.cpp">
       <Filter>02.GameObject\03.Boss\Cat</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Instance_WorldObject.cpp">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
@@ -369,6 +375,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\UIShader.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Mesh.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

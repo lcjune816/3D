@@ -22,6 +22,7 @@ HRESULT CLevel_Manager::Change_Level(uint32_t iNewLevelIndex, unique_ptr<class C
 		m_pCurrentLevel.reset();
 	}
 
+
 	m_pCurrentLevel = std::move(pNewLevel);
 
 	m_iCurrentLevelIndex = iNewLevelIndex;

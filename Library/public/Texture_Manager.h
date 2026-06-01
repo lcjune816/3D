@@ -32,9 +32,9 @@ public:
 
 private:
 
-	map<string, uint32_t>					m_TextueMapID = {};
+	map<string, uint32_t>					 m_TextueMapID = {};
 	vector<ComPtr<ID3D11ShaderResourceView>> m_TextureLists = {};
-	vector<string>	m_NameList = {};
+	vector<string>							 m_NameList = {};
 	ComPtr<ID3D11Device>		m_pDevice ;
 	ComPtr<ID3D11DeviceContext> m_pContext;
 

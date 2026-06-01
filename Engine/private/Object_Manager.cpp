@@ -127,6 +127,20 @@ HRESULT CObject_Manager::Add_GameObject_ToLayer(uint32_t iPrototypeLevelIndex, c
 	return S_OK;
 }
 
+void CObject_Manager::ReBindComponents(uint32_t iLayerLevelIndex)
+{
+	if (m_pLayers[iLayerLevelIndex].empty())
+		return;
+
+	for (auto& pLayer : m_pLayers[iLayerLevelIndex])
+	{
+		for (auto& pObj : pLayer.second->Get_ObjectList())
+		{
+			pObj->ReBindsComponnet(iLayerLevelIndex);
+		}
+	}
+}
+
 HRESULT CObject_Manager::Add_GameObject_ToCopyLayer(uint32_t iPrototypeLevelIndex, const _wstring strPrototypeTag, void* pArg)
 {
 	auto pObj = static_pointer_cast<CGameObject>(CGameInstance::Get().Clone_Prototype(iPrototypeLevelIndex, strPrototypeTag, pArg));

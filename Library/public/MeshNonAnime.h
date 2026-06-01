@@ -12,6 +12,7 @@ public:
 		vector<VERTEX_NOANIME>  Vertexes;
 		vector<uint32_t>		Indices;
 		vector<TEXTURE>			Textures[AI_TEXTURE_TYPE_MAX];
+		INSTANCING_DESC*		InstanceData{ nullptr };
 		MATERIAL				eMatrial;
 	}NONANIME_DESC;
 
@@ -24,7 +25,7 @@ public:
 	virtual HRESULT					Initialize_Prototype();
 	virtual HRESULT					Initialize(void* pArg);
 
-	const MATERIAL							Get_Matrial() { return m_eMatrial; }
+	const MATERIAL						Get_Matrial() { return m_eMatrial; }
 private:
 	HRESULT							Setup_Mesh(vector<VERTEX_NOANIME>& vertices, vector<uint32_t>& indeces);
 private:

@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "Level_Loading.h"
 #include "NaviObject.h"
+#include "Loader_Defines.h"
 #include "Loader.h"
 CLevel_GamePlay::CLevel_GamePlay(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CLevel{ pDevice, pContext }
@@ -36,6 +37,8 @@ HRESULT CLevel_GamePlay::Initialize()
 		return E_FAIL;
 
 	if (FAILED(Ready_ProtoType()))
+		return E_FAIL;
+	if(FAILED(Ready_Layer_WorldObjectInstance(L"Layer_GameObject")))
 		return E_FAIL;
 
 
@@ -130,6 +133,22 @@ HRESULT CLevel_GamePlay::Ready_Layer_WorldObject(const _wstring& strLayerTag)
 HRESULT CLevel_GamePlay::Ready_Layer_TriggerObject(const _wstring& strLayerTag)
 {
 	return E_NOTIMPL;
+}
+HRESULT CLevel_GamePlay::Ready_Layer_WorldObjectInstance(const _wstring& strLayerTag)
+{
+	while (true)
+	{
+		CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
+
+ 		if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
+			return S_OK;
+		
+			if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
+				ETOUI(LEVEL::GAMEPLAY), strLayerTag, &InstanceData)))
+				return E_FAIL;
+
+	}
+	return S_OK;
 }
 HRESULT CLevel_GamePlay::Ready_ProtoType()
 {

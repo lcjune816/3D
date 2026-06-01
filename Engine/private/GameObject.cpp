@@ -80,4 +80,8 @@ HRESULT CGameObject::Render()
 	return S_OK;
 }
 
+void CGameObject::ReBindsComponnet(uint32_t iLevelIndex)
+{
+}
+
 

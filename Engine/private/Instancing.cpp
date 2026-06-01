@@ -1,4 +1,5 @@
 #include "Instancing.h"
+
 #include "GameInstance.h"
 CInstancing::CInstancing(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) : CComponent{pDevice,pContext}
 {
@@ -15,85 +16,84 @@ CInstancing::~CInstancing()
 
 HRESULT CInstancing::Initialize()
 {
-	m_pTransform = CTransform::Create(m_pDevice, m_pContext);
-	if (FAILED(m_pTransform->Initialize_Prototype()))
-		return E_FAIL;
+	return S_OK;
 }
 
 HRESULT CInstancing::Draw_Instancing()
 {
-
-	for (auto& PathName : m_OnlyOneDrawCallList)
-	{
-		//auto TextueList = m_InstancingDataToTextures.find(PathName);
-		
-		//if (TextueList == m_InstancingDataToTextures.end())
-		//	continue;
-
-		auto WorldMatrixs = m_InstancingDatas.find(PathName);
-
-		if (WorldMatrixs == m_InstancingDatas.end())
-			continue;
-
-		const auto& matWorlds = WorldMatrixs->second.matWorlds;
-
-		m_pShader->Bind_Matrix_Array("g_World", matWorlds.data(), matWorlds.size());
-		m_pShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-		m_pShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-
-		//for (auto MeshList : TextueList->second)
-		//{
-			CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(PathName);
-		
-			pMesh->Bind_ResourceSRV(m_pShader.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
-			m_pShader->Begin(0);
-		
-			pMesh->Bind_Resource();
-
-			pMesh->Render_Array(matWorlds.size());
-		//}
-
-	}
 	
 	return S_OK;
 }
 
-HRESULT CInstancing::Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data)
+_bool CInstancing::Create_Instancing_Desc(INSTANCING_DESC& InstanceData)
 {
-	//인덱스로 인스턴싱 데이터 찾기
-	for (size_t i = 0; i < meshindex.size(); ++i)
+	if (m_InstancingDatas.empty())
+		return false;
+
+	for (auto iter  = m_InstancingDatas.begin(); iter != m_InstancingDatas.end();)
 	{
-		auto iter = m_InstancingDatas.find(meshindex[i]);
-
-		if (iter == m_InstancingDatas.end())
+		if (iter->second.matWorlds.size() >= 3)
 		{
-			INSTANCING_DESC desc;
-			desc.matWorlds.push_back(Data.matWorld);
+			INSTANCING_DESC pDesc{};
+			
+			InstanceData.matWorlds = move(iter->second.matWorlds);
+			InstanceData.indices   =	   iter->second.indices;
+			InstanceData.Vertices  =	   iter->second.Vertices;
+			InstanceData.pIB	   =	   iter->second.pIB;
+			InstanceData.pVB	   =	   iter->second.pVB;
+			
+			for (int32_t i = 0; i < AI_TEXTURE_TYPE_MAX; ++i)
+				InstanceData.Textures[i] = iter->second.Textures[i];
+			
+			
+			for (size_t i = 0; i < iter->second.ObjectsTemp.size(); ++i)
+			{
+				if(auto pObj = iter->second.ObjectsTemp[i].lock())
+					pObj->Set_Render(false);
+			}
 
-			m_InstancingDatas.insert({ meshindex[i], desc });
-
-
-			m_OnlyOneDrawCallList.push_back(meshindex[i]);
+			iter = m_InstancingDatas.erase(iter);
+			return true;
 		}
 		else
 		{
-			//중복 매쉬가 있으면 행렬 푸쉬백
-			m_InstancingDatas[meshindex[i]].matWorlds.push_back(Data.matWorld);
+			iter = m_InstancingDatas.erase(iter);
 		}
+
+
 	}
+	return false;
+}
+
+HRESULT CInstancing::Add_Instancing_ObjectData(const uint32_t iIndex, _fmatrix World, shared_ptr<CGameObject> pObj)
+{
+
+	auto iter = m_InstancingDatas.find(iIndex);
 	
+	if (iter != m_InstancingDatas.end())
+	{
+		_float4x4 matWorld = {};
+		XMStoreFloat4x4(&matWorld, World);
+		m_InstancingDatas[iIndex].matWorlds.push_back(matWorld);
+		m_InstancingDatas[iIndex].ObjectsTemp.push_back(pObj);
+	}
+
 	return S_OK;
 }
 
-HRESULT CInstancing::Add_Instancing_Shader(shared_ptr<CShader> pShader)
+HRESULT CInstancing::Add_Instancing_Data(uint32_t iIndex, INSTANCING_DESC InstanceData)
 {
 	
-	m_pShader = pShader;
-	if (NULL_TRUE(m_pShader))
-		return E_FAIL;
+		auto iter = m_InstancingDatas.find(iIndex);
 
+		if (iter == m_InstancingDatas.end())
+		{
+			m_InstancingDatas[iIndex] = InstanceData;
+		}
+	
 	return S_OK;
 }
+
 
 const INSTANCING_DESC* CInstancing::Find_Instancing_Data(const uint32_t meshindex)
 {
