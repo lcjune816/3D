@@ -187,6 +187,12 @@
     <Filter Include="05.GameObject\UI">
       <UniqueIdentifier>{6d9b0b83-3ee6-4f35-b4b9-deb27d31faa8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="06.Component\VIBuffer\Instance">
+      <UniqueIdentifier>{10c10a94-8816-4f99-bffd-170653ec01f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06.Component\VIBuffer\Instance\Mesh">
+      <UniqueIdentifier>{f7190670-123d-447f-be2a-8ecb0834b1c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -393,6 +399,12 @@
     </ClInclude>
     <ClInclude Include="..\public\UIObject.h">
       <Filter>05.GameObject\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Instance.h">
+      <Filter>06.Component\VIBuffer\Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Instance_Mesh.h">
+      <Filter>06.Component\VIBuffer\Instance\Mesh</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -611,6 +623,12 @@
     </ClCompile>
     <ClCompile Include="..\private\UIObject.cpp">
       <Filter>05.GameObject\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Instance.cpp">
+      <Filter>06.Component\VIBuffer\Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Instance_Mesh.cpp">
+      <Filter>06.Component\VIBuffer\Instance\Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -115,7 +115,7 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pObject_Manager->Late_Update(fTimeDelta);
 
 	m_pLevel_Manager->Update(fTimeDelta);
-
+	
 	
 
 	m_pAssimp_Manager->Update(fTimeDelta);
@@ -129,7 +129,7 @@ HRESULT	CGameInstance::Draw()
 	if (FAILED(m_pLevel_Manager->Render()))
 		return E_FAIL;
 
-	m_pGui_Manager->Render();
+	//m_pGui_Manager->Render();
 	return S_OK;
 }
 void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
@@ -151,21 +151,17 @@ const uint32_t		CGameInstance::Get_RanderCall()
 #pragma endregion
 
 #pragma region INSTANCING
-HRESULT				   CGameInstance::Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data)
+HRESULT				   CGameInstance::Add_Instancing_Data(uint32_t iIndex, INSTANCING_DESC InstanceData)
 {
-	return m_pInstancing->Add_Instancing_Data(meshindex, Data);
+	return m_pInstancing->Add_Instancing_Data(iIndex, InstanceData);
 }
-const INSTANCING_DESC* CGameInstance::Find_Instancing_Data(const uint32_t meshindex)
+_bool						CGameInstance::Create_Instancing_Desc(INSTANCING_DESC& InstanceData)
 {
-	return m_pInstancing->Find_Instancing_Data(meshindex);
+	return m_pInstancing->Create_Instancing_Desc(InstanceData);
 }
-HRESULT CGameInstance::Draw_Instancing()
+HRESULT						CGameInstance::Add_Instancing_ObjectData(const uint32_t iIndex, _fmatrix World, shared_ptr<CGameObject> pObj)
 {
-	return m_pInstancing->Draw_Instancing();
-}
-HRESULT				CGameInstance::Add_Instancing_Shader(shared_ptr<CShader> pShader)
-{
-	return m_pInstancing->Add_Instancing_Shader(pShader);
+	return m_pInstancing->Add_Instancing_ObjectData(iIndex, World, pObj);
 }
 #pragma endregion
 #pragma region ASSIMP_MANAGER
@@ -256,6 +252,11 @@ void CGameInstance::Add_FilePath(const string fileName, const string filePath)
 	m_pGui_Manager->Add_FilePath(fileName, filePath);
 }
 
+void CGameInstance::ImGuiRender()
+{
+	m_pGui_Manager->Render();
+}
+
 #pragma endregion
 #pragma region GRAPHIC_DEVICE
 HRESULT	CGameInstance::Clear_BackBuffer_View(const _float4* pClearColor)
@@ -307,6 +308,10 @@ shared_ptr<CPrototype> CGameInstance::Clone_Prototype(uint32_t iLevelIndex, cons
 }
 #pragma endregion
 #pragma region GAMEOBJECT_MANAGER
+void CGameInstance::ReBindComponents(uint32_t iLayerLevelIndex)
+{
+	m_pObject_Manager->ReBindComponents(iLayerLevelIndex);
+}
 HRESULT CGameInstance::Add_GameObject_toLayer(uint32_t iPrototypeLevelIndex, const _wstring& strPrototypeTag,
 	uint32_t iLayerLevelIndex, const _wstring& strLayerTag, void* pArg)
 {

@@ -362,6 +362,7 @@ HRESULT CNavigation::Save_Navi(const _wstring& FilePath, const _char* pName)
 
 HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
 {
+    m_Cells.clear();
     json j;
     ifstream file(FilePath);
     if (!file.is_open())

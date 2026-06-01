@@ -42,7 +42,7 @@ void CFSM_RightHand::Enter_State()
 	m_fForce = {};
 	m_iEdgeCnt = 0;
 	m_fTimerTick = 0; 
-	m_fTimerTime = 10.f;
+	m_fTimerTime = 0.f;
 	m_bStop = m_bOnlyone = m_bFront = m_bReFinished = false;
 	m_iMaxSpeed = 400;
 	XMStoreFloat3(&m_fFirstLook,Player->Get_Transform().lock()->Get_State(STATE::LOOK));
@@ -493,12 +493,15 @@ _bool CFSM_RightHand::Update_LastPos(CTriggerObject* pTrigger, CTransform* pTran
 	
 	offsetmat = XMLoadFloat4x4(&mat);
 	
-	XMStoreFloat3(&m_fFirstLook, XMVectorSet(-1,0,0,0));
 	XMStoreFloat3(&m_fLastHandPos, offsetmat.r[3]);
-
-	pTransform->Set_State(STATE::RIGHT,offsetmat.r[0] * fScale.x);
-	pTransform->Set_State(STATE::UP   ,offsetmat.r[1] * fScale.y);
-	pTransform->Set_State(STATE::LOOK ,offsetmat.r[2] * fScale.z);
+	
+	if (m_bFront)
+	{
+		XMStoreFloat3(&m_fFirstLook, XMVectorSet(-1, 0, 0, 0));
+		pTransform->Set_State(STATE::RIGHT, offsetmat.r[0] * fScale.x);
+		pTransform->Set_State(STATE::UP, offsetmat.r[1] * fScale.y);
+		pTransform->Set_State(STATE::LOOK, offsetmat.r[2] * fScale.z);
+	}
 	pTransform->Set_State(STATE::POS  ,offsetmat.r[3]);
 
 	return true;

@@ -15,16 +15,14 @@ public:
 	HRESULT						Initialize();
 
 	HRESULT						Draw_Instancing();
-	HRESULT						Add_Instancing_Data(vector<uint32_t>& meshindex, INSTANCING_DATA Data);
-	HRESULT						Add_Instancing_Shader(shared_ptr<class CShader> pShader);
+
+
+	_bool					Create_Instancing_Desc(INSTANCING_DESC& InstanceData);
+	HRESULT						Add_Instancing_ObjectData(const uint32_t iIndex, _fmatrix World, shared_ptr<CGameObject> pObj);
+	HRESULT						Add_Instancing_Data(uint32_t iIndex, INSTANCING_DESC InstanceData);
 	const INSTANCING_DESC*		Find_Instancing_Data(const uint32_t meshindex);
 private:
-	map<uint32_t, INSTANCING_DESC>		m_InstancingDatas;
-	
-	shared_ptr<class CShader>			m_pShader;
-	shared_ptr<class CTransform>		m_pTransform;
-
-	vector<uint32_t>						m_OnlyOneDrawCallList;
+	map<uint32_t, INSTANCING_DESC>			m_InstancingDatas;
 
 	map<uint32_t, vector<uint32_t>>			m_InstancingDataToTextures;
 public:

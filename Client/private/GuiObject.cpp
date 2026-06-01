@@ -1821,9 +1821,9 @@ void CGuiObject::Navi_Creator()
 				CGameInstance::Get().Ready_Neightbors();
 
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
-				CGameInstance::Get().Save_Navi(L"../../Navi.json", "Navi");
+				CGameInstance::Get().Save_Navi(L"../../NaviGasZone.json", "Navi");
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
-				CGameInstance::Get().Load_Navi(L"../../Navi.json", "Navi");
+				CGameInstance::Get().Load_Navi(L"../../NaviGasZone.json", "Navi");
 
 		
 		ImGui::EndTabBar();

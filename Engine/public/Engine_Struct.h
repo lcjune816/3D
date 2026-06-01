@@ -63,17 +63,23 @@ namespace Engine
 		_float3 fRot;
 
 	}INFO;
+	typedef struct Texture
+	{
+		uint32_t iTextureID;
+		string path;
+	}TEXTURE;
 
 	typedef struct tagInstancing
 	{
-		vector<_float4x4> matWorlds;
+		ComPtr<ID3D11Buffer> pVB;
+		ComPtr<ID3D11Buffer> pIB;
+		vector<TEXTURE>		Textures[AI_TEXTURE_TYPE_MAX];
+		vector<_float4x4>	matWorlds;
+		uint32_t  indices;
+		uint32_t  Vertices;
 
+		vector<weak_ptr<class CGameObject>> ObjectsTemp;
 	}INSTANCING_DESC;
-
-	typedef struct tagInstancingData
-	{
-		_float4x4 matWorld;
-	}INSTANCING_DATA;
 
 	typedef struct taglight
 	{
@@ -163,6 +169,51 @@ namespace Engine
 		}
 	}VERTEX;
 	
+	typedef struct tagVertexInstanceParticle
+	{
+		_float4		fRight, fUp, fLook, fTranslation;
+		_float2		fLifeTime;
+	}VTXINSTANCE_PARTICLE;
+	typedef struct tagVertexInstanceMesh
+	{
+		_float4		fRight, fUp, fLook, fTranslation;
+
+	}VTXINSTANCE_MESH;
+	typedef struct tagVertexInstanceNonAnime_Mesh
+	{
+		static constexpr uint32_t			iNumElements = { 7 };
+		static constexpr D3D11_INPUT_ELEMENT_DESC		Elements[iNumElements] = {
+			{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,   0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
+			{"NORMAL",  0,DXGI_FORMAT_R32G32B32_FLOAT,   0,12,D3D11_INPUT_PER_VERTEX_DATA,0},
+			{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,      0,24,D3D11_INPUT_PER_VERTEX_DATA,0},
+
+			{"TEXCOORD",1,DXGI_FORMAT_R32G32B32A32_FLOAT,1, 0,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",2,DXGI_FORMAT_R32G32B32A32_FLOAT,1,16,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",3,DXGI_FORMAT_R32G32B32A32_FLOAT,1,32,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",4,DXGI_FORMAT_R32G32B32A32_FLOAT,1,48,D3D11_INPUT_PER_INSTANCE_DATA,1},
+
+		};
+
+	}VTXINSTANCE_NONANIME_MESH;
+	
+	typedef struct tagVertexInstanceParticle_Rect
+	{
+		static constexpr uint32_t			iNumElements = { 7 };
+		static constexpr D3D11_INPUT_ELEMENT_DESC		Elements[iNumElements] = {
+			{"POSITION",0,DXGI_FORMAT_R32G32B32_FLOAT,0,0,D3D11_INPUT_PER_VERTEX_DATA,0},
+			{"TEXCOORD",0,DXGI_FORMAT_R32G32_FLOAT,   0,12,D3D11_INPUT_PER_VERTEX_DATA,0},
+
+			{"TEXCOORD",1,DXGI_FORMAT_R32G32B32A32_FLOAT,1, 0,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",2,DXGI_FORMAT_R32G32B32A32_FLOAT,1,16,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",3,DXGI_FORMAT_R32G32B32A32_FLOAT,1,32,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",4,DXGI_FORMAT_R32G32B32A32_FLOAT,1,48,D3D11_INPUT_PER_INSTANCE_DATA,1},
+			{"TEXCOORD",5,DXGI_FORMAT_R32G32B32A32_FLOAT,1,64,D3D11_INPUT_PER_INSTANCE_DATA,1},
+
+		};
+
+	}VTXINSTANCE_PARTICLE_RECT;
+
+
 	typedef struct vertexbone
 	{
 		_float3		fPos;			//0
@@ -196,12 +247,7 @@ namespace Engine
 	}VERTEX_BOX;
 
 	//저장 필요
-	typedef struct Texture
-	{
-		uint32_t iTextureID;
-		string path;
-	}TEXTURE;
-	
+
 
 	//저장 필요
 	typedef struct Bone

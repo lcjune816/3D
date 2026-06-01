@@ -34,11 +34,21 @@ HRESULT CMeshNonAnime::Initialize(void* pArg)
 
 	for(size_t i=0; i< AI_TEXTURE_TYPE_MAX; ++i)
 		m_TextureList[i] = move(Dest->Textures[i]);
+
+
 	if (FAILED(Setup_Mesh(Dest->Vertexes, Dest->Indices)))
 		return E_FAIL;
-
 	m_eMatrial = Dest->eMatrial;
 
+
+	Dest->InstanceData->indices = m_iNumIndices;
+	Dest->InstanceData->Vertices= m_iNumVertices;
+	
+	for (int32_t i = 0; i < AI_TEXTURE_TYPE_MAX; ++i)
+		Dest->InstanceData->Textures[i] = m_TextureList[i];
+	Dest->InstanceData->pIB = m_pIB;
+	Dest->InstanceData->pVB = m_pVB;
+	
 	return S_OK;
 }
 
