@@ -50,7 +50,7 @@ HRESULT CLevel_GasProduction::Render()
 }
 HRESULT CLevel_GasProduction::Ready_Layer_Camera(const _wstring& strLayerTag)
 {
-	auto pObj = static_cast<CPlayer*>(CGameInstance::Get().Get_ObjectPtr(ETOUI(LEVEL::GASZONE), L"Layer_Player", "Player"));
+ 	auto pObj = static_cast<CPlayer*>(CGameInstance::Get().Get_ObjectPtr(ETOUI(LEVEL::GASZONE), L"Layer_Player", "Player"));
 	uint32_t index = pObj->GetAnimator()->Find_Key("JNT_Camera");
 	_float4x4 Matrix = pObj->GetAnimator()->Find_Matrix(index);
 

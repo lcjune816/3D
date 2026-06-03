@@ -45,7 +45,7 @@ private:
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 	shared_ptr<Engine::CFSM_Machine>	m_pStateMachine;
 	shared_ptr<Engine::CAnimator>		m_pAnimator;
-
+	shared_ptr<class CCat_Fog>				m_pFogEffect;
 	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
 
 	shared_ptr<class CNavigation>		m_pNavigation;

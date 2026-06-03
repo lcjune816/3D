@@ -122,6 +122,7 @@ technique11 DefaultTechnique
     {
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
 
         SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
