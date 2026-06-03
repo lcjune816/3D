@@ -273,6 +273,10 @@ HRESULT CGameInstance::Present()
 }
 #pragma endregion
 #pragma region TIMER_MANAGER
+_float CGameInstance::Random(_float fMin, _float fMax)
+{
+	return fMin + static_cast<_float>(rand()) / RAND_MAX * (fMax - fMin);
+}
 _float CGameInstance::Get_TimeDelta(const _wstring& strTimerTag)
 {
 	return m_pTimer_Manager->Get_TimeDelta(strTimerTag);

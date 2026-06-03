@@ -25,7 +25,6 @@ public:
 	HRESULT Ready_Neightbors();
 	HRESULT Render();
 
-	void   Make_NaviToTerrain();
 	_bool  InMove(_fvector vResultPos, _float3* fDir = nullptr);
 	_vector SetUp_OnNavigation(_fvector vPos, _float offsetY);
 	_bool	AStartAlgorithm(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, _fvector SrcPos);
@@ -34,9 +33,8 @@ public:
 	void	Reset_Astar();
 	void   Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
 public:
-
 //GUI¿ë
-	_bool	Check_NeraPos(_float3* fPos);
+	_bool	Check_NeraPos(_float3* fPos); 
 	_bool	Check_First() { if (m_Cells.empty())return true;		return false; }
 	void	Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent);
 	void	Undo_Cell();
@@ -64,6 +62,7 @@ private:
 	list<ENGINE_ASTAR>					m_MoveToList;
 
 	OWNER								m_eOwner;
+	CELL_EVENT							m_eEvent{};
 	vector<shared_ptr<class CCell>>		m_Cells;
 	
 public:

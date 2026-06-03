@@ -171,6 +171,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\ElectricPannel.h" />
     <ClInclude Include="..\public\ElectricPole.h" />
     <ClInclude Include="..\public\ElectricPoleHead.h" />
+    <ClInclude Include="..\public\Elevator.h" />
     <ClInclude Include="..\public\Engine_Defines.h" />
     <ClInclude Include="..\public\Engine_Enum.h" />
     <ClInclude Include="..\public\Engine_Function.h" />
@@ -222,6 +223,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\VIBuffer.h" />
     <ClInclude Include="..\public\VIBuffer_Instance.h" />
     <ClInclude Include="..\public\VIBuffer_Instance_Mesh.h" />
+    <ClInclude Include="..\public\VIBuffer_Particle_Point.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +259,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\ElectricPannel.cpp" />
     <ClCompile Include="..\private\ElectricPole.cpp" />
     <ClCompile Include="..\private\ElectricPoleHead.cpp" />
+    <ClCompile Include="..\private\Elevator.cpp" />
     <ClCompile Include="..\private\Event_Manager.cpp" />
     <ClCompile Include="..\private\FSM_Machine.cpp" />
     <ClCompile Include="..\private\FSM_STATE.cpp" />
@@ -301,6 +304,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\VIBuffer.cpp" />
     <ClCompile Include="..\private\VIBuffer_Instance.cpp" />
     <ClCompile Include="..\private\VIBuffer_Instance_Mesh.cpp" />
+    <ClCompile Include="..\private\VIBuffer_Particle_Point.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

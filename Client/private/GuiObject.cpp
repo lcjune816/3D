@@ -1622,12 +1622,13 @@ void CGuiObject::Navi_Creator()
 		GetCursorPos(&tMouse);
 		ScreenToClient(g_hWnd, &tMouse);
 		static _float3 fPos[3]{};
-		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false }, bOnlyTwo{ false };
+		static _float fY[3]{};
+		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false }, bOnlyTwo{ false }, dynamicY{ false };
 		ImGui::Text(u8"이벤트 선택");
-		const char* items[] = { "FIRST","SECOND","BOSS_TP","END" };
+		const char* items[] = { "FIRST","SECOND","BOSS_TP","ELEVATOR","END" };
 		const _char* pTwogae = nullptr;
 		static CELL_EVENT event_Select_Index = CELL_EVENT::END;
-		
+			
 		static int32_t iSelect{0};
 		
 		const char* combo_preview_value = items[ETOUI(event_Select_Index)];
@@ -1650,6 +1651,12 @@ void CGuiObject::Navi_Creator()
 
 		ImGui::RadioButton(u8"설치", &iSelect, 0);
 		ImGui::RadioButton(u8"선택", &iSelect, 1);
+		
+		if (ImGui::Button(u8"Y 수동 설정"))
+			dynamicY = !dynamicY;
+		
+		dynamicY == true ? ImGui::Text(u8"Y 수동 설정 ON") : ImGui::Text(u8"Y 수동 설정 OFF");
+
 		pTwogae = (bOnlyTwo == true)  ? pTwogae = "Enable" : pTwogae = "Disable";
 
 		ImGui::Text(u8"두개만 : %s", pTwogae);
@@ -1744,22 +1751,28 @@ void CGuiObject::Navi_Creator()
 							fPos[2] = LastPos;
 						}
 
-						
-						if(C)
-						{
-							CGameInstance::Get().Add_NaviMeshInfo(&fPos[0], event_Select_Index);
-							A = B = C = false;
-						}
-
 					}
 				
-		
+					if (dynamicY)
+					{
+						ImGui::InputFloat3(u8"Y 입력", &fY[0]);
+						fPos[0].y =  fY[0];
+						fPos[1].y =  fY[1];
+						fPos[2].y =  fY[2];
+
+					}
+					
+					if (C && !dynamicY)
+					{
+						CGameInstance::Get().Add_NaviMeshInfo(&fPos[0], event_Select_Index);
+						A = B = C = false;
+					}
 
 				if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::Z))
 					CGameInstance::Get().Undo_Cell();
-				A ? ImGui::Text(u8"첫번째점 선택 완료 x : %3.f, z : %3.f", fPos[0].x, fPos[0].z) : ImGui::Text(u8"첫번째점 선택되지 않음");
-				B ? ImGui::Text(u8"두번째점 선택 완료 x : %3.f, z : %3.f", fPos[1].x, fPos[1].z) : ImGui::Text(u8"두번째점 선택되지 않음");
-				C ? ImGui::Text(u8"세번째점 선택 완료 x : %3.f, z : %3.f", fPos[2].x, fPos[2].z) : ImGui::Text(u8"세번째점 선택되지 않음");
+				A ? ImGui::Text(u8"첫번째점 선택 완료 x : %3.f, y : %3.f, z : %3.f", fPos[0].x, fPos[0].y, fPos[0].z) : ImGui::Text(u8"첫번째점 선택되지 않음");
+				B ? ImGui::Text(u8"두번째점 선택 완료 x : %3.f, y : %3.f, z : %3.f", fPos[1].x, fPos[1].y, fPos[1].z) : ImGui::Text(u8"두번째점 선택되지 않음");
+				C ? ImGui::Text(u8"세번째점 선택 완료 x : %3.f, y : %3.f, z : %3.f", fPos[2].x, fPos[2].y, fPos[2].z) : ImGui::Text(u8"세번째점 선택되지 않음");
 				
 			}
 			else if (iSelect == 1)
@@ -1799,6 +1812,8 @@ void CGuiObject::Navi_Creator()
 						pName = "SECOND";
 					if (pObj->Get_Event() == CELL_EVENT::BOSSTP)
 						pName = "BOSS_TP";
+					if (pObj->Get_Event() == CELL_EVENT::ELEVATOR)
+						pName = "Elevator";
 					if (pObj->Get_Event() == CELL_EVENT::END)
 						pName = "END";
 
@@ -1820,11 +1835,15 @@ void CGuiObject::Navi_Creator()
 			if(CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F7))
 				CGameInstance::Get().Ready_Neightbors();
 
+			//if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
+			//	CGameInstance::Get().Save_Navi(L"../../NaviGasZone.json", "Navi");
+			//if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
+			//	CGameInstance::Get().Load_Navi(L"../../NaviGasZone.json", "Navi");
+			
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
-				CGameInstance::Get().Save_Navi(L"../../NaviGasZone.json", "Navi");
+				CGameInstance::Get().Save_Navi(L"../../Navi.json", "Navi");
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
-				CGameInstance::Get().Load_Navi(L"../../NaviGasZone.json", "Navi");
-
+				CGameInstance::Get().Load_Navi(L"../../Navi.json", "Navi");
 		
 		ImGui::EndTabBar();
 	}

@@ -2,7 +2,6 @@
 float4x4  g_ViewMatrix, g_ProjMatrix;
 texture2D g_Texture;
 
-
 sampler LinearSampler = sampler_state
 {
     Filter = MIN_MAG_MIP_LINEAR;
@@ -13,13 +12,13 @@ sampler LinearSampler = sampler_state
 
 struct VS_IN
 {
-    float3 vPosition    : POSITION;
-    float3 vNormal      : NORMAL;
-    float2 vTexcoord    : TEXCOORD0;
+    float3 vPosition : POSITION;
+    float3 vNormal : NORMAL;
+    float2 vTexcoord : TEXCOORD0;
   
-    float4 vRight       : TEXCOORD1;
-    float4 vUp          : TEXCOORD2;
-    float4 vLook        : TEXCOORD3;
+    float4 vRight : TEXCOORD1;
+    float4 vUp : TEXCOORD2;
+    float4 vLook : TEXCOORD3;
     float4 vTranslation : TEXCOORD4;
 };
 
@@ -76,6 +75,7 @@ technique11 DefaultTechnique
         SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
 
     }
