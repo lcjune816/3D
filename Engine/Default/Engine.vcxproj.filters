@@ -193,6 +193,15 @@
     <Filter Include="06.Component\VIBuffer\Instance\Mesh">
       <UniqueIdentifier>{f7190670-123d-447f-be2a-8ecb0834b1c2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="06.Component\VIBuffer\Instance\Point">
+      <UniqueIdentifier>{6f49367e-40a7-40d9-b988-2df78377c439}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="06.Component\VIBuffer\Instance\Rect">
+      <UniqueIdentifier>{fccc9322-581a-40bc-8b5a-dbefe015fe02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Elevator">
+      <UniqueIdentifier>{fd2ec11f-cbf6-47ae-84d1-26a22e79c701}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -273,9 +282,6 @@
     <ClInclude Include="..\public\CollisionManager.h">
       <Filter>08. Collision_Manager</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\GameInstance.h">
-      <Filter>00.GameInstance</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\VIBuffer.h">
       <Filter>06.Component\VIBuffer</Filter>
     </ClInclude>
@@ -352,9 +358,6 @@
     <ClInclude Include="..\public\Light_Manager.h">
       <Filter>12.Light_Manager</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Instancing.h">
-      <Filter>13.Instancing</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Navi_Manager.h">
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClInclude>
@@ -405,6 +408,18 @@
     </ClInclude>
     <ClInclude Include="..\public\VIBuffer_Instance_Mesh.h">
       <Filter>06.Component\VIBuffer\Instance\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Instancing.h">
+      <Filter>06.Component\VIBuffer\Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Particle_Point.h">
+      <Filter>06.Component\VIBuffer\Instance\Point</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\GameInstance.h">
+      <Filter>00.GameInstance</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Elevator.h">
+      <Filter>10.Trigger_Manager\Trigger\Elevator</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -579,9 +594,6 @@
     <ClCompile Include="..\private\Light_Manager.cpp">
       <Filter>12.Light_Manager</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Instancing.cpp">
-      <Filter>13.Instancing</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Navi_Manager.cpp">
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClCompile>
@@ -629,6 +641,15 @@
     </ClCompile>
     <ClCompile Include="..\private\VIBuffer_Instance_Mesh.cpp">
       <Filter>06.Component\VIBuffer\Instance\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Instancing.cpp">
+      <Filter>06.Component\VIBuffer\Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Particle_Point.cpp">
+      <Filter>06.Component\VIBuffer\Instance\Point</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Elevator.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Elevator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

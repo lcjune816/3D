@@ -61,38 +61,7 @@ HRESULT CNavigation::Ready_Neightbors()
 
     return S_OK;
 }
-void CNavigation::Make_NaviToTerrain()
-{
-    _float offset = 10.f;
-    for (uint32_t i = 0; i < TERRIANX - 1; ++i)
-    {
-        for (uint32_t j = 0; j < TERRIANZ - 1 ; ++j)
-        {
-            uint32_t index = i * TERRIANX + j;
-            
-            _float3 fPos[3]{};
-            //129 130
-            // 0 1  
-            fPos[0]   = { j     * offset , 0 , (i * offset) };
-            fPos[1]   = { (j+1) * offset , 0 , (i * offset) };
-            fPos[2]   = { j     * offset , 0 , ((i + 1)* offset)};
-            auto Cell = CCell::Create(m_pDevice, m_pContext, {}, CELL_EVENT::END, m_Cells.size(),&fPos[0]);
 
-
-
-            fPos[0] = { offset * j       , 0  , (i + 1) * offset };
-            fPos[1] = { offset * (j + 1), 0  , (i + 1) *  offset };
-            fPos[2] = { offset * (j + 1), 0  , (i * offset) };
-            auto Cell2 = CCell::Create(m_pDevice, m_pContext, {}, CELL_EVENT::END, m_Cells.size() + 1, &fPos[0]);
-
-
-            m_Cells.push_back(Cell);
-            m_Cells.push_back(Cell2);
-        }
-        
-    }
-
-}
 _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
 {
     //더이상 갈수있는 노드가 없을경우
@@ -139,7 +108,7 @@ _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
 }
 _vector CNavigation::SetUp_OnNavigation(_fvector vPos, _float offsetY)
 {
-    if (m_Cells.empty() || m_iCurretnCellindex == -1.f)
+    if (m_Cells.empty() || m_iCurretnCellindex == -1.f || (m_eOwner == OWNER::PLAYER) && (m_eEvent == CELL_EVENT::ELEVATOR))
         return vPos;
 
     return XMVectorSetY(vPos, m_Cells[m_iCurretnCellindex]->Compute_Height(vPos) + offsetY);
@@ -318,17 +287,17 @@ void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
     memcpy(&Pos, fPos, sizeof _float3 * ETOUI(EPOINT::END));
 
 
-   _float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
-   _float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
-  
-   sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
-  
-       _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-       _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-  
-       return ALastAngle > BLastAngle;
-       });
-
+  //_float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
+  //_float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
+  //
+  //sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
+  //
+  //    _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
+  //    _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
+  //
+  //    return ALastAngle > BLastAngle;
+  //    });
+  //
    auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,Pos);
    
    if (NULL_TRUE(Cell))
@@ -452,7 +421,11 @@ void CNavigation::Event_Check(CELL_EVENT eCellEvent)
         eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
         CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP,eEvent);
     }
+    else if (eCellEvent == CELL_EVENT::ELEVATOR)
+    {
 
+    }
+    m_eEvent = eCellEvent;
 
 }
 _vector CNavigation::Find_CellPos(int32_t index)

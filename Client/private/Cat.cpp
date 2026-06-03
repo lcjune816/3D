@@ -17,7 +17,7 @@ HRESULT CBoss_Cat::Ready_Component()
 {
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../../Resource/Boss/castsaagi/catNightmare.fbx";
+	importModel.pFile = "../../Resource/Boss/castsaagi/catNormal.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/SK_CustomBody.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/Avatar_Kiana_C8_WS.fbx";
 	importModel.bAllModel = 1;
@@ -34,11 +34,14 @@ HRESULT CBoss_Cat::Ready_Component()
 		return E_FAIL;
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"), TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
+	
+	CCat_Fog::CATFOG_DESC FogDesc{};
+	FogDesc.pParentMatrix = m_pTransform->Get_WorldPtr();
+	m_pFogEffect = static_pointer_cast<CCat_Fog>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_CatFog"),&FogDesc));
 
 	_matrix mat = XMMatrixIdentity();
 	mat = XMMatrixScaling(0.9f, 0.9f, 0.9f) * XMMatrixRotationY(XMConvertToRadians(180.f));
  	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
-
 
 
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Cat));
@@ -94,6 +97,7 @@ void CBoss_Cat::Update(_float fTimeDelta)
 	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
+	m_pFogEffect->Update(fTimeDelta);
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Cat));
 
@@ -117,6 +121,7 @@ HRESULT CBoss_Cat::Render()
 		iter->Render();
 
 	}
+	m_pFogEffect->Render();
 	//m_pNavigation->Render();
 	return S_OK;
 }

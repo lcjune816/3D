@@ -31,4 +31,5 @@
 #include "FSM_Teacher_Dead.h"
 #include "Cat.h"
 #include "Cat_FSM.h"
+#include "Cat_Fog.h"
 #include "FSM_Cat_Spawn.h"

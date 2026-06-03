@@ -32,7 +32,9 @@
 #include "Navigation.h"
 #include "Generator.h"
 #include "UIObject.h"
+#include "VIBuffer_Particle_Point.h"
 #include "VIBuffer_Instance_Mesh.h"
+#include "Elevator.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

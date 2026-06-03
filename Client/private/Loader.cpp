@@ -244,7 +244,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Navigation"),
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"),
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
 		return E_FAIL;
 
@@ -267,6 +267,8 @@ HRESULT CLoader::Loading_For_GasProduction()
 {
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Cat"), CBoss_Cat::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_CatFog"), CCat_Fog::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Spawn"), CFSM_Cat_Spawn::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -299,6 +301,20 @@ HRESULT CLoader::Loading_For_GasProduction()
 		CDecalObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
+	CVIBuffer_Particle_Point::PARTICLE_INSTANCE_DESC ParticleDesc{};
+
+
+	ParticleDesc.fRange = _float3(1.f,0.2f,1.f);
+	ParticleDesc.iNumInstances = 10;
+	ParticleDesc.isLoop = false;
+	ParticleDesc.vCenter= _float3(0,0,0);
+	ParticleDesc.vGrid= _float2(8.f,8.f);
+	ParticleDesc.vLifeTime = _float2(1.f,3.f);
+	ParticleDesc.vSize = _float2(1.f,3.f);
+	ParticleDesc.vSpeed= _float2(0.2f,0.6f);
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("Component_Particle_Point"),
+		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext,&ParticleDesc))))
+		return E_FAIL;
 	//if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("Component_Navigation"),
 	//	CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
 	//	return E_FAIL;

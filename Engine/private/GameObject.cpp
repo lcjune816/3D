@@ -85,3 +85,10 @@ void CGameObject::ReBindsComponnet(uint32_t iLevelIndex)
 }
 
 
+_bool CGameObject::Check_Name(const _char* pName)
+{
+	if (!strcmp(pName, m_pTagName))
+	return true;   
+
+	return false; 
+}
