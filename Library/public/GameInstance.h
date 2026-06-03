@@ -19,7 +19,7 @@ public:
 	_float2		Get_ViewportSize() const {
 		return m_fViewportSize;
 	}
-	
+	_float	Random(_float fMin, _float fMax);
 public:
 #pragma region TIMER_MANAGER
 	_float		Get_TimeDelta(const _wstring& strTimerTag);

@@ -31,7 +31,7 @@ HRESULT CPlayer::Ready_Component()
 	NaviDesc.eOwner = OWNER::PLAYER;
 	//27
 	//233
-	if (FAILED(Add_Component(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 
 	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
@@ -196,7 +196,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
 HRESULT CPlayer::Render()
 {
 
-//	m_pNavigation->Render();
+	m_pNavigation->Render();
 
 	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");

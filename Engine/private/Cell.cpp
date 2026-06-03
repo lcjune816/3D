@@ -39,21 +39,20 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
 
     for (int32_t i = 0; i < 3; ++i)
     {
-        m_NaviInfo.vPoints[i].y =0.f;
+        m_NaviInfo.vPoints[i].y = 0.f;
     }
-
     _float fDaot = ((m_NaviInfo.vPoints[1].x - m_NaviInfo.vPoints[0].x) * (m_NaviInfo.vPoints[2].z - m_NaviInfo.vPoints[0].z)) - ((m_NaviInfo.vPoints[1].z - m_NaviInfo.vPoints[0].z) * (m_NaviInfo.vPoints[2].x - m_NaviInfo.vPoints[0].x));
     if (fDaot > 0)
         swap(m_NaviInfo.vPoints[1], m_NaviInfo.vPoints[2]);
 
     _vector vLine{};
     vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::AB)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+    m_NaviInfo.vNormals[ETOUI(LINE::AB)] = _float3(XMVectorGetZ(vLine) * -1.f, XMVectorGetY(vLine),  XMVectorGetX(vLine));
     vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::B)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::BC)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+    m_NaviInfo.vNormals[ETOUI(LINE::BC)] = _float3(XMVectorGetZ(vLine) * -1.f, XMVectorGetY(vLine), XMVectorGetX(vLine));
 
     vLine = XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::A)]) - XMLoadFloat3(&m_NaviInfo.vPoints[ETOUI(EPOINT::C)]);
-    m_NaviInfo.vNormals[ETOUI(LINE::CA)] = _float3(XMVectorGetZ(vLine) * -1.f, 0.f, XMVectorGetX(vLine));
+    m_NaviInfo.vNormals[ETOUI(LINE::CA)] = _float3(XMVectorGetZ(vLine) * -1.f, XMVectorGetY(vLine), XMVectorGetX(vLine));
 
  
     for (size_t i = 0; i < ETOUI(LINE::END); ++i)
@@ -83,8 +82,6 @@ HRESULT CCell::Ready_New(int32_t iIndex, _float3* pPoints)
         }
     }
     
-    for (int32_t i = 0; i < 3; ++i)
-        m_NaviInfo.vPoints[i].y = 0.5f;
     return S_OK;
 }
 HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
@@ -100,9 +97,6 @@ HRESULT CCell::Ready_Load(NAVI Navi, CELL_EVENT eEvent,int32_t iIndex)
     //memcpy(&m_NaviInfo.iNeighborIndices[i], &Navi.iNeighborIndices[i], sizeof m_NaviInfo.iNeighborIndices);
     //memcpy(&m_NaviInfo.vNormals[i],&Navi.vNormals[i],sizeof _float3);
     memcpy(&m_NaviInfo.vPoints, &Navi.vPoints, sizeof _float3 * ETOUI(EPOINT::END));
-    m_NaviInfo.vPoints[0].y = 0;
-    m_NaviInfo.vPoints[1].y = 0.f;
-    m_NaviInfo.vPoints[2].y = 0;
 
      Ready_New(iIndex, &m_NaviInfo.vPoints[0]);
     m_eEvent = eEvent;

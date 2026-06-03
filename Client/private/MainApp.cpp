@@ -105,16 +105,24 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/UIShader.hlsl"),
 			VERTEX_NOANIME::Elements, VERTEX_NOANIME::iNumElements))))
 		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("Component_Instancing_NonAnime"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Mesh.hlsl"),
 			VTXINSTANCE_NONANIME_MESH::Elements, VTXINSTANCE_NONANIME_MESH::iNumElements))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("Component_Instancing_Pog"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Pog.hlsl"),
+			VTXINSTANCE_PARTICLE_POINT::Elements, VTXINSTANCE_PARTICLE_POINT::iNumElements))))
+		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Prototype_Rect"),
 		CRect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
+
    //   	CGameInstance::Get().Add_Instancing_Shader(
 	//static_pointer_cast<CShader>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_InstanceTexter"), nullptr)));
 	return S_OK;
