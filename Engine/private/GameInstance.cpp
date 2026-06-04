@@ -15,6 +15,7 @@
 #include "Navi_Manager.h"
 #include "Instancing.h"
 #include "Event_Manager.h"
+#include "Particle_Manager.h"
 CGameInstance::CGameInstance()
 {
 
@@ -95,7 +96,9 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	m_pEvent_Manager = CEvent_Manager::Create();
 	if (NULL_TRUE(m_pEvent_Manager))
 		return E_FAIL;
-
+	m_pParticle_Manager = CParticle_Manager::Create(EngineDesc.iNumLevels);
+	if (NULL_TRUE(m_pParticle_Manager))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -104,19 +107,20 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 {
 	m_pInput_Device->Update_InputDev();
 
+	m_pPipeLine->Update();
+
 	m_pGui_Manager->Update();
 
 	m_pObject_Manager->Priority_Update(fTimeDelta);
-
-	m_pPipeLine->Update();
-
+	m_pParticle_Manager->Priority_Update_Particle(fTimeDelta);
+	
 	m_pObject_Manager->Update(fTimeDelta);
-
+	m_pParticle_Manager->Update_Particle(fTimeDelta);
 	m_pObject_Manager->Late_Update(fTimeDelta);
-
+	m_pParticle_Manager->Late_Update_Particle(fTimeDelta);
 	m_pLevel_Manager->Update(fTimeDelta);
 	
-	
+
 
 	m_pAssimp_Manager->Update(fTimeDelta);
 	return S_OK;
@@ -129,7 +133,7 @@ HRESULT	CGameInstance::Draw()
 	if (FAILED(m_pLevel_Manager->Render()))
 		return E_FAIL;
 
-	//m_pGui_Manager->Render();
+	m_pGui_Manager->Render();
 	return S_OK;
 }
 void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
@@ -252,10 +256,6 @@ void CGameInstance::Add_FilePath(const string fileName, const string filePath)
 	m_pGui_Manager->Add_FilePath(fileName, filePath);
 }
 
-void CGameInstance::ImGuiRender()
-{
-	m_pGui_Manager->Render();
-}
 
 #pragma endregion
 #pragma region GRAPHIC_DEVICE
@@ -517,7 +517,20 @@ void CGameInstance::Save_Data(uint32_t iNumLevel, _wstring path, const _wstring&
 	m_pObject_Manager->Save_Data(iNumLevel, path, strLayerName, pSaveArrayName);
 
 }
-
+#pragma region PARTICLE_MANAGER
+HRESULT	   CGameInstance::Add_ParticleToPool(const _wstring strPrototypeTag, uint32_t iPrototypeLevel, uint32_t iGameLevel, void* pArg)
+{
+	return m_pParticle_Manager->Add_ParticleToPool(strPrototypeTag, iPrototypeLevel, iGameLevel, pArg);
+}
+void	   CGameInstance::Particle_Emit(WORLD_EVENT eParticleType)
+{
+	m_pParticle_Manager->Particle_Emit(eParticleType);
+}
+weak_ptr <class CParticleObject>	CGameInstance::Select_Particle_Object(_fvector vOrigin, _fvector fDir)
+{
+	return m_pParticle_Manager->Select_Particle_Object(vOrigin, fDir);
+}
+#pragma endregion
 void CGameInstance::Release_Engine()
 {
 	m_pLight_Manager.reset();
@@ -543,6 +556,8 @@ void CGameInstance::Release_Engine()
 	m_pTimer_Manager.reset();
 
 	m_pAssimp_Manager.reset();
+
+	m_pParticle_Manager.reset();
 
 	m_pObject_Manager.reset();
 	

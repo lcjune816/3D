@@ -56,6 +56,10 @@ HRESULT CImGuiManager::Update()
 }
 void CImGuiManager::Render()
 {
+	m_pContext->GSSetShader(nullptr, nullptr,0);
+	m_pContext->OMSetDepthStencilState(nullptr, 0);
+	m_pContext->IASetPrimitiveTopology(
+		D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

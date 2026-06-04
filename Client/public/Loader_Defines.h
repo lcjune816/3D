@@ -8,6 +8,7 @@
 #include "DecalObject.h"
 #include "Instance_WorldObject.h"
 #include "Camera.h"
+#include "CWorldParticle.h"
 ///////////플레이어/////////
 #include "Player.h"
 #include "PlayerAim.h"

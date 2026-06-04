@@ -97,6 +97,9 @@
     <Filter Include="02.GameObject\03.Boss\Cat\Effect">
       <UniqueIdentifier>{a52a06d9-1efb-4fff-81ce-3592f014f997}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObject\22.Particle_Object">
+      <UniqueIdentifier>{ff6f7e58-415d-49b8-b787-538b85901e04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -231,6 +234,9 @@
     <ClInclude Include="..\public\Cat_Fog.h">
       <Filter>02.GameObject\03.Boss\Cat\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\CWorldParticle.h">
+      <Filter>02.GameObject\22.Particle_Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -363,6 +369,9 @@
     <ClCompile Include="..\private\Cat_Fog.cpp">
       <Filter>02.GameObject\03.Boss\Cat\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\CWorldParticle.cpp">
+      <Filter>02.GameObject\22.Particle_Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
@@ -390,6 +399,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Pog.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Spark.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>
