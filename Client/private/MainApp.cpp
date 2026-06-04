@@ -106,15 +106,18 @@ HRESULT Client::CMainApp::Ready_Prototype()
 			VERTEX_NOANIME::Elements, VERTEX_NOANIME::iNumElements))))
 		return E_FAIL;
 
-	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
-		TEXT("Component_Instancing_NonAnime"),
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_NonAnime"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Mesh.hlsl"),
 			VTXINSTANCE_NONANIME_MESH::Elements, VTXINSTANCE_NONANIME_MESH::iNumElements))))
 		return E_FAIL;
 
-	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
-		TEXT("Component_Instancing_Pog"),
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_Pog"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Pog.hlsl"),
+			VTXINSTANCE_PARTICLE_POINT::Elements, VTXINSTANCE_PARTICLE_POINT::iNumElements))))
+		return E_FAIL;
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_Spark"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Spark.hlsl"),
 			VTXINSTANCE_PARTICLE_POINT::Elements, VTXINSTANCE_PARTICLE_POINT::iNumElements))))
 		return E_FAIL;
 

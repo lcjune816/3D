@@ -22,6 +22,21 @@
 #define			NS_USING(NAMESPACE)	using namespace NAMESPACE;
 
 
+#define WORLD_EVENT_LIST \
+X(DOOR)					 \
+X(GENERATOR)			 \
+X(TEACHER_SPAWN)		 \
+X(BATTERY)			     \
+X(ROLLUP_DOOR)		     \
+X(TEACHER_DEAD)		     \
+X(BOSS_TP)			     \
+X(END)
+
+#define PARTICLE_LIST \
+X(SPARK)			  \
+X(FOG)				  \
+X(END)
+
 #ifdef	ENGINE_EXPORTS
 #define ENGINE_DLL		_declspec(dllexport)
 #else

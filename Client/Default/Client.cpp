@@ -88,8 +88,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             pMainApp->Update(CGameInstance::Get().Get_TimeDelta(TEXT("Timer_60")));
             ++fps;
             fTimeAcc = 0.f;
+
             pMainApp->Render();
-            CGameInstance::Get().ImGuiRender();
         }
         if(fpsTime >=1.f)
         {

@@ -123,7 +123,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Teacher"),
 		CBoss_Teacher::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Particle"),
+		CWorldParticle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	////////////////////////fFFFFFFSSSSSSSMMMMMMMMM///////////////////////////////////////////
 	if(FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("FSM_Machine"),
 		CFSM_Machine::Create(m_pDevice,m_pContext))))
@@ -246,6 +249,21 @@ HRESULT CLoader::Loading_For_GamePlay()
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"),
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
+		return E_FAIL;
+
+	CVIBuffer_Particle_Point::PARTICLE_INSTANCE_DESC ParticleDesc{};
+
+
+	ParticleDesc.fRange = _float3(1.f, 0.5f, 1.f);
+	ParticleDesc.iNumInstances = 10;
+	ParticleDesc.isLoop = false;
+	ParticleDesc.vCenter = _float3(0, 0, 0);
+	ParticleDesc.vGrid = _float2(8.f, 8.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 3.f);
+	ParticleDesc.vSize = _float2(1.f, 3.f);
+	ParticleDesc.vSpeed = _float2(0.2f, 0.6f);
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Particle_Spark"),
+		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
 		return E_FAIL;
 
 	Load_Data(LEVEL::GAMEPLAY, L"../../Objects.json", L"Layer_WorldObject", L"OBJ_WorldObject", "GameObjects");

@@ -1,6 +1,6 @@
 #ifndef Engine_Enum_h__
 #define Engine_Enum_h__
-
+#include "Engine_Macro.h"
 namespace Engine
 {
 	enum class WINMODE { FULL, WIN };
@@ -20,7 +20,12 @@ namespace Engine
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
 	enum class ENGINE_MOUSE{ HOLD, A_CLICK, B_CLICK };
 
-	enum class WORLD_EVENT { DOOR, GENERATOR, TEACHER_SPAWN , BATTERY, ROLLUP_DOOR, TEACHER_DEAD, BOSS_TP,END};
+	enum class PARTICLE_SHAPE { POINT, END };
+	#define X(name) name,
+	enum class PARTICLE { PARTICLE_LIST };
+	enum class WORLD_EVENT { WORLD_EVENT_LIST };
+	#undef X
+	
 	enum class CELL_EVENT { FIRST, SECOND, BOSSTP,ELEVATOR, END };
 	//// Dynamic 컴포넌트 경우 매 프레임마다 갱신해야하는 컴포넌트 집단
 	//enum COMPONENTID { ID_DYNAMIC, ID_STATIC, ID_END };

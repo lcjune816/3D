@@ -47,7 +47,7 @@ HRESULT CTransform::Initialize(void* Arg)
 		memcpy(&Pos, Desc->matWorld.m[3], sizeof _float3);
 		Pos = XMVectorSetW(Pos, 1.f);
 
-		memcpy(Desc->matWorld.m[3] ,&Pos, sizeof _float4);
+		memcpy(&Desc->matWorld.m[3] ,&Pos, sizeof _float4);
 		m_WorldMatrix = Desc->matWorld;
 
 	}

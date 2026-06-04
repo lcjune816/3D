@@ -70,7 +70,7 @@ HRESULT CVIBuffer_Particle_Point::Initialize_Prototype(void* pArg)
 		m_pInstanceData[i].fUv = _float4(0.f,0.f, 1.f / pDesc->vGrid.x , 1.f / pDesc->vGrid.y);
 		m_pInstanceData[i].fLifeTime = _float2(
 			CGameInstance::Get().Random(pDesc->vLifeTime.x, pDesc->vLifeTime.y), 0.f);
-		
+		m_pInstanceData[i].fTick = 0.f;
 	}
 
 	return S_OK;
@@ -194,11 +194,11 @@ void CVIBuffer_Particle_Point::Spark(const _float& fTimeDelta)
 		//x y          z          w 
 		// 최소      x최대      y최대
 
-		m_fTick += fTimeDelta;
+		m_pInstanceData[i].fTick += fTimeDelta;
 		
-		if (m_fTick > 0.1f)
+		if (m_pInstanceData[i].fTick > 0.1f)
 		{
-			m_fTick = 0;
+			m_pInstanceData[i].fTick = 0;
 			pVertices[i].fUv.x = pVertices[i].fUv.z;
 			pVertices[i].fUv.z += 1.f / m_vGrid.x;
 
@@ -220,15 +220,17 @@ void CVIBuffer_Particle_Point::Spark(const _float& fTimeDelta)
 				pVertices[i].fUv.w = 1.f / m_vGrid.y;
 
 			}
-			if (pVertices[i].fLifeTime.y >= pVertices[i].fLifeTime.x)
-			{
-
-				pVertices[i].fLifeTime.y = 0.f;
-			}
-		}
 		
+		}
+		if (pVertices[i].fLifeTime.y >= pVertices[i].fLifeTime.x)
+		{
+
+			pVertices[i].fLifeTime.y = 0.f;
+		}
 
 	}
+
+	m_pContext->Unmap(m_pVBInstance.Get(), 0);
 }
 
 void CVIBuffer_Particle_Point::Steam(const _float& fTimeDelta)

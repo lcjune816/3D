@@ -421,6 +421,12 @@
     <ClInclude Include="..\public\Elevator.h">
       <Filter>10.Trigger_Manager\Trigger\Elevator</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Particle_Manager.h">
+      <Filter>05.GameObject\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ParticleObject.h">
+      <Filter>05.GameObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\3rdParty\imgui\imgui.cpp">
@@ -650,6 +656,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Elevator.cpp">
       <Filter>10.Trigger_Manager\Trigger\Elevator</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Manager.cpp">
+      <Filter>05.GameObject\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ParticleObject.cpp">
+      <Filter>05.GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
