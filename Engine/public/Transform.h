@@ -12,7 +12,7 @@ public:
 		
 		_bool		bWorldCheck = true;
 
-		_float4x4	matWorld;
+		_float4x4	matWorld{};
 	}TRANSFORM_DESC;
 private:
 	CTransform(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

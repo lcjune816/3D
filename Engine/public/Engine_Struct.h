@@ -174,6 +174,7 @@ namespace Engine
 		_float4		fRight, fUp, fLook, fTranslation;
 		_float2		fLifeTime;
 		_float4   fUv;
+		_float	 fTick{};
 	}VTXINSTANCE_PARTICLE;
 	typedef struct tagVertexInstanceMesh
 	{

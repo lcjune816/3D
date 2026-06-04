@@ -147,6 +147,7 @@
     <ClInclude Include="..\public\Cat_Fog.h" />
     <ClInclude Include="..\public\Cat_FSM.h" />
     <ClInclude Include="..\public\Client_Defines.h" />
+    <ClInclude Include="..\public\CWorldParticle.h" />
     <ClInclude Include="..\public\DecalObject.h" />
     <ClInclude Include="..\public\FSM_Cat_Spawn.h" />
     <ClInclude Include="..\public\FSM_Crouch.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="..\private\Cat.cpp" />
     <ClCompile Include="..\private\Cat_Fog.cpp" />
     <ClCompile Include="..\private\Cat_FSM.cpp" />
+    <ClCompile Include="..\private\CWorldParticle.cpp" />
     <ClCompile Include="..\private\DecalObject.cpp" />
     <ClCompile Include="..\private\FSM_Cat_Spawn.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
@@ -263,6 +265,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Pog.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Spark.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>

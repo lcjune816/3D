@@ -37,7 +37,7 @@ private:
 	_float2										m_vGrid = {};
 	D3D11_BUFFER_DESC							m_InstanceBufferDesc = {};
 
-	_float										m_fTick{};
+	
 
 public:
 	static unique_ptr<CVIBuffer_Particle_Point> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext, void* pArg);

@@ -132,11 +132,16 @@ public:
 	void Connect_Navigaion(shared_ptr<class CNavigation> pNavigation);
 #pragma endregion
 
-#pragma region
+#pragma region EVENT_MANAGER
 	void				  Notify(const WORLD_EVENT& eEvent, const EVENT& event);
 	HRESULT				  Add_Observers(const WORLD_EVENT& eEvent, shared_ptr<class CObserver> pObserver);
 #pragma endregion
+#pragma region PARTICLE_MANAGER
+	    HRESULT	   Add_ParticleToPool(const _wstring strPrototypeTag, uint32_t iPrototypeLevel, uint32_t iGameLevel, void* pArg);
+	    void	   Particle_Emit(WORLD_EVENT eParticleType);
+		weak_ptr <class CParticleObject>	Select_Particle_Object(_fvector vOrigin, _fvector fDir);
 
+#pragma endregion
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);
 	HRESULT		ImportModel_Anime(const IMPORTMODEL_DESC& tagModel, vector<shared_ptr<class CVIBuffer>>& pPrototype, shared_ptr<class CAnimator>& pAnimator, weak_ptr<class CTransform> pTransform, _matrix Premat);
@@ -153,7 +158,6 @@ public:
 	const vector<string>&	Get_FileNameList();
 	string					Model_Animation(const vector<string>& pNames);
 	void					Add_FilePath(const string fileName, const string filePath);
-	void					ImGuiRender();
 #pragma endregion
 
 
@@ -175,6 +179,7 @@ private:
 	unique_ptr<class CInstancing>				m_pInstancing = { nullptr };
 	unique_ptr<class CNavi_Manager>				m_pNavi_Manager = { nullptr };
 	unique_ptr<class CEvent_Manager>			m_pEvent_Manager = { nullptr };
+	unique_ptr<class CParticle_Manager>			m_pParticle_Manager = { nullptr };
 
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };

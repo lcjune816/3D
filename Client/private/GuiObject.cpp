@@ -4,7 +4,7 @@
 #include "WorldObject.h"
 #include "DecalObject.h"
 #include "TriggerObject.h"
-#include "DirectXCollision.h"
+#include "CWorldParticle.h"
 CGuiObject::CGuiObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -683,7 +683,13 @@ HRESULT CGuiObject::Enable_GUI(string& name)
 			
 			ImGui::EndTabItem();
 		}
-		
+		if (ImGui::BeginTabItem(u8"파티클 인스톨러"))
+		{
+			Particle_Installer();
+
+			ImGui::EndTabItem();
+		}
+
 		if (ImGui::BeginTabItem(u8"모델 연결"))
 		{
 			Connect_Model();
@@ -711,9 +717,10 @@ HRESULT CGuiObject::Enable_GUI(string& name)
 
 	ImGui::End();
 
-	if (!ImGui::Begin(u8"기즈모", NULL, ImGuiWindowFlags_MenuBar)) // 메뉴바임
+	if (!ImGui::Begin(u8"기즈모", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoMove)) // 메뉴바임
 	{
-		ImGui::End(); return S_OK;
+		ImGui::End(); 
+		return S_OK;
 	}
 	if (ImGui::BeginTabBar(u8"기능", tab_bar_flags))
 	{
@@ -798,7 +805,9 @@ void CGuiObject::Select_Model()
 				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" 
 										, "OBJ_Generator"};
 				const char* Rotitems[] = { "X","Y","Z" };
-				const char* WorldEventItem[] = { "DOOR","GENERATOR","TEACHER_SPAWN" ,"BATTERY","ROLLUP_DOOR","TEACHER_DEAD","BOSS_TP","END"};
+				#define X(name) #name,
+				const char* WorldEventItem[] = { WORLD_EVENT_LIST };
+				#undef X
 				static int item_WorldEvent = IM_COUNTOF(WorldEventItem) - 1;
 				static int item_selected_idx = 0;
 				static int imte_rotselected_idx = 0;
@@ -1036,9 +1045,7 @@ void CGuiObject::ImGui_Gizmo()
 	ImGui::Text(u8"오브젝트 이름 : "); ImGui::SameLine(); ImGui::Text(pObj->Get_PathName().c_str());
 	
 	_bool enable = true;
-	ImGuizmo::IsOver();
-	ImGuizmo::IsUsing();
-
+	
 	ImGuizmo::Enable(enable);
 	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
@@ -1083,33 +1090,37 @@ void CGuiObject::ImGui_Gizmo()
 	ImGui::Checkbox(u8"##useSnap", &useSnap);
 	ImGui::SameLine();
 	_float* f3 = nullptr ;
+	static _float snapValues[3] = { 0.5f, 0.5f, 0.5f };
 	switch(mCurrentGizmoOperation)
 	{
 	case ImGuizmo::TRANSLATE:
 		f3 = matTrans;
-		ImGui::InputFloat3(u8"스냅 이동", f3);
+		ImGui::InputFloat3(u8"스냅 이동", snapValues);
 		break;
 	case ImGuizmo::ROTATE:
 		f3 = matRot;
-		ImGui::InputFloat3(u8"스냅 회전", f3);
+		ImGui::InputFloat3(u8"스냅 회전", snapValues);
 		break;
 	case ImGuizmo::SCALE:
 		f3 = matScale;
-		ImGui::InputFloat3(u8"스냅 크기", f3);
+		ImGui::InputFloat3(u8"스냅 크기", snapValues);
 		break;
 	}
 
 	ImGuiIO& io = ImGui::GetIO();
+
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	XMMATRIX mView       = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	XMMATRIX mProjection = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	ImGuizmo::Manipulate(
+	_float4x4 mView       = *CGameInstance::Get().Get_Transform(D3DTS::VIEW);
+	_float4x4 mProjection = *CGameInstance::Get().Get_Transform(D3DTS::PROJ);
+	_bool b =ImGuizmo::Manipulate(
 		(float*)&mView,
 		(float*)&mProjection,
 		mCurrentGizmoOperation,
 		ImGuizmo::WORLD,
-		(float*)&matWorld, f3
+		(float*)&matWorld, useSnap ? snapValues : nullptr
 	);
+	_bool aC = ImGuizmo::IsOver();
+	_bool bD = ImGuizmo::IsUsing();
 
 	pObj->Get_Transform().lock()->Set_State(STATE::RIGHT, matWorld.r[0]);
 	pObj->Get_Transform().lock()->Set_State(STATE::UP, matWorld.r[1]);
@@ -1140,6 +1151,70 @@ weak_ptr<CGameObject> CGuiObject::Picking_Object(const _wstring& LayerName)
 
 	return pObj;
 
+}
+weak_ptr<CGameObject> CGuiObject::Picking_ParticleObject()
+{
+	return weak_ptr<CGameObject>();
+}
+_vector CGuiObject::Picking_Terrain(int32_t iSelect, _float3& frayOrigin, _float3& frayDir, _bool& bCheck)
+{
+	POINT tMouse{};
+	GetCursorPos(&tMouse);
+	ScreenToClient(g_hWnd, &tMouse);
+	_matrix CameProj = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	_float4x4 Proj = {};
+	XMStoreFloat4x4(&Proj, CameProj);
+
+	_float2 ViewPort = CGameInstance::Get().Get_ViewportSize();
+	_float rayX = (2.f * tMouse.x / ViewPort.x - 1.f) / Proj(0, 0);
+	_float rayY = (-2.f * tMouse.y / ViewPort.y + 1.f) / Proj(1, 1);
+
+	//뷰포트에서의 광선 정의9
+	_vector rayOrigin = XMVectorSet(0.f, 0.f, 0.f, 1.f);
+	_vector rayDir = XMVectorSet(rayX, rayY, 1.f, 0.f);
+
+	//월드 좌표로 변환
+	_matrix CamView = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	_matrix InverseView = XMMatrixInverse(nullptr, CamView);
+
+	rayOrigin = XMVector3TransformCoord(rayOrigin, InverseView);
+	rayDir = XMVector3Normalize(XMVector3TransformNormal(rayDir, InverseView));
+
+	_float fMax = { FLT_MAX };
+	_float tDis = 0;
+	_float t1Dis = 0;
+	_vector TriFirst[3]{ XMVectorSet(0,0,0,0),
+						XMVectorSet(0,0,(TERRIANZ * TERRIANZ) * 6 ,0),
+						XMVectorSet((TERRIANZ * TERRIANZ) * 6 ,0,(TERRIANZ * TERRIANZ) * 6,0) };
+
+	_vector TriSecond[3]{ XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,(TERRIANZ * TERRIANZ) * 6 ,0),
+						  XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,0,0),
+						  XMVectorSet(0,0,0,0) };
+
+	if (iSelect == 0)
+	{
+		if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
+		{
+			XMStoreFloat3(&frayOrigin, rayOrigin);
+			XMStoreFloat3(&frayDir, rayDir);
+			bCheck = true;
+			return rayOrigin + rayDir * tDis;
+			fMax = tDis;
+		}
+
+		if (TriangleTests::Intersects(rayOrigin, rayDir, TriSecond[0], TriSecond[1], TriSecond[2], t1Dis))
+		{
+			if (fMax > t1Dis)
+			{
+				XMStoreFloat3(&frayOrigin, rayOrigin);
+				XMStoreFloat3(&frayDir, rayDir);
+				bCheck = true;
+				return rayOrigin + rayDir * t1Dis;
+			}
+		}
+	}
+	bCheck = false;
+	return XMVectorSet(0,0,0,1);
 }
 void CGuiObject::Light_Setting()
 {
@@ -1618,9 +1693,7 @@ void CGuiObject::Navi_Creator()
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar(u8"목록", tab_bar_flags))
 	{
-		POINT tMouse{};
-		GetCursorPos(&tMouse);
-		ScreenToClient(g_hWnd, &tMouse);
+	
 		static _float3 fPos[3]{};
 		static _float fY[3]{};
 		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false }, bOnlyTwo{ false }, dynamicY{ false };
@@ -1630,8 +1703,10 @@ void CGuiObject::Navi_Creator()
 		static CELL_EVENT event_Select_Index = CELL_EVENT::END;
 			
 		static int32_t iSelect{0};
-		
+
+		_float3 LastPos{}, rayOrigin{}, rayDir{};
 		const char* combo_preview_value = items[ETOUI(event_Select_Index)];
+
 		if (ImGui::BeginCombo(u8"옵션", combo_preview_value, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
 		{
 			for (int i = 0; i < IM_COUNTOF(items); ++i)
@@ -1660,55 +1735,8 @@ void CGuiObject::Navi_Creator()
 		pTwogae = (bOnlyTwo == true)  ? pTwogae = "Enable" : pTwogae = "Disable";
 
 		ImGui::Text(u8"두개만 : %s", pTwogae);
-		_matrix CameProj = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-		_float4x4 Proj = {};
-		XMStoreFloat4x4(&Proj, CameProj);
-
-		_float2 ViewPort = CGameInstance::Get().Get_ViewportSize();
-		_float rayX = (2.f  * tMouse.x / ViewPort.x - 1.f) / Proj(0, 0);
-		_float rayY = (-2.f * tMouse.y / ViewPort.y+ 1.f) / Proj(1, 1);
-
-		//뷰포트에서의 광선 정의9
-		_vector rayOrigin = XMVectorSet(0.f, 0.f, 0.f, 1.f);
-		_vector rayDir = XMVectorSet(rayX, rayY, 1.f, 0.f);
-
-		//월드 좌표로 변환
-		_matrix CamView = XMLoadFloat4x4(CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-		_matrix InverseView = XMMatrixInverse(nullptr, CamView);
-
-		rayOrigin = XMVector3TransformCoord(rayOrigin, InverseView);
-		rayDir = XMVector3Normalize(XMVector3TransformNormal(rayDir, InverseView));
-
-		_float fMax = { FLT_MAX };
-		_float tDis = 0;
-		_float t1Dis = 0;
-		_float3 LastPos{};
-		_vector TriFirst[3]{XMVectorSet(0,0,0,0),
-			                XMVectorSet(0,0,(TERRIANZ * TERRIANZ) *6 ,0),
-			                XMVectorSet((TERRIANZ * TERRIANZ)*6 ,0,(TERRIANZ * TERRIANZ) *6,0) };
-
-		_vector TriSecond[3]{ XMVectorSet((TERRIANZ * TERRIANZ)*6,0,(TERRIANZ * TERRIANZ)*6 ,0),
-							  XMVectorSet((TERRIANZ * TERRIANZ) * 6,0,0,0),
-							  XMVectorSet(0,0,0,0) };
-		
-			if (iSelect == 0)
-			{
-				if (TriangleTests::Intersects(rayOrigin, rayDir, TriFirst[0], TriFirst[1], TriFirst[2], tDis))
-				{
-					XMStoreFloat3(&LastPos, rayOrigin + rayDir * tDis);
-					fMax = tDis;
-				}
-
-				if (TriangleTests::Intersects(rayOrigin, rayDir, TriSecond[0], TriSecond[1], TriSecond[2], t1Dis))
-				{
-					if (fMax > t1Dis)
-					{
-						XMStoreFloat3(&LastPos, rayOrigin + rayDir * t1Dis);
-					}
-				}
-			}
-
-			LastPos.y = 0;
+		_bool bCheck{ false };
+		XMStoreFloat3(&LastPos, Picking_Terrain(iSelect, rayOrigin,rayDir, bCheck));
 			if (iSelect == 0)
 			{
 				if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
@@ -1781,7 +1809,7 @@ void CGuiObject::Navi_Creator()
 
 
 				if (NULL_TRUE(pObj) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::HOLD))
-					m_pCell = CGameInstance::Get().Select_TriAngle(rayOrigin, rayDir);
+					m_pCell = CGameInstance::Get().Select_TriAngle(XMLoadFloat3(&rayOrigin), XMLoadFloat3(&rayDir));
 	
 				if (NULL_TRUE(pObj))
 					ImGui::Text(u8"선택 안됨");
@@ -1850,6 +1878,109 @@ void CGuiObject::Navi_Creator()
 
 
 	ImGui::End();
+}
+
+void CGuiObject::Particle_Installer()
+{
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	if (ImGui::BeginTabBar(u8"탭슛", tab_bar_flags))
+	{
+		if (ImGui::BeginTabItem(u8"파티클"))
+		{
+			static _bool			bSelectPosToParticle{ false };
+			static _vector			vParticlePos{};
+			_float3 fOrigin{ }, fDir{};
+			#define X(name) #name,
+			const char* WorldEventItem[] = {WORLD_EVENT_LIST };
+			const char* ParticleItem[] = { PARTICLE_LIST };
+			#undef X
+			static int item_WorldEvent = IM_COUNTOF(WorldEventItem) - 1;
+			static int item_Particle = IM_COUNTOF(ParticleItem) - 1;
+			const char* combo_preview_Eventvalue = WorldEventItem[item_WorldEvent];
+			const char* combo_preview_Particlevalue = ParticleItem[item_Particle];
+
+			ImGui::RadioButton(u8"설치", &m_iSelectParticle, 0);
+			ImGui::RadioButton(u8"선택", &m_iSelectParticle, 1);
+			ComboArray(WorldEventItem, IM_COUNTOF(WorldEventItem), item_WorldEvent, u8"월드 이벤트", combo_preview_Eventvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
+			ImGui::SameLine(300);
+			ComboArray(ParticleItem, IM_COUNTOF(ParticleItem), item_Particle, u8"파티클", combo_preview_Particlevalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
+
+			
+			if (m_iSelectParticle == 0)
+			{
+				_bool bCheck{};
+				if (!bSelectPosToParticle && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+				{
+					vParticlePos = Picking_Terrain(0, fOrigin, fDir, bCheck);
+					bSelectPosToParticle = true;
+				}
+				if (bSelectPosToParticle && CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
+				{
+					vParticlePos = XMVectorSet(0, 0, 0, 1);
+					bSelectPosToParticle = false;
+				}
+			
+			
+			}
+			else if (m_iSelectParticle == 1)
+			{
+
+				_bool bCheck{false};
+				Picking_Terrain(0, fOrigin, fDir, bCheck);
+				if (bCheck)
+				{
+					auto pObj = CGameInstance::Get().Select_Particle_Object(XMLoadFloat3(&fOrigin), XMLoadFloat3(&fDir)).lock();
+
+					if (NULL_FALSE(pObj) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+					{
+
+						m_pObj = pObj;
+						m_bMouseCheck = true;
+					}
+
+				}
+			 
+			}
+
+			ImGui::Text(u8"선택 좌표 x : %3.f, y : %3.f, z : %3.f", XMVectorGetX(vParticlePos), XMVectorGetY(vParticlePos), XMVectorGetZ(vParticlePos));
+			
+			if (bSelectPosToParticle && ImGui::Button(u8"누르면 깔림"))
+			{
+				_matrix matWorld = XMMatrixIdentity();
+
+				matWorld.r[3] = XMVectorSetW(vParticlePos,1.f);
+				CWorldParticle::WORLDPARTICLE_DESC ParticleDesc{};
+				ParticleDesc.eParticleEmit = static_cast<PARTICLE>(item_Particle);
+				ParticleDesc.eParticleType = static_cast<WORLD_EVENT>(item_WorldEvent);
+				ParticleDesc.iLevelIndex   = ETOUI(m_eLevel);
+				ParticleDesc.bWorldCheck = false;
+				XMStoreFloat4x4(&ParticleDesc.matWorld, matWorld);
+				
+				CGameInstance::Get().Add_ParticleToPool(TEXT("OBJ_Particle"),ETOUI(m_eLevel), ETOUI(m_eLevel),&ParticleDesc);
+			}
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+
+	}
+}
+
+void CGuiObject::ComboArray(const _char* ItemNameValue[], int32_t iTemArrayCnt, int32_t& itemIndex, const _char* pLabel, const _char* PreviewValue, ImGuiComboFlags eFlags)
+{
+	if (ImGui::BeginCombo(pLabel, PreviewValue, eFlags))
+	{
+		for (int i = iTemArrayCnt - 1; i >= 0; --i)
+		{
+			const bool is_selected = (itemIndex == i);
+			if (ImGui::Selectable(ItemNameValue[i], is_selected)) // 선택한 문자열
+				itemIndex = i;
+
+			if (is_selected)
+				ImGui::SetItemDefaultFocus();
+			//선택된 아이템을 포커스하라
+		}
+		ImGui::EndCombo();
+	}
 }
 
 void CGuiObject::Load_Data()

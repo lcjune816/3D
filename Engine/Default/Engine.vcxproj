@@ -204,6 +204,8 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\NonModel.h" />
     <ClInclude Include="..\public\Object_Manager.h" />
     <ClInclude Include="..\public\Observer.h" />
+    <ClInclude Include="..\public\ParticleObject.h" />
+    <ClInclude Include="..\public\Particle_Manager.h" />
     <ClInclude Include="..\public\PipeLine.h" />
     <ClInclude Include="..\public\Prototype.h" />
     <ClInclude Include="..\public\Prototype_Manager.h" />
@@ -285,6 +287,8 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Navi_Manager.cpp" />
     <ClCompile Include="..\private\NonModel.cpp" />
     <ClCompile Include="..\private\Object_Manager.cpp" />
+    <ClCompile Include="..\private\ParticleObject.cpp" />
+    <ClCompile Include="..\private\Particle_Manager.cpp" />
     <ClCompile Include="..\private\PipeLine.cpp" />
     <ClCompile Include="..\private\Prototype.cpp" />
     <ClCompile Include="..\private\Prototype_Manager.cpp" />

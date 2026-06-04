@@ -18,7 +18,6 @@ typedef struct strGameObjectDesc : public CTransform::TRANSFORM_DESC , public CT
 	 _bool	   bCopy = false;
 	 _bool	   bFrontCamera = true;
 	 
-	 _float4x4 matWorld = {};
 	 MESH_TYPE	eType = {};
 }GAMEOBJECT_DESC;
 
