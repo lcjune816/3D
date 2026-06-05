@@ -11,7 +11,7 @@ typedef struct strGameObjectDesc : public CTransform::TRANSFORM_DESC , public CT
 	 string FileName	   = {};
 	 string strTriggerName = {};
 	 json j;
-	 
+	 uint32_t iLevel = {};
 	 uint32_t index = {};
 	 int32_t  iModeNumber;
 	 

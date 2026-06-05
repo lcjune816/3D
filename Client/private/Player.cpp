@@ -14,9 +14,10 @@ CPlayer::~CPlayer()
 	m_pPlayerRHand.reset();
 };
 
-HRESULT CPlayer::Ready_Component()
+HRESULT CPlayer::Ready_Component(void* pArg)
 {
-
+	auto objDesc = static_cast<GAMEOBJECT_DESC*>(pArg);
+	
 	Engine::IMPORTMODEL_DESC importModel;
 	importModel.pFile = "../../Resource/Character/Player/PlayerGrab5.fbx";
 	importModel.bAllModel = 1;
@@ -27,11 +28,15 @@ HRESULT CPlayer::Ready_Component()
 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 27;
 	NaviDesc.eOwner = OWNER::PLAYER;
+	if(objDesc->iLevel == ETOUI(LEVEL::GAMEPLAY))
+		NaviDesc.iIndex = 27;
+	else if (objDesc->iLevel == ETOUI(LEVEL::GASZONE))
+		NaviDesc.iIndex = 31;
+
 	//27
 	//233
-	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	if (FAILED(Add_Component(objDesc->iLevel, TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 
 	m_pStateMachine = static_pointer_cast<CFSM_Machine>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Machine", nullptr));
@@ -104,7 +109,8 @@ HRESULT CPlayer::Ready_Component()
 	m_pStateMachine->Change_State(FSM::IDLE);
 	//17537
 	CGameInstance::Get().Connect_Navigaion(m_pNavigation);
-	
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(NaviDesc.iIndex), 1.f));
+
 	return S_OK;
 
 }
@@ -137,17 +143,15 @@ HRESULT CPlayer::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
 
-	if (FAILED(Ready_Component()))
+	if (FAILED(Ready_Component(pArg)))
 		return E_FAIL;
 
 	if(FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Animation"),
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 	
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(27),1.f));
-
+	
 	strcpy_s(m_pTagName, 32, "Player");
 	return S_OK;
 }
@@ -183,6 +187,7 @@ void CPlayer::Update(_float fTimeDelta)
 	m_pPlayerRHand->Update(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pAim->Update(fTimeDelta);
+	m_pNavigation->Dead_Check();
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));
 
 
@@ -203,7 +208,6 @@ HRESULT CPlayer::Render()
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 
-	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
@@ -340,17 +344,6 @@ _bool CPlayer::Flag_Check(uint32_t iFlag)
 	return false;
 }
 
-void CPlayer::ReBindsComponnet(uint32_t iLevelIndex)
-{
-	//CNavigation::NAVIGATION_DESC NaviDesc;
-	//NaviDesc.iIndex = 0;
-	//NaviDesc.eOwner = OWNER::PLAYER;
-	//
-	//m_Components[TEXT("Com_Navigation")].reset();
-	//m_pNavigation.reset();
-	//if (FAILED(Add_Component(iLevelIndex, TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
-	//	return;
-}
 
 void CPlayer::Timer(const _float& fTimeDelta)
 {

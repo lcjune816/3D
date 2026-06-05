@@ -34,6 +34,7 @@ private:
 	HRESULT		Ready_Layer_WorldObjectInstance(const _wstring& strLayerTag);
 	HRESULT		Ready_ProtoType();
 
+	HRESULT		Ready_Layer_Gui(const _wstring& strLayerTag);
 
 public:
 	static unique_ptr<CLevel_GamePlay> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

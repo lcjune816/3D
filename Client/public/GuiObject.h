@@ -56,14 +56,12 @@ private:
 	weak_ptr<CGameObject>			m_pConnetObjectFirst  ;
 	weak_ptr<CGameObject>			m_pConnetObjectSecond ;
 	weak_ptr<class CCell>			m_pCell;
-	_bool							m_bModelCancle = { false };
+	_bool							m_bModelCancle { false },m_bPickingObject{ false }, m_bMouseCheck = { false };
 	
-	_bool							m_bMouseCheck = { false };
-
 	_float2							m_fMousePickXY = {};
 
-	_float3							m_fMosueLocalPos = {};
-	_float3							m_fMouseLocalDir = {};
+	_float3							m_fMosueLocalPos {}, m_fMouseLocalDir  {};
+
 
 	_wstring						m_LayerName = {};
 	string							m_CopyTriggerName = {};
@@ -76,11 +74,13 @@ private:
 	LEVEL							m_eLevel = {};
 
 	list<ComPtr<ID3D11ShaderResourceView>> m_GuiResources;
-	const char*				m_WorldEventItem[ETOUI(WORLD_EVENT::END)];
-	string				m_strGameObject,m_strTrigger,m_strDecal;
-	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath;
+	string					m_strGameObject,m_strTrigger,m_strDecal;
+	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath, m_strNavi;
+
+
+
 public:
-	static unique_ptr<CGuiObject> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	static unique_ptr<CGuiObject> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext );
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;
 };
 

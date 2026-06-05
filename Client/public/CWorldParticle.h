@@ -8,12 +8,14 @@ class CCube;
 class CVIBuffer_Particle_Point;
 NS_END
 
+enum class  PATHNAME{SHADER,BUFFER,TEXTURE,END};
 NS_BEGIN(Client)
 class CWorldParticle : public CParticleObject
 {
 public:
 	typedef struct tagWorldParticle : public CParticleObject::PARTICLEOBJECT_DESC
 	{
+		_wstring	PathName[ETOUI(PATHNAME::END)];
 		uint32_t	iLevelIndex;
 		PARTICLE	eParticleEmit;
 	}WORLDPARTICLE_DESC;
@@ -45,6 +47,7 @@ private:
 	int32_t										m_iTextureID = { -1 };
 	uint32_t									m_iLevelIndex = { ETOUI(LEVEL::END) };
 	PARTICLE									m_eParticleEmitType = { PARTICLE::END };
+	 _wstring									m_strPathName[ETOUI(PATHNAME::END)] = {};
 public:
 	static unique_ptr<CWorldParticle> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

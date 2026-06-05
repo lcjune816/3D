@@ -39,6 +39,8 @@ weak_ptr<CGameObject>  CCollisionManager::Check_Ray(int32_t iLayerLevelIndex, co
 
 	_float tDis = 0;
 	_float iSrcDistance = FLT_MAX;
+	XMStoreFloat3(&tagCollision.fPos, rayOrigin);
+	XMStoreFloat3(&tagCollision.fDir, rayDir);
 
 	weak_ptr<CGameObject> pObj = {};
 	_matrix InverseWorld = {};
@@ -599,6 +601,47 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 	
 	return true;
 
+}
+
+_vector CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir)
+{
+
+	auto pTransform = pObj->Get_Transform().lock();
+	_matrix pSrcWorld = pTransform->Get_World();
+	_matrix SrcInverseWorld = XMMatrixInverse(nullptr,pSrcWorld);
+	_float fMax = FLT_MAX;
+	_vector vPos = XMVectorSet(0,0,0,1);
+	for (auto& iter : MeshNumbers)
+	{
+		auto Vertices = CGameInstance::Get().Get_MeshVetexesLists(iter);
+		auto Indices = CGameInstance::Get().Get_MeshIndicesLists(iter);
+	
+		uint32_t index{ 0 };
+		for (size_t i = 0; i < Indices->size(); i+=3)
+		{
+			_vector V0 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i]].fPos)  , pSrcWorld);
+			_vector V1 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i + 1]].fPos), pSrcWorld);
+			_vector V2 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i + 2]].fPos), pSrcWorld);
+			_float fDist{};
+
+
+			if (TriangleTests::Intersects(vOriginPos, vOriginDir,V0, V1, V2, fDist))
+			{
+				if (fMax > fDist)
+				{
+					vPos = vOriginPos + vOriginDir * fDist;
+					fMax = fDist;
+				}
+			}
+
+		}
+	
+	}
+
+
+	
+
+	return vPos;
 }
 
 weak_ptr<CGameObject> CCollisionManager::Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue)

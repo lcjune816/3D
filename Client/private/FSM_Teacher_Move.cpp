@@ -14,7 +14,7 @@ CFSM_Teacher_Move::~CFSM_Teacher_Move()
 HRESULT CFSM_Teacher_Move::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
-	CGameInstance::Get().Add_Observers(WORLD_EVENT::TEACHER_DEAD, SHARED_THIS(CFSM_Teacher_Move));
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_DEAD, SHARED_THIS(CFSM_Teacher_Move));
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Teacher_Move));
 	return S_OK;
 }

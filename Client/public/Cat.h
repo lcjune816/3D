@@ -9,8 +9,9 @@ namespace Engine
 }
 NS_BEGIN(Client)
 
+enum class CATFORM {NORMAL, NIGHTMARE,END};
 enum class CAT_ANIME {
-	DEAD_SLOW, DEAD_FAST, OVERSHOOTWALK, OVERWAL, DOORKICK, JUMPSCALE, SMASH, WALK, END
+	DOORWAY, IDLEBREATHING, IDLECLOSE, OPENINGCHUTEA, END
 };
 
 class CBoss_Cat final : public CGameObject
@@ -36,7 +37,8 @@ public:
 	_float4x4*				 Get_OtherMatrixPtr() { return m_pOtherMatrix; }
 	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }
 	void					Change_Animation(CAT_ANIME eAnime, _bool bLoop = true, _bool bForce = false);
-	_bool					Animation_End() { return m_pAnimator->Animation_End(); }
+	_bool					Animation_End() { return m_pAnimator[ETOUI(m_eFormType)]->Animation_End(); }
+	void					Change_Form(CATFORM eType) { m_eFormType = eType; }
 private:
 	HRESULT					Ready_Component();
 	void					State_Move();
@@ -44,9 +46,9 @@ private:
 
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
 	shared_ptr<Engine::CFSM_Machine>	m_pStateMachine;
-	shared_ptr<Engine::CAnimator>		m_pAnimator;
-	shared_ptr<class CCat_Fog>				m_pFogEffect;
-	vector<shared_ptr<CVIBuffer>>		m_pMeshList;
+	shared_ptr<Engine::CAnimator>		m_pAnimator[ETOUI(CATFORM::END)];
+	shared_ptr<class CCat_Fog>			m_pFogEffect;
+	vector<shared_ptr<class CVIBuffer>>	m_pMeshList[ETOUI(CATFORM::END)];
 
 	shared_ptr<class CNavigation>		m_pNavigation;
 
@@ -56,7 +58,7 @@ private:
 	_float4x4							m_bones[BONE_MATRIX];
 
 	CAT_ANIME							m_eAnimeState = {};
-
+	CATFORM								m_eFormType = {CATFORM::NORMAL};
 	_bool								m_bOnlyActionState = { false };
 	MOVE								m_eState = { MOVE::END };
 public:

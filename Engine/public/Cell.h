@@ -40,6 +40,7 @@ public:
 	CELL_EVENT		Get_Event() { return m_eEvent; }
 	NAVI&			Get_NaviInfo() { return m_NaviInfo;}
 
+	void			Set_Dead(_bool bDead) { m_NaviInfo.bDead = bDead; }
 	_bool			Event_Check(CELL_EVENT eEvent);
 	void			Set_CellEvent(CELL_EVENT eEvent) {
 		m_eEvent = eEvent;}
@@ -51,6 +52,7 @@ public:
 private:
 	NAVI								m_NaviInfo{};
 	CELL_EVENT							m_eEvent{CELL_EVENT::END};
+	SPAWN								m_eSpawn{ SPAWN::END };
 	_bool								m_bChoice{ false };
 private:
 	ComPtr<ID3D11Device>				m_pDevice = { nullptr };

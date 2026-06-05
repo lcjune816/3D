@@ -21,14 +21,15 @@ void CEvent_Manager::Notify(const WORLD_EVENT& eEvent, const EVENT& event)
     if (m_Observers[eEvent].empty())
         return;
 
+    CGameInstance::Get().Particle_Emit(eEvent);
     for (auto& List : m_Observers[eEvent])
     {
         auto pObserver = List.lock();
         if (NULL_TRUE(pObserver))
             continue;
-
         pObserver->OnNotify(event);
     }
+
     m_Observers[eEvent].clear();
 }
 HRESULT CEvent_Manager::Add_Observers(const WORLD_EVENT& eEvent, shared_ptr<CObserver> pObserver)

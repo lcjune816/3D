@@ -1,6 +1,6 @@
 #pragma once
 #include "Boss_Teacher.h"
-
+#include "Cat.h"
 NS_BEGIN(Client)
 enum class FSM_CAT {
 	KICK, SMASH, CHASE, TURN,
@@ -31,8 +31,10 @@ protected:
 	_float4x4*							 m_pOtherMatrix;
 	_float								m_fTick{ 0 }, m_fTimeCnt{ 0 };
 
-	FSM_CAT								m_eTeacher;
+	FSM_CAT								m_eCat;
 	FSM_ACTION							m_eAction;
+
+	weak_ptr<CBoss_Cat>					m_pBoss;
 public:
 	virtual shared_ptr<CPrototype> Clone(void* pArg) = 0;
 };

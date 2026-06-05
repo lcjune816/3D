@@ -46,6 +46,19 @@ public:
 	ID3D11ShaderResourceView*					Find_Texture(const uint32_t& id);
 	CMeshNonAnime*								Find_Mesh(const uint32_t& id);
 
+	vector<VERTEX_NOANIME>* Get_MeshVetexesLists(uint32_t index) {
+	
+		if (index >= m_MeshVertexLists.size())
+			return nullptr;
+
+		return &m_MeshVertexLists[index];
+	}
+	vector<uint32_t>* Get_MeshIndicesLists(uint32_t index) { 
+		if (index >= m_MeshIndicesLists.size())
+			return nullptr;
+
+		return &m_MeshIndicesLists[index]; 
+	}
 private:
 	void										NonAnime_Binary_File_Import(vector<uint32_t>& idList, const string& fileName, weak_ptr<class CTransform> pTransform );
 	void										NonAnime_Binary_File_Import_Mesh(vector<uint32_t>& idList, ifstream& readFile);
@@ -85,6 +98,8 @@ private:
 	
 	map<string, uint32_t>						m_MeshMapIdList = {};
 	vector<shared_ptr<CMeshNonAnime>>			m_MeshLists = {};
+	vector<vector<VERTEX_NOANIME>>				m_MeshVertexLists = {};
+	vector<vector<uint32_t>>					m_MeshIndicesLists = {};
 
 	_float4x4									m_PreMatrix;
 	string										m_strDirectory	 = {}, m_strMeshName = {},	m_strFileName = {};

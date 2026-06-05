@@ -14,7 +14,7 @@ namespace Engine
 	enum class EPOINT		{A,B,C,END};
 	enum class LINE  {AB, BC, CA ,END};
 	enum class COLLISION { NORMAL, TRIGGER, END };
-	enum class DIMKEYINPUT{F5,F6,F7, TAB,Z,A,S, X,C,END};
+	enum class DIMKEYINPUT{F5,F6,F7,F8,F9, G,TAB,Z,A,S, X,C,END};
 	enum class DIMK{LBUTTON, RBUTTON, WHEEL, END};
 	enum class DIMM {X,Y,WHEEL,END};
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
@@ -24,9 +24,10 @@ namespace Engine
 	#define X(name) name,
 	enum class PARTICLE { PARTICLE_LIST };
 	enum class WORLD_EVENT { WORLD_EVENT_LIST };
+	enum class CELL_EVENT { CELL_LIST };
 	#undef X
 	
-	enum class CELL_EVENT { FIRST, SECOND, BOSSTP,ELEVATOR, END };
+	enum class SPAWN {PLAYER,MONSTER, END};
 	//// Dynamic 컴포넌트 경우 매 프레임마다 갱신해야하는 컴포넌트 집단
 	//enum COMPONENTID { ID_DYNAMIC, ID_STATIC, ID_END };
 

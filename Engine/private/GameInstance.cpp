@@ -195,6 +195,14 @@ CMeshNonAnime* CGameInstance::Find_Mesh(const uint32_t id)
 	return m_pAssimp_Manager->Find_Mesh(id);
 }
 
+vector<VERTEX_NOANIME>* CGameInstance::Get_MeshVetexesLists(uint32_t index)
+{
+	return m_pAssimp_Manager->Get_MeshVetexesLists(index);
+}
+vector<uint32_t>* CGameInstance::Get_MeshIndicesLists(uint32_t index)
+{
+	return m_pAssimp_Manager->Get_MeshIndicesLists(index);
+}
 #pragma endregion
 
 #pragma region LIGHT_MANAGER
@@ -401,6 +409,10 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 {
 	return m_pCollision_Manager->Matrix_Check_Collision(Checck, eCollisionValue);
 }
+_vector				CGameInstance::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir)
+{
+	return m_pCollision_Manager->CheckMesh_Triangle(pObj, MeshNumbers, vOriginPos, vOriginDir);
+}
 #pragma endregion
 
 #pragma  region
@@ -489,7 +501,14 @@ void CGameInstance::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
 #pragma endregion
 
 #pragma region TEXTURE_MANAGER
-
+void						CGameInstance::Set_Color(_float4 fColor)
+{
+	m_pTexture_Manager->Set_Color(fColor);
+}
+_float4*					CGameInstance::ColorTester()
+{
+	return m_pTexture_Manager->ColorTester();
+}
 HRESULT	CGameInstance::Add_Decal_Texture(const string filePath)
 {
 	return m_pTexture_Manager->Add_Decal_Texture(filePath);
@@ -517,6 +536,8 @@ void CGameInstance::Save_Data(uint32_t iNumLevel, _wstring path, const _wstring&
 	m_pObject_Manager->Save_Data(iNumLevel, path, strLayerName, pSaveArrayName);
 
 }
+
+
 #pragma region PARTICLE_MANAGER
 HRESULT	   CGameInstance::Add_ParticleToPool(const _wstring strPrototypeTag, uint32_t iPrototypeLevel, uint32_t iGameLevel, void* pArg)
 {

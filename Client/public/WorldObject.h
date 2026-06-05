@@ -33,6 +33,7 @@ public:
 	virtual json	Save_Data();
 	HRESULT			Ready_Component();
 	
+	vector<uint32_t> Get_MeshNameList() { return m_MeshNameList; }
 private:
 	HRESULT			Create_Component();
 

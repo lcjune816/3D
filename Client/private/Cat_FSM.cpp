@@ -25,6 +25,6 @@ HRESULT CCat_FSM::Initialize_State(weak_ptr<CGameObject> pObj)
 	auto Owner = pObj.lock();
 	if (NULL_TRUE(Owner))
 		return E_FAIL;
-
+	m_pBoss = static_pointer_cast<CBoss_Cat>(Owner);
 	return S_OK;
 }
