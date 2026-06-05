@@ -70,7 +70,6 @@ HRESULT CWorldObject::Initialize(void* pArg)
 	if (NULL_TRUE(m_pBoxMesh))
 		return E_FAIL;
 
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	for (size_t i = 0; i < m_MeshNameList.size(); ++i)
 	{
 		CGameInstance::Get().Add_Instancing_ObjectData(m_MeshNameList[i], m_pTransform->Get_World(), SHARED_THIS(CWorldObject));

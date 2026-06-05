@@ -58,13 +58,12 @@ public:
 	void					Set_Flag(uint32_t eState, FLAGVALUE eValue);
 	_bool					Flag_Check(uint32_t iFlag);
 
-	virtual			void ReBindsComponnet(uint32_t iLevelIndex)override;
 protected:
 	void					Timer(const _float& fTimeDelta);
 
 private:
 	void					Turn(const _float& fTimeDelta);
-	HRESULT					Ready_Component();
+	HRESULT					Ready_Component(void* pArg);
 	void					Default_Height();
 	void					State_Move();
 	void					Hnad_State_Check();

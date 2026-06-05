@@ -106,7 +106,7 @@ void CGenerator::Action_Work(const _float& fTimeDelta)
 		XMStoreFloat3(&fPos, pTransform->Get_State(STATE::POS));
 		EVENT pArg;
 		pArg.pArg = &fPos;
-		CGameInstance::Get().Notify(WORLD_EVENT::TEACHER_SPAWN, pArg);
+		CGameInstance::Get().Notify(WORLD_EVENT::BOSS_SPAWN, pArg);
 
 		m_eState = TRIGGER_STATE::PAUSE;
 	}

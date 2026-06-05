@@ -286,18 +286,6 @@ void CNavigation::Add_NaviMeshInfo(_float3* fPos, CELL_EVENT eEvent)
 
     memcpy(&Pos, fPos, sizeof _float3 * ETOUI(EPOINT::END));
 
-
-  //_float AngleX = (Pos[0].x + Pos[1].x + Pos[2].x) / 3.f;
-  //_float AngleZ = (Pos[0].z + Pos[1].z + Pos[2].z) / 3.f;
-  //
-  //sort(begin(Pos), end(Pos), [AngleX, AngleZ](_float3 a, _float3 b) {
-  //
-  //    _float ALastAngle = atan2f(AngleZ - a.z, AngleX - a.x);
-  //    _float BLastAngle = atan2f(AngleZ - b.z, AngleX - b.x);
-  //
-  //    return ALastAngle > BLastAngle;
-  //    });
-  //
    auto Cell = CCell::Create(m_pDevice, m_pContext,{} ,eEvent,m_Cells.size()  ,Pos);
    
    if (NULL_TRUE(Cell))
@@ -359,6 +347,7 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
        //eNavi.m_vPlane = { iter["Plane"][0],iter["Plane"][1],iter["Plane"][2],iter["Plane"][3]};
         eNavi.iIndex = iter["MyIndex"];
         int32_t iEvent = iter["Event"];
+
           eEvent = static_cast<CELL_EVENT>(iEvent);
           auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
         m_Cells.push_back(Cell);
@@ -366,6 +355,7 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
     file.close();
 
     MSG_BOX("로드 된듯?");
+
     for (auto Cell = m_Cells.begin(); Cell != m_Cells.end();)
     {
         
@@ -397,6 +387,17 @@ void CNavigation::Reset_Astar()
    	m_AstarCloseList.clear();
    	m_MoveToList.clear();
    
+}
+_vector CNavigation::Get_CellEventPos(CELL_EVENT eType)
+{
+    for (auto& iter : m_Cells)
+    {
+        if (iter->Event_Check(eType))
+        {
+            return XMLoadFloat3(&iter->Get_NaviInfo().vCenter);
+        }
+    }
+    return XMVectorSet(0,0,0,1);
 }
 void CNavigation::Dead_Check()
 {
@@ -437,6 +438,7 @@ _vector CNavigation::Find_CellPos(int32_t index)
     }
     return XMVectorSet(0, 0, 0, 1);
 }
+
 
 const _vector CNavigation::Get_CurrentCell_Info(int32_t* iDestIndex)
 {

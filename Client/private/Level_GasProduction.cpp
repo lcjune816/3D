@@ -1,5 +1,6 @@
 #include "Level_GasProduction.h"
 #include "GameInstance.h"
+#include "Loader_Defines.h"
 #include "Camera.h"
 #include "Player.h"
 CLevel_GasProduction::CLevel_GasProduction(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
@@ -34,7 +35,11 @@ HRESULT CLevel_GasProduction::Initialize()
 
 	if (FAILED(Ready_ProtoType()))
 		return E_FAIL;
-	return S_OK;
+
+	if (FAILED(Ready_Layer_Gui(L"Layer_Gui")))
+		return E_FAIL;
+		
+	S_OK;
 }
 
 void CLevel_GasProduction::Update(_float fTimeDelta)
@@ -67,8 +72,11 @@ HRESULT CLevel_GasProduction::Ready_Layer_Camera(const _wstring& strLayerTag)
 }
 HRESULT CLevel_GasProduction::Ready_Layer_Player(const _wstring& strLayerTag)
 {
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GASZONE);
+
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Player"),
-		ETOUI(LEVEL::GASZONE), strLayerTag)))
+		ETOUI(LEVEL::GASZONE), strLayerTag,&objDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -92,8 +100,10 @@ HRESULT CLevel_GasProduction::Ready_Layer_BackGround(const _wstring& strLayerTag
 		ETOUI(LEVEL::GASZONE), strLayerTag)))
 		return E_FAIL;
 
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GASZONE);
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Terrian"),
-		ETOUI(LEVEL::GASZONE), strLayerTag)))
+		ETOUI(LEVEL::GASZONE), strLayerTag,&objDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -101,13 +111,35 @@ HRESULT CLevel_GasProduction::Ready_Layer_BackGround(const _wstring& strLayerTag
 
 HRESULT CLevel_GasProduction::Ready_Layer_WorldObject(const _wstring& strLayerTag)
 {
+	while (true)
+	{
+		CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
 
+		if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
+			return S_OK;
+
+		if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
+			ETOUI(LEVEL::GASZONE), strLayerTag, &InstanceData)))
+			return E_FAIL;
+
+	}
 	return S_OK;
 }
 HRESULT CLevel_GasProduction::Ready_Layer_TriggerObject(const _wstring& strLayerTag)
 {
 	return S_OK;
 }
+HRESULT CLevel_GasProduction::Ready_Layer_Gui(const _wstring& strLayerTag)
+{
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GASZONE);
+	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
+		ETOUI(LEVEL::GASZONE), strLayerTag, &objDesc)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
 HRESULT CLevel_GasProduction::Ready_ProtoType()
 {
 

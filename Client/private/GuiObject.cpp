@@ -36,38 +36,52 @@ HRESULT CGuiObject::Initialize_Prototype()
 		m_GuiResources.push_back(pTexture);
 
 	}
-	//Layer_GameObject
-
-	//m_strGameObjectPath = L"../../GasZone_Objects.json";
-	//m_strTriggerPath = L"../../GasZone_Trigger.json";
-	//m_strDecalpath = L"../../GasZone_Decal.json";
-	//
-	//m_strGameObject = "GasZone_Object";
-	//m_strTrigger = "GasZone_Trigger";
-	//m_strDecal = "GasZone_Decal";
-	
-	m_strGameObjectPath = L"../../Objects.json";
-	m_strTriggerPath = L"../../Triggers.json";
-	m_strDecalpath = L"../../Decal.json";
-	
-	m_strGameObject = "GameObjects";
-	m_strTrigger = "Triggers";
-	m_strDecal = "Decals";
-	m_eLevel = LEVEL::GAMEPLAY;
-	CGameInstance::Get().Add_Layer(ETOUI(m_eLevel), L"Layer_Temp");
-
 	return S_OK;
 }
 HRESULT CGuiObject::Initialize(void* pArg)
 {
 	
+	auto pDesc = static_cast<GAMEOBJECT_DESC*>(pArg);
+
+	if (pDesc->iLevel == ETOUI(LEVEL::GAMEPLAY))
+	{
+		m_strGameObjectPath = L"../../Objects.json";
+		m_strTriggerPath = L"../../Triggers.json";
+		m_strDecalpath = L"../../Decal.json";
+		
+		m_strGameObject = "GameObjects";
+		m_strTrigger = "Triggers";
+		m_strDecal = "Decals";
+
+		m_eLevel = LEVEL::GAMEPLAY;
+		m_strNavi = L"../../Navi.json";
+	}
+	else if(pDesc->iLevel == ETOUI(LEVEL::GASZONE))
+	{
+		m_strGameObjectPath = L"../../GasZone_Objects.json";
+		m_strTriggerPath = L"../../GasZone_Trigger.json";
+		m_strDecalpath = L"../../GasZone_Decal.json";
+
+		m_strGameObject = "GasZone_Object";
+		m_strTrigger = "GasZone_Trigger";
+		m_strDecal = "GasZone_Decal";
+
+		m_eLevel = LEVEL::GASZONE;
+		m_strNavi = L"../../NaviGasZone.json";
+	}
+
+	CGameInstance::Get().Add_Layer(ETOUI(m_eLevel), L"Layer_Temp");
+
 	return S_OK;
 }
 void CGuiObject::Priority_Update(_float fTimeDelta)
 {
 	if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F6))
+	{
+		m_bPickingObject = !m_bPickingObject;
 		m_bModelCancle = !m_bModelCancle;
-
+	}
+	
 
 
 	if (m_bModelCancle)
@@ -83,12 +97,12 @@ void CGuiObject::Priority_Update(_float fTimeDelta)
 }
 void CGuiObject::Update(_float fTimeDelta)
 {
-	
-
+	string name = "크아악";
+	Enable_GUI(name);
 }
 void CGuiObject::Late_Update(_float fTimeDelta)
 {
-	if (m_bModelCancle)
+	if (m_bPickingObject)
 		return;
 	POINT pt = {};
 	GetCursorPos(&pt);
@@ -118,6 +132,8 @@ void CGuiObject::Late_Update(_float fTimeDelta)
 		m_bMouseCheck = false;
 		
 	}
+
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CGuiObject));
 }
 HRESULT CGuiObject::Render()
 {
@@ -1142,12 +1158,11 @@ weak_ptr<CGameObject> CGuiObject::Picking_Object(const _wstring& LayerName)
 
 	pObj = CGameInstance::Get().Check_Ray(ETOUI(m_eLevel), LayerName, desc);
 	
-	m_fMouseLocalDir = desc.fDir ;
-	m_fMosueLocalPos = desc.fPos ;
-	
 	if (NULL_TRUE(pObj.lock()))
 		return {};
-		
+
+	m_fMouseLocalDir = desc.fDir;
+	m_fMosueLocalPos = desc.fPos;
 
 	return pObj;
 
@@ -1213,6 +1228,13 @@ _vector CGuiObject::Picking_Terrain(int32_t iSelect, _float3& frayOrigin, _float
 			}
 		}
 	}
+	else if (iSelect ==1)
+	{
+
+		XMStoreFloat3(&frayOrigin, rayOrigin);
+		XMStoreFloat3(&frayDir, rayDir);
+	}
+
 	bCheck = false;
 	return XMVectorSet(0,0,0,1);
 }
@@ -1693,18 +1715,22 @@ void CGuiObject::Navi_Creator()
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
 	if (ImGui::BeginTabBar(u8"목록", tab_bar_flags))
 	{
-	
+
+		m_LayerName = L"Layer_WorldObject";
 		static _float3 fPos[3]{};
 		static _float fY[3]{};
 		static _bool   A{ false }, B{ false }, C{ false }, D{ false }, Check{ false }, bSelect{ false }, bOnlyTwo{ false }, dynamicY{ false };
 		ImGui::Text(u8"이벤트 선택");
-		const char* items[] = { "FIRST","SECOND","BOSS_TP","ELEVATOR","END" };
+		#define X(name) #name,
+		const _char* items[] = { CELL_LIST };
+		#undef X
 		const _char* pTwogae = nullptr;
-		static CELL_EVENT event_Select_Index = CELL_EVENT::END;
-			
+		static CELL_EVENT event_Select_Index = CELL_EVENT::NONE;
+		_bool  bClick{ false };
 		static int32_t iSelect{0};
-
-		_float3 LastPos{}, rayOrigin{}, rayDir{};
+		static int32_t Picking(0);
+		static _float3 LastPos{};
+		_float3 rayOrigin{}, rayDir{};
 		const char* combo_preview_value = items[ETOUI(event_Select_Index)];
 
 		if (ImGui::BeginCombo(u8"옵션", combo_preview_value, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview))
@@ -1724,9 +1750,10 @@ void CGuiObject::Navi_Creator()
 		if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::X))
 			bOnlyTwo = !bOnlyTwo;
 
-		ImGui::RadioButton(u8"설치", &iSelect, 0);
-		ImGui::RadioButton(u8"선택", &iSelect, 1);
+		ImGui::RadioButton(u8"설치", &iSelect, 0); ImGui::SameLine(130.f); ImGui::RadioButton(u8"선택", &iSelect, 1);
 		
+		ImGui::RadioButton(u8"터레인픽킹", &Picking, 0); ImGui::SameLine(130.f); ImGui::RadioButton(u8"매쉬단위 픽킹", &Picking, 1);
+
 		if (ImGui::Button(u8"Y 수동 설정"))
 			dynamicY = !dynamicY;
 		
@@ -1736,7 +1763,38 @@ void CGuiObject::Navi_Creator()
 
 		ImGui::Text(u8"두개만 : %s", pTwogae);
 		_bool bCheck{ false };
-		XMStoreFloat3(&LastPos, Picking_Terrain(iSelect, rayOrigin,rayDir, bCheck));
+	
+		if (Picking == 1)
+		{
+			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+				m_bPickingObject = false;
+			auto pObj = static_pointer_cast<CWorldObject>(m_pObj.lock());
+			if (NULL_FALSE(pObj))
+			{
+				m_bPickingObject = true;
+				XMStoreFloat3(&LastPos, CGameInstance::Get().CheckMesh_Triangle(pObj, pObj->Get_MeshNameList(), XMLoadFloat3(&m_fMosueLocalPos), XMLoadFloat3(&m_fMouseLocalDir)));
+				Click_Reset();
+				bClick = true;
+				m_bMouseCheck = false;
+				pObj->Set_bBoxColor(false);
+				m_pObj.reset();
+				m_bCopy = false;
+				m_CopyWorld = {};
+			}
+		}
+		else
+		{
+			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+			{
+				bClick = true;
+				XMStoreFloat3(&LastPos, Picking_Terrain(iSelect, rayOrigin, rayDir, bCheck));
+			}
+		}
+
+		ImGui::Text("X %f.3f:", LastPos.x);
+		ImGui::Text("Y %f.3f :", LastPos.y);
+		ImGui::Text("Z %f.3f :", LastPos.z);
+
 			if (iSelect == 0)
 			{
 				if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::RBUTTON, ENGINE_MOUSE::A_CLICK))
@@ -1749,52 +1807,49 @@ void CGuiObject::Navi_Creator()
 					pCell->Set_Choice(false);
 					m_pCell.reset();
 				}
-
-				ImGui::Text("X %f.3f:", LastPos.x);
-				ImGui::Text("Z %f.3f :", LastPos.z);
-
-					if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+				if (bClick)
+				{
+					if (!A)
 					{
-						if (!A)
-						{
-							
-							CGameInstance::Get().Check_NeraPos(&LastPos);
-							fPos[0] = LastPos;
-							A = true;
-						}
-						else if (!B)
-						{
-							CGameInstance::Get().Check_NeraPos(&LastPos);
-							fPos[1] = LastPos;
-							B = true;
-						}
-						else if (!C)
-						{
-							if (!bOnlyTwo)
-							{
-								CGameInstance::Get().Check_NeraPos(&LastPos);
-							}
-							C = true;
-
-							fPos[2] = LastPos;
-						}
-
+						CGameInstance::Get().Check_NeraPos(&LastPos);
+						fPos[0] = LastPos;
+						A = true;
 					}
+					else if (!B)
+					{
+						CGameInstance::Get().Check_NeraPos(&LastPos);
+						fPos[1] = LastPos;
+						B = true;
+					}
+					else if (!C)
+					{
+						if (!bOnlyTwo)
+						{
+							CGameInstance::Get().Check_NeraPos(&LastPos);
+						}
+						C = true;
+
+						fPos[2] = LastPos;
+					}
+
+				}
+
 				
-					if (dynamicY)
-					{
-						ImGui::InputFloat3(u8"Y 입력", &fY[0]);
-						fPos[0].y =  fY[0];
-						fPos[1].y =  fY[1];
-						fPos[2].y =  fY[2];
+			
+				if (dynamicY)
+				{
+					ImGui::InputFloat3(u8"Y 입력", &fY[0]);
+					fPos[0].y =  fY[0];
+					fPos[1].y =  fY[1];
+					fPos[2].y =  fY[2];
 
-					}
-					
-					if (C && !dynamicY)
-					{
-						CGameInstance::Get().Add_NaviMeshInfo(&fPos[0], event_Select_Index);
-						A = B = C = false;
-					}
+				}
+				
+				if (C && !dynamicY)
+				{
+					CGameInstance::Get().Add_NaviMeshInfo(&fPos[0], event_Select_Index);
+					A = B = C = false;
+				}
 
 				if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::Z))
 					CGameInstance::Get().Undo_Cell();
@@ -1807,6 +1862,7 @@ void CGuiObject::Navi_Creator()
 			{
 				auto pObj = m_pCell.lock();
 
+				XMStoreFloat3(&LastPos, Picking_Terrain(iSelect, rayOrigin, rayDir, bCheck));
 
 				if (NULL_TRUE(pObj) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::HOLD))
 					m_pCell = CGameInstance::Get().Select_TriAngle(XMLoadFloat3(&rayOrigin), XMLoadFloat3(&rayDir));
@@ -1831,7 +1887,7 @@ void CGuiObject::Navi_Creator()
 
 				if (NULL_FALSE(pObj))
 				{
-
+				
 					ImGui::Text(u8"현재 인덱스 번호 : %d", pObj->Get_NaviInfo().iIndex); ImGui::SameLine(150.f);
 					const _char* pName = nullptr;
 					if (pObj->Get_Event() == CELL_EVENT::FIRST)
@@ -1842,6 +1898,10 @@ void CGuiObject::Navi_Creator()
 						pName = "BOSS_TP";
 					if (pObj->Get_Event() == CELL_EVENT::ELEVATOR)
 						pName = "Elevator";
+					if (pObj->Get_Event() == CELL_EVENT::NONE)
+						pName = "NONE";
+					if (pObj->Get_Event() == CELL_EVENT::ARROW)
+						pName = "ARROW";
 					if (pObj->Get_Event() == CELL_EVENT::END)
 						pName = "END";
 
@@ -1849,7 +1909,7 @@ void CGuiObject::Navi_Creator()
 
 					if (NULL_FALSE(pObj) && CGameInstance::Get().Get_DIKeyState(DIK_DELETE))
 					{
-						pObj->Get_NaviInfo().bDead = true;
+						pObj->Set_Dead(true);
 						m_pCell.reset();
 					}
 					if (NULL_FALSE(pObj))
@@ -1862,16 +1922,11 @@ void CGuiObject::Navi_Creator()
 			}
 			if(CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F7))
 				CGameInstance::Get().Ready_Neightbors();
-
-			//if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
-			//	CGameInstance::Get().Save_Navi(L"../../NaviGasZone.json", "Navi");
-			//if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
-			//	CGameInstance::Get().Load_Navi(L"../../NaviGasZone.json", "Navi");
 			
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F1))
-				CGameInstance::Get().Save_Navi(L"../../Navi.json", "Navi");
+				CGameInstance::Get().Save_Navi(m_strNavi, "Navi");
 			if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) && CGameInstance::Get().Get_DIKeyState(DIK_F7))
-				CGameInstance::Get().Load_Navi(L"../../Navi.json", "Navi");
+				CGameInstance::Get().Load_Navi(m_strNavi, "Navi");
 		
 		ImGui::EndTabBar();
 	}
@@ -1905,7 +1960,17 @@ void CGuiObject::Particle_Installer()
 			ImGui::SameLine(300);
 			ComboArray(ParticleItem, IM_COUNTOF(ParticleItem), item_Particle, u8"파티클", combo_preview_Particlevalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
 
-			
+			static _float fColor[4]{1,1,1,1};
+
+
+			ImGui::InputFloat4(u8"칼라 테스트", fColor);
+
+			for (int32_t i = 0; i < 4; ++i)
+			{
+				fColor[i] = min(1.f, max(0.f, fColor[i]));
+			}
+			_float4 vColor = { fColor[0],fColor[1],fColor[2],fColor[3] };
+			CGameInstance::Get().Set_Color(vColor);
 			if (m_iSelectParticle == 0)
 			{
 				_bool bCheck{};
@@ -1925,7 +1990,7 @@ void CGuiObject::Particle_Installer()
 			else if (m_iSelectParticle == 1)
 			{
 
-				_bool bCheck{false};
+				_bool bCheck{ false };
 				Picking_Terrain(0, fOrigin, fDir, bCheck);
 				if (bCheck)
 				{
@@ -1939,7 +2004,7 @@ void CGuiObject::Particle_Installer()
 					}
 
 				}
-			 
+
 			}
 
 			ImGui::Text(u8"선택 좌표 x : %3.f, y : %3.f, z : %3.f", XMVectorGetX(vParticlePos), XMVectorGetY(vParticlePos), XMVectorGetZ(vParticlePos));
@@ -1956,6 +2021,22 @@ void CGuiObject::Particle_Installer()
 				ParticleDesc.bWorldCheck = false;
 				XMStoreFloat4x4(&ParticleDesc.matWorld, matWorld);
 				
+				switch (ParticleDesc.eParticleEmit)
+				{
+				case PARTICLE::SPARK:
+					ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)] = L"Component_Instancing_Spark";
+					ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)] = L"Component_Buffer_Particle_Spark";
+					ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)] = L"../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds";
+					break;
+				case PARTICLE::FOG:
+
+					ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)] = L"Component_Instancing_Fog";
+					ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)] = L"Component_Buffer_Particle_Fog";
+					ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)] = L"../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds";
+					break;
+				}
+
+
 				CGameInstance::Get().Add_ParticleToPool(TEXT("OBJ_Particle"),ETOUI(m_eLevel), ETOUI(m_eLevel),&ParticleDesc);
 			}
 			ImGui::EndTabItem();
@@ -2044,7 +2125,7 @@ unique_ptr<CGuiObject> CGuiObject::Create(ComPtr<ID3D11Device> pDevice, ComPtr<I
 	auto pInstance = unique_ptr<CGuiObject>(new CGuiObject(pDevice, pContext));
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed BackGround");
+		MSG_BOX("Create Failed GUI");
 		return nullptr;
 	}
 	return pInstance;
@@ -2055,7 +2136,7 @@ shared_ptr<CPrototype> CGuiObject::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed BackGround_Clone ");
+		MSG_BOX("Create Failed GUI_Clone ");
 		return pInstance;
 	}
 	return pInstance;

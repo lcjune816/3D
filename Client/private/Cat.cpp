@@ -28,7 +28,7 @@ HRESULT CBoss_Cat::Ready_Component()
 	NaviDesc.eOwner = OWNER::BOSS;
 	//0
 	//230
-	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
+	if (FAILED(Add_Component(ETOUI(LEVEL::GASZONE), TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
 		return E_FAIL;
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("FSM_Machine"), TEXT("FSM_Machine"), m_pStateMachine, nullptr)))
 		return E_FAIL;
@@ -41,13 +41,18 @@ HRESULT CBoss_Cat::Ready_Component()
 
 	_matrix mat = XMMatrixIdentity();
 	mat = XMMatrixScaling(0.9f, 0.9f, 0.9f) * XMMatrixRotationY(XMConvertToRadians(180.f));
- 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList, m_pAnimator, m_pTransform, mat);
+ 	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList[ETOUI(CATFORM::NORMAL)], m_pAnimator[ETOUI(CATFORM::NORMAL)], m_pTransform, mat);
 
+	importModel.pFile = "../../Resource/Boss/castsaagi/nightmare.fbx";
+
+	CGameInstance::Get().ImportModel_Anime(importModel, m_pMeshList[ETOUI(CATFORM::NIGHTMARE)], m_pAnimator[ETOUI(CATFORM::NIGHTMARE)], m_pTransform, mat);
 
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Cat));
 	m_pStateMachine->Add_State(FSM::SPAWN, static_pointer_cast<CFSM_Teacher_Spawn>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Spawn"), nullptr)));
 	m_pStateMachine->Change_State(FSM::SPAWN);
-
+	m_pAnimator[ETOUI(m_eFormType)]->Stop_Animation(true);
+	_vector vPos = m_pNavigation->Find_CellPos(NaviDesc.iIndex);
+	m_pTransform->Set_State(STATE::POS, XMVectorSetW(vPos, 1.f));
 	return S_OK;
 
 }
@@ -68,35 +73,45 @@ HRESULT CBoss_Cat::Initialize(void* pArg)
 	if (FAILED(Ready_Component()))
 		return E_FAIL;
 
-	//CGameInstance::Get().Add_LightMtrl(m_PathName);
 
-	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
-	_vector vPos = m_pNavigation->Find_CellPos(0) - XMVectorSet(2, 0, 0, 0);
-	m_pTransform->Set_State(STATE::POS, XMVectorSetW(vPos, 1.f));
-	m_Components.emplace(L"Animator", m_pAnimator);
-	m_pTransform->Rotation(XMVectorSet(0, 1, 0, 0), 180.f);
+	
+	m_Components.emplace(L"Com_Animator_Normal", m_pAnimator[ETOUI(CATFORM::NORMAL)]);
+	m_Components.emplace(L"Com_Animator_Nightmare", m_pAnimator[ETOUI(CATFORM::NIGHTMARE)]);
+	m_pTransform->Rotation(XMVectorSet(0, 1, 0, 0), -90.f);
 
 	strcpy_s(m_pTagName, "Boss_Cat");
 	return S_OK;
 }
 void CBoss_Cat::Priority_Update(_float fTimeDelta)
 {
-
+	if (CGameInstance::Get().Get_DIKeyState(DIK_K))
+	{
+		m_eFormType = CATFORM::NIGHTMARE;
+	}
+	if (CGameInstance::Get().Get_DIKeyState(DIK_L))
+	{
+		m_eFormType = CATFORM::NORMAL;
+	}
 }
 void CBoss_Cat::Update(_float fTimeDelta)
 {
-
+	if (CGameInstance::Get().Get_DIKeyState(DIK_M))
+	{
+		EVENT eEvent{};
+		eEvent.eEvent = WORLD_EVENT::BOSS_SPAWN;
+		CGameInstance::Get().Notify(WORLD_EVENT::BOSS_SPAWN, eEvent);
+	}
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
 
-	string name = Model_Animation(m_pAnimator->Get_NameList());
+	string name = Model_Animation(m_pAnimator[ETOUI(m_eFormType)]->Get_NameList());
 	if (name != "")
-		m_pAnimator->Change_Animation(name);
+		m_pAnimator[ETOUI(m_eFormType)]->Change_Animation(name);
 
-	m_pAnimator->Update(fTimeDelta);
+	m_pAnimator[ETOUI(m_eFormType)]->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
-	m_bFinished = m_pAnimator->Animation_End();
+	m_bFinished = m_pAnimator[ETOUI(m_eFormType)]->Animation_End();
 	m_pFogEffect->Update(fTimeDelta);
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Cat));
@@ -112,8 +127,8 @@ HRESULT CBoss_Cat::Render()
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 
-	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
-	for (auto iter : m_pMeshList)
+	m_pAnimator[ETOUI(m_eFormType)]->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
+	for (auto iter : m_pMeshList[ETOUI(m_eFormType)])
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
 		m_pShaderCom->Begin(0);
@@ -208,7 +223,7 @@ void CBoss_Cat::Change_Animation(CAT_ANIME eAnime, _bool bLoop, _bool bForce)
 		return;
 
 	m_bFinished = bLoop;
-	m_pAnimator->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
+	m_pAnimator[ETOUI(m_eFormType)]->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
 	m_eAnimeState = eAnime;
 }
 unique_ptr<CBoss_Cat> CBoss_Cat::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

@@ -25,16 +25,25 @@
 #define WORLD_EVENT_LIST \
 X(DOOR)					 \
 X(GENERATOR)			 \
-X(TEACHER_SPAWN)		 \
+X(BOSS_SPAWN)		     \
 X(BATTERY)			     \
 X(ROLLUP_DOOR)		     \
-X(TEACHER_DEAD)		     \
+X(BOSS_DEAD)		     \
 X(BOSS_TP)			     \
 X(END)
 
 #define PARTICLE_LIST \
 X(SPARK)			  \
 X(FOG)				  \
+X(END)
+
+#define CELL_LIST \
+X(NONE)			  \
+X(FIRST)		  \
+X(SECOND)		  \
+X(BOSSTP)		  \
+X(ELEVATOR)		  \
+X(ARROW)		  \
 X(END)
 
 #ifdef	ENGINE_EXPORTS
