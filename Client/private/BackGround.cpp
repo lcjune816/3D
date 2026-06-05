@@ -20,6 +20,7 @@ HRESULT CBackGround::Initialize_Prototype()
 }
 HRESULT CBackGround::Initialize(void* pArg)
 {
+
 	CTransform::TRANSFORM_DESC desc;
 	desc.m_fRotationPerSec = 0.f;
 	desc.m_fSpeedPerSec = 0.f;
@@ -27,8 +28,7 @@ HRESULT CBackGround::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
 
-	m_pGuiObj = CGuiObject::Create(m_pDevice, m_pContext);
-
+	
 	if (nullptr == m_pGuiObj)
 		return E_FAIL;
 
@@ -36,7 +36,6 @@ HRESULT CBackGround::Initialize(void* pArg)
 }
 void CBackGround::Priority_Update(_float fTimeDelta)
 {
-	m_pGuiObj->Priority_Update(fTimeDelta);
 }
 void CBackGround::Update(_float fTimeDelta)
 {
@@ -44,23 +43,11 @@ void CBackGround::Update(_float fTimeDelta)
 }
 void CBackGround::Late_Update(_float fTimeDelta)
 {
-	string name;
-
-	m_pGuiObj->Enable_GUI(name);
 	
-	if (nullptr != m_pMeshModel)
-		m_pMeshModel->Update(fTimeDelta);
-
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
-
-
-	m_pGuiObj->Late_Update(fTimeDelta);
+	//CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
 }
 HRESULT CBackGround::Render()
 {
-	if (NULL_FALSE(m_pMeshModel))
-		m_pMeshModel->Render();
-
 	return S_OK;
 }
 

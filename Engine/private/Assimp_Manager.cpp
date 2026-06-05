@@ -806,8 +806,16 @@ void CAssimp_Manager::NonAnime_Binary_File_Import_Mesh(vector<uint32_t>& idList,
 	{
 
 		CMeshNonAnime::NONANIME_DESC Desc;
-		Load_Binary_Data_Array(Desc.Vertexes, readFile);
-		Load_Binary_Data_Array(Desc.Indices, readFile);
+		vector<VERTEX_NOANIME> Vertexes{};
+		vector<uint32_t>	   Indices{};
+
+		Load_Binary_Data_Array(Vertexes, readFile);
+		Load_Binary_Data_Array(Indices, readFile);
+		Desc.Vertexes.resize(Vertexes.size());
+		Desc.Vertexes = Vertexes;
+		Desc.Indices.resize(Indices.size());
+		Desc.Indices = Indices;
+
 		uint32_t Material = {};
 		readFile.read((char*)(&Material), sizeof(uint32_t));
 		Desc.eMatrial = static_cast<MATERIAL>(Material);
@@ -871,6 +879,9 @@ void CAssimp_Manager::NonAnime_Binary_File_Import_Mesh(vector<uint32_t>& idList,
 			// 그 배열 번호를 담는다
 			idList.push_back(id);
 			CGameInstance::Get().Add_Instancing_Data(id, move(InstanceData));
+
+			m_MeshVertexLists.push_back(Vertexes);
+			m_MeshIndicesLists.push_back(Indices);
 
 
 		}

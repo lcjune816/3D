@@ -12,6 +12,7 @@ public:
 	{
 		OWNER eOwner;
 		CELL_EVENT eEvent;
+		SPAWN	   eSpawn;
 		int32_t iIndex;
 	}NAVIGATION_DESC;
 private:
@@ -32,6 +33,7 @@ public:
 	void	Event_Check(CELL_EVENT eCellEvent);
 	void	Reset_Astar();
 	void   Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
+	_vector Get_CellEventPos(CELL_EVENT eType);
 public:
 //GUI¿ë
 	_bool	Check_NeraPos(_float3* fPos); 

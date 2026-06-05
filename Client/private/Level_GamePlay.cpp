@@ -38,9 +38,12 @@ HRESULT CLevel_GamePlay::Initialize()
 
 	if (FAILED(Ready_ProtoType()))
 		return E_FAIL;
+	
 	if(FAILED(Ready_Layer_WorldObjectInstance(L"Layer_GameObject")))
 		return E_FAIL;
 
+	if(FAILED(Ready_Layer_Gui(L"Layer_Gui")))
+		return E_FAIL;
 
 
 	return S_OK;
@@ -82,8 +85,10 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _wstring& strLayerTag)
 }
 HRESULT CLevel_GamePlay::Ready_Layer_Player(const _wstring& strLayerTag)
 {
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GAMEPLAY);
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Player"),
-		ETOUI(LEVEL::GAMEPLAY), strLayerTag)))
+		ETOUI(LEVEL::GAMEPLAY), strLayerTag,&objDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -107,8 +112,10 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _wstring& strLayerTag)
 		ETOUI(LEVEL::GAMEPLAY), strLayerTag)))
 		return E_FAIL;
 
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GAMEPLAY);
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Terrian"),
-		ETOUI(LEVEL::GAMEPLAY), strLayerTag)))
+		ETOUI(LEVEL::GAMEPLAY), strLayerTag,&objDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -152,6 +159,16 @@ HRESULT CLevel_GamePlay::Ready_Layer_WorldObjectInstance(const _wstring& strLaye
 }
 HRESULT CLevel_GamePlay::Ready_ProtoType()
 {
+	return S_OK;
+}
+HRESULT CLevel_GamePlay::Ready_Layer_Gui(const _wstring& strLayerTag)
+{
+	CGameObject::GAMEOBJECT_DESC objDesc;
+	objDesc.iLevel = ETOUI(LEVEL::GAMEPLAY);
+	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
+		ETOUI(LEVEL::GAMEPLAY), strLayerTag, &objDesc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 unique_ptr<CLevel_GamePlay> CLevel_GamePlay::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

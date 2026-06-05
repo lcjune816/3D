@@ -24,13 +24,23 @@ HRESULT CBatteryCase::Initialize(void* pArg)
 	m_eEventTrigger = TRIGGER_EVENT::BATTERYCASE;
  	m_eRot = pDesc->eRot;
 	m_fRotationArrow = 0.25f;
-
+	if (WORLD_EVENT::BOSS_SPAWN == pDesc->eWroldEvent)
+	{
+		m_eState = TRIGGER_STATE::WORLD;
+	}
 	return S_OK;
 }
 
 HRESULT CBatteryCase::Interaction( _float fTimeDelta,  _bool bOtherTrigger)
 {
-	if (m_bTriggerOn) return E_FAIL;
+	switch (m_eState)
+	{
+	case TRIGGER_STATE::IDLE:
+		break;
+	case TRIGGER_STATE::WORLD:
+		Action_Event();
+		break;
+	}
 
 	return S_OK;
 }
@@ -41,6 +51,7 @@ HRESULT CBatteryCase::Late_Interaction( _float fTimeDelta, _bool bOtherTrigger)
 void CBatteryCase::Set_Trigger()
 {
 }
+
 HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 {
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
@@ -57,6 +68,9 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 	
 	if(CGameInstance::Get().Only_AABB_Collision(SrcTransform, DstTransform))
 	{//충돌하면 배터리를 집어 넣으라
+		if (m_eState == TRIGGER_STATE::WORLD)
+			Set_Flag(ETOUI(TRIGGER_FLAG::WORLD_EVENT), FLAGVALUE::ENABLE);
+
 		_vector vPos = SrcTransform->Get_State(STATE::POS);
 		vPos  += XMVectorSet(0,6.f,0,0);
 		_vector vSrcLook = SrcTransform->Get_World().r[2];
@@ -122,6 +136,17 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 	}
 
 	return E_FAIL;
+}
+
+void CBatteryCase::Action_Event()
+{
+	if (!Check_Flag(ETOUI(TRIGGER_FLAG::WORLD_EVENT)))
+		return;
+
+	EVENT eEvent{};
+	eEvent.eEvent = WORLD_EVENT::BOSS_SPAWN;
+	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_SPAWN, eEvent);
+	m_eState = TRIGGER_STATE::IDLE;
 }
 
 unique_ptr<CBatteryCase>CBatteryCase::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

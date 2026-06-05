@@ -82,6 +82,7 @@ public:
 	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay);
 	void					Add_Check_Collision(COLLISION eCollisionValue, weak_ptr<CGameObject> pObj);
 	weak_ptr<CGameObject>	Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue);
+	_vector					CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir);
 #pragma endregion
  
 #pragma region INSTANCING
@@ -110,6 +111,9 @@ public:
 	HRESULT							Add_Direct_Decal_Texture(const string filePath, ComPtr<ID3D11ShaderResourceView> pTexture);
 	const	vector<string>&			Get_TextureFileNameList();
 	const int32_t					Find_TextueId(const string& filePath);
+
+	void						Set_Color(_float4 fColor);
+	_float4*						ColorTester();
 #pragma endregion
 #pragma region LIGHT_MANAGER
 
@@ -146,10 +150,12 @@ public:
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);
 	HRESULT		ImportModel_Anime(const IMPORTMODEL_DESC& tagModel, vector<shared_ptr<class CVIBuffer>>& pPrototype, shared_ptr<class CAnimator>& pAnimator, weak_ptr<class CTransform> pTransform, _matrix Premat);
 	HRESULT		ImportModel_NonAnime(const IMPORTMODEL_DESC& tagModel, weak_ptr<class CTransform> pTransform, vector<uint32_t>& nameList);
+	
 	const string						Get_Binary_Path();
 	ID3D11ShaderResourceView*		    Find_Texture(const uint32_t id);
 	CMeshNonAnime*						Find_Mesh(const uint32_t id);
-
+	vector<VERTEX_NOANIME>* Get_MeshVetexesLists(uint32_t index);
+	vector<uint32_t>* Get_MeshIndicesLists(uint32_t index);
 #pragma endregion
 
 #pragma region IMGUI

@@ -25,7 +25,10 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 	m_eParticleType		= desc->eParticleType;
 	m_eParticleEmitType = desc->eParticleEmit;
 	m_iLevelIndex		= desc->iLevelIndex;
-	
+	m_strPathName[ETOUI(PATHNAME::SHADER)] = desc->PathName[ETOUI(PATHNAME::SHADER)];
+	m_strPathName[ETOUI(PATHNAME::BUFFER)] = desc->PathName[ETOUI(PATHNAME::BUFFER)];
+	m_strPathName[ETOUI(PATHNAME::TEXTURE)] = desc->PathName[ETOUI(PATHNAME::TEXTURE)];
+
 	if (FAILED(Ready_Component()))
 		return E_FAIL;
 
@@ -39,7 +42,15 @@ void CWorldParticle::Priority_Update(_float fTimeDelta)
 }
 void CWorldParticle::Update(_float fTimeDelta)
 {
-	m_pVIBufferCom->Spark(fTimeDelta);
+	switch (m_eParticleEmitType)
+	{
+	case PARTICLE::FOG:
+		m_pVIBufferCom->Fog_Spread(fTimeDelta);
+		break;
+	case PARTICLE::SPARK:
+		m_pVIBufferCom->Spark(fTimeDelta);
+		break;
+	}
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CWorldParticle));
 
 }
@@ -58,6 +69,7 @@ HRESULT CWorldParticle::Render()
 	m_pShaderCom->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pShaderCom->Bind_RawValue("g_vCamePosition", CGameInstance::Get().Get_CamPosition(), sizeof _vector);
+	m_pShaderCom->Bind_RawValue("g_Color", CGameInstance::Get().ColorTester(), sizeof _float4);
 	m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
 	m_pShaderCom->Begin(0);
 	
@@ -110,7 +122,7 @@ json CWorldParticle::Save_Data()
 }
 HRESULT CWorldParticle::Ready_Component()
 {
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Instancing_Spark"),TEXT("Com_Shader"), m_pShaderCom)))
+	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), m_strPathName[ETOUI(PATHNAME::SHADER)], TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pBoxShader)))
@@ -120,12 +132,16 @@ HRESULT CWorldParticle::Ready_Component()
 		return E_FAIL;
 
 	
-	if (NULL_TRUE(m_pVIBufferCom = static_pointer_cast<CVIBuffer_Particle_Point>(CGameInstance::Get().Clone_Prototype(m_iLevelIndex, L"Component_Particle_Spark", nullptr))))
+	if (NULL_TRUE(m_pVIBufferCom = static_pointer_cast<CVIBuffer_Particle_Point>(CGameInstance::Get().Clone_Prototype(m_iLevelIndex, m_strPathName[ETOUI(PATHNAME::BUFFER)], nullptr))))
 			return E_FAIL;
 	
 
-	CGameInstance::Get().Add_Decal_Texture("../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds");
-	m_iTextureID = CGameInstance::Get().Find_TextueId("../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds");
+	char TexturePath[256] = {};
+	_bool		bMove = false;
+	WideCharToMultiByte(CP_ACP, 0, m_strPathName[ETOUI(PATHNAME::TEXTURE)].data(), -1, TexturePath, sizeof(char) * 256, NULL, NULL);
+
+	CGameInstance::Get().Add_Decal_Texture(TexturePath);
+	m_iTextureID = CGameInstance::Get().Find_TextueId(TexturePath);
 	return S_OK;
 }
 
