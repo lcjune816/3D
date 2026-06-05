@@ -1,6 +1,7 @@
 #include "MainApp.h"
 #include "ImGuiManager.h"
 #include "GameInstance.h"
+#include "Loader_Defines.h"
 #include "Level_Loading.h"
 #include <assimp/Importer.hpp>
 Client::CMainApp::CMainApp()
@@ -111,8 +112,8 @@ HRESULT Client::CMainApp::Ready_Prototype()
 			VTXINSTANCE_NONANIME_MESH::Elements, VTXINSTANCE_NONANIME_MESH::iNumElements))))
 		return E_FAIL;
 
-	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_Pog"),
-		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Pog.hlsl"),
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_Fog"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxInsatncing_Fog.hlsl"),
 			VTXINSTANCE_PARTICLE_POINT::Elements, VTXINSTANCE_PARTICLE_POINT::iNumElements))))
 		return E_FAIL;
 	
@@ -125,7 +126,10 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		CRect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
-
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("OBJ_Gui"),
+		CGuiObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
    //   	CGameInstance::Get().Add_Instancing_Shader(
 	//static_pointer_cast<CShader>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_InstanceTexter"), nullptr)));
 	return S_OK;

@@ -15,7 +15,7 @@ HRESULT CFSM_Teacher_IDLE::Initialize(void* pArg)
 	__super::Initialize(pArg);
 	m_eAction = FSM_ACTION::IDLE;
 
-	CGameInstance::Get().Add_Observers(WORLD_EVENT::TEACHER_SPAWN, SHARED_THIS(CFSM_Teacher_IDLE));
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN, SHARED_THIS(CFSM_Teacher_IDLE));
 	return S_OK;
 }
 void CFSM_Teacher_IDLE::Enter_State()

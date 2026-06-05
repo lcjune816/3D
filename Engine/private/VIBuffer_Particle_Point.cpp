@@ -131,19 +131,14 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 
 	for (uint32_t i = 0; i < m_iNumInstances; ++i)
 	{
-		pVertices[i].fLifeTime.y += fTimeDelta;
-
-		_vector vDir = XMVector4Normalize(XMVectorSetW(XMLoadFloat4(&pVertices[i].fTranslation), 0.f));
-		XMStoreFloat4(&pVertices[i].fTranslation, XMLoadFloat4(&pVertices[i].fTranslation)+ vDir * m_pSpeeds[i] * fTimeDelta);
-
-
 		//x y          z          w 
 		// 최소      x최대      y최대
 	
-		if (pVertices[i].fLifeTime.y >= pVertices[i].fLifeTime.x)
-		{
-			pVertices[i].fLifeTime.y = 0.f;
+		m_pInstanceData[i].fTick += fTimeDelta;
 
+		if (m_pInstanceData[i].fTick > 0.01f)
+		{
+			m_pInstanceData[i].fTick = 0;
 			pVertices[i].fUv.x = pVertices[i].fUv.z;
 			pVertices[i].fUv.z += 1.f / m_vGrid.x;
 
@@ -155,7 +150,7 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 				pVertices[i].fUv.w += 1.f / m_vGrid.y;
 
 			}
-			if (pVertices[i].fUv.w > 1.f - 0.0001f)
+			if (pVertices[i].fUv.y > 1.f - 0.0001f)
 			{
 
 				pVertices[i].fUv.x = 0.f;
@@ -165,6 +160,7 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 				pVertices[i].fUv.w = 1.f / m_vGrid.y;
 
 			}
+
 		}
 		
 	}
@@ -222,10 +218,11 @@ void CVIBuffer_Particle_Point::Spark(const _float& fTimeDelta)
 			}
 		
 		}
-		if (pVertices[i].fLifeTime.y >= pVertices[i].fLifeTime.x)
+		if (m_isLoop && pVertices[i].fLifeTime.y >= pVertices[i].fLifeTime.x)
 		{
 
 			pVertices[i].fLifeTime.y = 0.f;
+			pVertices[i].fTranslation = m_pInstanceData[i].fTranslation;
 		}
 
 	}

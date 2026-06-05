@@ -22,7 +22,8 @@ public:
 	HRESULT					Texture_File_Loader();
 	ID3D11ShaderResourceView* Find_Decal_Texture(const uint32_t& iIndex);
 
-
+	void						Set_Color(_float4 fColor) { m_fColor = fColor; }
+	_float4*						ColorTester() { return &m_fColor; }
 	const int32_t				Find_TextueId(const string& filePath);
 	const vector<string>& Get_TextureFileNameList() { return m_NameList; }
 
@@ -31,6 +32,7 @@ public:
 	static unique_ptr<CTexture_Manager> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 
 private:
+	_float4									m_fColor = {};
 
 	map<string, uint32_t>					 m_TextueMapID = {};
 	vector<ComPtr<ID3D11ShaderResourceView>> m_TextureLists = {};

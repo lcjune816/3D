@@ -23,6 +23,8 @@ public:
 public:
 	HRESULT			Action_Trigger(weak_ptr<class CTransform> pTransform);
 private:
+	void			Action_Event();
+private:
 	_float						m_fRotationArrow = { 1.f };
 	weak_ptr<class CTransform>		m_pTransform = {};
 	TRIGGER_ROT						m_eRot = {};

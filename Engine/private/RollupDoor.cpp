@@ -101,7 +101,7 @@ void CRollupDoor::OnNotify(const EVENT& event)
 
 	EVENT eEvent;
 	eEvent.pArg = &m_fWorldTime;
-	CGameInstance::Get().Notify(WORLD_EVENT::TEACHER_DEAD, eEvent);
+	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_DEAD, eEvent);
 	XMStoreFloat3(&m_fDestPos, vDestPos);
 }
 
@@ -158,7 +158,7 @@ void CRollupDoor::Down_DeadDoor(const _float& fTimeDelta)
 
 	if (m_fWorldTime >= 1.f)
 	{
-		CGameInstance::Get().Notify(WORLD_EVENT::TEACHER_DEAD, {});
+		CGameInstance::Get().Notify(WORLD_EVENT::BOSS_DEAD, {});
 		pTransform->Set_State(STATE::POS, XMVectorSetY(vPos, 5));
 		m_eState = TRIGGER_STATE::PAUSE;
 	}

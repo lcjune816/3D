@@ -37,9 +37,8 @@ void CNavi_Manager::Render()
     auto pNavi = m_pNavigations.lock();
     if (NULL_TRUE(pNavi))
         return ;
-    pNavi->Dead_Check();
 
-    pNavi->Render();
+   // pNavi->Render();
 }
 void CNavi_Manager::Add_NaviMeshInfo( _float3* fPos, CELL_EVENT eEvent)
 {

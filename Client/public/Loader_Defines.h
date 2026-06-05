@@ -9,6 +9,7 @@
 #include "Instance_WorldObject.h"
 #include "Camera.h"
 #include "CWorldParticle.h"
+#include "GuiObject.h"
 ///////////플레이어/////////
 #include "Player.h"
 #include "PlayerAim.h"

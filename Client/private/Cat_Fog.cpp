@@ -19,7 +19,7 @@ HRESULT CCat_Fog::Ready_Component()
 	if (NULL_TRUE(m_pVIBufferCom))
 		return E_FAIL;
 
-	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Instancing_Pog"), TEXT("Com_Pog"), m_pShaderCom, nullptr)))
+	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Instancing_Fog"), TEXT("Com_Fog"), m_pShaderCom, nullptr)))
 		return E_FAIL;
 
 	CGameInstance::Get().Add_Decal_Texture("../../Resource/Boss/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");

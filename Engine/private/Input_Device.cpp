@@ -72,6 +72,10 @@ void Engine::CInput_Device::Update_InputDev(void)
 	m_bKeyCur[ETOUI(DIMKEYINPUT::S)] = (m_byKeyState[DIK_S] & 0x80) ? true : false;
 	m_bKeyCur[ETOUI(DIMKEYINPUT::C)] = (m_byKeyState[DIK_C] & 0x80) ? true : false;
 
+	m_bKeyCur[ETOUI(DIMKEYINPUT::F8)] = (m_byKeyState[DIK_F8] & 0x80) ? true : false;
+	m_bKeyCur[ETOUI(DIMKEYINPUT::G)] = (m_byKeyState[DIK_G] & 0x80) ? true : false;
+
+	m_bKeyCur[ETOUI(DIMKEYINPUT::F9)] = (m_byKeyState[DIK_F9] & 0x80) ? true : false;
 	m_bKeyCur[ETOUI(DIMKEYINPUT::X)] = (m_byKeyState[DIK_X] & 0x80) ? true : false;
 
 	for(int32_t i=0; i<3 ; ++i)
