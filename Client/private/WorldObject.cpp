@@ -116,16 +116,10 @@ HRESULT CWorldObject::Render()
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
-		auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
 		if (pMesh == nullptr)
 			continue;
-	
-		if (NULL_FALSE(Light))
-			m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
 
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
-		
-
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();
 		pMesh->Render();

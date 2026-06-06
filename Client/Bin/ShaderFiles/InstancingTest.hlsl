@@ -1,25 +1,6 @@
 	
 float4x4 g_World[500], g_View , g_Projection;
 Texture2D diffTexture;
-
-struct tagLight
-{
-//빛의 방향?
-    float4 vLightDIr;
-//오른쪽 + 위쪽에서아 애라로 + 앞쪽 방향으로
-    float4 vLightDiffuse;
-//빛의 기본 색상 지금은 흰색임
-    float4 vLightAmbient;
-//환경광 색 방향없이 전체적으로 깔리는 밝기
-    float4 vLightSpecular;
-//빛의 하이라이트 색 반짝이는 부분
-//오브젝트 머테리얼 뭐드라 난반사랑 정반사
-    float4 vMtrlAmbient;
-    float4 vMtrlSpecular; //재질의 반짝임 세기 크면 반짝임이 강하게 보임
-};
-
-tagLight g_tagLight;
-
 vector g_vCamPosition;
 
 sampler DefaultSampler = sampler_state

@@ -23,7 +23,7 @@ class CLight_Manager final
 {
 
 private:
-	CLight_Manager();
+	CLight_Manager(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 public:
 	~CLight_Manager();
 
@@ -33,14 +33,22 @@ public:
 	HRESULT				  Add_LightMtrl(const string tagLight);
 	weak_ptr<LIGHT_VALUE> Find_LightMtrl(const string tagLightName);
 	const vector<string>& Get_ObejctNames() { return m_ObjectNames; }
+
+	HRESULT				 Add_Light(const LIGHT_DESC& LightDesc);
+	HRESULT				 Render(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
 private:
 	HRESULT		Load_LightMtrl();
 
 private:
+	ComPtr<ID3D11Device>			m_pDevice; 
+	ComPtr<ID3D11DeviceContext>		m_pContext;
+
+	list<shared_ptr<class CLight>>		m_Lights;
+
 	map<string, shared_ptr<LIGHT_VALUE>>			m_LightMtrls;
 	vector<string>									m_ObjectNames;
 public:
-	static unique_ptr<CLight_Manager> Create();
+	static unique_ptr<CLight_Manager> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 
 };
 

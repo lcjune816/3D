@@ -35,3 +35,4 @@
 #include "Cat_FSM.h"
 #include "Cat_Fog.h"
 #include "FSM_Cat_Spawn.h"
+#include "FSM_Cat_Nightmare.h"

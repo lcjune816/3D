@@ -117,6 +117,8 @@ public:
 #pragma endregion
 #pragma region LIGHT_MANAGER
 
+	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
+	HRESULT Render_Lights(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
 	HRESULT						Add_LightMtrl(const string tagLight);
 	weak_ptr<LIGHT_VALUE>		Find_LightMtrl(const string tagLightName);
 
@@ -165,6 +167,22 @@ public:
 	string					Model_Animation(const vector<string>& pNames);
 	void					Add_FilePath(const string fileName, const string filePath);
 #pragma endregion
+#pragma region TARGET_MANAGER
+public:
+	HRESULT Add_RenderTarget(const _wstring& strTargetTag, uint32_t iWidth, uint32_t iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor);
+	HRESULT Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag);
+	HRESULT Begin_MRT(const _wstring& strMRTTag);
+	HRESULT End_MRT();
+	HRESULT Bind_RT_ShaderResource(const _wstring& strTargetTag, shared_ptr<class CShader> pShader, const _char* pConstantName);
+
+
+#ifdef _DEBUG
+	HRESULT Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
+	HRESULT Debug_RT_Render(const _wstring& strMRTTag, shared_ptr<class CShader> pShader, const _char* pConstantName, shared_ptr<class CRect> pVIBuffer);
+#endif
+#pragma endregion
+
+
 
 
 private:
@@ -186,7 +204,7 @@ private:
 	unique_ptr<class CNavi_Manager>				m_pNavi_Manager = { nullptr };
 	unique_ptr<class CEvent_Manager>			m_pEvent_Manager = { nullptr };
 	unique_ptr<class CParticle_Manager>			m_pParticle_Manager = { nullptr };
-
+	unique_ptr<class CTarget_Manager>			m_pTarget_Manager = { nullptr };
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };
 	

@@ -237,6 +237,9 @@
     <ClInclude Include="..\public\CWorldParticle.h">
       <Filter>02.GameObject\22.Particle_Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\FSM_Cat_Nightmare.h">
+      <Filter>02.GameObject\03.Boss\Cat</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -371,6 +374,9 @@
     </ClCompile>
     <ClCompile Include="..\private\CWorldParticle.cpp">
       <Filter>02.GameObject\22.Particle_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Cat_Nightmare.cpp">
+      <Filter>02.GameObject\03.Boss\Cat</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

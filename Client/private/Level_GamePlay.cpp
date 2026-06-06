@@ -17,7 +17,8 @@ CLevel_GamePlay::~CLevel_GamePlay()
 
 HRESULT CLevel_GamePlay::Initialize()
 {
-	
+	if (FAILED(Ready_Lights()))
+		return E_FAIL;
 	if (FAILED(Ready_Layer_Player(L"Layer_Player")))
 		return E_FAIL;
 
@@ -63,6 +64,20 @@ HRESULT CLevel_GamePlay::Render()
 {
 
 
+	return S_OK;
+}
+HRESULT CLevel_GamePlay::Ready_Lights()
+{
+	LIGHT_DESC			LightDesc{};
+
+	LightDesc.eType = LIGHT::DIRECTIONAL;
+	LightDesc.vDir = _float4(1.f, -1.f, 1.f, 0.f);
+	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
+
+	if (FAILED(CGameInstance::Get().Add_Light(LightDesc)))
+		return E_FAIL;
 	return S_OK;
 }
 HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _wstring& strLayerTag)

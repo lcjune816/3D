@@ -83,9 +83,6 @@ HRESULT CDecalObject::Render()
 	m_pShaderCom->Bind_SRV("g_Diffuse", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
 
 	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
-	auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
-
-	m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
 	m_pShaderCom->Begin(0);
 
 	m_pRect->Bind_Resource();

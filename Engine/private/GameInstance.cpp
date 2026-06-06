@@ -16,6 +16,7 @@
 #include "Instancing.h"
 #include "Event_Manager.h"
 #include "Particle_Manager.h"
+#include "Target_Manager.h"
 CGameInstance::CGameInstance()
 {
 
@@ -39,6 +40,10 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 
 	m_pObject_Manager = CObject_Manager::Create(EngineDesc.iNumLevels);
 	if (NULL_TRUE(m_pObject_Manager))
+		return E_FAIL;
+
+	m_pTarget_Manager = CTarget_Manager::Create(pOutDevice, pOutContext);
+	if (NULL_TRUE(m_pTarget_Manager))
 		return E_FAIL;
 
 	m_pRenderer = CRenderer::Create(pOutDevice, pOutContext);
@@ -81,7 +86,7 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pTexture_Manager))
 		return E_FAIL;
 
-	m_pLight_Manager = CLight_Manager::Create();
+	m_pLight_Manager = CLight_Manager::Create(pOutDevice, pOutContext);
 	if (NULL_TRUE(m_pLight_Manager))
 		return E_FAIL;
 
@@ -219,6 +224,16 @@ const vector<string>& CGameInstance::Get_ObejctNames()
 {
 	return m_pLight_Manager->Get_ObejctNames();
 }
+
+HRESULT CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
+{
+	return m_pLight_Manager->Add_Light(LightDesc);
+}
+HRESULT CGameInstance::Render_Lights(shared_ptr<CShader> pShader, shared_ptr<CRect> pVIBuffer)
+{
+	return m_pLight_Manager->Render(pShader, pVIBuffer);
+}
+
 #pragma endregion
 
 #pragma region INPUT_DEVICE
@@ -415,7 +430,7 @@ _vector				CGameInstance::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const
 }
 #pragma endregion
 
-#pragma  region
+#pragma  region EVENT_MANAGER
 void				  CGameInstance::Notify(const WORLD_EVENT& eEvent,const EVENT& event)
 {
 	m_pEvent_Manager->Notify(eEvent, event);
@@ -537,7 +552,44 @@ void CGameInstance::Save_Data(uint32_t iNumLevel, _wstring path, const _wstring&
 
 }
 
+#pragma region TARGET_MANAGER
+HRESULT CGameInstance::Add_RenderTarget(const _wstring& strTargetTag, uint32_t iWidth, uint32_t iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
+{
 
+	return m_pTarget_Manager->Add_RenderTarger(strTargetTag, iWidth, iHeight, ePixelFormat, vClearColor);
+}
+
+HRESULT CGameInstance::Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag)
+{
+	return m_pTarget_Manager->Add_MRT(strMRTTag, strTargetTag);
+}
+
+HRESULT CGameInstance::Begin_MRT(const _wstring& strMRTTag)
+{
+	return m_pTarget_Manager->Begin_MRT(strMRTTag);
+}
+
+
+HRESULT CGameInstance::End_MRT()
+{
+	return m_pTarget_Manager->End_MRT();
+}
+
+HRESULT CGameInstance::Bind_RT_ShaderResource(const _wstring& strTargetTag, shared_ptr<class CShader> pShader, const _char* pConstantName)
+{
+	return m_pTarget_Manager->Bind_ShaderResource(strTargetTag, pShader, pConstantName);
+}
+
+#ifdef _DEBUG
+HRESULT CGameInstance::Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY)
+{
+	return m_pTarget_Manager->Ready_Debug(strTargetTag, fX, fY, fSizeX, fSizeY);
+}
+HRESULT CGameInstance::Debug_RT_Render(const _wstring& strMRTTag, shared_ptr<class CShader> pShader, const _char* pConstantName, shared_ptr<class CRect> pVIBuffer)
+{
+	return m_pTarget_Manager->Debug_Render(strMRTTag, pShader, pConstantName, pVIBuffer);
+}
+#endif
 #pragma region PARTICLE_MANAGER
 HRESULT	   CGameInstance::Add_ParticleToPool(const _wstring strPrototypeTag, uint32_t iPrototypeLevel, uint32_t iGameLevel, void* pArg)
 {
@@ -557,6 +609,8 @@ void CGameInstance::Release_Engine()
 	m_pLight_Manager.reset();
 	
 	m_pInstancing.reset();
+
+	m_pTarget_Manager.reset();
 
 	m_pNavi_Manager.reset();
 

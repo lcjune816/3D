@@ -2,7 +2,7 @@
 #include "Cat_FSM.h"
 
 NS_BEGIN(Client)
-class  CFSM_Cat_Spawn : public CCat_FSM, public CObserver
+class  CFSM_Cat_Nightmare : public CCat_FSM, public CObserver
 {
 	typedef struct tagTeacherSpawndesc
 	{
@@ -10,10 +10,10 @@ class  CFSM_Cat_Spawn : public CCat_FSM, public CObserver
 	}TEACHER_SPAWN_DESC;
 
 private:
-	CFSM_Cat_Spawn(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
-	CFSM_Cat_Spawn(const CFSM_Cat_Spawn& Prototype);
+	CFSM_Cat_Nightmare(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	CFSM_Cat_Nightmare(const CFSM_Cat_Nightmare& Prototype);
 public:
-	virtual ~CFSM_Cat_Spawn();
+	virtual ~CFSM_Cat_Nightmare();
 
 public:
 
@@ -24,14 +24,13 @@ public:
 	virtual void OnNotify(const EVENT& eEvent) override;
 
 private:
-	void			Action(shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta);
+	void			Action(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta);
 	void			Action_Return(shared_ptr<CBoss_Cat> pBoss);
 private:
 	uint32_t		m_iNaviEventIndex{};
-	_float3			m_DestPos;
-
+	_float3			m_fDestPos;
 public:
-	static unique_ptr<CFSM_Cat_Spawn> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	static unique_ptr<CFSM_Cat_Nightmare> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);
 };
 

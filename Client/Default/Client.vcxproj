@@ -149,6 +149,7 @@
     <ClInclude Include="..\public\Client_Defines.h" />
     <ClInclude Include="..\public\CWorldParticle.h" />
     <ClInclude Include="..\public\DecalObject.h" />
+    <ClInclude Include="..\public\FSM_Cat_Nightmare.h" />
     <ClInclude Include="..\public\FSM_Cat_Spawn.h" />
     <ClInclude Include="..\public\FSM_Crouch.h" />
     <ClInclude Include="..\public\FSM_Hand.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="..\private\Cat_FSM.cpp" />
     <ClCompile Include="..\private\CWorldParticle.cpp" />
     <ClCompile Include="..\private\DecalObject.cpp" />
+    <ClCompile Include="..\private\FSM_Cat_Nightmare.cpp" />
     <ClCompile Include="..\private\FSM_Cat_Spawn.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
     <ClCompile Include="..\private\FSM_Hand.cpp" />
