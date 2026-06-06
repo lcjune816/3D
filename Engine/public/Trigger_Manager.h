@@ -13,6 +13,7 @@ public:
 public:
 	HRESULT								 Add_Trigger(uint32_t iTargetNumber, weak_ptr<class CTrigger> pTrigger);
 	weak_ptr<CTrigger>					 Find_Trigger(uint32_t iTargetNumber);
+	void								 Clear();
 private:
 	map<uint32_t, weak_ptr<class CTrigger>>		m_Triggers;
 

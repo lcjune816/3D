@@ -42,7 +42,10 @@ weak_ptr<CTrigger> CTrigger_Manager::Find_Trigger(uint32_t iTargetNumber)
 
 	return {};
 }
-
+void CTrigger_Manager::Clear()
+{
+	m_Triggers.clear();
+}
 unique_ptr<CTrigger_Manager> CTrigger_Manager::Create()
 {
 	return unique_ptr<CTrigger_Manager>(new CTrigger_Manager);

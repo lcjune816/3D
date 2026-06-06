@@ -146,6 +146,8 @@ void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
 	m_pObject_Manager->Clear(iClearLevelIndex);
 
 	m_pPrototype_Manager->Clear(iClearLevelIndex);
+
+// 	m_pTrigger_Manager->Clear();
 }
 #pragma region RENDERER
 
