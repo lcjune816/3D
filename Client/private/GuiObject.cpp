@@ -954,7 +954,7 @@ void CGuiObject::Select_Model()
 				m_pObj.reset();
 				m_bCopy = false;
 				m_CopyTriggerName = "";
-				m_CopyWorld = {};
+				XMStoreFloat4x4(&m_CopyWorld,XMMatrixIdentity());
 			}
 
 
@@ -994,24 +994,14 @@ void CGuiObject::Select_Model()
 							desc.iModeNumber = iMode;
 							desc.bFrontCamera = false;
 							desc.eType = static_cast<MESH_TYPE>(iModelButton);
-							_float4x4 matWorld = {};
+							_matrix ViewWorld = {};
+							_matrix matWorld = XMMatrixIdentity();
 							//ππµÂ∂Û ¿Ã∞≈
 
-							XMStoreFloat4x4(&matWorld, XMLoadFloat4x4(CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW)));
-							memcpy(&matWorld.m[0], &vRight, sizeof(_vector));
-							memcpy(&matWorld.m[1], &vUp, sizeof(_vector));
+							ViewWorld = XMLoadFloat4x4(CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW));
 
-							memcpy(&vLook, &matWorld.m[2], sizeof(_vector));
-							memcpy(&vPos, &matWorld.m[3], sizeof(_vector));
-
-							XMVector3Normalize(vLook);
-							vPos += vLook * 10.f;
-							vLook = { 0,0,1,0 };
-							memcpy(&desc.matWorld.m[0], &vRight, sizeof(_vector));
-							memcpy(&desc.matWorld.m[1], &vUp,	 sizeof(_vector));
-							memcpy(&desc.matWorld.m[2], &vLook,	 sizeof(_vector));
-							memcpy(&desc.matWorld.m[3], &vPos,	 sizeof(_vector));
-							
+							matWorld.r[3] = ViewWorld.r[3] + XMVector3Normalize(ViewWorld.r[3]) * 10.f;
+							XMStoreFloat4x4(&desc.matWorld, matWorld);
 							switch (desc.eType)
 							{
 							case MESH_TYPE::NONANIME:

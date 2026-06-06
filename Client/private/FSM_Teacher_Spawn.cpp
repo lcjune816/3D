@@ -160,7 +160,7 @@ void CFSM_Teacher_Spawn::Chase(shared_ptr<CNavigation> pNavi, shared_ptr<CBoss_T
 void CFSM_Teacher_Spawn::OnNotify(const EVENT& eEvent)
 {
 	auto Pos = static_cast<_float3*>(eEvent.pArg);
-	m_DestPos = *Pos;
+	m_DestPos = *Pos;	
 }
 unique_ptr<CFSM_Teacher_Spawn>		CFSM_Teacher_Spawn::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

@@ -33,6 +33,7 @@ private:
 		_float			fRotationArrow{};
 		_float			fArrrowRotation{};
 		WORLD_EVENT		eWorldEvent{WORLD_EVENT::END};
+		
 	}TRIGGER_INFO;
 private:
 	CTriggerObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -70,6 +71,7 @@ private:
 
 	TRIGGER_INFO						m_TriggerInfo;
 	_float4x4							m_TargetMatrix = {};
+	uint32_t							m_iLevel = { ETOUI(LEVEL::GAMEPLAY) };
 public:
 	static unique_ptr<CTriggerObject> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

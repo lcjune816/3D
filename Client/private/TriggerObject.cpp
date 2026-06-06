@@ -22,16 +22,20 @@ HRESULT CTriggerObject::Initialize_Prototype()
 HRESULT CTriggerObject::Initialize(void* pArg)
 {
 	auto desc = static_cast<GAMEOBJECT_DESC*>(pArg);
+	m_iLevel = desc->iLevel;
 	m_TriggerInfo.bOtherTrigger = desc->bTrigger;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->bTrigger = m_TriggerInfo.bOtherTrigger;
-	 m_TriggerInfo.strTriggerName = desc->strTriggerName; //트리거 밸류용 문자저장
+	m_TriggerInfo.strTriggerName = desc->strTriggerName; //트리거 밸류용 문자저장
 
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eRot			= m_TriggerInfo.eRot = desc->eRot;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eRot = m_TriggerInfo.eRot = desc->eRot;
 	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fArrrowRotation = m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime  = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime   = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
-   	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent		= m_TriggerInfo.eWorldEvent    = desc->eWroldEvent;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
+	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent = m_TriggerInfo.eWorldEvent = desc->eWroldEvent;
 
+	if (desc->matWorld._11 == 0)
+		desc->matWorld._11 = 1;
+	 
 	if (FAILED(Create_Component(pArg)))
 		return E_FAIL;
 
@@ -40,7 +44,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 		if(NULL_FALSE(desc->j))
 			Load_Data(desc, desc->j);
 		
-		static_cast<CTransform::TRANSFORM_DESC*>(pArg)->matWorld = desc->matWorld;
+		 
 		static_cast<CTransform::TRANSFORM_DESC*>(pArg)->bWorldCheck = false;
 	}
 	else
@@ -49,12 +53,6 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	if (NULL_TRUE(desc))
 		return E_FAIL;
 
-	//카메라 앞에 오브젝트 생성
-	if (!desc->bFrontCamera)
-		static_cast<CTransform::TRANSFORM_DESC*>(pArg)->matWorld = desc->matWorld;
-
-	static_cast<CTransform::TRANSFORM_DESC*>(pArg)->m_fRotationPerSec = 0.f;
-	static_cast<CTransform::TRANSFORM_DESC*>(pArg)->m_fSpeedPerSec = 0.f;
 
 	if (FAILED(__super::Initialize(desc)))
 		return E_FAIL;
@@ -118,7 +116,7 @@ void CTriggerObject::Late_Update(_float fTimeDelta)
 	if (0 != m_TriggerInfo.iTargetObjectID)
 	{
 		//타겟이 있는 경우에만
-		for (auto iter : CGameInstance::Get().Find_Layer(ETOUI((LEVEL::GAMEPLAY)), L"Layer_TriggerObject")->Get_ObjectList())
+		for (auto iter : CGameInstance::Get().Find_Layer(m_iLevel, L"Layer_TriggerObject")->Get_ObjectList())
 		{
 			if (static_pointer_cast<CTriggerObject>(iter)->Get_TriggerInfo().iObjectID == m_TriggerInfo.iTargetObjectID)
 			{
@@ -350,6 +348,7 @@ HRESULT CTriggerObject::Create_Component(void* pArg)
 	_wstring TriggerName(iSize, 0);
 	MultiByteToWideChar(CP_UTF8, 0, m_TriggerInfo.strTriggerName.c_str(), ETOUI(m_TriggerInfo.strTriggerName.size()),TriggerName.data(), iSize);
 
+	
 	m_pTrigger = static_pointer_cast<CTrigger>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), TriggerName, pArg));
 	if (nullptr == m_pTrigger) return E_FAIL;
 	

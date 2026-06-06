@@ -391,6 +391,7 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 		desc.j = iter;
 		desc.index = index++;
 		desc.eType = iter["MeshType"];
+		desc.iLevel = ETOUI(eLevel);
 		if (iter["TriggerValue"] != nullptr)
 		{
 			desc.strTriggerName = iter["TriggerValue"];
