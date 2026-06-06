@@ -49,6 +49,7 @@ HRESULT CBoss_Cat::Ready_Component()
 
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Cat));
 	m_pStateMachine->Add_State(FSM::SPAWN, static_pointer_cast<CFSM_Teacher_Spawn>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Spawn"), nullptr)));
+	m_pStateMachine->Add_State(FSM::MOVE, static_pointer_cast<CFSM_Teacher_Spawn>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Nightmare"), nullptr)));
 	m_pStateMachine->Change_State(FSM::SPAWN);
 	m_pAnimator[ETOUI(m_eFormType)]->Stop_Animation(true);
 	_vector vPos = m_pNavigation->Find_CellPos(NaviDesc.iIndex);
@@ -224,7 +225,15 @@ void CBoss_Cat::Change_Animation(CAT_ANIME eAnime, _bool bLoop, _bool bForce)
 
 	m_bFinished = bLoop;
 	m_pAnimator[ETOUI(m_eFormType)]->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
-	m_eAnimeState = eAnime;
+}
+void CBoss_Cat::Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE eAnime, _bool bLoop, _bool bForce)
+{
+
+	if (m_bOnlyActionState)
+		return;
+
+	m_bFinished = bLoop;
+	m_pAnimator[ETOUI(m_eFormType)]->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
 }
 unique_ptr<CBoss_Cat> CBoss_Cat::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

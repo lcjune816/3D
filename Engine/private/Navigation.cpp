@@ -422,9 +422,14 @@ void CNavigation::Event_Check(CELL_EVENT eCellEvent)
         eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
         CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP,eEvent);
     }
-    else if (eCellEvent == CELL_EVENT::ELEVATOR)
+    else if (eCellEvent == CELL_EVENT::BOSSTP)
     {
 
+        EVENT eEvent;
+        eEvent.eEvent = WORLD_EVENT::BOSS_TP;
+        eEvent.iIndex = m_iCurretnCellindex;
+        eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
+        CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP, eEvent);
     }
     m_eEvent = eCellEvent;
 

@@ -13,7 +13,10 @@ enum class CATFORM {NORMAL, NIGHTMARE,END};
 enum class CAT_ANIME {
 	DOORWAY, IDLEBREATHING, IDLECLOSE, OPENINGCHUTEA, END
 };
-
+enum class CAT_ANIME_NIGHTMARE
+{
+	ELEVEATOR,WALK,WALKGROUND,lDLEBREACHING,END
+};
 class CBoss_Cat final : public CGameObject
 {
 private:
@@ -32,16 +35,14 @@ public:
 public:
 	string					Model_Animation(const vector<string>& pNames);
 
-	const MOVE&				 Get_State() { return m_eState; }
-	CAT_ANIME				Get_Animation_State() { return m_eAnimeState; }
 	_float4x4*				 Get_OtherMatrixPtr() { return m_pOtherMatrix; }
 	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }
 	void					Change_Animation(CAT_ANIME eAnime, _bool bLoop = true, _bool bForce = false);
+	void					Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE eAnime, _bool bLoop = true, _bool bForce = false);
 	_bool					Animation_End() { return m_pAnimator[ETOUI(m_eFormType)]->Animation_End(); }
 	void					Change_Form(CATFORM eType) { m_eFormType = eType; }
 private:
 	HRESULT					Ready_Component();
-	void					State_Move();
 private:
 
 	shared_ptr<Engine::CShader>			m_pShaderCom = { nullptr };
@@ -54,10 +55,9 @@ private:
 
 private:
 
-	_float4x4* m_pOtherMatrix = {};
+	_float4x4*							m_pOtherMatrix = {};
 	_float4x4							m_bones[BONE_MATRIX];
 
-	CAT_ANIME							m_eAnimeState = {};
 	CATFORM								m_eFormType = {CATFORM::NORMAL};
 	_bool								m_bOnlyActionState = { false };
 	MOVE								m_eState = { MOVE::END };

@@ -27,11 +27,25 @@ private:
 	list<shared_ptr<CGameObject>>	m_RenderObjects[ETOUI(RENDERGROUP::END)];
 
 	uint32_t						iRanderCall = {};
+
+private:
+	shared_ptr<class CRect>			m_pVIBuffer = { nullptr };
+	shared_ptr<class CShader>		m_pShader = { nullptr };
+	_float4x4						m_WorldMatrix{}, m_ViewMatrix{}, m_ProjMatrix{};
+
 private:
 	HRESULT	Render_Priority();
 	HRESULT Render_NonBlend();
+	HRESULT Render_Lights();
+	HRESULT Render_Combined();
 	HRESULT Render_Blend();
 	HRESULT Render_UI();
+
+#ifdef _DEBUG
+private:
+	HRESULT Render_DEBUG();
+#endif
+
 public:
 	static unique_ptr<CRenderer> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 

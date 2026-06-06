@@ -22,6 +22,16 @@ namespace Engine
 		_float3 fNormal[3];
 		_bool	m_bLeft{ true };
 	}GRAB_ARM_EDGE;
+
+	typedef struct tagLightDesc
+	{
+		LIGHT eType;
+		_float4	 vDiffuse, vAmbient, vSpecular;
+
+		_float4	 vDir;
+		_float4  vPos;
+		_float fRange;
+	}LIGHT_DESC;
 	typedef struct tagevent
 	{
 		WORLD_EVENT eEvent;
@@ -216,7 +226,7 @@ namespace Engine
 	}VTXINSTANCE_PARTICLE_POINT;
 
 
-	typedef struct vertexbone
+	typedef struct strvertextex
 	{
 		_float3		fPos;			//0
 		_float2		texcoord;		//12
@@ -229,10 +239,10 @@ namespace Engine
 
 		void Save_Data(ofstream& fWrite)
 		{
-			fWrite.write((char*)(this), sizeof(vertexbone));
+			fWrite.write((char*)(this), sizeof(VTX_TEX));
 		}
 
-	}VERTEX_BONE;
+	}VTX_TEX;
 
 
 	typedef struct vertexbox
