@@ -202,6 +202,18 @@
     <Filter Include="10.Trigger_Manager\Trigger\Elevator">
       <UniqueIdentifier>{fd2ec11f-cbf6-47ae-84d1-26a22e79c701}</UniqueIdentifier>
     </Filter>
+    <Filter Include="12.Light_Manager\Manager">
+      <UniqueIdentifier>{09a0dab8-6446-48a7-ae89-59cb45b9a735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="15.RenderTargets">
+      <UniqueIdentifier>{7ab3adc4-171c-43e4-9f60-ef40b850d1b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="15.RenderTargets\Manager">
+      <UniqueIdentifier>{162cb325-394d-4e23-b428-8d15c9284068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="15.RenderTargets\Manager\RenderTarget">
+      <UniqueIdentifier>{1f414557-6507-4137-b260-3c31ec558690}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -355,9 +367,6 @@
     <ClInclude Include="..\public\Input_Device.h">
       <Filter>02. Device\Input</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Light_Manager.h">
-      <Filter>12.Light_Manager</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Navi_Manager.h">
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClInclude>
@@ -426,6 +435,18 @@
     </ClInclude>
     <ClInclude Include="..\public\ParticleObject.h">
       <Filter>05.GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Light_Manager.h">
+      <Filter>12.Light_Manager\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Light.h">
+      <Filter>12.Light_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Target_Manager.h">
+      <Filter>15.RenderTargets\Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\RenderTarget.h">
+      <Filter>15.RenderTargets\Manager\RenderTarget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -597,9 +618,6 @@
     <ClCompile Include="..\private\Input_Device.cpp">
       <Filter>02. Device\Input</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Light_Manager.cpp">
-      <Filter>12.Light_Manager</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Navi_Manager.cpp">
       <Filter>13.Instancing\14.Navigation</Filter>
     </ClCompile>
@@ -663,6 +681,18 @@
     <ClCompile Include="..\private\ParticleObject.cpp">
       <Filter>05.GameObject</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Light_Manager.cpp">
+      <Filter>12.Light_Manager\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Light.cpp">
+      <Filter>12.Light_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Target_Manager.cpp">
+      <Filter>15.RenderTargets\Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\RenderTarget.cpp">
+      <Filter>15.RenderTargets\Manager\RenderTarget</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
@@ -674,6 +704,9 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

@@ -19,7 +19,8 @@ namespace Engine
 	enum class DIMM {X,Y,WHEEL,END};
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
 	enum class ENGINE_MOUSE{ HOLD, A_CLICK, B_CLICK };
-
+	enum class LIGHT {DIRECTIONAL, POINT,END};
+	enum class DEFERRED {DEBUG, DIRECTIOANL, POINT, COMBINED, END};
 	enum class PARTICLE_SHAPE { POINT, END };
 	#define X(name) name,
 	enum class PARTICLE { PARTICLE_LIST };

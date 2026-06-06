@@ -25,6 +25,8 @@ struct VS_IN
 struct VS_OUT
 {
     float4 vPosition : SV_POSITION;
+    
+    float3 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
 };
 
@@ -40,6 +42,7 @@ VS_OUT VS_MAIN(VS_IN In)
     matWVP = mul(matWV, g_ProjMatrix);
     
     Out.vPosition = mul(float4(In.vPosition, 1.f), matWVP);
+    Out.vNormal = mul(float4(In.vNormal, 0.f),WorldMatrix);
     Out.vTexcoord = In.vTexcoord;
     
     return Out;
@@ -48,19 +51,22 @@ VS_OUT VS_MAIN(VS_IN In)
 struct PS_IN
 {
     float4 vPosition : SV_POSITION;
+    float3 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
 };
 
 struct PS_OUT
 {
-    vector vColor : SV_TARGET0;
+    vector vDiffuse : SV_TARGET0;
+    vector vNormal : SV_Target1;
 };
 
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
+    Out.vDiffuse = g_Texture.Sample(LinearSampler, In.vTexcoord);
+    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
     
     return Out;
 }
