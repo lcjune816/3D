@@ -301,6 +301,8 @@ HRESULT CLoader::Loading_For_GasProduction()
 		return E_FAIL;
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Spawn"), CFSM_Cat_Spawn::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("FSM_Cat_Nightmare"), CFSM_Cat_Nightmare::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_BackGround"),
 		CBackGround::Create(m_pDevice, m_pContext))))

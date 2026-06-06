@@ -98,7 +98,6 @@ HRESULT CTriggerObject::Initialize(void* pArg)
  //	CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
 
 	m_Components.emplace(L"Trigger", m_pTrigger);
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	return S_OK;
 }
 void CTriggerObject::Priority_Update(_float fTimeDelta)
@@ -177,9 +176,6 @@ HRESULT CTriggerObject::Render()
 		if (pMesh == nullptr)
 			continue;
 
-		auto Light = CGameInstance::Get().Find_LightMtrl(m_PathName).lock();
-		if (NULL_FALSE(Light))
-			m_pShaderCom->Bind_RawValue("g_tagLight", Light.get(), sizeof(LIGHT_VALUE));
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
 			
 		m_pShaderCom->Begin(0);
