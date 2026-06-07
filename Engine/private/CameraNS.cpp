@@ -23,7 +23,10 @@ HRESULT CCameraNS::Initialize(void* pArg)
 {
     auto        pDesc = static_cast<CAMERA_DESC*>(pArg);
 
-    if (FAILED(__super::Initialize(pArg)))
+    CTransform::TRANSFORM_DESC Tr{};
+    Tr.m_fRotationPerSec = 10.f;
+    Tr.m_fSpeedPerSec = 100.f;
+    if (FAILED(__super::Initialize(&Tr)))
         return E_FAIL;
 
     m_pTransform->Set_State(STATE::POS, XMLoadFloat4(&pDesc->vEye));

@@ -120,9 +120,9 @@ void CBoss_Teacher::Update(_float fTimeDelta)
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
 
-	string name = Model_Animation(m_pAnimator->Get_NameList());
-	if (name != "")
-		m_pAnimator->Change_Animation(name);
+//	string name = Model_Animation(m_pAnimator->Get_NameList());
+//	if (name != "")
+	//	m_pAnimator->Change_Animation(name);
 
 	m_pAnimator->Update(fTimeDelta);
  	m_pStateMachine->Update_Machine(fTimeDelta);

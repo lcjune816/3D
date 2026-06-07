@@ -51,7 +51,7 @@ void CWorldParticle::Update(_float fTimeDelta)
 		m_pVIBufferCom->Spark(fTimeDelta);
 		break;
 	}
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CWorldParticle));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CWorldParticle));
 
 }
 void CWorldParticle::Late_Update(_float fTimeDelta)

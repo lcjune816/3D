@@ -1,7 +1,7 @@
 #include "Engine_Shader_Defines.hlsli"
-float4x4 g_World, g_View , g_Projection;
-Texture2D g_Diffuse;
-float4 g_Color = { 1.f, 1.f, 1.f, 1.f };
+
+float4x4 g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
+texture2D g_DiffuseTexture;
 
 sampler LinearSampler = sampler_state
 {
@@ -21,23 +21,23 @@ struct VS_IN
 struct VS_OUT {
 	float4 pos : SV_POSITION;
     float4 vNormal : NORMAL;
-	float2 texcoord : TEXCOORD1;
+	float2 texcoord : TEXCOORD0;
 }; 
 
 VS_OUT VS_MAIN(VS_IN In)
 {
-    VS_OUT output = (VS_OUT) 0;
+    VS_OUT output ;
 	
     float4x4 matWV, matWVP;
 	
-    matWV = mul(g_World, g_View);
-    matWVP = mul(matWV, g_Projection);
+    matWV = mul(g_WorldMatrix, g_ViewMatrix);
+    matWVP = mul(matWV, g_ProjMatrix);
 	  
-   
-   output.pos = mul(float4(In.pos, 1.f), matWVP);
+    output.pos = mul(float4(In.pos, 1.f), matWVP);
    output.texcoord = In.texcoord;
-   output.vNormal = mul(float4(In.vNormal, 0.f), g_World);
+    output.vNormal = normalize(mul(float4(In.vNormal, 0.f), g_WorldMatrix));
    
+  
 	return output;
 }
 
@@ -45,7 +45,7 @@ struct PS_IN
 {
     float4 pos : SV_POSITION;
     float4 vNormal : NORMAL;
-    float2 texcoord : TEXCOORD1;
+    float2 texcoord : TEXCOORD0;
 };
 
 struct PS_OUT
@@ -59,10 +59,10 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     //xy 좌표에 있는 색상 rgb 값을 가지고와라
-    vector vMtrlDiffuse = g_Diffuse.Sample(LinearSampler, In.texcoord);
-  
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.texcoord * 50.f);
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
+    
     return Out;
 }
 
@@ -79,9 +79,5 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
-
-        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
-
-
     }
 }

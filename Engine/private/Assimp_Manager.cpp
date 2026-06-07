@@ -538,7 +538,6 @@ shared_ptr<CPrototype> CAssimp_Manager::NonAniMation_ProcessMesh(aiMesh* pMesh, 
 		//매쉬에 저장된 정점 정보를 순회 하면서 담으라
 		memcpy(&vertex.fPos, &pMesh->mVertices[i], sizeof(_float3));
 		memcpy(&vertex.vNormal, &pMesh->mNormals[i], sizeof(_float3));
-	
 		//텍스쳐 UV 좌표를 담으라
 		if (pMesh->mTextureCoords[0])
 		{
@@ -1076,7 +1075,7 @@ void CAssimp_Manager::Binary_File_Import_Animation(ifstream& readFile, void* des
 
 ID3D11ShaderResourceView* CAssimp_Manager::Find_Texture(const uint32_t& id)
 {
-	if (m_TextureLists.size() <= id || id == m_iTextureSkipBind)
+	if (m_TextureLists.size() <= id )//|| id == m_iTextureSkipBind)
 		return nullptr;
 
 	m_iTextureSkipBind = id;

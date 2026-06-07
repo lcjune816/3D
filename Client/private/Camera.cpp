@@ -28,8 +28,8 @@ HRESULT CCamera::Initialize(void* pArg)
     FreeDesc.vEye = _float4{ 0.f,10.f,-5.f,1.f };
     FreeDesc.vAt = _float4{ 0.f,0.f,0.f,1.f };
     FreeDesc.fFovy = XMConvertToRadians(60.f);
-    FreeDesc.fNear = 0.01f;
-    FreeDesc.fFar = 1000.f;
+    FreeDesc.fNear = 0.1f;
+    FreeDesc.fFar = 5000.f;
     FreeDesc.m_fSpeedPerSec = 100.f;
    
     m_ChildMatrix = pDesc->ParentsMatrix;
@@ -103,9 +103,9 @@ void CCamera::Late_Update(_float fTimeDelta)
 
         XMVECTOR fR{}, fU{}, fL{}, fP{};
 
-        fR = XMLoadFloat3(&m_fRight);
-        fU = XMLoadFloat3(&m_fUp);
-        fL = XMLoadFloat3(&m_fLook);
+        fR = XMVector3Normalize(XMLoadFloat3(&m_fRight));
+        fU = XMVector3Normalize(XMLoadFloat3(&m_fUp));
+        fL = XMVector3Normalize(XMLoadFloat3(&m_fLook));
         fP = m_pTransform->Get_State(STATE::POS);
 
         fL = XMVector3Normalize(fL);

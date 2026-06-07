@@ -100,8 +100,8 @@ public:
 #pragma endregion
 
 #pragma region TRIGGER_MANAGER
-	HRESULT								 Add_Trigger(uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger);
-	weak_ptr<CTrigger>					 Find_Trigger(uint32_t iTargetNumber);
+	HRESULT								 Add_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger);
+	weak_ptr<CTrigger>					 Find_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber);
 #pragma endregion 
 
 #pragma region TEXTURE_MANAGER

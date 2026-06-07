@@ -94,7 +94,7 @@ void CBlueElectric::Set_Trigger()
 }
 void CBlueElectric::Action_Trigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (NULL_FALSE(TriggerCheck) && ETOUI(TRIGGER_FLAG::OTHERTRIGGER))
 		TriggerCheck->Set_Trigger();
 
