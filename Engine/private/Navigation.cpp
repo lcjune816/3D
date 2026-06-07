@@ -15,7 +15,7 @@ HRESULT CNavigation::Initialize_Prototype(const _wstring& FilePath, const _char*
    Load_Navi(FilePath, pName);
 #ifdef _DEBUG
 
-    m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
+   m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTX_POS::Elements, VTX_POS::iNumElements);
     if (nullptr == m_pShader)
         return E_FAIL;
 #endif
@@ -460,26 +460,26 @@ HRESULT CNavigation::Render()
 {
     _float4x4       WorldMatrix = {};
     XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
-
+   
     if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
         return E_FAIL;
     if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW))))
         return E_FAIL;
     if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ))))
         return E_FAIL;
-
+   
     m_pShader->Begin(0);
-
+   
     for (auto& pCell : m_Cells)
     {
         if (nullptr != pCell)
             pCell->Render(m_pShader.get());
     }
-
-   //_float4 fColor = { 1,1,1,1 };
-   //m_pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
-   //
-   //m_pShader->Begin(0);
+   
+   _float4 fColor = { 1,1,1,1 };
+   m_pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+   
+   m_pShader->Begin(0);
 
     return S_OK;
 }

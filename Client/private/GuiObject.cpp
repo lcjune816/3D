@@ -133,7 +133,7 @@ void CGuiObject::Late_Update(_float fTimeDelta)
 		
 	}
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CGuiObject));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CGuiObject));
 }
 HRESULT CGuiObject::Render()
 {
@@ -815,6 +815,7 @@ void CGuiObject::Select_Model()
 				return;
 			}//233 230
 			GAMEOBJECT_DESC desc{};
+			desc.iLevel = ETOUI(m_eLevel);
 			if (iModelButton == ETOUI(MESH_TYPE::TRIGGER))
 			{
 				ImGui::Text(u8"트리거 옵션");

@@ -21,7 +21,7 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 {
 	m_eEventTrigger = TRIGGER_EVENT::ROLLUPDOOR;
 	m_fRotationArrow = 10.f;
-
+	__super::Initialize(pArg);
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	
 	m_eState = TRIGGER_STATE::ACTION;

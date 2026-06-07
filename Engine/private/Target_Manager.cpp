@@ -9,13 +9,13 @@ CTarget_Manager::~CTarget_Manager()
 {
 }
 
-HRESULT CTarget_Manager::Add_RenderTarger(const _wstring& strTargetTag, uint32_t iWidth, uint32_t iHeight, DXGI_FORMAT ePixelForamt, const _float4& vClearColor)
+HRESULT CTarget_Manager::Add_RenderTarger(const _wstring& strTargetTag, uint32_t iWidth, uint32_t iHeight, DXGI_FORMAT ePixelFormat, const _float4& vClearColor)
 {
-    if (NULL_FALSE(Find_RenderTarget(strTargetTag)))
+    if (nullptr != Find_RenderTarget(strTargetTag))
         return E_FAIL;
-    
-    auto pRenderTarget = CRenderTarget::Create(m_pDevice, m_pContext, iWidth, iHeight, ePixelForamt, vClearColor);
-    if (NULL_TRUE(pRenderTarget))
+
+    auto        pRenderTarget = CRenderTarget::Create(m_pDevice, m_pContext, iWidth, iHeight, ePixelFormat, vClearColor);
+    if (nullptr == pRenderTarget)
         return E_FAIL;
 
     m_RenderTargets.emplace(strTargetTag, pRenderTarget);
@@ -25,14 +25,14 @@ HRESULT CTarget_Manager::Add_RenderTarger(const _wstring& strTargetTag, uint32_t
 
 HRESULT CTarget_Manager::Add_MRT(const _wstring& strMRTTag, const _wstring& strTargetTag)
 {
-    auto pRenderTarget = Find_RenderTarget(strTargetTag);
-    if (NULL_TRUE(pRenderTarget))
+    auto    pRenderTarget = Find_RenderTarget(strTargetTag);
+    if (nullptr == pRenderTarget)
         return E_FAIL;
 
-    auto pMRTList = Find_MRT(strMRTTag);
-    if (NULL_TRUE(pMRTList))
+    auto    pMRTList = Find_MRT(strMRTTag);
+    if (nullptr == pMRTList)
     {
-        list<shared_ptr<CRenderTarget>> MRTList;
+        list<shared_ptr<CRenderTarget>>     MRTList;
 
         MRTList.push_back(pRenderTarget);
 
@@ -41,13 +41,16 @@ HRESULT CTarget_Manager::Add_MRT(const _wstring& strMRTTag, const _wstring& strT
     else
         (*pMRTList).push_back(pRenderTarget);
 
+
     return S_OK;
 }
 
 HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
 {
+    ID3D11ShaderResourceView* nullSRV[8] = { nullptr };
+    m_pContext->PSSetShaderResources(0, 8, nullSRV);
     auto        pMRTList = Find_MRT(strMRTTag);
-    if (NULL_TRUE(pMRTList))
+    if (nullptr == pMRTList)
         return E_FAIL;
 
     m_pContext->OMGetRenderTargets(1, &m_pBackBufferRTV, &m_pOriginalDSV);
@@ -58,42 +61,44 @@ HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
 
     for (auto& pRenderTarget : *pMRTList)
     {
-        pRenderTarget->Clear(); // 랜더 타겟뷰 클리어
-        RenderTargets[iNumRenderTargets++] = pRenderTarget->Get_RTV(); //현재 배열에 담겨있던 랜더 타겟 클래스의 랜더 타겟정보 가져오기
+        pRenderTarget->Clear();
+        RenderTargets[iNumRenderTargets++] = pRenderTarget->Get_RTV();
     }
 
-                                //랜더 타겟 몇개      가져온 랜더타겟 전부             깊이 스탠실 버퍼 기존꺼 사용한다고                      
     m_pContext->OMSetRenderTargets(iNumRenderTargets, RenderTargets[0].GetAddressOf(), m_pOriginalDSV.Get());
+
     return S_OK;
 }
 
 HRESULT CTarget_Manager::End_MRT()
 {
-    ComPtr<ID3D11RenderTargetView>          RenderTargets[8] = { m_pBackBufferRTV };
+    ComPtr<ID3D11RenderTargetView>      RenderTargets[8] = { m_pBackBufferRTV };
+
     m_pContext->OMSetRenderTargets(8, RenderTargets[0].GetAddressOf(), m_pOriginalDSV.Get());
+
     return S_OK;
 }
 
-HRESULT CTarget_Manager::Bind_ShaderResource(const _wstring& strTargetTag, shared_ptr<CShader> pShader, const _char* pConstantName)
+HRESULT CTarget_Manager::Bind_ShaderResource(const _wstring& strTargetTag, shared_ptr<class CShader> pShader, const _char* pConstantName)
 {
-    auto pRenderTarget = Find_RenderTarget(strTargetTag);
-    if (NULL_TRUE(pRenderTarget))
+    auto    pRenderTarget = Find_RenderTarget(strTargetTag);
+    if (nullptr == pRenderTarget)
         return E_FAIL;
 
-    return pRenderTarget->Bind_ShaderResource(pShader,pConstantName);
+    return pRenderTarget->Bind_ShaderResource(pShader, pConstantName);
 }
 
-HRESULT CTarget_Manager::Ready_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float SizeX, _float SizeY)
+#ifdef _DEBUG
+HRESULT CTarget_Manager::Ready_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY)
 {
-    auto pRenderTarget = Find_RenderTarget(strTargetTag);
-    if (NULL_TRUE(pRenderTarget))
+    auto    pRenderTarget = Find_RenderTarget(strTargetTag);
+    if (nullptr == pRenderTarget)
         return E_FAIL;
 
-
-    return pRenderTarget->Ready_Debug(fX,fY,SizeX,SizeY);
+    return pRenderTarget->Ready_Debug(fX, fY, fSizeX, fSizeY);
 }
 
-HRESULT CTarget_Manager::Debug_Render(const _wstring& strMRTTag, shared_ptr<CShader> pShader, const _char* pConstantName, shared_ptr<CRect> pVIBuffer)
+HRESULT CTarget_Manager::Debug_Render(const _wstring& strMRTTag, shared_ptr<class CShader> pShader, const _char* pConstantName, shared_ptr<CRect> pVIBuffer)
 {
     auto    pMRTList = Find_MRT(strMRTTag);
     if (nullptr == pMRTList)
@@ -107,6 +112,7 @@ HRESULT CTarget_Manager::Debug_Render(const _wstring& strMRTTag, shared_ptr<CSha
 
     return S_OK;
 }
+#endif
 
 shared_ptr<CRenderTarget> CTarget_Manager::Find_RenderTarget(const _wstring& strTargetTag)
 {
@@ -118,7 +124,7 @@ shared_ptr<CRenderTarget> CTarget_Manager::Find_RenderTarget(const _wstring& str
     return iter->second;
 }
 
-list<shared_ptr<CRenderTarget>>* CTarget_Manager::Find_MRT(const _wstring& strMRTTag)
+list<shared_ptr<class CRenderTarget>>* CTarget_Manager::Find_MRT(const _wstring& strMRTTag)
 {
     auto    iter = m_MRTs.find(strMRTTag);
 
@@ -127,6 +133,7 @@ list<shared_ptr<CRenderTarget>>* CTarget_Manager::Find_MRT(const _wstring& strMR
 
     return &iter->second;
 }
+
 unique_ptr<CTarget_Manager> CTarget_Manager::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {
     return unique_ptr<CTarget_Manager>(new CTarget_Manager(pDevice, pContext));

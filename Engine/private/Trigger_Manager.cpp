@@ -12,13 +12,18 @@ CTrigger_Manager::~CTrigger_Manager()
 }
 
 
-HRESULT CTrigger_Manager::Add_Trigger(uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger)
+HRESULT	 CTrigger_Manager::Initialize(uint32_t iLevelIndex)
 {
-	auto iter = m_Triggers.find(iTargetNumber);
+	m_Triggers.resize(iLevelIndex);
+	return S_OK;
+}
+HRESULT CTrigger_Manager::Add_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger)
+{
+	auto iter = m_Triggers[iLevelIndex].find(iTargetNumber);
 
-	if (iter == m_Triggers.end())
+	if (iter == m_Triggers[iLevelIndex].end())
 	{
-		m_Triggers.emplace(iTargetNumber, pTrigger);
+		m_Triggers[iLevelIndex].emplace(iTargetNumber, pTrigger);
 		return S_OK;
 	}
 
@@ -26,27 +31,32 @@ HRESULT CTrigger_Manager::Add_Trigger(uint32_t iTargetNumber, weak_ptr<CTrigger>
 		
 }
 
-weak_ptr<CTrigger> CTrigger_Manager::Find_Trigger(uint32_t iTargetNumber)
+weak_ptr<CTrigger> CTrigger_Manager::Find_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber)
 {
-	auto iter = m_Triggers.find(iTargetNumber);
+	auto iter = m_Triggers[iLevelIndex].find(iTargetNumber);
 
-	if (iter != m_Triggers.end())
+	if (iter != m_Triggers[iLevelIndex].end())
 	{
 		if (nullptr != iter->second.lock())
 		{
 			return iter->second;
 		}
-		else
-			m_Triggers.erase(iter);
 	}
 
 	return {};
 }
-void CTrigger_Manager::Clear()
+void CTrigger_Manager::Clear(uint32_t iLevelIndex)
 {
-	m_Triggers.clear();
+	m_Triggers[iLevelIndex].clear();
 }
-unique_ptr<CTrigger_Manager> CTrigger_Manager::Create()
+unique_ptr<CTrigger_Manager> CTrigger_Manager::Create(uint32_t iLevelIndex)
 {
-	return unique_ptr<CTrigger_Manager>(new CTrigger_Manager);
+	auto pInstance = unique_ptr<CTrigger_Manager>(new CTrigger_Manager);
+	if (FAILED(pInstance->Initialize(iLevelIndex)))
+	{
+		MSG_BOX("Create Failed Trigger Manager");
+		return nullptr;
+	}
+
+	return pInstance;
 }

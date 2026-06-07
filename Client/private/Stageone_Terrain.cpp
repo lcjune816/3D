@@ -34,7 +34,7 @@ HRESULT CStageone_Terrain::Initialize(void* pArg)
 void CStageone_Terrain::Priority_Update(_float fTimeDelta)
 {
 
-//	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CStageone_Terrain));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CStageone_Terrain));
 }
 void CStageone_Terrain::Update(_float fTimeDelta)
 {

@@ -21,6 +21,7 @@ HRESULT CBatteryCase::Initialize(void* pArg)
 {
 
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::BATTERYCASE;
  	m_eRot = pDesc->eRot;
 	m_fRotationArrow = 0.25f;
@@ -126,7 +127,7 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 
 		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 
-		auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+		auto Target = CGameInstance::Get().Find_Trigger(m_iLevel, m_iTargetNumber).lock();
 
 		if (NULL_FALSE(Target))
 		{

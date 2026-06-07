@@ -70,7 +70,7 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pLevel_Manager))
 		return E_FAIL;
 
-	m_pTrigger_Manager = CTrigger_Manager::Create();
+	m_pTrigger_Manager = CTrigger_Manager::Create(EngineDesc.iNumLevels);
 	if (NULL_TRUE(m_pTrigger_Manager))
 		return E_FAIL;
 
@@ -147,7 +147,7 @@ void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
 
 	m_pPrototype_Manager->Clear(iClearLevelIndex);
 
-// 	m_pTrigger_Manager->Clear();
+ 	m_pTrigger_Manager->Clear(iClearLevelIndex);
 }
 #pragma region RENDERER
 
@@ -489,13 +489,13 @@ void CGameInstance::Render_Navi()
 }
 #pragma endregion
 #pragma region TRIGGER_MANAGER
-HRESULT					CGameInstance::Add_Trigger(uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger)
+HRESULT					CGameInstance::Add_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber, weak_ptr<CTrigger> pTrigger)
 {
-	return m_pTrigger_Manager->Add_Trigger(iTargetNumber, pTrigger);
+	return m_pTrigger_Manager->Add_Trigger(iLevelIndex,iTargetNumber, pTrigger);
 }
-weak_ptr<CTrigger>		CGameInstance::Find_Trigger(uint32_t iTargetNumber)
+weak_ptr<CTrigger>		CGameInstance::Find_Trigger(uint32_t iLevelIndex, uint32_t iTargetNumber)
 {
-	return m_pTrigger_Manager->Find_Trigger(iTargetNumber);
+	return m_pTrigger_Manager->Find_Trigger(iLevelIndex,iTargetNumber);
 }
 #pragma endregion 
 #pragma region PIPELINE 

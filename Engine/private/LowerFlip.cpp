@@ -100,7 +100,7 @@ void CLowerFlip::Action_Trigger()
 		return;
 	pObj->Get_Transform().lock()->Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
 
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))

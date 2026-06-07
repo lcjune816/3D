@@ -54,7 +54,7 @@ _bool CElectricPoleHead::offsetMatrix(_float4x4* pMatrix)
 }
 void CElectricPoleHead::Action_Trigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))		
