@@ -1,6 +1,13 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4 g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
+texture2D g_Texture;
 
+sampler LinearSampler = sampler_state
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
 struct VS_IN
 {
     float3 vPosition : POSITION;
@@ -44,7 +51,7 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor = 1.f;
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord * 2.f);
     
     return Out;
 }

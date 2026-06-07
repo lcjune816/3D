@@ -166,9 +166,9 @@ void CPlayer::Update(_float fTimeDelta)
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
 
-	string name = Model_Animation(m_pAnimator->Get_NameList());
-	if (name != "")
-		m_pAnimator->Change_Animation(name);
+	//string name = Model_Animation(m_pAnimator->Get_NameList());
+	//if (name != "")
+	//	m_pAnimator->Change_Animation(name);
 
 	Turn(fTimeDelta);
 	State_Move();
@@ -201,7 +201,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
 HRESULT CPlayer::Render()
 {
 
-	m_pNavigation->Render();
+	//m_pNavigation->Render();
 
 	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");

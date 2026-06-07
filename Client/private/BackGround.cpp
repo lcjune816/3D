@@ -44,7 +44,7 @@ void CBackGround::Update(_float fTimeDelta)
 void CBackGround::Late_Update(_float fTimeDelta)
 {
 	
-	//CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
 }
 HRESULT CBackGround::Render()
 {

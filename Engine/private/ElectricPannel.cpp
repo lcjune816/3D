@@ -85,7 +85,7 @@ void CElectricPannel::Set_Trigger()
 }
 void CElectricPannel::Action_Trigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))

@@ -54,8 +54,6 @@ void CLevel_Loading::Update(_float fTimeDelta)
 			break;
 		}
 
-
-		CGameInstance::Get().ReBindComponents(ETOUI(m_eNextLevelIndex));
 		if (FAILED(CGameInstance::Get().Change_Level(ETOUI(m_eNextLevelIndex), std::move(pNewLevel))))
 			return;
 		

@@ -392,9 +392,6 @@
     <FxCompile Include="..\Bin\ShaderFiles\AnimeShader.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\InstancingTest.hlsl">
-      <Filter>97.ShaderFiles</Filter>
-    </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Array_VtxTex.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>

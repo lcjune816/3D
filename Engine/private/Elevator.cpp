@@ -20,7 +20,7 @@ HRESULT CElevator::Initialize_Prototype()
 HRESULT CElevator::Initialize(void* pArg)
 {
 	__super::Initialize(pArg);
-	m_eEventTrigger = TRIGGER_EVENT::LEVER;
+	m_eEventTrigger = TRIGGER_EVENT::ELEVATOR;
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	m_eState = TRIGGER_STATE::IDLE;
 	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
@@ -39,7 +39,7 @@ HRESULT CElevator::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		Action_Trigger(fTimeDelta);
 		break;
 	case TRIGGER_STATE::RETURN:
-	
+		break;
 
 	case TRIGGER_STATE::PAUSE:
 		Pause_Trigger();
@@ -94,7 +94,7 @@ void CElevator::Action_Trigger(const _float& fTimeDelta)
 
 void CElevator::Pause_Trigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel, m_iTargetNumber).lock();
 	if (NULL_TRUE(TriggerCheck))
 		return;
 
