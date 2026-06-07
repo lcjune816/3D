@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "GameInstance.h"
+
 CRenderer::CRenderer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
     : m_pDevice{ pDevice }
     , m_pContext{ pContext }
@@ -49,12 +50,12 @@ HRESULT CRenderer::Initialize()
     XMStoreFloat4x4(&m_ProjMatrix, XMMatrixOrthographicLH(vViewportSize.x, vViewportSize.y, 0.f, 1.f));
 
 #ifdef _DEBUG
-    if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Diffuse"), 150.f, 150.f, 300.f, 300.f)))
-        return E_FAIL;
-    if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Normal"), 150.f, 450.f, 300.f, 300.f)))
-        return E_FAIL;
-    if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Shade"), 450.f, 150.f, 300.f, 300.f)))
-        return E_FAIL;
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Diffuse"), 150.f, 150.f, 150.f, 150.f)))
+       return E_FAIL;
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Normal"), 150.f, 450.f, 150.f, 150.f)))
+       return E_FAIL;
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Shade"), 450.f, 150.f, 150.f, 150.f)))
+       return E_FAIL;
 #endif
 
     return S_OK;
@@ -165,10 +166,9 @@ HRESULT CRenderer::Draw()
 {
     iRanderCall = 0;
 
-//    CGameInstance::Get().Draw_Instancing();
-    if (FAILED(Render_Priority()))
-        return E_FAIL;
 
+   // if (FAILED(Render_Priority()))
+   //     return E_FAIL;
     if (FAILED(Render_NonBlend()))
         return E_FAIL;
 
@@ -177,16 +177,16 @@ HRESULT CRenderer::Draw()
    //if (FAILED(Render_Combined()))
    //    return E_FAIL;
 
-
-    if (FAILED(Render_Blend()))
-        return E_FAIL;
-
-    if (FAILED(Render_UI()))
-        return E_FAIL;
+ 
+  //  if (FAILED(Render_Blend()))
+  //      return E_FAIL;
+  // 
+  //  if (FAILED(Render_UI()))
+  //      return E_FAIL;
 
 #ifdef _DEBUG
-  // if (FAILED(Render_DEBUG()))
-  //     return E_FAIL;
+  if (FAILED(Render_DEBUG()))
+      return E_FAIL;
 #endif
 
 
@@ -224,8 +224,9 @@ HRESULT CRenderer::Render_NonBlend()
 
     //절두체의 가까운 평면을 계산
     _vector vPlane[6];
-    //Culling_Calcurator(vPlane);
-
+    ////Culling_Calcurator(vPlane);
+    if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_GameObject"))))
+        return E_FAIL;
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::NONBLEND)])
     {
         if (nullptr != pRenderObject)
@@ -240,6 +241,8 @@ HRESULT CRenderer::Render_NonBlend()
     }
 
     m_RenderObjects[ETOUI(RENDERGROUP::NONBLEND)].clear();
+  if (FAILED(CGameInstance::Get().End_MRT()))
+      return E_FAIL;
 
     return S_OK;
 }
@@ -264,7 +267,7 @@ HRESULT CRenderer::Render_Lights()
 
     if (FAILED(CGameInstance::Get().End_MRT()))
         return E_FAIL;
-
+     
     return S_OK;
 }
 
@@ -286,7 +289,7 @@ HRESULT CRenderer::Render_Combined()
         return E_FAIL;
 
     if (FAILED(m_pVIBuffer->Render()))
-        return E_FAIL;
+         return E_FAIL;
 
     return S_OK;
 }
@@ -295,7 +298,7 @@ HRESULT CRenderer::Render_Blend()
 {
     _vector vPlane[6];
    // Culling_Calcurator(vPlane);
-
+   
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::BLEND)])
     {
         if (nullptr != pRenderObject)
@@ -309,7 +312,7 @@ HRESULT CRenderer::Render_Blend()
     }
 
     m_RenderObjects[ETOUI(RENDERGROUP::BLEND)].clear();
-
+    
     return S_OK;
 }
 
@@ -331,6 +334,7 @@ HRESULT CRenderer::Render_UI()
 
 HRESULT CRenderer::Render_DEBUG()
 {
+    m_pContext->Flush();
     _float4x4   WorldMatrix = {};
 
     XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
@@ -342,10 +346,10 @@ HRESULT CRenderer::Render_DEBUG()
     if (FAILED(m_pVIBuffer->Bind_Resource()))
         return E_FAIL;
 
-    if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_GameObject"), m_pShader, "g_Texture", m_pVIBuffer)))
+   if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_GameObject"), m_pShader, "g_Texture", m_pVIBuffer)))
         return E_FAIL;
-    if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_LightAcc"), m_pShader, "g_Texture", m_pVIBuffer)))
-        return E_FAIL;
+ //   if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_LightAcc"), m_pShader, "g_Texture", m_pVIBuffer)))
+ //       return E_FAIL;
 
     return S_OK;
 }

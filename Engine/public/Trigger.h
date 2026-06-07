@@ -85,6 +85,7 @@ protected:
 	TRIGGER_STATE					m_eState{ TRIGGER_STATE::IDLE };
 	_float4							m_fRotation{};
 	weak_ptr<class CGameObject>		m_pParent;
+	uint32_t						m_iLevel;
 public:
 	virtual shared_ptr<CPrototype> Clone(void* pArg) = 0;
 

@@ -67,6 +67,8 @@ HRESULT CVIBuffer::Render()
 		return E_FAIL;
 	
 	m_pContext->DrawIndexed(m_iNumIndices, 0, 0);
+
+	return S_OK;
 }
 
 HRESULT CVIBuffer::Render_Array(uint32_t iArrayIndex)

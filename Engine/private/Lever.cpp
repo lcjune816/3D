@@ -88,7 +88,7 @@ HRESULT CLever::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger )
 
 void CLever::TriggerToTrigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel, m_iTargetNumber).lock();
 	if (NULL_TRUE(TriggerCheck))
 		return;
 

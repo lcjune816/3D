@@ -51,7 +51,7 @@ void CPlayer_Arm::Priority_Update(_float fTimeDelta)
 {
 
 	Timer(fTimeDelta);
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CPlayer_Arm));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer_Arm));
 }
 void CPlayer_Arm::Update(_float fTimeDelta)
 {

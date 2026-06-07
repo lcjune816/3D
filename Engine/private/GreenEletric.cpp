@@ -92,7 +92,7 @@ HRESULT CGreenElectric::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger
 }
 void CGreenElectric::Action_Trigger()
 {
-	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{

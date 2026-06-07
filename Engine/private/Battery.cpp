@@ -24,6 +24,7 @@ HRESULT CBattery::Initialize(void* pArg)
 
 	m_eEventTrigger = TRIGGER_EVENT::BATTERY;
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
+	__super::Initialize(pArg);
 	if (pDesc->eWroldEvent == WORLD_EVENT::BATTERY)
 	{
 		m_eState = TRIGGER_STATE::PAUSE;
@@ -179,7 +180,7 @@ void CBattery::OnNotify(const EVENT& event)
 }
 _bool CBattery::Action_Trigger()
 {
-	auto Target = CGameInstance::Get().Find_Trigger(m_iTargetNumber).lock();
+	auto Target = CGameInstance::Get().Find_Trigger(m_iLevel, m_iTargetNumber).lock();
 	auto pObj = m_pParent.lock();
 	if (NULL_TRUE(Target) || NULL_TRUE(pObj))
 		return false;

@@ -74,9 +74,9 @@ HRESULT CShader::Begin(uint32_t iPassIndex)
 	if (iPassIndex >= m_iNumPasses)
 		return E_FAIL;
 	_float4		Reset{ 0,0,0,0 };
-	m_pContext->OMSetBlendState(nullptr, (_float*)&Reset, 0xffffffff);
-	m_pContext->RSSetState(nullptr);
-	m_pContext->IASetInputLayout(nullptr);
+	//m_pContext->OMSetBlendState(nullptr, (_float*)&Reset, 0xffffffff);
+	//m_pContext->RSSetState(nullptr);
+	//m_pContext->IASetInputLayout(nullptr);
 	m_pContext->IASetInputLayout(m_InputLayouts[iPassIndex].Get());
 
 	m_pEffect->GetTechniqueByIndex(0)->GetPassByIndex(iPassIndex)->Apply(0, m_pContext.Get());
@@ -130,8 +130,6 @@ HRESULT CShader::Bind_RawValue(const _char* pConstantName, const void* fColor, u
 
 HRESULT CShader::Bind_SRV(const _char* pConstantName, ID3D11ShaderResourceView* pSRV)
 {
-	if(NULL_TRUE(pSRV))
-		return E_FAIL;
 
 	if (NULL_TRUE(m_pEffect))
 		return E_FAIL;

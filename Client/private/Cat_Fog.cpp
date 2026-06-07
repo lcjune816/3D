@@ -66,7 +66,7 @@ void CCat_Fog::Update(_float fTimeDelta)
 
 void CCat_Fog::Late_Update(_float fTimeDelta)
 {
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CCat_Fog));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CCat_Fog));
 }
 
 HRESULT CCat_Fog::Render()

@@ -25,7 +25,7 @@ HRESULT CTrigger::Initialize(void* pArg)
 	m_fMaxFrameTime  = pDesc->fMaxFrameTime;
 	m_fRotationArrow = pDesc->fArrrowRotation;
 
-
+ 	m_iLevel = static_cast<CGameObject::GAMEOBJECT_DESC*>(pArg)->iLevel;
 	switch (pDesc->eRot)
 	{
 	case TRIGGER_ROT::X:

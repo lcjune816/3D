@@ -585,9 +585,6 @@
     <ClCompile Include="..\private\RollupDoor.cpp">
       <Filter>10.Trigger_Manager\Trigger\RollupDoor</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Trigger_Manager.cpp">
-      <Filter>10.Trigger_Manager</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Battery.cpp">
       <Filter>10.Trigger_Manager\Trigger\Battery</Filter>
     </ClCompile>
@@ -692,6 +689,9 @@
     </ClCompile>
     <ClCompile Include="..\private\RenderTarget.cpp">
       <Filter>15.RenderTargets\Manager\RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Trigger_Manager.cpp">
+      <Filter>10.Trigger_Manager\Trigger</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
