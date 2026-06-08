@@ -21,11 +21,10 @@ public:
 	HRESULT Add_ParticleToPool(const _wstring strPrototypeTag, uint32_t iPrototypeLevel,  uint32_t iGameLevel , void* pArg);
 	void	   Particle_Emit(WORLD_EVENT eParticleType);
 
-	void	   Save_Data(uint32_t iNumLevel, _wstring path, const _wstring& strLayerName, const string& pSaveArrayName);
 	weak_ptr <class CParticleObject>	Select_Particle_Object(_fvector vOrigin, _fvector fDir);
 
+	void	   Save_ParticleData(uint32_t iNumLevel, _wstring path, const string& pSaveArrayName);
 
-private:
 	uint32_t		m_iNumLevels = {};
 
 private:

@@ -18,7 +18,7 @@ public:
 	{
 		_wstring strTriggerName;
 
-	}TRIGGER_DESC;
+	}TRIGGEROBJ_DESC;
 private:
 	typedef struct TriggerInfo
 	{//Èì;;
@@ -55,8 +55,8 @@ public:
 
 	
 	const TRIGGER_INFO	Get_TriggerInfo() { return m_TriggerInfo; }
-	CTrigger*			Get_TriggerPtr() { return m_pTrigger.get(); }
-	void				Set_TargetIDNumber(uint32_t iTargetNumber) { m_TriggerInfo.iTargetObjectID = iTargetNumber; m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID); }
+	Engine::CTrigger*			Get_TriggerPtr() { return m_pTrigger.get(); }
+	void				Set_TargetIDNumber(uint32_t iTargetNumber);
 	void				Set_Trigger(); 
 
 	virtual void		Mesh_Change(vector<uint32_t> MeshList)override;

@@ -127,86 +127,86 @@ HRESULT CWorldObject::Render()
 	_matrix matW = m_pTransform->Get_World();
 
 
-	//if (!m_bBoxColor)
-	//	return S_OK;
-	//
-	//_vector fScale = {};
-	//
-	//_float3 fMax = m_pTransform->Get_Max();
-	//_float3 fMin = m_pTransform->Get_Min();
-	//
-	//_vector vRight = matW.r[0];
-	//_vector vUp    = matW.r[1];
-	//_vector vLook  = matW.r[2];
-	//_vector vPos   = matW.r[3];
-	//fScale = (XMLoadFloat3(&fMax) - XMLoadFloat3(&fMin));
-	//
-	//_vector vPivotPos = ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
-	//
-	//_vector vRotPos = {};
-	//vRotPos = (XMVectorGetX(vPivotPos) * XMVector4Normalize(vRight)) +
-	//	(XMVectorGetY(vPivotPos) * XMVector4Normalize(vUp)) +
-	//	(XMVectorGetZ(vPivotPos) * XMVector4Normalize(vLook));
-	//
-	////중심 다시 계산
-	//_vector vPosAll[8] = {};
-	//vPosAll[0] = { fMin.x , fMin.y  ,fMin.z ,1.f };
-	//vPosAll[1] = { fMax.x , fMin.y  ,fMin.z ,1.f };
-	//vPosAll[2] = { fMin.x , fMax.y  ,fMin.z ,1.f };
-	//vPosAll[3] = { fMax.x , fMax.y  ,fMin.z ,1.f };
-	//vPosAll[4] = { fMin.x , fMin.y  ,fMax.z ,1.f };
-	//vPosAll[5] = { fMax.x , fMin.y  ,fMax.z ,1.f };
-	//vPosAll[6] = { fMin.x , fMax.y  ,fMax.z ,1.f };
-	//vPosAll[7] = { fMax.x , fMax.y  ,fMax.z ,1.f };
-	//
-	//_float4 fCheckMax = { -FLT_MAX,-FLT_MAX ,-FLT_MAX ,1.f };
-	//_float4 fCheckMin = { FLT_MAX,FLT_MAX ,FLT_MAX ,1.f };
-	//
-	//for (uint32_t i = 0; i < 8; ++i)
-	//{
-	//	_float3 fCheck;
-	//	vPosAll[i] = XMVector3TransformCoord(vPosAll[i], matW);
-	//	XMStoreFloat3(&fCheck, vPosAll[i]);
-	//
-	//	fCheckMax.x = max(fCheckMax.x, fCheck.x);
-	//	fCheckMax.y = max(fCheckMax.y, fCheck.y);
-	//	fCheckMax.z = max(fCheckMax.z, fCheck.z);
-	//
-	//	fCheckMin.x = min(fCheckMin.x, fCheck.x);
-	//	fCheckMin.y = min(fCheckMin.y, fCheck.y);
-	//	fCheckMin.z = min(fCheckMin.z, fCheck.z);
-	//
-	//}
-	//
-	//_vector vChck = (XMLoadFloat4(&fCheckMax) + XMLoadFloat4(&fCheckMin)) * 0.5f;
-	//vPos = vChck;
-	//
-	//vRight = XMVectorGetX(fScale * XMVector3Length(vRight)) * XMVector4Normalize(vRight);
-	//vUp = XMVectorGetY(fScale * XMVector3Length(vUp)) * 0.5f * XMVector4Normalize(vUp);
-	//vLook = XMVectorGetZ(fScale * XMVector3Length(vLook)) * XMVector4Normalize(vLook);
-	//
-	//_matrix World = { };
-	//World.r[0] = vRight;
-	//World.r[1] = vUp;
-	//World.r[2] = vLook;
-	//World.r[3] = vPos;
-	//
-	//
-	//XMStoreFloat4x4(&matWorld, World);
-	// fColor = { 1.f,0.f,0.f,1.f };
-	// _bool bCheck(true);
-	//m_pBoxShader->Bind_Matrix("g_World", &matWorld);
-	//m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	//m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
-	//m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
-	//m_pBoxShader->Begin(0);
-	//
-	//m_pBoxMesh->Bind_Resource();
-	//m_pBoxMesh->Render();
-	//
-	//fColor = { 0.f,0.f,0.f,0.f };
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	if (!m_bBoxColor)
+		return S_OK;
+	
+	_vector fScale = {};
+	
+	_float3 fMax = m_pTransform->Get_Max();
+	_float3 fMin = m_pTransform->Get_Min();
+	
+	_vector vRight = matW.r[0];
+	_vector vUp    = matW.r[1];
+	_vector vLook  = matW.r[2];
+	_vector vPos   = matW.r[3];
+	fScale = (XMLoadFloat3(&fMax) - XMLoadFloat3(&fMin));
+	
+	_vector vPivotPos = ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
+	
+	_vector vRotPos = {};
+	vRotPos = (XMVectorGetX(vPivotPos) * XMVector4Normalize(vRight)) +
+		(XMVectorGetY(vPivotPos) * XMVector4Normalize(vUp)) +
+		(XMVectorGetZ(vPivotPos) * XMVector4Normalize(vLook));
+	
+	//중심 다시 계산
+	_vector vPosAll[8] = {};
+	vPosAll[0] = { fMin.x , fMin.y  ,fMin.z ,1.f };
+	vPosAll[1] = { fMax.x , fMin.y  ,fMin.z ,1.f };
+	vPosAll[2] = { fMin.x , fMax.y  ,fMin.z ,1.f };
+	vPosAll[3] = { fMax.x , fMax.y  ,fMin.z ,1.f };
+	vPosAll[4] = { fMin.x , fMin.y  ,fMax.z ,1.f };
+	vPosAll[5] = { fMax.x , fMin.y  ,fMax.z ,1.f };
+	vPosAll[6] = { fMin.x , fMax.y  ,fMax.z ,1.f };
+	vPosAll[7] = { fMax.x , fMax.y  ,fMax.z ,1.f };
+	
+	_float4 fCheckMax = { -FLT_MAX,-FLT_MAX ,-FLT_MAX ,1.f };
+	_float4 fCheckMin = { FLT_MAX,FLT_MAX ,FLT_MAX ,1.f };
+	
+	for (uint32_t i = 0; i < 8; ++i)
+	{
+		_float3 fCheck;
+		vPosAll[i] = XMVector3TransformCoord(vPosAll[i], matW);
+		XMStoreFloat3(&fCheck, vPosAll[i]);
+	
+		fCheckMax.x = max(fCheckMax.x, fCheck.x);
+		fCheckMax.y = max(fCheckMax.y, fCheck.y);
+		fCheckMax.z = max(fCheckMax.z, fCheck.z);
+	
+		fCheckMin.x = min(fCheckMin.x, fCheck.x);
+		fCheckMin.y = min(fCheckMin.y, fCheck.y);
+		fCheckMin.z = min(fCheckMin.z, fCheck.z);
+	
+	}
+	
+	_vector vChck = (XMLoadFloat4(&fCheckMax) + XMLoadFloat4(&fCheckMin)) * 0.5f;
+	vPos = vChck;
+	
+	vRight = XMVectorGetX(fScale * XMVector3Length(vRight)) * XMVector4Normalize(vRight);
+	vUp = XMVectorGetY(fScale * XMVector3Length(vUp)) * 0.5f * XMVector4Normalize(vUp);
+	vLook = XMVectorGetZ(fScale * XMVector3Length(vLook)) * XMVector4Normalize(vLook);
+	
+	_matrix World = { };
+	World.r[0] = vRight;
+	World.r[1] = vUp;
+	World.r[2] = vLook;
+	World.r[3] = vPos;
+	
+	
+	XMStoreFloat4x4(&matWorld, World);
+	 fColor = { 1.f,0.f,0.f,1.f };
+	 _bool bCheck(true);
+	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
+	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
+	m_pBoxShader->Begin(0);
+	
+	m_pBoxMesh->Bind_Resource();
+	m_pBoxMesh->Render();
+	
+	fColor = { 0.f,0.f,0.f,0.f };
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
 	return S_OK;
 }
 

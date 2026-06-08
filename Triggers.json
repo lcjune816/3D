@@ -174,9 +174,9 @@
             "FrameMaxTime": 0.0,
             "FrameTick": 0.0,
             "Look": [
-                -0.5130985379219055,
+                -0.8628677725791931,
                 0.0,
-                -0.8583502769470215
+                0.5054590106010437
             ],
             "MeshType": 2,
             "ModeNumber": 0,
@@ -185,9 +185,9 @@
             "ObjectTargetID": 0,
             "OtherTriggerValue": false,
             "Right": [
-                -0.8583502769470215,
+                0.5054590106010437,
                 0.0,
-                0.5130985379219055
+                0.8628677725791931
             ],
             "TriggerArrow": 0.0,
             "TriggerRot": 0,
@@ -234,7 +234,7 @@
             "WorldEvent": 7,
             "fPos": [
                 246.3199920654297,
-                821.7218017578125,
+                880.6688842773438,
                 99.17831420898438
             ]
         },
@@ -1270,7 +1270,7 @@
             "ModeNumber": 0,
             "Name": "../../Resource\\ElectricalPanel_B.bin",
             "ObjectID": 39,
-            "ObjectTargetID": 0,
+            "ObjectTargetID": 42,
             "OtherTriggerValue": true,
             "Right": [
                 1.0,
@@ -1290,6 +1290,40 @@
                 1110.665771484375,
                 34.96296310424805,
                 1079.9332275390625
+            ]
+        },
+        {
+            "FrameMaxTime": 2.0,
+            "FrameTick": 0.0,
+            "Look": [
+                1.0,
+                0.0,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUpDoor_C_Blue.fbx",
+            "ObjectID": 42,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                -1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                0.0,
+                0.9999977350234985,
+                1.6560589705116868e-12
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                1109.718017578125,
+                0.0,
+                1044.5858154296875
             ]
         }
     ]

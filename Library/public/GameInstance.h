@@ -97,6 +97,9 @@ public:
 	const _float4x4* Get_Transform_Inverse(D3DTS eState);
 	const _float4* Get_CamPosition();
 	void Set_Transform(D3DTS eState, _fmatrix TransformMatrix);
+
+	string	 MultiByteWstringToChar(const _wstring& strConvertwstring);
+	_wstring MultiByteCharToWstring(const string& strConvertstring);
 #pragma endregion
 
 #pragma region TRIGGER_MANAGER
@@ -119,8 +122,8 @@ public:
 
 	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
 	HRESULT Render_Lights(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
-	HRESULT						Add_LightMtrl(const string tagLight);
-	weak_ptr<LIGHT_VALUE>		Find_LightMtrl(const string tagLightName);
+	LIGHT_DESC* Find_LightMtrl(const LIGHT& eLight);
+	void				 Set_LightDesc(LIGHT_DESC& eLight);
 
 	const vector<string>& Get_ObejctNames();
 #pragma endregion
@@ -147,6 +150,8 @@ public:
 	    void	   Particle_Emit(WORLD_EVENT eParticleType);
 		weak_ptr <class CParticleObject>	Select_Particle_Object(_fvector vOrigin, _fvector fDir);
 
+		void	   Save_ParticleData(uint32_t iNumLevel, const _wstring& path, const string& strJsonKeyName);
+	
 #pragma endregion
 #pragma region ASSIMP_MANAGER
 	shared_ptr<class CMesh>				ImportOnlyMesh(void* pArg);

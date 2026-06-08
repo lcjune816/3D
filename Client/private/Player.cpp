@@ -188,7 +188,7 @@ void CPlayer::Update(_float fTimeDelta)
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pAim->Update(fTimeDelta);
 	m_pNavigation->Dead_Check();
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer));
 
 
 }
@@ -201,7 +201,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
 HRESULT CPlayer::Render()
 {
 
-	//m_pNavigation->Render();
+	m_pNavigation->Render();
 
 	m_pAnimator->Bind_Resource_BoneMatrix(m_pShaderCom.get(), "g_Bone");
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");

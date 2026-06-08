@@ -271,7 +271,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 	ParticleDesc.vCenter = _float3(0, 0, 0);
 	ParticleDesc.vGrid = _float2(8.f, 16.f);
 	ParticleDesc.vLifeTime = _float2(0.3f, 0.8f);
-	ParticleDesc.vSize = _float2(0.3f, 80.f);
+	ParticleDesc.vSize = _float2(0.3f, 5.f);
 	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Fog"),
 		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
@@ -288,7 +288,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
 	//m_Objects.clear();
-
+	//Load_ParticleData(LEVEL::GAMEPLAY, TEXT("OBJ_Particle"), ETOUI(LEVEL::GAMEPLAY), TEXT("../../ParticleObjectsTo_GAMEPLAY.json"), "Particles");
 	m_isFinished = true;
 	return S_OK;
 }
@@ -386,7 +386,7 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 	int32_t index = 0;
 	for (auto& iter : j[strLoadDataName])
 	{
-		CGameObject::GAMEOBJECT_DESC desc{};
+		CTrigger::TRIGGER_DESC desc{};
 		desc.FileName = { "" };
 		desc.j = iter;
 		desc.index = index++;
@@ -413,6 +413,31 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 	file.close();
 
 	MSG_BOX("로드 된듯?");
+	return S_OK;
+}
+
+HRESULT CLoader::Load_ParticleData(LEVEL eLevel, const _wstring& strPrototypeTag, uint32_t iPrototypeLevel, const _wstring& strLoadFilePathName, const string& strjsonKeyName)
+{
+	json j;
+	ifstream file(strLoadFilePathName);
+	if (!file.is_open())
+	{
+		MSG_BOX("로드할 파티클 없음");
+		return E_FAIL;
+	}
+	j.parse(file);
+	for (auto& iter : j[strjsonKeyName])
+	{
+		CWorldParticle::PARTICLEOBJECT_DESC Desc{};
+		Desc.iLevel = ETOUI(eLevel);
+		Desc.eFileType = FILE_MODE::LOAD;
+		Desc.j = iter;
+		CGameInstance::Get().Add_ParticleToPool(strPrototypeTag, iPrototypeLevel, ETOUI(eLevel), &Desc);
+	}
+	file.close();
+
+	MSG_BOX("파티클 로드 된듯?");
+	
 	return S_OK;
 }
 

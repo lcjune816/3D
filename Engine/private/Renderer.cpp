@@ -24,7 +24,10 @@ HRESULT CRenderer::Initialize()
     //For Target Shade
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Shade"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_UNORM, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
-    
+    /* For.Target_Specular */
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Specular"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_UNORM, _float4(0.f, 0.f, 0.f, 1.f))))
+        return E_FAIL;
+
     
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Diffuse"))))
@@ -36,7 +39,8 @@ HRESULT CRenderer::Initialize()
     //For MRT_LightAcc
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_LightAcc"), TEXT("Target_Shade"))))
         return E_FAIL;
-
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_LightAcc"), TEXT("Target_Specular"))))
+        return E_FAIL;
     m_pVIBuffer = CRect::Create(m_pDevice, m_pContext);
     if(NULL_TRUE(m_pVIBuffer))
         return E_FAIL;
@@ -50,11 +54,11 @@ HRESULT CRenderer::Initialize()
     XMStoreFloat4x4(&m_ProjMatrix, XMMatrixOrthographicLH(vViewportSize.x, vViewportSize.y, 0.f, 1.f));
 
 #ifdef _DEBUG
-   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Diffuse"), 150.f, 150.f, 150.f, 150.f)))
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Diffuse"), 150.f, 150.f, 300.f, 300.f)))
        return E_FAIL;
-   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Normal"), 150.f, 450.f, 150.f, 150.f)))
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Normal"), 150.f, 450.f, 300.f, 300.f)))
        return E_FAIL;
-   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Shade"), 450.f, 150.f, 150.f, 150.f)))
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Shade"), 450.f, 150.f, 300.f, 300.f)))
        return E_FAIL;
 #endif
 
@@ -167,30 +171,34 @@ HRESULT CRenderer::Draw()
     iRanderCall = 0;
 
 
-   // if (FAILED(Render_Priority()))
-   //     return E_FAIL;
+    if (FAILED(Render_Priority()))
+        return E_FAIL;
+
     if (FAILED(Render_NonBlend()))
         return E_FAIL;
 
-   //if (FAILED(Render_Lights()))
-   //    return E_FAIL;
-   //if (FAILED(Render_Combined()))
-   //    return E_FAIL;
+    if (FAILED(Render_Lights()))
+        return E_FAIL;
 
+    if (FAILED(Render_Combined()))
+        return E_FAIL;
+
+    if (FAILED(Render_NonLights()))
+        return E_FAIL;
+
+    if (FAILED(Render_Blend()))
+        return E_FAIL;
+   
+    if (FAILED(Render_UI()))
+        return E_FAIL;
  
-  //  if (FAILED(Render_Blend()))
-  //      return E_FAIL;
-  // 
-  //  if (FAILED(Render_UI()))
-  //      return E_FAIL;
-
 #ifdef _DEBUG
-  if (FAILED(Render_DEBUG()))
-      return E_FAIL;
+  //if (FAILED(Render_DEBUG()))
+  //    return E_FAIL;
 #endif
 
 
-    //CGameInstance::Get().Render_Navi();
+   // CGameInstance::Get().Render_Navi();
     return S_OK;
 }
 
@@ -224,19 +232,15 @@ HRESULT CRenderer::Render_NonBlend()
 
     //절두체의 가까운 평면을 계산
     _vector vPlane[6];
-    ////Culling_Calcurator(vPlane);
+    ////Culling_Calcurator(vPlane); 
     if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_GameObject"))))
         return E_FAIL;
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::NONBLEND)])
     {
         if (nullptr != pRenderObject)
         {
-           // if (Culling(pRenderObject.get(), vPlane))
-           // {
                 ++iRanderCall;
-
-                pRenderObject->Render();
-           // }
+                pRenderObject->Render(); 
         }
     }
 
@@ -289,7 +293,22 @@ HRESULT CRenderer::Render_Combined()
         return E_FAIL;
 
     if (FAILED(m_pVIBuffer->Render()))
-         return E_FAIL;
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CRenderer::Render_NonLights()
+{
+
+    m_pContext->PSSetShaderResources(0, 0, nullptr);
+    for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::NONLIGHT)])
+    {
+        if (nullptr != pRenderObject)
+            pRenderObject->Render();
+    }
+
+    m_RenderObjects[ETOUI(RENDERGROUP::NONLIGHT)].clear();
 
     return S_OK;
 }
@@ -348,8 +367,8 @@ HRESULT CRenderer::Render_DEBUG()
 
    if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_GameObject"), m_pShader, "g_Texture", m_pVIBuffer)))
         return E_FAIL;
- //   if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_LightAcc"), m_pShader, "g_Texture", m_pVIBuffer)))
- //       return E_FAIL;
+    if (FAILED(CGameInstance::Get().Debug_RT_Render(TEXT("MRT_LightAcc"), m_pShader, "g_Texture", m_pVIBuffer)))
+        return E_FAIL;
 
     return S_OK;
 }

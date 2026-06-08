@@ -16,8 +16,8 @@ HRESULT CRenderTarget::Initialize(uint32_t iWidth, uint32_t iHeight, DXGI_FORMAT
 
 	D3D11_TEXTURE2D_DESC	TextureDesc{};
 
-	TextureDesc.Width = iWidth;
-	TextureDesc.Height = iHeight;
+	TextureDesc.Width  = (_float)iWidth;
+	TextureDesc.Height = (_float)iHeight;
 	TextureDesc.MipLevels = 1;
 	TextureDesc.ArraySize = 1;
 	TextureDesc.Format = ePixelFormat;

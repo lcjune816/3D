@@ -22,11 +22,14 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 {
 	auto desc = static_cast<WORLDPARTICLE_DESC*>(pArg);
 	
+	if (desc->eFileType == FILE_MODE::LOAD)
+		Load_Data(&desc, desc->j);
+	
 	m_eParticleType		= desc->eParticleType;
 	m_eParticleEmitType = desc->eParticleEmit;
 	m_iLevelIndex		= desc->iLevelIndex;
-	m_strPathName[ETOUI(PATHNAME::SHADER)] = desc->PathName[ETOUI(PATHNAME::SHADER)];
-	m_strPathName[ETOUI(PATHNAME::BUFFER)] = desc->PathName[ETOUI(PATHNAME::BUFFER)];
+	m_strPathName[ETOUI(PATHNAME::SHADER)]  = desc->PathName[ETOUI(PATHNAME::SHADER)];
+	m_strPathName[ETOUI(PATHNAME::BUFFER)]  = desc->PathName[ETOUI(PATHNAME::BUFFER)];
 	m_strPathName[ETOUI(PATHNAME::TEXTURE)] = desc->PathName[ETOUI(PATHNAME::TEXTURE)];
 
 	if (FAILED(Ready_Component()))
@@ -51,7 +54,7 @@ void CWorldParticle::Update(_float fTimeDelta)
 		m_pVIBufferCom->Spark(fTimeDelta);
 		break;
 	}
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CWorldParticle));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
 
 }
 void CWorldParticle::Late_Update(_float fTimeDelta)
@@ -69,7 +72,8 @@ HRESULT CWorldParticle::Render()
 	m_pShaderCom->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pShaderCom->Bind_RawValue("g_vCamePosition", CGameInstance::Get().Get_CamPosition(), sizeof _vector);
-	m_pShaderCom->Bind_RawValue("g_Color", CGameInstance::Get().ColorTester(), sizeof _float4);
+	_float4 fText = *CGameInstance::Get().ColorTester();
+	m_pShaderCom->Bind_RawValue("g_Color",&fText, sizeof _float4);
 	m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
 	m_pShaderCom->Begin(0);
 	
@@ -116,7 +120,14 @@ json CWorldParticle::Save_Data()
 	j["Up"] = { fWorld._21,fWorld._22 ,fWorld._23 };
 	j["Look"] = { fWorld._31, fWorld._32,fWorld._33 };
 	j["fPos"] = { fWorld._41,fWorld._42,fWorld._43 };
-	j["Name"] = m_PathName;
+	j["ShaderPath"]  = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::SHADER)]);
+	j["BufferPath"]  = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::BUFFER)]);
+	j["TexturePath"] = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)]);
+
+	uint32_t	iParticleTypeWorldEvent = static_cast<uint32_t>(m_eParticleType);
+	uint32_t	iParticleTypeEmit = static_cast<uint32_t>(m_eParticleEmitType);
+	j["WroldEvent"] = iParticleTypeWorldEvent;
+	j["ParticleEmit"] = iParticleTypeEmit;
 
 	return j;
 }
@@ -136,10 +147,9 @@ HRESULT CWorldParticle::Ready_Component()
 			return E_FAIL;
 	
 
-	char TexturePath[256] = {};
-	_bool		bMove = false;
-	WideCharToMultiByte(CP_ACP, 0, m_strPathName[ETOUI(PATHNAME::TEXTURE)].data(), -1, TexturePath, sizeof(char) * 256, NULL, NULL);
-
+	
+	string TexturePath = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)]);
+		
 	CGameInstance::Get().Add_Decal_Texture(TexturePath);
 	m_iTextureID = CGameInstance::Get().Find_TextueId(TexturePath);
 	return S_OK;
@@ -147,17 +157,24 @@ HRESULT CWorldParticle::Ready_Component()
 
 void CWorldParticle::Load_Data(void* pDesc, const json& j)
 {
-	auto desc = static_cast<GAMEOBJECT_DESC*>(pDesc);
+	auto desc = static_cast<WORLDPARTICLE_DESC*>(pDesc);
+
 
 	desc->matWorld._11 = j["Right"][0]; desc->matWorld._12 = j["Right"][1]; desc->matWorld._13 = j["Right"][2]; desc->matWorld._14 = 0;
 	desc->matWorld._21 = j["Up"][0]; desc->matWorld._22 = j["Up"][1];    desc->matWorld._23 = j["Up"][2];    desc->matWorld._24 = 0;
 	desc->matWorld._31 = j["Look"][0]; desc->matWorld._32 = j["Look"][1];  desc->matWorld._33 = j["Look"][2];  desc->matWorld._34 = 0;
 	desc->matWorld._41 = j["fPos"][0]; desc->matWorld._42 = j["fPos"][1];  desc->matWorld._43 = j["fPos"][2];  desc->matWorld._44 = 1;
-	m_PathName = j["Name"];
-	int32_t iModelNumber = j["ModeNumber"];
-	desc->FileName = m_PathName;
-	desc->iModeNumber = iModelNumber;
 
+	desc->PathName[ETOUI(PATHNAME::SHADER)]  = CGameInstance::Get().MultiByteCharToWstring(j["ShaderPath"]);
+	desc->PathName[ETOUI(PATHNAME::BUFFER)]  = CGameInstance::Get().MultiByteCharToWstring(j["BufferPath"]);
+	desc->PathName[ETOUI(PATHNAME::TEXTURE)] = CGameInstance::Get().MultiByteCharToWstring(j["TexturePath"]);
+
+	uint32_t	iParticleTypeWorldEvent = j["WroldEvent"];
+	uint32_t	iParticleTypeEmit =  j["ParticleEmit"];
+	desc->eParticleType = static_cast<WORLD_EVENT>(iParticleTypeWorldEvent);
+	desc->eParticleEmit = static_cast<PARTICLE>(iParticleTypeEmit);
+
+	
 }
 unique_ptr<CWorldParticle> CWorldParticle::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

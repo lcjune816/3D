@@ -45,26 +45,30 @@ HRESULT CGuiObject::Initialize(void* pArg)
 
 	if (pDesc->iLevel == ETOUI(LEVEL::GAMEPLAY))
 	{
-		m_strGameObjectPath = L"../../Objects.json";
-		m_strTriggerPath = L"../../Triggers.json";
-		m_strDecalpath = L"../../Decal.json";
+		m_strGameObjectPath = TEXT("../../Objects.json");
+		m_strTriggerPath    = TEXT("../../Triggers.json");
+		m_strDecalpath      = TEXT("../../Decal.json");
 		
 		m_strGameObject = "GameObjects";
 		m_strTrigger = "Triggers";
 		m_strDecal = "Decals";
+
+		m_strParticlesPathName = TEXT("../../ParticleObjectsTo_GAMEPLAY.json");
 
 		m_eLevel = LEVEL::GAMEPLAY;
 		m_strNavi = L"../../Navi.json";
 	}
 	else if(pDesc->iLevel == ETOUI(LEVEL::GASZONE))
 	{
-		m_strGameObjectPath = L"../../GasZone_Objects.json";
-		m_strTriggerPath = L"../../GasZone_Trigger.json";
-		m_strDecalpath = L"../../GasZone_Decal.json";
+		m_strGameObjectPath = TEXT("../../GasZone_Objects.json");
+		m_strTriggerPath    = TEXT("../../GasZone_Trigger.json");
+		m_strDecalpath      = TEXT("../../GasZone_Decal.json");
 
 		m_strGameObject = "GasZone_Object";
 		m_strTrigger = "GasZone_Trigger";
 		m_strDecal = "GasZone_Decal";
+
+		m_strParticlesPathName = TEXT("../../ParticleObjectsTo_GASZONE.json");
 
 		m_eLevel = LEVEL::GASZONE;
 		m_strNavi = L"../../NaviGasZone.json";
@@ -814,10 +818,12 @@ void CGuiObject::Select_Model()
 				ImGui::EndTabBar();
 				return;
 			}//233 230
-			GAMEOBJECT_DESC desc{};
-			desc.iLevel = ETOUI(m_eLevel);
+			GAMEOBJECT_DESC ObjDesc{};
+			CTrigger::TRIGGER_DESC TriggerDesc{};
+			ObjDesc.iLevel = ETOUI(m_eLevel);
 			if (iModelButton == ETOUI(MESH_TYPE::TRIGGER))
 			{
+				TriggerDesc.iLevel = ETOUI(m_eLevel);
 				ImGui::Text(u8"트리거 옵션");
 				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" 
 										, "OBJ_Generator"};
@@ -878,15 +884,15 @@ void CGuiObject::Select_Model()
 					ImGui::EndCombo();
 				}
 				strTriggerName = items[item_selected_idx];
-				desc.eRot = static_cast<TRIGGER_ROT>(imte_rotselected_idx);
+				TriggerDesc.eRot = static_cast<TRIGGER_ROT>(imte_rotselected_idx);
 				static _float fTimeTick{}, fTimeFrame{}, fRotSpeed{};
 				ImGui::InputFloat(u8"최대 각도", &fTimeTick, ImGuiComboFlags_WidthFitPreview);
 				ImGui::InputFloat(u8"최대 시간", &fTimeFrame, ImGuiComboFlags_WidthFitPreview); 
 				ImGui::InputFloat(u8"회전 속도", &fRotSpeed, ImGuiComboFlags_WidthFitPreview);
 
-				desc.fArrrowRotation = fRotSpeed;
-				desc.fFrameTickTime = fTimeTick;
-				desc.fMaxFrameTime = fTimeFrame;
+				TriggerDesc.fArrrowRotation = fRotSpeed;
+				TriggerDesc.fFrameTickTime = fTimeTick;
+				TriggerDesc.fMaxFrameTime = fTimeFrame;
 			}
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{ 1,0,0,1 });
@@ -931,21 +937,21 @@ void CGuiObject::Select_Model()
 			if (m_bCopy && NULL_FALSE(pObj) && GetKeyState(VK_CONTROL) & 0x8000 && GetKeyState('V') & 0x8000)
 			{
 				m_CopyWorld._41 = m_CopyWorld._41 + 3.f; // 카메라 보다 조금 앞에 생성하기
-				desc.FileName	 = pObj->Get_PathName();			//매쉬 경로 복사		
-				desc.matWorld = m_CopyWorld;
-				desc.iModeNumber = iMode;				//뭐였드라;
-				desc.bCopy = true;						//복사 한다는 뜻
-				desc.eType = pObj->Get_MeshType();			// 매쉬 타입
-				desc.strTriggerName = m_CopyTriggerName; //트리거 밸류 저장
+				TriggerDesc.FileName = ObjDesc.FileName = pObj->Get_PathName();			//매쉬 경로 복사		
+				TriggerDesc.matWorld = ObjDesc.matWorld = m_CopyWorld;
+				TriggerDesc.iModeNumber = ObjDesc.iModeNumber = iMode;				//뭐였드라;
+				TriggerDesc.bCopy = ObjDesc.bCopy = true;						//복사 한다는 뜻
+				TriggerDesc.eType = ObjDesc.eType = pObj->Get_MeshType();			// 매쉬 타입
+				TriggerDesc.strTriggerName = ObjDesc.strTriggerName = m_CopyTriggerName; //트리거 밸류 저장
 				
 				switch (pObj->Get_MeshType())
 				{
 				case MESH_TYPE::NONANIME:
-					CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_WorldObject", ETOUI(m_eLevel), L"Layer_WorldObject", &desc);
+					CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_WorldObject", ETOUI(m_eLevel), L"Layer_WorldObject", &ObjDesc);
 					break;
 				case MESH_TYPE::TRIGGER:
-					desc.bTrigger = static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerInfo().bOtherTrigger;
-					CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_Trigger", ETOUI(m_eLevel), L"Layer_TriggerObject", &desc);
+					TriggerDesc.bTrigger = static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerInfo().bOtherTrigger;
+					CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_Trigger", ETOUI(m_eLevel), L"Layer_TriggerObject", &TriggerDesc);
 					break;
 				}
 				
@@ -991,10 +997,10 @@ void CGuiObject::Select_Model()
 						{
 							_vector vRight = { 1,0,0,0 }, vUp = { 0, 1, 0 ,0 }, vLook = {}, vPos = {};
 
-							desc.FileName = CGameInstance::Get().Find_Path(pPath[i]);
-							desc.iModeNumber = iMode;
-							desc.bFrontCamera = false;
-							desc.eType = static_cast<MESH_TYPE>(iModelButton);
+							TriggerDesc.FileName = ObjDesc.FileName = CGameInstance::Get().Find_Path(pPath[i]);
+							TriggerDesc.iModeNumber = ObjDesc.iModeNumber = iMode;
+							TriggerDesc.bFrontCamera = ObjDesc.bFrontCamera = false;
+							TriggerDesc.eType = ObjDesc.eType = static_cast<MESH_TYPE>(iModelButton);
 							_matrix ViewWorld = {};
 							_matrix matWorld = XMMatrixIdentity();
 							//뭐드라 이거
@@ -1002,19 +1008,20 @@ void CGuiObject::Select_Model()
 							ViewWorld = XMLoadFloat4x4(CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW));
 
 							matWorld.r[3] = ViewWorld.r[3] + XMVector3Normalize(ViewWorld.r[3]) * 10.f;
-							XMStoreFloat4x4(&desc.matWorld, matWorld);
-							switch (desc.eType)
+							XMStoreFloat4x4(&TriggerDesc.matWorld, matWorld);
+							XMStoreFloat4x4(&ObjDesc.matWorld, matWorld);
+							switch (static_cast<MESH_TYPE>(iModelButton))
 							{
 							case MESH_TYPE::NONANIME:
 								CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_WorldObject",
-									ETOUI(m_eLevel), L"Layer_WorldObject", &desc);
+									ETOUI(m_eLevel), L"Layer_WorldObject", &ObjDesc);
 								break;
 							case MESH_TYPE::TRIGGER:
-								desc.strTriggerName = strTriggerName;
-								desc.bTrigger       = iOtherTriggerMode;
-								desc.eWroldEvent = eEvent;
+								TriggerDesc.strTriggerName = strTriggerName;
+								TriggerDesc.bTrigger = iOtherTriggerMode;
+								TriggerDesc.eWroldEvent = eEvent;
 								CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), L"OBJ_Trigger",
-									ETOUI(m_eLevel), L"Layer_TriggerObject", &desc);
+									ETOUI(m_eLevel), L"Layer_TriggerObject", &TriggerDesc);
 								break;
 							}
 							
@@ -1231,56 +1238,49 @@ _vector CGuiObject::Picking_Terrain(int32_t iSelect, _float3& frayOrigin, _float
 }
 void CGuiObject::Light_Setting()
 {
-	auto pObj = m_pObj.lock();
-	if (NULL_TRUE(pObj))
-		return;
-
 
 	if (ImGui::TreeNode(u8"라이트 슛"))
 	{
-		auto LightMtrl = CGameInstance::Get().Find_LightMtrl(pObj->Get_PathName()).lock();
+		LIGHT eLight = LIGHT::DIRECTIONAL;
+	
+		LIGHT_DESC LightMtrl = *CGameInstance::Get().Find_LightMtrl(eLight);
 
-		if (NULL_TRUE(LightMtrl))
-		{
-			ImGui::TreePop();
-			return;
-		}
 		static _float f1[4]{}, f2[4]{}, f3[4]{}, f4[4]{}, f5[4]{}, f6[4]{};
 		
-		memcpy(&f1, &LightMtrl->vLightAmbient,  sizeof(_float4));
-		memcpy(&f2, &LightMtrl->vLightDiffuse,  sizeof(_float4));
-		memcpy(&f3, &LightMtrl->vLightDir,		sizeof(_float4));
-		memcpy(&f4, &LightMtrl->vLightSpecular, sizeof(_float4));
-		memcpy(&f5, &LightMtrl->vMtrlAmbient,	sizeof(_float4));
-		memcpy(&f6, &LightMtrl->vMtrlSpecular,	sizeof(_float4));
+		memcpy(&f1, &LightMtrl.fRange,  sizeof(_float));
+		memcpy(&f2, &LightMtrl.vAmbient,  sizeof(_float4));
+		memcpy(&f3, &LightMtrl.vDiffuse,		sizeof(_float4));
+		memcpy(&f4, &LightMtrl.vDir, sizeof(_float4));
+		memcpy(&f5, &LightMtrl.vPos,	sizeof(_float4));
+		memcpy(&f6, &LightMtrl.vSpecular,	sizeof(_float4));
 
-		ImGui::Text(u8"환경광(LightAmbient)");	ImGui::SameLine(), 
+		ImGui::Text(u8"뭐지(fRange)");	ImGui::SameLine(), 
 		ImGui::SliderFloat4("##1", &f1[0], 0.0f, 1.0f);
 		
-		ImGui::Text(u8"확산광(vLightDiffuse)");	ImGui::SameLine(), 
+		ImGui::Text(u8"기본밝기(vAmbient)");	ImGui::SameLine(), 
 		ImGui::SliderFloat4("##2", &f2[0], 0.0f, 1.0f);
 		
-		ImGui::Text(u8"빛의 방향(vLightDir)");	ImGui::SameLine(), 
+		ImGui::Text(u8"빛을 받아서 나오는 색(vDiffuse)");	ImGui::SameLine(), 
 		ImGui::SliderFloat4("##3", &f3[0], -1.0f, 1.0f);
 		
-		ImGui::Text(u8"반사광 하이라이트 (vLightSpecular)"); ImGui::SameLine(), 
+		ImGui::Text(u8"빞의 방향(vDir)"); ImGui::SameLine(), 
 		ImGui::SliderFloat4("##4", &f4[0], 0.0f, 1.0f);
 		
-		ImGui::Text(u8"재질환경광(vMtrlAmbient)"); ImGui::SameLine(),
+		ImGui::Text(u8"위치(vPos)"); ImGui::SameLine(),
 		ImGui::SliderFloat4("##5", &f5[0], 0.0f, 1.0f);
 		
-		ImGui::Text(u8"재질반사광(vMtrlSpecular)");ImGui::SameLine(),
+		ImGui::Text(u8"빛의 하이라이트(vSpecular)");ImGui::SameLine(),
 		ImGui::SliderFloat4("##6", &f6[0], 0.0f, 1.0f);
 
 
-		memcpy(&LightMtrl->vLightAmbient, &f1, sizeof(_float4));
-		memcpy(&LightMtrl->vLightDiffuse, &f2, sizeof(_float4));
-		memcpy(&LightMtrl->vLightDir,	  &f3, sizeof(_float4));
-		memcpy(&LightMtrl->vLightSpecular,&f4, sizeof(_float4));
-		memcpy(&LightMtrl->vMtrlAmbient,  &f5, sizeof(_float4));
-		memcpy(&LightMtrl->vMtrlSpecular, &f6, sizeof(_float4));
+		memcpy(&LightMtrl.fRange, &f1, sizeof(_float));
+		memcpy(&LightMtrl.vAmbient, &f2, sizeof(_float4));
+		memcpy(&LightMtrl.vDiffuse, &f3, sizeof(_float4));
+		memcpy(&LightMtrl.vDir, &f4, sizeof(_float4));
+		memcpy(&LightMtrl.vPos, &f5, sizeof(_float4));
+		memcpy(&LightMtrl.vSpecular, &f6, sizeof(_float4));
 
-
+		CGameInstance::Get().Set_LightDesc(LightMtrl);
 
 		ImGui::TreePop();
 	}
@@ -1506,7 +1506,8 @@ void CGuiObject::Multy_Copy()
 		return;
 	}
 
-	GAMEOBJECT_DESC desc{};
+	GAMEOBJECT_DESC ObjDesc{};
+	CTrigger::TRIGGER_DESC TriggerDesc{};
 	int32_t iMultiyCopy(0);
 	static int32_t iCopyX =1, iCopyY = 1, iCopyZ = 1;
 	static _bool bCopyX= false, bCopyY = false, bCopyZ = false, bCopyFloat = false;
@@ -1575,10 +1576,10 @@ void CGuiObject::Multy_Copy()
 		
 		XMStoreFloat4x4(&m_CopyWorld, pObj->Get_Transform().lock()->Get_World());
 
-		desc.FileName = pObj->Get_PathName();			//매쉬 경로 복사		
-		desc.bCopy = true;						//복사 한다는 뜻
-		desc.eType = pObj->Get_MeshType();			// 매쉬 타입
-		desc.strTriggerName = m_CopyTriggerName; //트리거 밸류 저장
+		TriggerDesc.FileName =ObjDesc.FileName = pObj->Get_PathName();			//매쉬 경로 복사		
+		TriggerDesc.bCopy =ObjDesc.bCopy = true;						//복사 한다는 뜻
+		TriggerDesc.eType =ObjDesc.eType = pObj->Get_MeshType();			// 매쉬 타입
+		TriggerDesc.strTriggerName =ObjDesc.strTriggerName = m_CopyTriggerName; //트리거 밸류 저장
 
 		_float4 fPos{}, fPosOrigin{};
 		memcpy(&fPosOrigin, &m_CopyWorld.m[3],sizeof(_float4));
@@ -1605,15 +1606,15 @@ void CGuiObject::Multy_Copy()
 
 					memcpy(&m_CopyWorld.m[3], &fCopyPos, sizeof(_float4));
 
-					desc.matWorld = m_CopyWorld;
+					TriggerDesc.matWorld = ObjDesc.matWorld = m_CopyWorld;
 					switch (pObj->Get_MeshType())
 					{
 					case MESH_TYPE::NONANIME:
-						CGameInstance::Get().Add_GameObject_ToCopyLayer(ETOUI(m_eLevel), L"OBJ_WorldObject", &desc);
+						CGameInstance::Get().Add_GameObject_ToCopyLayer(ETOUI(m_eLevel), L"OBJ_WorldObject", &ObjDesc);
 						break;
 					case MESH_TYPE::TRIGGER:
-						desc.bTrigger = static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerInfo().bOtherTrigger;
-						CGameInstance::Get().Add_GameObject_ToCopyLayer(ETOUI(m_eLevel), L"OBJ_Trigger", &desc);
+						TriggerDesc.bTrigger = static_pointer_cast<CTriggerObject>(pObj)->Get_TriggerInfo().bOtherTrigger;
+						CGameInstance::Get().Add_GameObject_ToCopyLayer(ETOUI(m_eLevel), L"OBJ_Trigger", &TriggerDesc);
 						break;
 					}
 				}
@@ -2030,6 +2031,9 @@ void CGuiObject::Particle_Installer()
 
 				CGameInstance::Get().Add_ParticleToPool(TEXT("OBJ_Particle"),ETOUI(m_eLevel), ETOUI(m_eLevel),&ParticleDesc);
 			}
+
+			if ((CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80) && CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80)
+				CGameInstance::Get().Save_ParticleData(ETOUI(m_eLevel),m_strParticlesPathName , "Particles");
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -2080,19 +2084,28 @@ HRESULT CGuiObject::Load_Value(LEVEL eLevel, const _wstring strFilePath, const _
 		for (auto& iter : j[strLoadDataName])
 		{
 			GAMEOBJECT_DESC desc{};
-			desc.FileName = { "" };
-			desc.j = iter;
-			desc.index = index++;
-			desc.eType = iter["MeshType"];
+			CTrigger::TRIGGER_DESC TriggerDesc{};
+			TriggerDesc.FileName = desc.FileName = { "" };
+			TriggerDesc.j = desc.j = iter;
+			TriggerDesc.index = desc.index = index++;
+			TriggerDesc.eType = desc.eType = iter["MeshType"];
 			if (iter["TriggerValue"] != nullptr)
 			{
-				desc.strTriggerName = iter["TriggerValue"];
- 				desc.bTrigger = iter["OtherTriggerValue"];
+				TriggerDesc.strTriggerName = iter["TriggerValue"];
+				TriggerDesc.bTrigger = iter["OtherTriggerValue"];
+
+				CGameInstance::Get().Add_GameObject_toLayer(ETOUI(eLevel), strObjName,
+					ETOUI(eLevel), strLayerName, &TriggerDesc);
+			}
+			else
+			{
+				CGameInstance::Get().Add_GameObject_toLayer(ETOUI(eLevel), strObjName,
+					ETOUI(eLevel), strLayerName, &desc);
+
 			}
 				
-			CGameInstance::Get().Add_GameObject_toLayer(ETOUI(eLevel), strObjName,
-				ETOUI(eLevel), strLayerName, &desc);
-
+		
+			
 		}
 
 	file.close();

@@ -46,7 +46,7 @@
             "ModeNumber": 0,
             "Name": "../../Resource\\Battery_Frame.bin",
             "ObjectID": 2,
-            "ObjectTargetID": 0,
+            "ObjectTargetID": 5,
             "OtherTriggerValue": true,
             "Right": [
                 -9.099629210140847e-07,
@@ -63,9 +63,43 @@
             ],
             "WorldEvent": 2,
             "fPos": [
-                723.2450561523438,
-                20.422969818115234,
-                418.4133605957031
+                854.1744384765625,
+                14.667438507080078,
+                441.5825500488281
+            ]
+        },
+        {
+            "FrameMaxTime": 0.30000001192092896,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.0,
+                -3.639846681835479e-06,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUpDoor_C_Blue.fbx",
+            "ObjectID": 5,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                -3.639840542746242e-06,
+                0.9999983310699463,
+                1.6560600547138593e-12
+            ],
+            "WorldEvent": 7,
+            "fPos": [
+                854.5750732421875,
+                5.738227844238281,
+                412.9689025878906
             ]
         }
     ]

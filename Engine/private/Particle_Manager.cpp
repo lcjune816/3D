@@ -110,7 +110,7 @@ HRESULT CParticle_Manager::Add_ParticleToPool(const _wstring strPrototypeTag,  u
 }
 
 
-void  CParticle_Manager::Save_Data(uint32_t iNumLevel, _wstring path, const _wstring& strLayerName, const string& pSaveArrayName)
+void  CParticle_Manager::Save_ParticleData(uint32_t iNumLevel, _wstring path, const string& pSaveArrayName)
 {
 	json j;
 
@@ -137,7 +137,7 @@ void  CParticle_Manager::Save_Data(uint32_t iNumLevel, _wstring path, const _wst
 
 	file.close();
 
-	MSG_BOX("된듯?");
+	MSG_BOX("파티클 된듯?");
 }
 
 weak_ptr<class CParticleObject> CParticle_Manager::Select_Particle_Object(_fvector vOrigin, _fvector fDir)
@@ -181,6 +181,8 @@ weak_ptr<class CParticleObject> CParticle_Manager::Select_Particle_Object(_fvect
 	}
 	return pObj;
 }
+
+
 
 void CParticle_Manager::Particle_Emit(WORLD_EVENT eParticleType)
 {

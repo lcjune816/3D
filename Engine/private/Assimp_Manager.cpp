@@ -377,6 +377,9 @@ shared_ptr<CPrototype> CAssimp_Manager::ProcessMesh(aiMesh* pMesh, const aiScene
 		Set_VertexBoneDataToDefault(vertex);
 		//매쉬에 저장된 정점 정보를 순회 하면서 담으라
 		memcpy(&vertex.fPos, &pMesh->mVertices[i],sizeof(_float3));
+		memcpy(&vertex.vNormal, &pMesh->mNormals[i], sizeof(_float3));
+		memcpy(&vertex.vTangent, &pMesh->mTangents[i], sizeof(_float3));
+		memcpy(&vertex.vBinormal, &pMesh->mBitangents[i], sizeof(_float3));
 		//텍스쳐 UV 좌표를 담으라
 		if (pMesh->mTextureCoords[0])
 		{
@@ -538,6 +541,8 @@ shared_ptr<CPrototype> CAssimp_Manager::NonAniMation_ProcessMesh(aiMesh* pMesh, 
 		//매쉬에 저장된 정점 정보를 순회 하면서 담으라
 		memcpy(&vertex.fPos, &pMesh->mVertices[i], sizeof(_float3));
 		memcpy(&vertex.vNormal, &pMesh->mNormals[i], sizeof(_float3));
+		memcpy(&vertex.vTangent, &pMesh->mTangents[i], sizeof(_float3));
+		memcpy(&vertex.vBinormal, &pMesh->mBitangents[i], sizeof(_float3));
 		//텍스쳐 UV 좌표를 담으라
 		if (pMesh->mTextureCoords[0])
 		{

@@ -95,7 +95,6 @@ HRESULT CBoss_Teacher::Initialize(void* pArg)
 	if (NULL_TRUE(pObj))
 		return E_FAIL;
 
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	//m_pTransform->Set_State(STATE::POS, XMVectorSet(10, 0, 10, 1));
 	_vector vPos = m_pNavigation->Find_CellPos(0) - XMVectorSet(2, 0, 0, 0);
@@ -128,7 +127,7 @@ void CBoss_Teacher::Update(_float fTimeDelta)
  	m_pStateMachine->Update_Machine(fTimeDelta);
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Teacher));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CBoss_Teacher));
 
 
 }

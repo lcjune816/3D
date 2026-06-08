@@ -17,14 +17,14 @@ HRESULT CBoss_Cat::Ready_Component()
 {
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../../Resource/Boss/castsaagi/catNormal.fbx";
+	importModel.pFile = "../../Resource/Boss/castsaagi/catnormal.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/SK_CustomBody.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/Avatar_Kiana_C8_WS.fbx";
 	importModel.bAllModel = 1;
 	importModel.eType = MESH_TYPE::ANIME;
 
 	CNavigation::NAVIGATION_DESC NaviDesc;
-	NaviDesc.iIndex = 0;
+	NaviDesc.iIndex = 54;
 	NaviDesc.eOwner = OWNER::BOSS;
 	//0
 	//230
@@ -115,7 +115,7 @@ void CBoss_Cat::Update(_float fTimeDelta)
 	m_bFinished = m_pAnimator[ETOUI(m_eFormType)]->Animation_End();
 	m_pFogEffect->Update(fTimeDelta);
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CBoss_Cat));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CBoss_Cat));
 
 
 }

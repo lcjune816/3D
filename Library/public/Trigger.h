@@ -1,18 +1,17 @@
 #pragma once
-#include "Transform.h"
+#include "GameObject.h"
 NS_BEGIN(Engine)
 enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT,GENERATOR, ELEVATOR,END};
 enum class TRIGGER_FLAG
 {
 	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,PAUSE = 0x00000020, WORLD_EVENT = 0x00000040, END = 0xffffffff
 };
-enum class TRIGGER_ROT{X,Y,Z};
-enum class TRIGGER_STATE{ IDLE, ACTION, RETURN, PAUSE, WORLD, END};
+
 class ENGINE_DLL CTrigger abstract : public CComponent
 {
 
 public:
-typedef struct tagTriggerdesc
+typedef struct tagTriggerdesc : public CGameObject::GAMEOBJECT_DESC
 {
 	_bool bTrigger;
 	TRIGGER_ROT eRot{TRIGGER_ROT::X};
@@ -46,7 +45,7 @@ public:
 
 	void							Set_Parent(shared_ptr<class CGameObject> pObj);
 	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }
-	_bool							Set_DstTransform(shared_ptr<CTransform> pTransform);
+	_bool							Set_DstTransform(shared_ptr<class CTransform> pTransform);
 	
 	void							Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
 	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
@@ -77,7 +76,7 @@ protected:
 	_float							m_fAngle{}, m_fStartAngle{ 0 }, m_fEndAngle{ 180.f }, m_fRotationArrow = { 1.f }, m_fFlagCnt{0 };
 	_float4x4*						m_pMatrixPtr = { nullptr };
 
-	weak_ptr<CTransform>			m_pDstTransform;
+	weak_ptr<class CTransform>		m_pDstTransform;
 	uint32_t						m_iTargetNumber = {};
 	uint32_t						m_iFlag = { 0 };
 	TRIGGER_EVENT					m_eEventTrigger;
