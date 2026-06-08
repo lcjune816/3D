@@ -33,6 +33,12 @@ HRESULT CLight::Render(shared_ptr<class CShader> pShader, shared_ptr<class CRect
         iPassIndex = ETOUI(DEFERRED::POINT);
     }
 
+    if(FAILED(pShader->Bind_RawValue("g_vLightDiffuse",&m_LightDesc.vDiffuse, sizeof m_LightDesc.vDiffuse)))
+        return E_FAIL;
+
+    if (FAILED(pShader->Bind_RawValue("g_vLightAmbient", &m_LightDesc.vAmbient, sizeof m_LightDesc.vAmbient)))
+        return E_FAIL;
+
     if (FAILED(pShader->Begin(iPassIndex)))
         return E_FAIL;
 

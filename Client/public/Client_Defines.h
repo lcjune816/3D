@@ -21,6 +21,7 @@ namespace Client
 	enum class PLAYER_HAND{WALL,TRIGGER,FORCE, END};
 
 	enum class  PATHNAME { SHADER, BUFFER, TEXTURE, END };
+
 }
 
 extern HWND			g_hWnd;

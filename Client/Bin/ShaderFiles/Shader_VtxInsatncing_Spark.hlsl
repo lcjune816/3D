@@ -1,7 +1,7 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4  g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D g_Texture;
-
+float4 g_Color;
 vector g_vCamePosition;
 
 sampler LinearSampler = sampler_state
@@ -18,8 +18,8 @@ struct VS_IN
  
     row_major float4x4 TransformMatrix : WORLD;
     
-    float2 vLifeTime : TEXCOORD0;
-    float4 vTexcoord : TEXCOORD1;
+    float4 vTexcoord : TEXCOORD0;
+    float2 vLifeTime : TEXCOORD1;
     
 };
 
@@ -27,8 +27,9 @@ struct VS_OUT
 {
     float4 vPosition : POSITION;
     float2 vPSize    : PSIZE;
-    float2 vLifeTime : TEXCOORD0;
-    float4 vTexcoord : TEXCOORD1;
+    
+    float4 vTexcoord : TEXCOORD0;
+    float2 vLifeTime : TEXCOORD1;
 };
 
 VS_OUT VS_MAIN(VS_IN In)
@@ -51,16 +52,17 @@ struct GS_IN
     
     float4 vPosition : POSITION;
     float2 vPSize : PSIZE;
-    float2 vLifeTime : TEXCOORD0;
-    float4 vTexcoord : TEXCOORD1;
+    
+    float4 vTexcoord : TEXCOORD0;
+    float2 vLifeTime : TEXCOORD1;
 };
 
 
 struct GS_OUT
 {
     float4 vPosition : SV_POSITION;
-    float2 vLifeTime : TEXCOORD0;
-    float2 vTexcoord : TEXCOORD1;
+    float2 vTexcoord : TEXCOORD0;
+    float2 vLifeTime : TEXCOORD1;
 };
 
 
@@ -112,8 +114,8 @@ void GS_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> OutStream)
 struct PS_IN
 {
     float4 vPosition : SV_POSITION;
-    float2 vLifeTime : TEXCOORD0;
-    float2 vTexcoord : TEXCOORD1;
+    float2 vTexcoord : TEXCOORD0;
+    float2 vLifeTime : TEXCOORD1;
 };
 
 struct PS_OUT

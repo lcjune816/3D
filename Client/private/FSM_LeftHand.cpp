@@ -452,6 +452,7 @@ _bool CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, CTrig
 	switch (eTrigger)
 	{
 	case TRIGGER_EVENT::GELECTRIC:
+		return false;
 		break;
 	case TRIGGER_EVENT::BELECTRIC:
 		Hand_State_Chand(CHANGE_STATE::ATTACHED_LONG);

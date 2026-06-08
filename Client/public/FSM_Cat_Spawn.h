@@ -24,7 +24,7 @@ public:
 	virtual void OnNotify(const EVENT& eEvent) override;
 
 private:
-	void			Action(shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta);
+	void			Action(shared_ptr<CBoss_Cat> pBoss, shared_ptr<CTransform> pTransform, shared_ptr<CNavigation> pNavigation, const _float& fTimeDelta);
 	void			Action_Return(shared_ptr<CBoss_Cat> pBoss);
 private:
 	uint32_t		m_iNaviEventIndex{};

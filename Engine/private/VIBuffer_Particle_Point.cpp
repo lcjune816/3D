@@ -133,7 +133,7 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 	{
 		//x y          z          w 
 		// 최소      x최대      y최대
-	
+
 		m_pInstanceData[i].fTick += fTimeDelta;
 
 		if (m_pInstanceData[i].fTick > 0.01f)
@@ -150,7 +150,7 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 				pVertices[i].fUv.w += 1.f / m_vGrid.y;
 
 			}
-			if (pVertices[i].fUv.y > 1.f - 0.0001f)
+			if (pVertices[i].fUv.w > 1.f - 0.0001f)
 			{
 
 				pVertices[i].fUv.x = 0.f;
