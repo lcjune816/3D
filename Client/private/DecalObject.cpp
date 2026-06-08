@@ -59,7 +59,7 @@ HRESULT CDecalObject::Initialize(void* pArg)
 }
 void CDecalObject::Priority_Update(_float fTimeDelta)
 {
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CDecalObject));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CDecalObject));
 
 }
 void CDecalObject::Update(_float fTimeDelta)
@@ -156,14 +156,13 @@ HRESULT CDecalObject::Render()
 	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
 	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+//	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
 	m_pBoxShader->Begin(0);
 	m_pBoxMesh->Bind_Resource();
 	m_pBoxMesh->Render();
 	fColor = { 0.f,0.f,0.f,0.f };
-	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
 
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	return S_OK;
 }
 

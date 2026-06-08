@@ -83,7 +83,6 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 	
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 	
 	_matrix offset = XMMatrixIdentity();
 	offset *= XMMatrixScaling(-0.12f, 0.12f, 0.12f);
@@ -107,7 +106,7 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 	m_pArm->Update(fTimeDelta);
 
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPLayer_RightHand));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPLayer_RightHand));
 
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)

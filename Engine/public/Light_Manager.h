@@ -31,11 +31,13 @@ public:
 	HRESULT Initialize();
 
 	HRESULT				  Add_LightMtrl(const string tagLight);
-	weak_ptr<LIGHT_VALUE> Find_LightMtrl(const string tagLightName);
+	LIGHT_DESC*			  Find_LightMtrl(const LIGHT& eLight);
+	void				 Set_LightDesc(LIGHT_DESC& eLight);
 	const vector<string>& Get_ObejctNames() { return m_ObjectNames; }
 
 	HRESULT				 Add_Light(const LIGHT_DESC& LightDesc);
 	HRESULT				 Render(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
+	
 private:
 	HRESULT		Load_LightMtrl();
 

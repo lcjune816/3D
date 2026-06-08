@@ -47,15 +47,14 @@ HRESULT CTarget_Manager::Add_MRT(const _wstring& strMRTTag, const _wstring& strT
 
 HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
 {
-    ID3D11ShaderResourceView* nullSRV[8] = { nullptr };
-    m_pContext->PSSetShaderResources(0, 8, nullSRV);
+ 
     auto        pMRTList = Find_MRT(strMRTTag);
     if (nullptr == pMRTList)
         return E_FAIL;
 
     m_pContext->OMGetRenderTargets(1, &m_pBackBufferRTV, &m_pOriginalDSV);
 
-    ComPtr<ID3D11RenderTargetView>      RenderTargets[8] = {};
+    ComPtr<ID3D11RenderTargetView>     RenderTargets[8] = {};
 
     uint32_t        iNumRenderTargets = { 0 };
 
@@ -72,9 +71,9 @@ HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
 
 HRESULT CTarget_Manager::End_MRT()
 {
-    ComPtr<ID3D11RenderTargetView>      RenderTargets[8] = { m_pBackBufferRTV };
+    ID3D11RenderTargetView*      RenderTargets[8] = { m_pBackBufferRTV.Get(),nullptr};
 
-    m_pContext->OMSetRenderTargets(8, RenderTargets[0].GetAddressOf(), m_pOriginalDSV.Get());
+    m_pContext->OMSetRenderTargets(8, RenderTargets, m_pOriginalDSV.Get());
 
     return S_OK;
 }

@@ -75,7 +75,7 @@ private:
 
 	list<ComPtr<ID3D11ShaderResourceView>> m_GuiResources;
 	string					m_strGameObject,m_strTrigger,m_strDecal;
-	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath, m_strNavi;
+	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath, m_strNavi, m_strParticlesPathName;
 
 
 

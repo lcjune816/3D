@@ -42,7 +42,6 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 	m_pBoxMesh = static_pointer_cast<CCube>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube", &pArg));
 
 	CGameInstance::Get().ImportModel_NonAnime(importModel, m_pTransform, m_MeshNameList);
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	m_ArmMatrix.Matrix.resize(800);
 	return S_OK;

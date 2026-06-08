@@ -14,6 +14,8 @@ struct VS_IN
 {
     float3 pos :      POSITION;
     float3 vNormal : NORMAL;
+    float3 vTangent : TANGENT;
+    float3 vBinormal : BINORMAL;
     float2 texcoord : TEXCOORD0;
     
 };
@@ -34,7 +36,7 @@ VS_OUT VS_MAIN(VS_IN In)
     matWVP = mul(matWV, g_ProjMatrix);
 	  
     output.pos = mul(float4(In.pos, 1.f), matWVP);
-   output.texcoord = In.texcoord;
+    output.texcoord = In.texcoord;
     output.vNormal = normalize(mul(float4(In.vNormal, 0.f), g_WorldMatrix));
    
   
@@ -58,8 +60,11 @@ struct PS_OUT
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
-    //xy 좌표에 있는 색상 rgb 값을 가지고와라
-    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.texcoord * 50.f);
+    //xy 좌표에 있는 색상 rgb 값을 가지고와라  
+    vector vMtrlDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.texcoord);
+    if (vMtrlDiffuse.a < 0.3f)
+        discard;
+    
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
     

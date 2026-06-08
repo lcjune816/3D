@@ -28,6 +28,25 @@ void CPipeLine::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
     XMStoreFloat4x4(&m_TransformStateMatrices[ETOUI(eState)], TransformMatrix);
 }
 
+string CPipeLine::MultiByteWstringToChar(const _wstring& strConvertwstring)
+{
+    size_t iSize = WideCharToMultiByte(CP_UTF8,0,strConvertwstring.c_str(),-1, NULL,0, NULL, NULL);
+    string ConvertString(iSize,0);
+    
+    WideCharToMultiByte(CP_UTF8, 0, strConvertwstring.data(), -1, ConvertString.data(), iSize  , NULL, NULL);
+
+    return string(ConvertString.data());
+}
+
+_wstring CPipeLine::MultiByteCharToWstring(const string& strConvertstring)
+{
+
+    size_t iSize = MultiByteToWideChar(CP_UTF8, 0, strConvertstring.c_str(),-1 , NULL, 0);
+    _wstring ConvertWstring(iSize, 0);
+    MultiByteToWideChar(CP_UTF8, 0, strConvertstring.c_str(), -1, ConvertWstring.data(), iSize);
+    return _wstring(ConvertWstring.data());
+}
+
 HRESULT CPipeLine::Initialize()
 {
     for (uint32_t i = 0; i < ETOUI(D3DTS::END); ++i)
@@ -48,6 +67,7 @@ void CPipeLine::Update()
     }
     memcpy(&m_vCamPosition, &m_TransformStateInverseMatrices[ETOUI(D3DTS::VIEW)]._41,sizeof(_float4));
 }
+
 
 unique_ptr<CPipeLine> CPipeLine::Create()
 {
