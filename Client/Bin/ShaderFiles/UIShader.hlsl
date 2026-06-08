@@ -51,7 +51,7 @@ struct PS_IN
 
 struct PS_OUT
 {
-    float4 textureColor : SV_TARGET0;
+    vector textureColor : SV_TARGET0;
 };
 
 

@@ -5,7 +5,7 @@ namespace Engine
 {
 	enum class WINMODE { FULL, WIN };
 	
-	enum class RENDERGROUP { PRIORITY, NONBLEND, BLEND, UI, END };
+	enum class RENDERGROUP { PRIORITY, NONBLEND, NONLIGHT,BLEND, UI, END };
 	enum class STATE { RIGHT, UP, LOOK, POS, END };
 	enum class MESH_TYPE { ANIME, NONANIME, TRIGGER ,DECAL,NAVI,END };
 	enum class D3DTS   {VIEW, PROJ, END};
@@ -22,6 +22,10 @@ namespace Engine
 	enum class LIGHT {DIRECTIONAL, POINT,END};
 	enum class DEFERRED {DEBUG, DIRECTIOANL, POINT, COMBINED, END};
 	enum class PARTICLE_SHAPE { POINT, END };
+	enum class TRIGGER_ROT { X, Y, Z };
+	enum class TRIGGER_STATE { IDLE, ACTION, RETURN, PAUSE, WORLD, END };
+
+	enum class FILE_MODE { SAVE, LOAD, END };
 	#define X(name) name,
 	enum class PARTICLE { PARTICLE_LIST };
 	enum class WORLD_EVENT { WORLD_EVENT_LIST };

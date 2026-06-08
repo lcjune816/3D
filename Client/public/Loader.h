@@ -24,6 +24,7 @@ private:
 	ComPtr<ID3D11DeviceContext>	m_pContext = { nullptr };
 
 	HRESULT					Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstring strLayerName, const _wstring strObjName, const string strLoadDataName);
+	HRESULT					Load_ParticleData(LEVEL eLevel, const _wstring& strPrototypeTag, uint32_t iPrototypeLevel,const _wstring& strLoadFilePathName, const string& strjsonKeyName);
 private:
 	HANDLE					m_hThread = {};
 	CRITICAL_SECTION		m_CriticalSection = {};

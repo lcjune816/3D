@@ -10,17 +10,21 @@ sampler DefaultSampler = sampler_state
 
 struct VS_IN
 {
-    float3 pos :      POSITION;
+    float3 pos : POSITION;
+    float3 vNormal : NORMAL;
+    float3 vTangent : TANGENT;
+    float3 vBinormal : BINORMAL;
     float2 texcoord : TEXCOORD0;
     uint4  vBlendIndex : BLENDINDEX;
     float4 vBlendWeight : BLENDWEIGHT;
 };
 
-struct VOut {
-	float4 pos : SV_POSITION;
+struct VOut
+{
+    float4 pos : SV_POSITION;
+    float4 vNormal : NORMAL;
 	float2 texcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
-    float4 vProjPos : TEXCOORD2;
 };
 
 VOut VS_MAIN(VS_IN In)
@@ -46,8 +50,8 @@ VOut VS_MAIN(VS_IN In)
    
    output.pos = vPosition;
    output.texcoord = In.texcoord;
+    output.vNormal = normalize(mul(float4(In.vNormal, 0.f), g_World));
    output.vWorldPos = mul(vector(In.pos, 1.f), g_World);
-   output.vProjPos = vPosition;
     
 	return output;
 }
@@ -55,22 +59,27 @@ VOut VS_MAIN(VS_IN In)
 struct PS_IN
 {
     float4 pos : SV_POSITION;
+    float4 vNormal : NORMAL;
     float2 texcoord : TEXCOORD0;
     float4 vWorldPos : TEXCOORD1;
-    float4 vProjPos : TEXCOORD2;
+    
 };
 
 struct PS_OUT
 {
-    float4 textureColor : SV_TARGET0;
+    vector vDiffuse : SV_TARGET0;
+    vector vNormal : SV_TARGET1;
 };
 
 
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
-    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
-    Out.textureColor = textureColor;
+    vector vMtrlDiffuse = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+    if(vMtrlDiffuse.a <0.3f)
+        discard;
+    Out.vDiffuse = vMtrlDiffuse;
+    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5, 0.f);
     return Out;
 }
 

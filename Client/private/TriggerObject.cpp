@@ -21,20 +21,16 @@ HRESULT CTriggerObject::Initialize_Prototype()
 }
 HRESULT CTriggerObject::Initialize(void* pArg)
 {
-	auto desc = static_cast<GAMEOBJECT_DESC*>(pArg);
+  	auto desc = static_cast<CTrigger::TRIGGER_DESC*>(pArg);
 	m_iLevel = desc->iLevel;
 	m_TriggerInfo.bOtherTrigger = desc->bTrigger;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->bTrigger = m_TriggerInfo.bOtherTrigger;
 	m_TriggerInfo.strTriggerName = desc->strTriggerName; //트리거 밸류용 문자저장
+	m_TriggerInfo.eRot = desc->eRot;
+	m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
+	m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
+	m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
+	m_TriggerInfo.eWorldEvent = desc->eWroldEvent;
 
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eRot = m_TriggerInfo.eRot = desc->eRot;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fArrrowRotation = m_TriggerInfo.fArrrowRotation = desc->fArrrowRotation;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fFrameTickTime = m_TriggerInfo.fFrameTickTime = desc->fFrameTickTime;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->fMaxFrameTime = m_TriggerInfo.fMaxFrameTime = desc->fMaxFrameTime;
-	static_cast<CTrigger::TRIGGER_DESC*>(pArg)->eWroldEvent = m_TriggerInfo.eWorldEvent = desc->eWroldEvent;
-
-	if (desc->matWorld._11 == 0)
-		desc->matWorld._11 = 1;
 	 
 	if (FAILED(Create_Component(pArg)))
 		return E_FAIL;
@@ -186,101 +182,101 @@ HRESULT CTriggerObject::Render()
 
 	//선긋기용
 
-	//_bool bCheck(true);
-	//m_pBoxShader->Bind_Matrix("g_World", &m_TargetMatrix);
-	//m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	//m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
-	//m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
-	//
-	//m_pBoxShader->Begin(0);
-	//
-	//m_pBoxMesh->Bind_Resource();
-	//m_pBoxMesh->Render();
-	//fColor = { 0.f,0.f,0.f,0.f };
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
-	//
-	//if (!m_bBoxColor)
-	//	return S_OK;
-	//
-	//
-	////그냥 박스용
-	//_matrix matW = m_pTransform->Get_World();
-	//_vector fScale = {};
-	//
-	//_float3 fMax = m_pTransform->Get_Max();
-	//_float3 fMin = m_pTransform->Get_Min();
-	//
-	//_vector vRight = matW.r[0];
-	//_vector vUp    = matW.r[1];
-	//_vector vLook = matW.r[2];
-	//_vector vPos = matW.r[3];
-	//fScale = (XMLoadFloat3(&fMax) - XMLoadFloat3(&fMin));
-	//
-	//_vector vPivotPos = ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
-	//
-	//_vector vRotPos = {};
-	//vRotPos = (XMVectorGetX(vPivotPos) * XMVector4Normalize(vRight)) +
-	//	(XMVectorGetY(vPivotPos) * XMVector4Normalize(vUp)) +
-	//	(XMVectorGetZ(vPivotPos) * XMVector4Normalize(vLook));
-	//
-	////중심 다시 계산
-	//_vector vPosAll[8] = {};
-	//vPosAll[0] = { fMin.x  , fMin.y  ,fMin.z ,1.f };
-	//vPosAll[1] = { fMax.x  , fMin.y  ,fMin.z ,1.f };
-	//vPosAll[2] = { fMin.x  , fMax.y  ,fMin.z ,1.f };
-	//vPosAll[3] = { fMax.x  , fMax.y  ,fMin.z ,1.f };
-	//vPosAll[4] = { fMin.x  , fMin.y  ,fMax.z ,1.f };
-	//vPosAll[5] = { fMax.x  , fMin.y  ,fMax.z ,1.f };
-	//vPosAll[6] = { fMin.x  , fMax.y  ,fMax.z ,1.f };
-	//vPosAll[7] = { fMax.x  , fMax.y  ,fMax.z ,1.f };
-	//
-	//_float4 fCheckMax = { -FLT_MAX,-FLT_MAX ,-FLT_MAX ,1.f};
-	//_float4 fCheckMin = { FLT_MAX,FLT_MAX ,FLT_MAX ,1.f};
-	//
-	//for (uint32_t i = 0; i < 8; ++i)
-	//{
-	//	_float3 fCheck;
-	//	vPosAll[i] = XMVector3TransformCoord(vPosAll[i], matW);
-	//	XMStoreFloat3(&fCheck, vPosAll[i]);
-	//
-	//	fCheckMax.x = max(fCheckMax.x, fCheck.x);
-	//	fCheckMax.y = max(fCheckMax.y, fCheck.y);
-	//	fCheckMax.z = max(fCheckMax.z, fCheck.z);
-	//
-	//	fCheckMin.x = min(fCheckMin.x, fCheck.x);
-	//	fCheckMin.y = min(fCheckMin.y, fCheck.y);
-	//	fCheckMin.z = min(fCheckMin.z, fCheck.z);
-	//
-	//}
-	//
-	//_vector vChck = (XMLoadFloat4(&fCheckMax) + XMLoadFloat4(&fCheckMin)) * 0.5f;
-	//vPos = vChck;
-	//
-	//vRight = XMVectorGetX(fScale * XMVector3Length(vRight)) * XMVector4Normalize(vRight);
-	//vUp    = XMVectorGetY(fScale * XMVector3Length(vUp)) * 0.5f * XMVector4Normalize(vUp);
-	//vLook  = XMVectorGetZ(fScale * XMVector3Length(vLook)) * XMVector4Normalize(vLook);
-	//
-	//_matrix World = { };
-	//World.r[0] = vRight;
-	//World.r[1] = vUp;
-	//World.r[2] = vLook;
-	//World.r[3] = vPos;
-	//fColor = { 0.f,1.f,0.f,1.f };
-	//XMStoreFloat4x4(&matWorld, World);
-	//m_pBoxShader->Bind_Matrix("g_World", &matWorld);
-	//m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	//m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
-	//
-	//m_pBoxShader->Begin(0);
-	//
-	//m_pBoxMesh->Bind_Resource();
-	//m_pBoxMesh->Render();
-	//
-	//
-	//fColor = { 0.f,0.f,0.f,0.f };
-	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	_bool bCheck(true);
+	m_pBoxShader->Bind_Matrix("g_World", &m_TargetMatrix);
+	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
+	m_pBoxShader->Bind_RawValue("g_bChoice", &bCheck, sizeof bCheck);
+	
+	m_pBoxShader->Begin(0);
+	
+	m_pBoxMesh->Bind_Resource();
+	m_pBoxMesh->Render();
+	fColor = { 0.f,0.f,0.f,0.f };
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	
+	if (!m_bBoxColor)
+		return S_OK;
+	
+	
+	//그냥 박스용
+	_matrix matW = m_pTransform->Get_World();
+	_vector fScale = {};
+	
+	_float3 fMax = m_pTransform->Get_Max();
+	_float3 fMin = m_pTransform->Get_Min();
+	
+	_vector vRight = matW.r[0];
+	_vector vUp    = matW.r[1];
+	_vector vLook = matW.r[2];
+	_vector vPos = matW.r[3];
+	fScale = (XMLoadFloat3(&fMax) - XMLoadFloat3(&fMin));
+	
+	_vector vPivotPos = ((XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f);
+	
+	_vector vRotPos = {};
+	vRotPos = (XMVectorGetX(vPivotPos) * XMVector4Normalize(vRight)) +
+		(XMVectorGetY(vPivotPos) * XMVector4Normalize(vUp)) +
+		(XMVectorGetZ(vPivotPos) * XMVector4Normalize(vLook));
+	
+	//중심 다시 계산
+	_vector vPosAll[8] = {};
+	vPosAll[0] = { fMin.x  , fMin.y  ,fMin.z ,1.f };
+	vPosAll[1] = { fMax.x  , fMin.y  ,fMin.z ,1.f };
+	vPosAll[2] = { fMin.x  , fMax.y  ,fMin.z ,1.f };
+	vPosAll[3] = { fMax.x  , fMax.y  ,fMin.z ,1.f };
+	vPosAll[4] = { fMin.x  , fMin.y  ,fMax.z ,1.f };
+	vPosAll[5] = { fMax.x  , fMin.y  ,fMax.z ,1.f };
+	vPosAll[6] = { fMin.x  , fMax.y  ,fMax.z ,1.f };
+	vPosAll[7] = { fMax.x  , fMax.y  ,fMax.z ,1.f };
+	
+	_float4 fCheckMax = { -FLT_MAX,-FLT_MAX ,-FLT_MAX ,1.f};
+	_float4 fCheckMin = { FLT_MAX,FLT_MAX ,FLT_MAX ,1.f};
+	
+	for (uint32_t i = 0; i < 8; ++i)
+	{
+		_float3 fCheck;
+		vPosAll[i] = XMVector3TransformCoord(vPosAll[i], matW);
+		XMStoreFloat3(&fCheck, vPosAll[i]);
+	
+		fCheckMax.x = max(fCheckMax.x, fCheck.x);
+		fCheckMax.y = max(fCheckMax.y, fCheck.y);
+		fCheckMax.z = max(fCheckMax.z, fCheck.z);
+	
+		fCheckMin.x = min(fCheckMin.x, fCheck.x);
+		fCheckMin.y = min(fCheckMin.y, fCheck.y);
+		fCheckMin.z = min(fCheckMin.z, fCheck.z);
+	
+	}
+	
+	_vector vChck = (XMLoadFloat4(&fCheckMax) + XMLoadFloat4(&fCheckMin)) * 0.5f;
+	vPos = vChck;
+	
+	vRight = XMVectorGetX(fScale * XMVector3Length(vRight)) * XMVector4Normalize(vRight);
+	vUp    = XMVectorGetY(fScale * XMVector3Length(vUp)) * 0.5f * XMVector4Normalize(vUp);
+	vLook  = XMVectorGetZ(fScale * XMVector3Length(vLook)) * XMVector4Normalize(vLook);
+	
+	_matrix World = { };
+	World.r[0] = vRight;
+	World.r[1] = vUp;
+	World.r[2] = vLook;
+	World.r[3] = vPos;
+	fColor = { 0.f,1.f,0.f,1.f };
+	XMStoreFloat4x4(&matWorld, World);
+	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
+	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor,sizeof(fColor));
+	
+	m_pBoxShader->Begin(0);
+	
+	m_pBoxMesh->Bind_Resource();
+	m_pBoxMesh->Render();
+	
+	
+	fColor = { 0.f,0.f,0.f,0.f };
+	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
 
 	return S_OK;
 }
@@ -289,6 +285,10 @@ void CTriggerObject::Mesh_Change(vector<uint32_t> MeshList)
 {
 	m_MeshNameList.clear();
 	m_MeshNameList = MeshList;
+}
+void CTriggerObject::Set_TargetIDNumber(uint32_t iTargetNumber)
+{
+  m_TriggerInfo.iTargetObjectID = iTargetNumber; m_pTrigger->Set_TargetNumber(m_TriggerInfo.iTargetObjectID); 
 }
 void CTriggerObject::Set_Trigger()
 {
@@ -342,7 +342,6 @@ HRESULT CTriggerObject::Create_Component(void* pArg)
 
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pBoxShader)))
 		return E_FAIL;
-	
 	
 	size_t iSize = MultiByteToWideChar(CP_UTF8,0,m_TriggerInfo.strTriggerName.c_str(),ETOUI(m_TriggerInfo.strTriggerName.size()),NULL,0);
 	_wstring TriggerName(iSize, 0);

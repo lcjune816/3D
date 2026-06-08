@@ -50,7 +50,6 @@ HRESULT CPlayer_LeftHand::Initialize(void* pArg)
 		TEXT("Com_Shader"), m_pShaderCom)))
 		return E_FAIL;
 
-	CGameInstance::Get().Add_LightMtrl(m_PathName);
 
 	_matrix offset = XMMatrixIdentity();
 	offset *= XMMatrixScaling(0.12f, 0.12f, 0.12f);

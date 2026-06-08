@@ -19,41 +19,27 @@ HRESULT CLight_Manager::Initialize()
 
     return S_OK;
 }
-HRESULT CLight_Manager::Add_LightMtrl(const string tagLight)
+LIGHT_DESC* CLight_Manager::Find_LightMtrl(const LIGHT& eLight)
 {
-    auto Light = Find_LightMtrl(tagLight).lock();
-    if (NULL_FALSE(Light))
-         return S_OK;
-
-
-    shared_ptr<LIGHT_VALUE> pValue(new LIGHT_VALUE);
-    pValue->vLightDir = { 1.f, -1.f, 1.f, 0.f };
-    pValue->vLightDiffuse = { 1.f, 1.f, 1.f, 1.f };
-    pValue->vLightAmbient = { 0.6f, 0.6f, 0.6f, 1.f };
-
-    pValue->vLightSpecular = {1.f, 1.f, 1.f, 1.f};
-    pValue->vMtrlAmbient = { 0.4f,0.4f,0.4f,1.f };
-    pValue->vMtrlSpecular = { 1.f, 1.f, 1.f, 1.f };
-
-    m_LightMtrls.try_emplace(tagLight, pValue);
-    
-    filesystem::path file = tagLight;
-    m_ObjectNames.push_back(file.filename().string());
-
-    return S_OK;
-}
-
-weak_ptr<LIGHT_VALUE>  CLight_Manager::Find_LightMtrl(const string tagLightName)
-{
-    auto light = m_LightMtrls.find(tagLightName);
-
-    if (light != m_LightMtrls.end())
+    LIGHT_DESC* pDesc = nullptr;
+    for (auto& Light : m_Lights)
     {
-        return light->second;
+        if (pDesc = Light->Get_LightDesc(eLight))
+        {
+            return pDesc;
+        }
     }
-        
-    return {};
+    return nullptr;
 }
+
+void CLight_Manager::Set_LightDesc(LIGHT_DESC& eLight)
+{
+    for(auto& Light : m_Lights)
+    {
+        Light->Set_LightDesc(eLight);
+    }
+}
+
 
 HRESULT CLight_Manager::Add_Light(const LIGHT_DESC& LightDesc)
 {

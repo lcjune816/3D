@@ -1,19 +1,20 @@
 #pragma once
 
-#include "Trigger.h"
+#include "Transform.h"
 NS_BEGIN(Engine)
 class CGameInstance;
 class ENGINE_DLL CGameObject abstract : public CPrototype
 {
 public:
-typedef struct strGameObjectDesc : public CTransform::TRANSFORM_DESC , public CTrigger::TRIGGER_DESC
+typedef struct strGameObjectDesc : public CTransform::TRANSFORM_DESC 
 {
-	 string FileName	   = {};
-	 string strTriggerName = {};
-	 json j;
-	 uint32_t iLevel = {};
-	 uint32_t index = {};
-	 int32_t  iModeNumber;
+	 FILE_MODE	eFileType = {FILE_MODE::END};
+	 string		FileName	   = {};
+	 string		strTriggerName = {};
+	 json		j;
+	 uint32_t	iLevel = {};
+	 uint32_t	index = {};
+	 int32_t	iModeNumber;
 	 
 	 _bool	   bCopy = false;
 	 _bool	   bFrontCamera = true;

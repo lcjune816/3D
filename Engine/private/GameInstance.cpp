@@ -214,13 +214,14 @@ vector<uint32_t>* CGameInstance::Get_MeshIndicesLists(uint32_t index)
 
 #pragma region LIGHT_MANAGER
 
-HRESULT			      CGameInstance::Add_LightMtrl(const string tagLight)
+
+LIGHT_DESC* CGameInstance::Find_LightMtrl(const LIGHT& eLight)
 {
-	return m_pLight_Manager->Add_LightMtrl(tagLight);
+	return m_pLight_Manager->Find_LightMtrl(eLight);
 }
-weak_ptr<LIGHT_VALUE> CGameInstance::Find_LightMtrl(const string tagLightName)
+void				CGameInstance::Set_LightDesc(LIGHT_DESC& eLight)
 {
-	return m_pLight_Manager->Find_LightMtrl(tagLightName);
+	return m_pLight_Manager->Set_LightDesc(eLight);
 }
 const vector<string>& CGameInstance::Get_ObejctNames()
 {
@@ -515,6 +516,15 @@ void CGameInstance::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
 {
 	m_pPipeLine->Set_Transform(eState, TransformMatrix);
 }
+
+string	 CGameInstance::MultiByteWstringToChar(const _wstring& strConvertwstring)
+{
+	return m_pPipeLine->MultiByteWstringToChar(strConvertwstring);
+}
+_wstring CGameInstance::MultiByteCharToWstring(const string& strConvertstring)
+{
+	return m_pPipeLine->MultiByteCharToWstring(strConvertstring);
+}
 #pragma endregion
 
 #pragma region TEXTURE_MANAGER
@@ -605,6 +615,12 @@ weak_ptr <class CParticleObject>	CGameInstance::Select_Particle_Object(_fvector 
 {
 	return m_pParticle_Manager->Select_Particle_Object(vOrigin, fDir);
 }
+
+void	  CGameInstance::Save_ParticleData(uint32_t iNumLevel, const _wstring& path, const string& strJsonKeyName)
+{
+	m_pParticle_Manager->Save_ParticleData(iNumLevel, path, strJsonKeyName);
+}
+
 #pragma endregion
 void CGameInstance::Release_Engine()
 {

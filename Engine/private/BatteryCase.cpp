@@ -144,6 +144,12 @@ void CBatteryCase::Action_Event()
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::WORLD_EVENT)))
 		return;
 
+	auto pObj = static_pointer_cast<CTrigger>(CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock());
+
+	if (NULL_TRUE(pObj))
+		return;
+	pObj->Set_Trigger();
+
 	EVENT eEvent{};
 	eEvent.eEvent = WORLD_EVENT::BOSS_SPAWN;
 	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_SPAWN, eEvent);

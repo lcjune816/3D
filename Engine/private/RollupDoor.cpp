@@ -20,7 +20,8 @@ HRESULT CRollupDoor::Initialize_Prototype()
 HRESULT CRollupDoor::Initialize(void* pArg)
 {
 	m_eEventTrigger = TRIGGER_EVENT::ROLLUPDOOR;
-	m_fRotationArrow = 10.f;
+	m_fRotationArrow = 15.f;
+	
 	__super::Initialize(pArg);
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	
@@ -112,7 +113,7 @@ void CRollupDoor::Down_Door(const _float& fTimeDelta)
 		return;
 
 		m_fFrameTick += fTimeDelta;
-	if (m_fFrameTick > 0.03f)
+	if (m_fFrameTick > 0.001)
 	{
 		m_fFrameTick = 0.f;
 		Action_Trigger(fTimeDelta);

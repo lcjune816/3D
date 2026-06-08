@@ -29,8 +29,8 @@ void CFSM_Cat_Spawn::Enter_State()
 	auto pBoss = m_pBoss.lock();
 	if (NULL_TRUE(pBoss))
 		return;
-	pBoss->Change_Animation(CAT_ANIME::DOORWAY);
-
+	pBoss->Change_Animation(CAT_ANIME::DOORWAY,false);
+	
 	m_eAction = FSM_ACTION::IDLE;
 }
 
@@ -51,7 +51,7 @@ void CFSM_Cat_Spawn::Update_State(_float fTimeDelta)
 		break;
 
 	case FSM_ACTION::ACTION:
-		Action(pBoss, fTimeDelta);
+		Action(pBoss,pTransform, pNavi, fTimeDelta);
 		break;
 
 	case FSM_ACTION::RETURN:
@@ -69,20 +69,13 @@ void CFSM_Cat_Spawn::Exit_State()
 }
 
 
-void CFSM_Cat_Spawn::Action(shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta)
+void CFSM_Cat_Spawn::Action(shared_ptr<CBoss_Cat> pBoss,shared_ptr<CTransform> pTransform, shared_ptr<CNavigation> pNavigation, const _float& fTimeDelta)
 {
-	m_fTick += fTimeDelta;
-	if (m_fTick > 0.5f)
-	{
-		++m_fTimeCnt;
-		m_fTick = 0.f;
-	}
-
-	if (m_fTimeCnt >= 10)
-	{
+	
+	if(pBoss->Get_Finished())
 		m_eAction = FSM_ACTION::RETURN;
-	}
-	//pTransform->Go_Straight(fTimeDelta, pNavigation);
+	
+	pTransform->Go_Straight(fTimeDelta * fTimeDelta, pNavigation);
 }
 
 void CFSM_Cat_Spawn::Action_Return(shared_ptr<CBoss_Cat> pBoss)
