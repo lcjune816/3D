@@ -300,11 +300,11 @@ void CPlayer::Turn(const _float& fTimeDelta)
 	int32_t	iMouseMove{};
 	if (iMouseMove = CGameInstance::Get().Get_DIMouseMove(DIMM::X))
 	{
-		m_pTransform->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), iMouseMove * fTimeDelta * 3.f);
+		m_pTransform->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), iMouseMove * fTimeDelta * 1.5f);
 	}
 	if (iMouseMove = CGameInstance::Get().Get_DIMouseMove(DIMM::Y))
 	{
-		m_pTransform->Turn(m_pTransform->Get_State(STATE::RIGHT), iMouseMove * fTimeDelta * 3.f);
+		m_pTransform->Turn(m_pTransform->Get_State(STATE::RIGHT), iMouseMove * fTimeDelta * 1.5f);
 	}
 }
 

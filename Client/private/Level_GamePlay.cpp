@@ -68,16 +68,16 @@ HRESULT CLevel_GamePlay::Render()
 }
 HRESULT CLevel_GamePlay::Ready_Lights()
 {
-	LIGHT_DESC			LightDesc{};
-
-	LightDesc.eType = LIGHT::DIRECTIONAL;
-	LightDesc.vDir = _float4(1.f, -1.f, 1.f, 0.f);
-	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
-	LightDesc.vAmbient = _float4(0.4f, 0.4f, 0.4f, 1.f);
-	LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
-
-	if (FAILED(CGameInstance::Get().Add_Light(LightDesc)))
-		return E_FAIL;
+	//LIGHT_DESC			LightDesc{};
+	//
+	//LightDesc.eType = LIGHT::DIRECTIONAL;
+	//LightDesc.vDir = _float4(1.f, -1.f, 1.f, 0.f);
+	//LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
+	//LightDesc.vAmbient = _float4(0.4f, 0.4f, 0.4f, 1.f);
+	//LightDesc.vSpecular = _float4(1.f, 1.f, 1.f, 1.f);
+	//
+	//if (FAILED(CGameInstance::Get().Add_Light(LightDesc)))
+	//	return E_FAIL;
 	return S_OK;
 }
 HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _wstring& strLayerTag)
@@ -158,18 +158,18 @@ HRESULT CLevel_GamePlay::Ready_Layer_TriggerObject(const _wstring& strLayerTag)
 }
 HRESULT CLevel_GamePlay::Ready_Layer_WorldObjectInstance(const _wstring& strLayerTag)
 {
-	//while (true)
-	//{
-	//	CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
-	//
- 	//	if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
-	//		return S_OK;
-	//	
-	//		if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
-	//			ETOUI(LEVEL::GAMEPLAY), strLayerTag, &InstanceData)))
-	//			return E_FAIL;
-	//
-	//}
+	while (true)
+	{
+		CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
+	
+ 		if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
+			return S_OK;
+		
+			if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
+				ETOUI(LEVEL::GAMEPLAY), strLayerTag, &InstanceData)))
+				return E_FAIL;
+	
+	}
 	return S_OK;
 }
 HRESULT CLevel_GamePlay::Ready_ProtoType()

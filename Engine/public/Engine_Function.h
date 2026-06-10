@@ -100,9 +100,65 @@ namespace Engine
 
 
 
+	class JsonSaveLoadManager
+	{
+	public:
+		static void  SaveJsonTypeFloat4(json& jsonFile, const string& TypeName, _float4& Float4)
+		{
+			jsonFile[TypeName] = { Float4.x,Float4.y,Float4.z,Float4.w };
+		}
 
+		static void  SaveJsonTypeFloat3(json& jsonFile, const string& TypeName, _float3& Float3)
+		{
+			jsonFile[TypeName] = { Float3.x,Float3.y,Float3.z };
+		}
+		static void  SaveJsonTypeFloat2(json& jsonFile, const string& TypeName, _float2& Float2)
+		{
+			jsonFile[TypeName] = { Float2.x,Float2.y};
+		}
+		static void  LoadJsonTypeFloat4(json& jsonFile, const string& TypeName, _float4& Float4)
+		{
+			if (jsonFile.contains(TypeName))
+				Float4 = _float4(jsonFile[TypeName][0], jsonFile[TypeName][1], jsonFile[TypeName][2], jsonFile[TypeName][3]);
+		}
 
-
+		static void  LoadJsonTypeFloat3(json& jsonFile, const string& TypeName, _float3& Float3)
+		{
+			if (jsonFile.contains(TypeName))
+			Float3 = _float3(jsonFile[TypeName][0], jsonFile[TypeName][1], jsonFile[TypeName][2]);
+		}
+		static void  LoadJsonTypeFloat(json& jsonFile, const string& TypeName, _float& Float)
+		{
+			if (jsonFile.contains(TypeName))
+				Float = jsonFile[TypeName];
+		}
+		static void  LoadJsonTypeUINT(json& jsonFile, const string& TypeName, uint32_t & iUlnt)
+		{
+			if (jsonFile.contains(TypeName))
+				iUlnt = jsonFile[TypeName];
+		}
+		static void  LoadJsonTypeFloat2(json& jsonFile, const string& TypeName, _float2& Float2)
+		{
+			if (jsonFile.contains(TypeName))
+				Float2 = _float2(jsonFile[TypeName][0], jsonFile[TypeName][1]);
+		}
+	};
+	
+	template<typename ENUM>
+	void		SavejsonEnum(json& jsonFile, const string& TypeName, ENUM& eNum)
+	{
+		uint32_t iType = static_cast<uint32_t>(eNum);
+		jsonFile[TypeName] = iType;
+	}
+	template<typename ENUM>
+	void		LoadjsonEnum(json& jsonFile, const string& TypeName, ENUM& eNum)
+	{
+		if (jsonFile.contains(TypeName))
+		{
+			uint32_t iType = jsonFile[TypeName];
+			eNum = static_cast<ENUM>(iType);
+		}
+	}
 
 
 	template<typename T>

@@ -2,9 +2,11 @@
 #include "GameInstance.h"
 #include "NonModel.h"
 #include "WorldObject.h"
+#include "Light.h"
 #include "DecalObject.h"
 #include "TriggerObject.h"
 #include "CWorldParticle.h"
+#include "WorldLight.h"
 CGuiObject::CGuiObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -54,6 +56,7 @@ HRESULT CGuiObject::Initialize(void* pArg)
 		m_strDecal = "Decals";
 
 		m_strParticlesPathName = TEXT("../../ParticleObjectsTo_GAMEPLAY.json");
+		m_strLightsPathName = TEXT("../../LightsTo_GAMEPLAY.json");
 
 		m_eLevel = LEVEL::GAMEPLAY;
 		m_strNavi = L"../../Navi.json";
@@ -69,6 +72,7 @@ HRESULT CGuiObject::Initialize(void* pArg)
 		m_strDecal = "GasZone_Decal";
 
 		m_strParticlesPathName = TEXT("../../ParticleObjectsTo_GASZONE.json");
+		m_strLightsPathName = TEXT("../../LightsTo_GASZONE.json");
 
 		m_eLevel = LEVEL::GASZONE;
 		m_strNavi = L"../../NaviGasZone.json";
@@ -106,8 +110,7 @@ void CGuiObject::Update(_float fTimeDelta)
 }
 void CGuiObject::Late_Update(_float fTimeDelta)
 {
-	if (m_bPickingObject)
-		return;
+	
 	POINT pt = {};
 	GetCursorPos(&pt);
 	ScreenToClient(g_hWnd, &pt);
@@ -116,6 +119,7 @@ void CGuiObject::Late_Update(_float fTimeDelta)
 
 	if (!m_bMouseCheck)
 	{
+		if(!m_bPickingObject)
 		m_pObj = Picking_Object(m_LayerName);
 		if (NULL_FALSE(m_pObj.lock()))
 		{
@@ -699,6 +703,7 @@ HRESULT CGuiObject::Enable_GUI(string& name)
 
 		if (ImGui::BeginTabItem(u8"모델 로더"))
 		{
+			m_bPickingObject = false;
 			Select_Model();
 			
 			ImGui::EndTabItem();
@@ -717,6 +722,7 @@ HRESULT CGuiObject::Enable_GUI(string& name)
 		}
 		if (ImGui::BeginTabItem(u8"라이트"))
 		{
+			m_bPickingObject = true;
 			Light_Setting();
 			ImGui::EndTabItem();
 		}
@@ -746,13 +752,22 @@ HRESULT CGuiObject::Enable_GUI(string& name)
 	{
 		if (ImGui::BeginTabItem(u8"기즈모"))
 		{
-			if (NULL_TRUE(m_pObj.lock()))
+			auto pObj = m_pObj.lock();
+			if (NULL_TRUE(pObj))
 			{
 				ImGui::Text(u8"선택된 오브젝트가 없음");
 	
 			}
 			else
-				ImGui_Gizmo();
+			{
+				auto pTransform = pObj->Get_Transform().lock();
+				if (NULL_FALSE(pTransform))
+				{
+					pTransform->Set_Matrix(ImGui_Gizmo(pTransform->Get_World(), pObj->Get_PathName().c_str()));
+
+				}
+			
+			}
 	
 			ImGui::EndTabItem();
 		}
@@ -1048,15 +1063,15 @@ void CGuiObject::Select_Model()
 
 }
 
-void CGuiObject::ImGui_Gizmo()
+_matrix CGuiObject::ImGui_Gizmo(_fmatrix matSrcWorld, const _char* Name)
 {
 	//테스트
 	
 	auto pObj = m_pObj.lock();
 	XMMATRIX matRota = XMMatrixIdentity();
-	XMMATRIX matWorld = pObj->Get_Transform().lock()->Get_World();
+	XMMATRIX matWorld = matSrcWorld;
 
-	ImGui::Text(u8"오브젝트 이름 : "); ImGui::SameLine(); ImGui::Text(pObj->Get_PathName().c_str());
+	ImGui::Text(u8"오브젝트 이름 : "); ImGui::SameLine(); ImGui::Text(Name);
 	
 	_bool enable = true;
 	
@@ -1136,10 +1151,8 @@ void CGuiObject::ImGui_Gizmo()
 	_bool aC = ImGuizmo::IsOver();
 	_bool bD = ImGuizmo::IsUsing();
 
-	pObj->Get_Transform().lock()->Set_State(STATE::RIGHT, matWorld.r[0]);
-	pObj->Get_Transform().lock()->Set_State(STATE::UP, matWorld.r[1]);
-	pObj->Get_Transform().lock()->Set_State(STATE::LOOK, matWorld.r[2]);
-	pObj->Get_Transform().lock()->Set_State(STATE::POS, matWorld.r[3]);
+
+	return matWorld;
 	
 }
 
@@ -1238,53 +1251,151 @@ _vector CGuiObject::Picking_Terrain(int32_t iSelect, _float3& frayOrigin, _float
 }
 void CGuiObject::Light_Setting()
 {
-
-	if (ImGui::TreeNode(u8"라이트 슛"))
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	static int32_t iTargetModel = 0;
+	static int32_t iUseType = 0;
+	static int32_t Light_item_WorldEvent = 0;
+	static int32_t Light_item_LocalEvent = 0;
+	if (ImGui::BeginTabBar(u8"라이트", tab_bar_flags))
 	{
-		LIGHT eLight = LIGHT::DIRECTIONAL;
-	
-		LIGHT_DESC LightMtrl = *CGameInstance::Get().Find_LightMtrl(eLight);
+		if (ImGui::BeginTabItem(u8"전체 라이트"))
+		{
+			if (ImGui::TreeNode(u8"라이트 슛"))
+			{
+				LIGHT eLight = LIGHT::DIRECTIONAL;
 
-		static _float f1[4]{}, f2[4]{}, f3[4]{}, f4[4]{}, f5[4]{}, f6[4]{};
-		
-		memcpy(&f1, &LightMtrl.fRange,  sizeof(_float));
-		memcpy(&f2, &LightMtrl.vAmbient,  sizeof(_float4));
-		memcpy(&f3, &LightMtrl.vDiffuse,		sizeof(_float4));
-		memcpy(&f4, &LightMtrl.vDir, sizeof(_float4));
-		memcpy(&f5, &LightMtrl.vPos,	sizeof(_float4));
-		memcpy(&f6, &LightMtrl.vSpecular,	sizeof(_float4));
+				LIGHT_DESC* LightMtrl = CGameInstance::Get().Find_LightMtrl(eLight);
 
-		ImGui::Text(u8"뭐지(fRange)");	ImGui::SameLine(), 
-		ImGui::SliderFloat4("##1", &f1[0], 0.0f, 1.0f);
-		
-		ImGui::Text(u8"기본밝기(vAmbient)");	ImGui::SameLine(), 
-		ImGui::SliderFloat4("##2", &f2[0], 0.0f, 1.0f);
-		
-		ImGui::Text(u8"빛을 받아서 나오는 색(vDiffuse)");	ImGui::SameLine(), 
-		ImGui::SliderFloat4("##3", &f3[0], -1.0f, 1.0f);
-		
-		ImGui::Text(u8"빞의 방향(vDir)"); ImGui::SameLine(), 
-		ImGui::SliderFloat4("##4", &f4[0], 0.0f, 1.0f);
-		
-		ImGui::Text(u8"위치(vPos)"); ImGui::SameLine(),
-		ImGui::SliderFloat4("##5", &f5[0], 0.0f, 1.0f);
-		
-		ImGui::Text(u8"빛의 하이라이트(vSpecular)");ImGui::SameLine(),
-		ImGui::SliderFloat4("##6", &f6[0], 0.0f, 1.0f);
+				if (NULL_FALSE(LightMtrl))
+				{
+
+					ImGui::InputFloat2(u8"범위", reinterpret_cast<_float*>(&LightMtrl->fRange));
+					ImGui::InputFloat4(u8"기본밝기(vAmbient)", reinterpret_cast<_float*>(&LightMtrl->vAmbient));
+					ImGui::InputFloat4(u8"빛을 받아서 나오는 색(vDiffuse)", reinterpret_cast<_float*>(&LightMtrl->vDiffuse));
+					ImGui::InputFloat4(u8"방향(vDir)", reinterpret_cast<_float*>(&LightMtrl->vDir));
+					ImGui::InputFloat4(u8"위취(vPos)", reinterpret_cast<_float*>(&LightMtrl->vPos));
+					ImGui::InputFloat4(u8"빛의 하이라이트(vSpecular)", reinterpret_cast<_float*>(&LightMtrl->vSpecular));
+
+					CGameInstance::Get().Set_LightDesc(*LightMtrl);
+
+				}
+				
+				ImGui::TreePop();
+			}
+
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem(u8"점광원 추가.."))
+		{
+			static LIGHT_DESC Light{};
+			static int32_t iLightType = {0};
+			static CWorldLight::WORLDLIGHT_DESC LightDesc{};
+			ImGui::RadioButton(u8"디렉션", &iLightType, ETOUI(LIGHT::DIRECTIONAL)); ImGui::SameLine(100); ImGui::RadioButton(u8"포인트", &iLightType, ETOUI(LIGHT::POINT)); ImGui::SameLine(200); ImGui::RadioButton(u8"스포트라이트", &iLightType, ETOUI(LIGHT::SPOTLIGHT));
+			ImGui::SameLine(300); ImGui::RadioButton(u8"라인", &iLightType, ETOUI(LIGHT::LINE));
+			ImGui::RadioButton(u8"엔진", &iUseType, ETOUI(USETYPE::ENGINE)); ImGui::SameLine(50);  ImGui::RadioButton(u8"클라", &iUseType, ETOUI(USETYPE::CLIENT));
+			if (iUseType == ETOUI(USETYPE::CLIENT))
+			{
+				#define X(name) #name,
+				const char* WorldEventItem[] = { WORLD_EVENT_LIST };
+				const char* LocalEventItem[] = { LIGHT_STATE_LIST};
+				#undef X
+				const char* combo_preview_Eventvalue = WorldEventItem[Light_item_WorldEvent];
+				const char* combo_preview_Particlevalue = LocalEventItem[Light_item_LocalEvent];
+
+				ComboArray(WorldEventItem, IM_COUNTOF(WorldEventItem), Light_item_WorldEvent, u8"월드 이벤트", combo_preview_Eventvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
+				ImGui::SameLine(300);
+				ComboArray(LocalEventItem, IM_COUNTOF(LocalEventItem), Light_item_LocalEvent, u8"파티클", combo_preview_Particlevalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
 
 
-		memcpy(&LightMtrl.fRange, &f1, sizeof(_float));
-		memcpy(&LightMtrl.vAmbient, &f2, sizeof(_float4));
-		memcpy(&LightMtrl.vDiffuse, &f3, sizeof(_float4));
-		memcpy(&LightMtrl.vDir, &f4, sizeof(_float4));
-		memcpy(&LightMtrl.vPos, &f5, sizeof(_float4));
-		memcpy(&LightMtrl.vSpecular, &f6, sizeof(_float4));
+				Light.eWorldEventType = LightDesc.eWorldEventType = static_cast<WORLD_EVENT>(Light_item_WorldEvent);
+				Light.eLocalEventType = LightDesc.eLocalEventType = static_cast<LIGHT_STATE>(Light_item_LocalEvent);
+			}
+			_float3 fPos{}, fDir{};
+			_bool bCheck{};
+			if (CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+			{
+				Picking_Terrain(1, fPos, fDir, bCheck);
+				XMStoreFloat4(&Light.vPos, XMVectorSetW(XMLoadFloat3(&fPos), 1.f));
+				fPos.y = 0.f;
+			}
+			
+			Light.eUseType = static_cast<USETYPE>(iUseType);
+			Light.eType = static_cast<LIGHT>(iLightType);
+			ImGui::InputFloat2(u8"Range", reinterpret_cast<_float*>( & Light.fRange));
+			ImGui::InputFloat(u8"AngleRange", &Light.fAngleRange);
+			ImGui::InputFloat4(u8"Ambient",  reinterpret_cast<_float*>(&Light.vAmbient));
+			ImGui::InputFloat4(u8"Diffuse",  reinterpret_cast<_float*>(&Light.vDiffuse));
+			ImGui::InputFloat4(u8"Dir",      reinterpret_cast<_float*>(&Light.vDir));
+			ImGui::InputFloat4(u8"Specular", reinterpret_cast<_float*>(&Light.vSpecular));
+			ImGui::Text(u8"Pos X : %3.f, Y : %3.f, Z : %3.f", Light.vPos.x, Light.vPos.y, Light.vPos.z);
 
-		CGameInstance::Get().Set_LightDesc(LightMtrl);
+			if (ImGui::Button(u8"설치"))
+			{
 
-		ImGui::TreePop();
+				LightDesc.eHandle = CGameInstance::Get().Add_Light(Light);
+				if (iUseType == ETOUI(USETYPE::CLIENT))
+				{
+					CGameInstance::Get().Add_GameObject_toLayer(ETOUI(m_eLevel), TEXT("OBJ_Light"), ETOUI(m_eLevel), TEXT("Layer_Light"), &LightDesc);
+				}
+			}
+				
+			ImGui::EndTabItem();
+		}
+		if (ImGui::BeginTabItem(u8"점광원 이동.."))
+		{
+
+			auto pLight = m_pLight.lock();
+			if (NULL_TRUE(pLight) && CGameInstance::Get().Get_DIMouseOneClick(DIMK::LBUTTON, ENGINE_MOUSE::A_CLICK))
+			{
+				_float3 fPos{}, fDir{};
+				_bool	bLight{};
+				Picking_Terrain(1, fPos, fDir, bLight);
+				m_pLight = CGameInstance::Get().Select_Light(XMLoadFloat3(&fPos), XMLoadFloat3(&fDir));
+			}
+			else
+			{
+
+			}
+
+			if (NULL_FALSE(pLight))
+			{		
+			
+				LIGHT_DESC LightMtrl = *pLight->Get_LightDescNoCheckType();
+
+				_matrix OriginMatrix = XMMatrixIdentity();
+				_matrix FinalMatrix = XMMatrixIdentity();
+				OriginMatrix.r[3] = XMLoadFloat4(&LightMtrl.vPos);
+				_vector vPos = {};
+				FinalMatrix = ImGui_Gizmo(OriginMatrix, "라이트");
+				XMStoreFloat4(&LightMtrl.vPos, FinalMatrix.r[3]);
+				ImGui::InputFloat2(u8"범위", reinterpret_cast<_float*>(&LightMtrl.fRange));
+				ImGui::InputFloat(u8"앵글범위", reinterpret_cast<_float*>(&LightMtrl.fAngleRange));
+				ImGui::InputFloat4(u8"기본밝기(vAmbient)", reinterpret_cast<_float*>(&LightMtrl.vAmbient));
+				ImGui::InputFloat4(u8"빛을 받아서 나오는 색(vDiffuse)", reinterpret_cast<_float*>(&LightMtrl.vDiffuse));
+				ImGui::InputFloat4(u8"방향(vDir)", reinterpret_cast<_float*>(&LightMtrl.vDir));
+				ImGui::InputFloat4(u8"위취(vPos)", reinterpret_cast<_float*>(&LightMtrl.vPos));
+				ImGui::InputFloat4(u8"빛의 하이라이트(vSpecular)", reinterpret_cast<_float*>(&LightMtrl.vSpecular));
+
+				pLight->Set_LightDesc(LightMtrl);
+
+				ImGui::Text(u8"선택됨");
+			
+			
+				if (CGameInstance::Get().Get_DIKeyState(DIK_DELETE) & 0x80)
+				{
+					pLight->Set_Dead(true);
+					CGameInstance::Get().Light_Dead();
+					m_pLight.reset();
+				}
+			}
+			ImGui::EndTabItem();
+		}
+
+		if(CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80 && CGameInstance::Get().Get_DIKeyState(DIK_F1) &0x80)
+			CGameInstance::Get().Save_Lights(m_strLightsPathName, "Lights");
 	}
 
+	ImGui::EndTabBar();
 }
 void CGuiObject::Connect_Model()
 {
@@ -1385,6 +1496,8 @@ void CGuiObject::Click_Reset()
 {
 	if (GetKeyState(VK_RBUTTON) & 0x8000)
 	{
+
+		m_pLight.reset();
 		auto mobj = m_pObj.lock();
 		if (NULL_FALSE(mobj))
 		{
@@ -2009,22 +2122,23 @@ void CGuiObject::Particle_Installer()
 				CWorldParticle::WORLDPARTICLE_DESC ParticleDesc{};
 				ParticleDesc.eParticleEmit = static_cast<PARTICLE>(item_Particle);
 				ParticleDesc.eParticleType = static_cast<WORLD_EVENT>(item_WorldEvent);
-				ParticleDesc.iLevelIndex   = ETOUI(m_eLevel);
+				ParticleDesc.iLevel   = ETOUI(m_eLevel);
 				ParticleDesc.bWorldCheck = false;
 				XMStoreFloat4x4(&ParticleDesc.matWorld, matWorld);
 				
 				switch (ParticleDesc.eParticleEmit)
 				{
 				case PARTICLE::SPARK:
-					ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)] = L"Component_Instancing_Spark";
-					ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)] = L"Component_Buffer_Particle_Spark";
-					ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)] = L"../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds";
+					
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)][0],256,  L"Component_Instancing_Spark");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)][0],256,  L"Component_Buffer_Particle_Spark");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256, L"../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds");
 					break;
 				case PARTICLE::FOG:
 
-					ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)] = L"Component_Instancing_Fog";
-					ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)] = L"Component_Buffer_Particle_Fog";
-					ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)] = L"../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds";
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)][0],256,  L"Component_Instancing_Fog");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)][0],256,  L"Component_Buffer_Particle_Fog");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256,  L"../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds");
 					break;
 				}
 

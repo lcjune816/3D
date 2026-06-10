@@ -29,6 +29,7 @@ public:
     virtual HRESULT Render() override;
 
     void            OneMouseMove(_float x, _float y, _float fDeltaTime);
+    void            CombinedMatrix(_matrix fmatrix);
 
     void            Pitch(_float fAngle);
     void            RotationY(_float fAngle);
@@ -43,7 +44,8 @@ private:
     _float3             m_fUp = {};
     _float3             m_fLook = {};
 
-    _float4x4*          m_ChildMatrix = {};
+    _float4x4*          m_pParentMatrix = {};
+    _float4x4           m_CurrentWorldMatrix = {};
     _float4x4           m_ChildCamBoneMatrix{};
     _float3             m_fLastMousePos = {};
     _float              m_fSpeed = {0};

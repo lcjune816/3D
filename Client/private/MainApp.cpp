@@ -130,8 +130,7 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		TEXT("OBJ_Gui"),
 		CGuiObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-   //   	CGameInstance::Get().Add_Instancing_Shader(
-	//static_pointer_cast<CShader>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_InstanceTexter"), nullptr)));
+
 	return S_OK;
 }
 

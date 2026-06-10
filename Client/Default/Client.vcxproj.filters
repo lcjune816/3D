@@ -100,6 +100,9 @@
     <Filter Include="02.GameObject\22.Particle_Object">
       <UniqueIdentifier>{ff6f7e58-415d-49b8-b787-538b85901e04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="23.Light_Object">
+      <UniqueIdentifier>{ecebc63e-a5a2-4ee3-aebf-cf5ef2553b86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Client.h">
@@ -240,6 +243,9 @@
     <ClInclude Include="..\public\FSM_Cat_Nightmare.h">
       <Filter>02.GameObject\03.Boss\Cat</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\WorldLight.h">
+      <Filter>23.Light_Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -377,6 +383,9 @@
     </ClCompile>
     <ClCompile Include="..\private\FSM_Cat_Nightmare.cpp">
       <Filter>02.GameObject\03.Boss\Cat</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WorldLight.cpp">
+      <Filter>23.Light_Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
