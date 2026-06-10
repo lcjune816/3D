@@ -32,9 +32,9 @@ HRESULT CCamera::Initialize(void* pArg)
     FreeDesc.fFar = 1000.f;
     FreeDesc.m_fSpeedPerSec = 100.f;
    
-    m_ChildMatrix = pDesc->ParentsMatrix;
+    m_pParentMatrix = pDesc->ParentsMatrix;
     m_ChildCamBoneMatrix = pDesc->CamBoneMatrix;
-
+    m_CurrentWorldMatrix = *m_pParentMatrix;
     if (FAILED(__super::Initialize(&FreeDesc)))
         return E_FAIL;
 
@@ -42,6 +42,7 @@ HRESULT CCamera::Initialize(void* pArg)
     m_fUp = { 0.f,1.f,0.f };
     m_fRight = { 1.f,0.f,0.f };
     m_fSpeed = 2.f;
+    
     return S_OK;
 }
 
@@ -52,8 +53,8 @@ void CCamera::Priority_Update(_float fTimeDelta)
 
 void CCamera::Update(_float fTimeDelta)
 {
-   
-
+    
+    
 }
 
 void CCamera::Late_Update(_float fTimeDelta)
@@ -122,13 +123,28 @@ void CCamera::Late_Update(_float fTimeDelta)
     }
     else
     {
-        _matrix OffsetMat = XMMatrixIdentity();
-        OffsetMat.r[3] = XMVectorSet(0, 0,0.5f, 1);
-        POINT mousePos;
-        GetCursorPos(&mousePos);
-        ScreenToClient(g_hWnd, &mousePos);
-        _matrix matrix = OffsetMat * XMLoadFloat4x4(m_ChildMatrix) * XMLoadFloat4x4(&m_ChildCamBoneMatrix);
-        m_pTransform->Set_Matrix(matrix);
+        // POINT mousePos;
+        // GetCursorPos(&mousePos);
+        // ScreenToClient(g_hWnd, &mousePos);
+        _matrix SrcMatrix = XMLoadFloat4x4(&m_CurrentWorldMatrix);
+        _matrix DestMatrix = XMLoadFloat4x4(m_pParentMatrix);
+
+        _matrix FinalMatrix = XMMatrixIdentity();
+
+        _vector SrcRotation = XMQuaternionRotationMatrix(SrcMatrix);
+        _vector DestRotaiton = XMQuaternionRotationMatrix(DestMatrix);
+
+        _float fDot = XMVectorGetX(XMQuaternionDot(SrcRotation, DestRotaiton));
+
+        if (fDot < 0.f)
+            SrcRotation = -SrcRotation;
+
+
+        _vector vLastRotation = XMQuaternionSlerp(SrcRotation, DestRotaiton, 1.f - exp(-60.f * fTimeDelta));
+        _vector vLastPosition = XMVectorLerp(SrcMatrix.r[3], DestMatrix.r[3], 1.f - exp(-75.f * fTimeDelta));
+        FinalMatrix = XMMatrixRotationQuaternion(vLastRotation);
+        FinalMatrix.r[3] = vLastPosition;
+        CombinedMatrix(FinalMatrix);
         POINT pt;
         pt.x = Client::g_iWinSizeX / 2.f;
         pt.y = Client::g_iWinSizeY / 2.f;
@@ -137,7 +153,6 @@ void CCamera::Late_Update(_float fTimeDelta)
 
         SetCursorPos(pt.x, pt.y);
     }
-
 
 
     __super::Update_PipeLine();
@@ -168,6 +183,16 @@ void CCamera::OneMouseMove(_float x, _float y,_float fDeltaTime)
     m_fLastMousePos.x = x;
     m_fLastMousePos.y = y;
 
+
+}
+void CCamera::CombinedMatrix(_matrix fmatrix)
+{
+    XMStoreFloat4x4(&m_CurrentWorldMatrix, fmatrix);
+
+    _matrix OffsetMat = XMMatrixIdentity();
+    OffsetMat.r[3] = { 0.f,0.f,0.3f,1.f };
+
+    m_pTransform->Set_Matrix(OffsetMat * XMLoadFloat4x4(&m_CurrentWorldMatrix) * XMLoadFloat4x4(&m_ChildCamBoneMatrix));
 
 }
 void CCamera::Pitch(_float fAngle)

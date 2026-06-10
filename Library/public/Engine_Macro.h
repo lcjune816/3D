@@ -46,6 +46,15 @@ X(ELEVATOR)		  \
 X(ARROW)		  \
 X(END)
 
+#define LIGHT_STATE_LIST \
+X(NONE)					 \
+X(LIGHT_BLINK1)			\
+X(LIGHT_BLINK2)			\
+X(LIGHT_BLINK3)			\
+X(LIGHT_BLINK4)
+
+
+
 #ifdef	ENGINE_EXPORTS
 #define ENGINE_DLL		_declspec(dllexport)
 #else

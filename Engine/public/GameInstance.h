@@ -98,8 +98,8 @@ public:
 	const _float4* Get_CamPosition();
 	void Set_Transform(D3DTS eState, _fmatrix TransformMatrix);
 
-	string	 MultiByteWstringToChar(const _wstring& strConvertwstring);
-	_wstring MultiByteCharToWstring(const string& strConvertstring);
+	HRESULT	 MultiByteWstringToChar(const _wstring& strConvertwstring,  string& strDestName);
+	HRESULT  MultiByteCharToWstring(const string& strConvertstringm,   _wstring& strDestName);
 #pragma endregion
 
 #pragma region TRIGGER_MANAGER
@@ -120,12 +120,21 @@ public:
 #pragma endregion
 #pragma region LIGHT_MANAGER
 
-	HRESULT Add_Light(const LIGHT_DESC& LightDesc);
+	LIGHT_HANDLE Add_Light(const LIGHT_DESC& LightDesc);
+	LIGHT_DESC* Get_LightToHandle(uint32_t iIndex, uint32_t iHandle);
 	HRESULT Render_Lights(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
 	LIGHT_DESC* Find_LightMtrl(const LIGHT& eLight);
 	void				 Set_LightDesc(LIGHT_DESC& eLight);
 
-	const vector<string>& Get_ObejctNames();
+	shared_ptr<class CLight>	 Select_Light(_fvector OriginPos, _fvector OriginDir);
+
+	void				Save_Lights(const _wstring& path, const string& strJsonKeyName);
+	HRESULT				Load_Lights(uint32_t iPrototypeLevel, const wstring& strPrototypeName, uint32_t iLevel, const _wstring& strLevelName, json& j);
+	void				Light_Dead();
+#ifdef _DEBUG
+	HRESULT				 Render_Debug_Lights();
+
+#endif 
 #pragma endregion
 #pragma region NAVI_MANAGER
 	shared_ptr<class CCell>  Select_TriAngle(_fvector vOrigin, _fvector vDir);

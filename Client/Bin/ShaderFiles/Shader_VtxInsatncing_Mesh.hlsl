@@ -29,6 +29,7 @@ struct VS_OUT
     float4 vPosition : SV_POSITION;
     float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
+    float4 vProjPos : TEXCOORD1;
 };
 
 VS_OUT VS_MAIN(VS_IN In)
@@ -45,6 +46,7 @@ VS_OUT VS_MAIN(VS_IN In)
     
     Out.vNormal = normalize(mul(float4(In.vNormal, 0.f), WorldMatrix));
     Out.vTexcoord = In.vTexcoord;
+    Out.vProjPos = Out.vPosition;
  
     return Out;
 }
@@ -54,12 +56,14 @@ struct PS_IN
     float4 vPosition : SV_POSITION;
     float4 vNormal : NORMAL;
     float2 vTexcoord : TEXCOORD0;
+    float4 vProjPos : TEXCOORD1;
 };
 
 struct PS_OUT
 {
     vector vDiffuse : SV_TARGET0;
     vector vNormal : SV_TARGET1;
+    vector vDepth : SV_TARGET2;
 };
 
 PS_OUT PS_MAIN(PS_IN In)
@@ -73,6 +77,7 @@ PS_OUT PS_MAIN(PS_IN In)
     Out.vDiffuse = vMtrlDiffuse;
     Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
     
+    Out.vDepth = float4(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     return Out;
 }
 

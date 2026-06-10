@@ -22,15 +22,29 @@ namespace Engine
 		_float3 fNormal[3];
 		_bool	m_bLeft{ true };
 	}GRAB_ARM_EDGE;
+	
+	typedef struct tagLightHandleDesc
+	{
+		uint32_t iIndex;
+		uint32_t iHandle;
+	}LIGHT_HANDLE;
 
 	typedef struct tagLightDesc
 	{
+		//client
+		WORLD_EVENT eWorldEventType = { WORLD_EVENT::END };
+		LIGHT_STATE eLocalEventType = { LIGHT_STATE::NONE };
+
+		//Engine
+		USETYPE	eUseType = { USETYPE::ENGINE };
 		LIGHT eType;
-		_float4	 vDiffuse, vAmbient, vSpecular;
+		_float4	 vDiffuse{1.f,1.f,1.f,1.f}, vAmbient{ 1.f,1.f,1.f,1.f }, vSpecular{ 1.f,1.f,1.f,1.f };
 
 		_float4	 vDir;
 		_float4  vPos;
-		_float fRange;
+		_float4  vLightAngle;
+		_float2 fRange;
+		_float fAngleRange;
 	}LIGHT_DESC;
 	typedef struct tagevent
 	{

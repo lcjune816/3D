@@ -1,0 +1,31 @@
+{
+    "Particles": [
+        {
+            "BufferPath": "Component_Buffer_Particle_Fog",
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "ParticleEmit": 1,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "ShaderPath": "Component_Instancing_Fog",
+            "TexturePath": "../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WroldEvent": 7,
+            "fPos": [
+                463.626708984375,
+                10.575470924377441,
+                755.394287109375
+            ]
+        }
+    ]
+}

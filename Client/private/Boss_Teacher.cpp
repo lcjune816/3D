@@ -17,7 +17,7 @@ HRESULT CBoss_Teacher::Ready_Component()
 {
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../../Resource/Boss/Teacher/TeacherVer2.fbx";
+	importModel.pFile = "../../Resource/Boss/Teacher/TeacherVer3.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/SK_CustomBody.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/Avatar_Kiana_C8_WS.fbx";
 	importModel.bAllModel = 1;

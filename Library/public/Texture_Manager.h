@@ -32,7 +32,7 @@ public:
 	static unique_ptr<CTexture_Manager> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 
 private:
-	_float4									m_fColor = {};
+	_float4									m_fColor = {1.f,1.f,1.f,1.f};
 
 	map<string, uint32_t>					 m_TextueMapID = {};
 	vector<ComPtr<ID3D11ShaderResourceView>> m_TextureLists = {};
