@@ -28,23 +28,33 @@ void CPipeLine::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
     XMStoreFloat4x4(&m_TransformStateMatrices[ETOUI(eState)], TransformMatrix);
 }
 
-string CPipeLine::MultiByteWstringToChar(const _wstring& strConvertwstring)
+HRESULT CPipeLine::MultiByteWstringToChar(const _wstring& strConvertwstring,  string& strDestName)
 {
     size_t iSize = WideCharToMultiByte(CP_UTF8,0,strConvertwstring.c_str(),-1, NULL,0, NULL, NULL);
     string ConvertString(iSize,0);
     
     WideCharToMultiByte(CP_UTF8, 0, strConvertwstring.data(), -1, ConvertString.data(), iSize  , NULL, NULL);
 
-    return string(ConvertString.data());
+    strDestName = (ConvertString.data());
+    if (strDestName.empty())
+        return E_FAIL;
+
+    return S_OK;
 }
 
-_wstring CPipeLine::MultiByteCharToWstring(const string& strConvertstring)
+HRESULT CPipeLine::MultiByteCharToWstring(const string& strConvertstring ,  _wstring& strDest)
 {
 
     size_t iSize = MultiByteToWideChar(CP_UTF8, 0, strConvertstring.c_str(),-1 , NULL, 0);
     _wstring ConvertWstring(iSize, 0);
     MultiByteToWideChar(CP_UTF8, 0, strConvertstring.c_str(), -1, ConvertWstring.data(), iSize);
-    return _wstring(ConvertWstring.data());
+
+    strDest = ConvertWstring.data();
+    
+    if (strDest.empty())
+        return E_FAIL;
+
+    return S_OK;
 }
 
 HRESULT CPipeLine::Initialize()

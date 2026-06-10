@@ -23,11 +23,11 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 	auto desc = static_cast<WORLDPARTICLE_DESC*>(pArg);
 	
 	if (desc->eFileType == FILE_MODE::LOAD)
-		Load_Data(&desc, desc->j);
+		Load_Data(desc, desc->j);
 	
 	m_eParticleType		= desc->eParticleType;
 	m_eParticleEmitType = desc->eParticleEmit;
-	m_iLevelIndex		= desc->iLevelIndex;
+	m_iLevelIndex		= desc->iLevel;
 	m_strPathName[ETOUI(PATHNAME::SHADER)]  = desc->PathName[ETOUI(PATHNAME::SHADER)];
 	m_strPathName[ETOUI(PATHNAME::BUFFER)]  = desc->PathName[ETOUI(PATHNAME::BUFFER)];
 	m_strPathName[ETOUI(PATHNAME::TEXTURE)] = desc->PathName[ETOUI(PATHNAME::TEXTURE)];
@@ -120,10 +120,13 @@ json CWorldParticle::Save_Data()
 	j["Up"] = { fWorld._21,fWorld._22 ,fWorld._23 };
 	j["Look"] = { fWorld._31, fWorld._32,fWorld._33 };
 	j["fPos"] = { fWorld._41,fWorld._42,fWorld._43 };
-	j["ShaderPath"]  = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::SHADER)]);
-	j["BufferPath"]  = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::BUFFER)]);
-	j["TexturePath"] = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)]);
-
+	string Path[ETOUI(PATHNAME::END)]{};
+	 CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::SHADER)] ,Path[ETOUI(PATHNAME::SHADER)] );
+	 CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::BUFFER)] ,Path[ETOUI(PATHNAME::BUFFER)] );
+	 CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)],Path[ETOUI(PATHNAME::TEXTURE)]);
+	 j["ShaderPath"]  = Path[ETOUI(PATHNAME::SHADER)];
+	 j["BufferPath"]  = Path[ETOUI(PATHNAME::BUFFER)];
+	 j["TexturePath"] = Path[ETOUI(PATHNAME::TEXTURE)];
 	uint32_t	iParticleTypeWorldEvent = static_cast<uint32_t>(m_eParticleType);
 	uint32_t	iParticleTypeEmit = static_cast<uint32_t>(m_eParticleEmitType);
 	j["WroldEvent"] = iParticleTypeWorldEvent;
@@ -147,8 +150,8 @@ HRESULT CWorldParticle::Ready_Component()
 			return E_FAIL;
 	
 
-	
-	string TexturePath = CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)]);
+	string TexturePath{};
+	CGameInstance::Get().MultiByteWstringToChar(m_strPathName[ETOUI(PATHNAME::TEXTURE)], TexturePath);
 		
 	CGameInstance::Get().Add_Decal_Texture(TexturePath);
 	m_iTextureID = CGameInstance::Get().Find_TextueId(TexturePath);
@@ -164,10 +167,20 @@ void CWorldParticle::Load_Data(void* pDesc, const json& j)
 	desc->matWorld._21 = j["Up"][0]; desc->matWorld._22 = j["Up"][1];    desc->matWorld._23 = j["Up"][2];    desc->matWorld._24 = 0;
 	desc->matWorld._31 = j["Look"][0]; desc->matWorld._32 = j["Look"][1];  desc->matWorld._33 = j["Look"][2];  desc->matWorld._34 = 0;
 	desc->matWorld._41 = j["fPos"][0]; desc->matWorld._42 = j["fPos"][1];  desc->matWorld._43 = j["fPos"][2];  desc->matWorld._44 = 1;
-
-	desc->PathName[ETOUI(PATHNAME::SHADER)]  = CGameInstance::Get().MultiByteCharToWstring(j["ShaderPath"]);
-	desc->PathName[ETOUI(PATHNAME::BUFFER)]  = CGameInstance::Get().MultiByteCharToWstring(j["BufferPath"]);
-	desc->PathName[ETOUI(PATHNAME::TEXTURE)] = CGameInstance::Get().MultiByteCharToWstring(j["TexturePath"]);
+	desc->bWorldCheck = false;
+	string Path[3] = {};
+	Path[0] = j["ShaderPath"];
+	Path[1] = j["BufferPath"];
+	Path[2] = j["TexturePath"];
+	_wstring DestPath[3] = {};
+	
+	CGameInstance::Get().MultiByteCharToWstring(Path[ETOUI(PATHNAME::SHADER)], DestPath[ETOUI(PATHNAME::SHADER)]);
+	CGameInstance::Get().MultiByteCharToWstring(Path[ETOUI(PATHNAME::BUFFER)], DestPath[ETOUI(PATHNAME::BUFFER)]);
+	CGameInstance::Get().MultiByteCharToWstring(Path[ETOUI(PATHNAME::TEXTURE)], DestPath[ETOUI(PATHNAME::TEXTURE)]);
+	
+	wcscpy_s(&desc->PathName[ETOUI(PATHNAME::SHADER)][0], 256 , DestPath[ETOUI(PATHNAME::SHADER)].c_str());
+	wcscpy_s(&desc->PathName[ETOUI(PATHNAME::BUFFER)][0], 256, DestPath[ETOUI(PATHNAME::BUFFER)].c_str());
+	wcscpy_s(&desc->PathName[ETOUI(PATHNAME::TEXTURE)][0], 256, DestPath[ETOUI(PATHNAME::TEXTURE)].c_str());
 
 	uint32_t	iParticleTypeWorldEvent = j["WroldEvent"];
 	uint32_t	iParticleTypeEmit =  j["ParticleEmit"];

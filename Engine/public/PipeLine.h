@@ -16,8 +16,8 @@ public:
 
 public:
 	void	Set_Transform(D3DTS eState, _fmatrix TransformMatrix);
-	string	 MultiByteWstringToChar(const _wstring& strConvertwstring);
-	_wstring MultiByteCharToWstring(const string& strConvertstring);
+	HRESULT	 MultiByteWstringToChar(const _wstring& strConvertwstring,  string& strDest);
+	HRESULT   MultiByteCharToWstring(const string& strConvertstring,   _wstring& strDest);
 
 public:
 	HRESULT Initialize();

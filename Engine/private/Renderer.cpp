@@ -28,12 +28,17 @@ HRESULT CRenderer::Initialize()
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Specular"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_UNORM, _float4(0.f, 0.f, 0.f, 1.f))))
         return E_FAIL;
 
-    
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Depth"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R32G32B32A32_FLOAT, _float4(0.f, 0.f, 0.f, 1.f))))
+        return E_FAIL;
+
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Diffuse"))))
         return E_FAIL;
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Normal"))))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Depth"))))
         return E_FAIL;
 
     //For MRT_LightAcc
@@ -59,6 +64,8 @@ HRESULT CRenderer::Initialize()
    if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Normal"), 150.f, 450.f, 300.f, 300.f)))
        return E_FAIL;
    if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Shade"), 450.f, 150.f, 300.f, 300.f)))
+       return E_FAIL;
+   if (FAILED(CGameInstance::Get().Ready_RT_Debug(TEXT("Target_Specular"), 450.f, 450.f, 300.f, 300.f)))
        return E_FAIL;
 #endif
 
@@ -182,6 +189,8 @@ HRESULT CRenderer::Draw()
 
     if (FAILED(Render_Combined()))
         return E_FAIL;
+    
+    CGameInstance::Get().Render_Debug_Lights();
 
     if (FAILED(Render_NonLights()))
         return E_FAIL;
@@ -193,8 +202,8 @@ HRESULT CRenderer::Draw()
         return E_FAIL;
  
 #ifdef _DEBUG
-  //if (FAILED(Render_DEBUG()))
-  //    return E_FAIL;
+    //if (FAILED(Render_DEBUG()))
+    //  return E_FAIL;
 #endif
 
 
@@ -258,10 +267,16 @@ HRESULT CRenderer::Render_Lights()
 
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Normal"), m_pShader, "g_NormalTexture")))
         return E_FAIL;
-
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Depth"), m_pShader, "g_DepthTexture")))
+        return E_FAIL;
     m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);
     m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix);
     m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix);
+
+    m_pShader->Bind_Matrix("g_ProjMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::PROJ));
+    m_pShader->Bind_Matrix("g_ViewMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW));
+
+    m_pShader->Bind_RawValue("g_vCamPosition", CGameInstance::Get().Get_CamPosition(), sizeof _float4);
 
     if (FAILED(m_pVIBuffer->Bind_Resource()))
         return E_FAIL;
@@ -280,6 +295,8 @@ HRESULT CRenderer::Render_Combined()
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Diffuse"), m_pShader, "g_DiffuseTexture")))
         return E_FAIL;
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Shade"), m_pShader, "g_ShadeTexture")))
+        return E_FAIL;
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Specular"), m_pShader, "g_SpecularTexture")))
         return E_FAIL;
 
     m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);

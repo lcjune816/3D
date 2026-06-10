@@ -214,6 +214,9 @@
     <Filter Include="15.RenderTargets\Manager\RenderTarget">
       <UniqueIdentifier>{1f414557-6507-4137-b260-3c31ec558690}</UniqueIdentifier>
     </Filter>
+    <Filter Include="05.GameObject\LightEffect">
+      <UniqueIdentifier>{32c68015-6a89-42f4-b486-174247b18fa2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -447,6 +450,9 @@
     </ClInclude>
     <ClInclude Include="..\public\RenderTarget.h">
       <Filter>15.RenderTargets\Manager\RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\LightEffect.h">
+      <Filter>05.GameObject\LightEffect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -693,6 +699,9 @@
     <ClCompile Include="..\private\Trigger_Manager.cpp">
       <Filter>10.Trigger_Manager\Trigger</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\LightEffect.cpp">
+      <Filter>05.GameObject\LightEffect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
@@ -707,6 +716,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_DebugBox.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

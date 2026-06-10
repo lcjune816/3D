@@ -97,7 +97,7 @@ HRESULT CTexture_Manager::Texture_File_Loader()
 
 ID3D11ShaderResourceView* CTexture_Manager::Find_Decal_Texture(const uint32_t& iIndex)
 {
-	if (m_TextureLists.size() <= iIndex || m_iSkipBind == iIndex)
+	if (m_TextureLists.size() <= iIndex)
 		return nullptr;
 
 	m_iSkipBind = iIndex;

@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "CWorldParticle.h"
 #include "GuiObject.h"
+#include "WorldLight.h"
 ///////////플레이어/////////
 #include "Player.h"
 #include "PlayerAim.h"

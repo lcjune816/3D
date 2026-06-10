@@ -19,17 +19,20 @@ namespace Engine
 	enum class DIMM {X,Y,WHEEL,END};
 	enum class MATERIAL : uint32_t {NORMAL,GLASS};
 	enum class ENGINE_MOUSE{ HOLD, A_CLICK, B_CLICK };
-	enum class LIGHT {DIRECTIONAL, POINT,END};
-	enum class DEFERRED {DEBUG, DIRECTIOANL, POINT, COMBINED, END};
+	enum class LIGHT {DIRECTIONAL, POINT,SPOTLIGHT,LINE,END};
+	enum class DEFERRED {DEBUG, DIRECTIOANL, POINT, COMBINED, SPOTLIGHT,LINE,END};
 	enum class PARTICLE_SHAPE { POINT, END };
 	enum class TRIGGER_ROT { X, Y, Z };
 	enum class TRIGGER_STATE { IDLE, ACTION, RETURN, PAUSE, WORLD, END };
+	
 
+	enum class USETYPE { ENGINE, CLIENT ,END};
 	enum class FILE_MODE { SAVE, LOAD, END };
 	#define X(name) name,
 	enum class PARTICLE { PARTICLE_LIST };
 	enum class WORLD_EVENT { WORLD_EVENT_LIST };
 	enum class CELL_EVENT { CELL_LIST };
+	enum class LIGHT_STATE { LIGHT_STATE_LIST };
 	#undef X
 	
 	enum class SPAWN {PLAYER,MONSTER, END};

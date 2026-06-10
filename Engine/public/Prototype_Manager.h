@@ -35,7 +35,8 @@
 #include "VIBuffer_Particle_Point.h"
 #include "VIBuffer_Instance_Mesh.h"
 #include "Elevator.h"
-
+#include "Light.h"
+#include "LightEffect.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {
