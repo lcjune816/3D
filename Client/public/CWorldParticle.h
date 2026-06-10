@@ -15,8 +15,7 @@ class CWorldParticle : public CParticleObject
 public:
 	typedef struct tagWorldParticle : public CParticleObject::PARTICLEOBJECT_DESC
 	{
-		_wstring	PathName[ETOUI(PATHNAME::END)];
-		uint32_t	iLevelIndex;
+		_tchar	PathName[ETOUI(PATHNAME::END)][256]{};
 		PARTICLE	eParticleEmit;
 	}WORLDPARTICLE_DESC;
 private:

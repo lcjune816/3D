@@ -223,12 +223,8 @@ void				CGameInstance::Set_LightDesc(LIGHT_DESC& eLight)
 {
 	return m_pLight_Manager->Set_LightDesc(eLight);
 }
-const vector<string>& CGameInstance::Get_ObejctNames()
-{
-	return m_pLight_Manager->Get_ObejctNames();
-}
 
-HRESULT CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
+LIGHT_HANDLE CGameInstance::Add_Light(const LIGHT_DESC& LightDesc)
 {
 	return m_pLight_Manager->Add_Light(LightDesc);
 }
@@ -237,6 +233,35 @@ HRESULT CGameInstance::Render_Lights(shared_ptr<CShader> pShader, shared_ptr<CRe
 	return m_pLight_Manager->Render(pShader, pVIBuffer);
 }
 
+shared_ptr<CLight>	 CGameInstance::Select_Light(_fvector OriginPos, _fvector OriginDir)
+{
+	return m_pLight_Manager->Select_Light(OriginPos, OriginDir);
+}
+
+LIGHT_DESC* CGameInstance::Get_LightToHandle(uint32_t iIndex, uint32_t iHandle)
+{
+	return m_pLight_Manager->Get_LightToHandle(iIndex, iHandle);
+}
+
+void				CGameInstance::Save_Lights(const _wstring& path, const string& strJsonKeyName)
+{
+	m_pLight_Manager->Save_Lights(path, strJsonKeyName);
+}
+HRESULT				CGameInstance::Load_Lights(uint32_t iPrototypeLevel, const wstring& strPrototypeName, uint32_t iLevel, const _wstring& strLevelName, json& j)
+{
+	return m_pLight_Manager->Load_Lights(iPrototypeLevel, strPrototypeName, iLevel, strLevelName, j);
+}
+#ifdef _DEBUG
+HRESULT				 CGameInstance::Render_Debug_Lights()
+{
+	return m_pLight_Manager->Render_Debug_Lights();
+}
+void				CGameInstance::Light_Dead()
+{
+	m_pLight_Manager->Light_Dead();
+}
+
+#endif 
 #pragma endregion
 
 #pragma region INPUT_DEVICE
@@ -517,13 +542,12 @@ void CGameInstance::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
 	m_pPipeLine->Set_Transform(eState, TransformMatrix);
 }
 
-string	 CGameInstance::MultiByteWstringToChar(const _wstring& strConvertwstring)
+HRESULT	 CGameInstance::MultiByteWstringToChar(const _wstring& strConvertwstring, string& strDestName)
 {
-	return m_pPipeLine->MultiByteWstringToChar(strConvertwstring);
+	return m_pPipeLine->MultiByteWstringToChar(strConvertwstring, strDestName);
 }
-_wstring CGameInstance::MultiByteCharToWstring(const string& strConvertstring)
-{
-	return m_pPipeLine->MultiByteCharToWstring(strConvertstring);
+HRESULT  CGameInstance::MultiByteCharToWstring(const string& strConvertstring, _wstring& strDestName) {
+	return m_pPipeLine->MultiByteCharToWstring(strConvertstring, strDestName);
 }
 #pragma endregion
 

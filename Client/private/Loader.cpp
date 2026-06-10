@@ -242,7 +242,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Instance_Mesh"),
 		CVIBuffer_Instance_Mesh::Create(m_pDevice, m_pContext,nullptr))))
 		return E_FAIL;
-
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Light"),
+		CWorldLight::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
 		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -288,7 +290,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 	//Load_Data(LEVEL::GAMEPLAY, L"../../Decal.json", L"Layer_Decal", L"OBJ_Decal",				"Decals");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GAMEPLAY), L"Layer_Decal", m_Objects);
 	//m_Objects.clear();
-	//Load_ParticleData(LEVEL::GAMEPLAY, TEXT("OBJ_Particle"), ETOUI(LEVEL::GAMEPLAY), TEXT("../../ParticleObjectsTo_GAMEPLAY.json"), "Particles");
+	Load_ParticleData(LEVEL::GAMEPLAY, TEXT("OBJ_Particle"), ETOUI(LEVEL::GAMEPLAY), TEXT("../../ParticleObjectsTo_GAMEPLAY.json"), "Particles");
+	Load_LightsData(LEVEL::GAMEPLAY, TEXT("OBJ_Light"), ETOUI(LEVEL::GAMEPLAY),TEXT("../../LightsTo_GAMEPLAY.json"), "Lights");
+
 	m_isFinished = true;
 	return S_OK;
 }
@@ -331,7 +335,9 @@ HRESULT CLoader::Loading_For_GasProduction()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Decal"),
 		CDecalObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Light"),
+		CWorldLight::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
 		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -425,10 +431,10 @@ HRESULT CLoader::Load_ParticleData(LEVEL eLevel, const _wstring& strPrototypeTag
 		MSG_BOX("로드할 파티클 없음");
 		return E_FAIL;
 	}
-	j.parse(file);
+	j = json::parse(file);
 	for (auto& iter : j[strjsonKeyName])
 	{
-		CWorldParticle::PARTICLEOBJECT_DESC Desc{};
+		CWorldParticle::WORLDPARTICLE_DESC Desc{};
 		Desc.iLevel = ETOUI(eLevel);
 		Desc.eFileType = FILE_MODE::LOAD;
 		Desc.j = iter;
@@ -438,6 +444,22 @@ HRESULT CLoader::Load_ParticleData(LEVEL eLevel, const _wstring& strPrototypeTag
 
 	MSG_BOX("파티클 로드 된듯?");
 	
+	return S_OK;
+}
+
+HRESULT CLoader::Load_LightsData(LEVEL eLevel, const _wstring& strPrototypeTag, uint32_t iPrototypeLevel, const _wstring& strLoadFilePathName, const string& strjsonKeyName)
+{
+	json j;
+	ifstream file(strLoadFilePathName);
+
+	j = json::parse(file);
+
+	
+	CGameInstance::Get().Load_Lights(iPrototypeLevel, strPrototypeTag, ETOUI(eLevel), TEXT("Layer_Light"), j);
+	
+
+	file.close();
+	MSG_BOX("라이트 로드 된듯?");
 	return S_OK;
 }
 

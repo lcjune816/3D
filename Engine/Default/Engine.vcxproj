@@ -194,6 +194,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\Level_Manager.h" />
     <ClInclude Include="..\public\Lever.h" />
     <ClInclude Include="..\public\Light.h" />
+    <ClInclude Include="..\public\LightEffect.h" />
     <ClInclude Include="..\public\Light_Manager.h" />
     <ClInclude Include="..\public\LowerFlip.h" />
     <ClInclude Include="..\public\LowerFlip_Flip.h" />
@@ -281,6 +282,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\Level_Manager.cpp" />
     <ClCompile Include="..\private\Lever.cpp" />
     <ClCompile Include="..\private\Light.cpp" />
+    <ClCompile Include="..\private\LightEffect.cpp" />
     <ClCompile Include="..\private\Light_Manager.cpp" />
     <ClCompile Include="..\private\LowerFlip.cpp" />
     <ClCompile Include="..\private\LowerFlip_Flip.cpp" />
@@ -324,6 +326,10 @@ call Copy.bat</Command>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_DebugBox.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>

@@ -5,6 +5,7 @@ namespace Engine
 {
 	class CNonModel;
 	class CCell;
+	class CLight;
 }
 NS_BEGIN(Client)
 class CGuiObject final : public CGameObject
@@ -31,7 +32,7 @@ public:
 public:
 	HRESULT							Enable_GUI(string& name);
 	void							Select_Model();
-	void							ImGui_Gizmo();
+	_matrix							ImGui_Gizmo(_fmatrix matSrcWorld,const _char* Name);
 
 private:
 	void							Light_Setting();
@@ -55,8 +56,9 @@ private:
 	weak_ptr<CGameObject>			m_pObj ;
 	weak_ptr<CGameObject>			m_pConnetObjectFirst  ;
 	weak_ptr<CGameObject>			m_pConnetObjectSecond ;
+	weak_ptr<class CLight>			m_pLight;
 	weak_ptr<class CCell>			m_pCell;
-	_bool							m_bModelCancle { false },m_bPickingObject{ false }, m_bMouseCheck = { false };
+	_bool							m_bModelCancle{ false }, m_bPickingObject{ false }, m_bMouseCheck = { false }, m_bWorld{ false };
 	
 	_float2							m_fMousePickXY = {};
 
@@ -67,6 +69,7 @@ private:
 	string							m_CopyTriggerName = {};
 
 	_float4x4						m_CopyWorld = {};
+	_float4x4						m_LightWord = {};
 	_bool							m_bCopy = {false};
 
 	int32_t							m_iModelSelect{0};
@@ -75,7 +78,7 @@ private:
 
 	list<ComPtr<ID3D11ShaderResourceView>> m_GuiResources;
 	string					m_strGameObject,m_strTrigger,m_strDecal;
-	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath, m_strNavi, m_strParticlesPathName;
+	_wstring				m_strGameObjectPath, m_strTriggerPath, m_strDecalpath, m_strNavi, m_strParticlesPathName ,m_strLightsPathName;
 
 
 
