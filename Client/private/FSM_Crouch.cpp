@@ -24,8 +24,9 @@ void CFSM_Crouch::Enter_State()
 		
 	m_fTimerTick = 0.f;
 	m_fTimerTime = 0.2f;
-	m_fMaxCrouch = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
-	m_fMinCrouch = 10.f;
+	m_fMaxCrouch = 10;
+	m_fMinCrouch = 0;
+	m_fCurrentHeight = { 0 };
 	m_bReFinished = false;
 	m_bhmm = false;
 	m_eAction = FSM_ACTION::ACTION;
@@ -54,8 +55,8 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 	case FSM_ACTION::ACTION:
 		if (CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80)
 		{
-			Height = m_fMaxCrouch + (m_fMinCrouch - m_fMaxCrouch) * t;
-			pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), Height));
+			Height = m_fMinCrouch + (m_fMaxCrouch - m_fMinCrouch) * t;
+			Player->Set_OffsetY(-Height);
 
 			if (Player->Get_Finished() && Player->Get_Animation_State() != PLAYER_ANIME::CROUCH_POSE)
 				Player->Change_Animation(PLAYER_ANIME::CROUCH_POSE, true);
@@ -65,7 +66,7 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 		}
 		else
 		{
-			m_fMinCrouch = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+			m_fMaxCrouch = Player->Get_OffsetY();
 			m_fTimerTick = 0.f;
 			m_eAction = FSM_ACTION::RETURN;
 			m_fTimerTime = 1.f;
@@ -76,12 +77,12 @@ void CFSM_Crouch::Update_State(_float fTimeDelta)
 		}
 		break;
 	case FSM_ACTION::RETURN:
-		Height = m_fMinCrouch + (m_fMaxCrouch - m_fMinCrouch) * t;
-		pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), Height));
+		Height = m_fMaxCrouch + (m_fMinCrouch - m_fMaxCrouch) * t;
+		Player->Set_OffsetY(Height);
 
 		if (Player->Get_Finished() && t >= 1.f)
 		{
-
+			Player->Set_OffsetY(0);
 			Player->GetAnimator()->Set_Double_Speed(1.f);
 			m_eAction = FSM_ACTION::END;
 		}

@@ -191,7 +191,7 @@ void CParticle_Manager::Particle_Emit(WORLD_EVENT eParticleType)
 		for (auto iter = m_ParticlesPool[i].begin(); iter != m_ParticlesPool[i].end();)
 		{
 
-			if ((*iter)->CompareParticleType(eParticleType))
+			if (NULL_FALSE((*iter)) && (*iter)->CompareParticleType(eParticleType))
 			{
 				m_Particles[i].splice(m_Particles[i].end(), m_ParticlesPool[i], iter);
 			}

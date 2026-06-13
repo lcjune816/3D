@@ -81,24 +81,31 @@ _bool CPlayer_FSM::Move(const _float& fTimeDelta, shared_ptr<CTransform>& pTrans
 {
 	if (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80)
 	{
-		pTransform->Go_Right(fTimeDelta * fOffset, pNavigation);
+		IS_PLAYSOUND(PLAYER_SOUND_WALK,CHANNELID::PLAYER_MOVE, 0.4f)
+
+		pTransform->Go_Right(fTimeDelta * fOffset, pNavigation,true);
 		return true;
 	}
 	if (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80)
 	{
-		pTransform->Go_Straight(fTimeDelta * fOffset, pNavigation);
+		IS_PLAYSOUND(PLAYER_SOUND_WALK, CHANNELID::PLAYER_MOVE, 0.4f)
+
+		pTransform->Go_Straight(fTimeDelta * fOffset, pNavigation, true);
 		return true;
 	}
 		
 	if (CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80)
 	{
-		pTransform->Go_Left(fTimeDelta * fOffset, pNavigation);
+
+		IS_PLAYSOUND(PLAYER_SOUND_WALK, CHANNELID::PLAYER_MOVE, 0.4f)
+		pTransform->Go_Left(fTimeDelta * fOffset, pNavigation, true);
 		return true;
 	}
 		
 	if (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80)
 	{
-		pTransform->Go_BackWard(fTimeDelta * fOffset, pNavigation);
+		IS_PLAYSOUND(PLAYER_SOUND_WALK, CHANNELID::PLAYER_MOVE, 0.4f)
+		pTransform->Go_BackWard(fTimeDelta * fOffset, pNavigation, true);
 		return true;
 	}
 		

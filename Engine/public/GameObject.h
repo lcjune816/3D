@@ -15,7 +15,7 @@ typedef struct strGameObjectDesc : public CTransform::TRANSFORM_DESC
 	 uint32_t	iLevel = {};
 	 uint32_t	index = {};
 	 int32_t	iModeNumber;
-	 
+	 vector<uint32_t>					m_CheckMeshNameList;
 	 _bool	   bCopy = false;
 	 _bool	   bFrontCamera = true;
 	 
@@ -57,6 +57,7 @@ public:
 	virtual void            Load_Data(void* pDesc, const json& j);
 	virtual json			Save_Data();
 
+	vector<uint32_t>& Get_MeshIndexList() { return m_CheckMeshNameList; }
 	shared_ptr<class CComponent> Find_Component(const _wstring& strComponentTag);
 protected:
 	
@@ -88,14 +89,15 @@ protected:
 
 	MESH_TYPE							m_eMeshType{ MESH_TYPE::END };
 
+	vector<uint32_t>					m_CheckMeshNameList{};
 	_bool								m_bFinished = {false};
 	_bool								m_bDead = { false };
 	_bool								m_bEndObject = { false };
 	_bool								m_bBoxColor = { false };
 	_bool								m_bCopyLayerCheck = { false };
 	_bool								m_bRender = { true };
-	_char					m_pTagName[64];
-	string						m_PathName;
+	_char								m_pTagName[64];
+	string								m_PathName;
 protected:
 	map<const _wstring, shared_ptr<class CComponent>> m_Components;
 

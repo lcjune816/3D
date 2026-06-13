@@ -77,12 +77,12 @@ public:
 	_bool			 Get_Collision(); 
 	void			 Set_Collision(_bool bCollision);
 	_bool				 Only_AABB_Collision(const weak_ptr<CTransform> pSrcTransform, const weak_ptr<CTransform> pDstTransform,_bool bBack = true, COLLISION_INFO* pstrCollision = nullptr);
-	class CGameObject*		AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj);
+	class CGameObject*		AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack = true, _float4* fOutPos = nullptr);
 	_bool	AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, _vector readStart, _vector startmat, _fvector endMat, _cmatrix OriginMatrix, vector<GRAB_ARM_EDGE>& EdgePoses,  vector<uint32_t>& iSizecnt,_bool bFinished, _bool bCheck = false);
 	_bool					RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay);
 	void					Add_Check_Collision(COLLISION eCollisionValue, weak_ptr<CGameObject> pObj);
 	weak_ptr<CGameObject>	Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue);
-	_vector					CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir);
+	_bool					CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir,_float4* fOutPos);
 #pragma endregion
  
 #pragma region INSTANCING
@@ -120,19 +120,19 @@ public:
 #pragma endregion
 #pragma region LIGHT_MANAGER
 
-	LIGHT_HANDLE Add_Light(const LIGHT_DESC& LightDesc);
-	LIGHT_DESC* Get_LightToHandle(uint32_t iIndex, uint32_t iHandle);
-	HRESULT Render_Lights(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
-	LIGHT_DESC* Find_LightMtrl(const LIGHT& eLight);
-	void				 Set_LightDesc(LIGHT_DESC& eLight);
-
-	shared_ptr<class CLight>	 Select_Light(_fvector OriginPos, _fvector OriginDir);
-
-	void				Save_Lights(const _wstring& path, const string& strJsonKeyName);
-	HRESULT				Load_Lights(uint32_t iPrototypeLevel, const wstring& strPrototypeName, uint32_t iLevel, const _wstring& strLevelName, json& j);
-	void				Light_Dead();
+	LIGHT_HANDLE		        Add_Light(const LIGHT_DESC& LightDesc);
+	HRESULT				        Add_Render_Light(shared_ptr<CLight> pLight);
+	LIGHT_DESC*			        Get_LightToHandle(uint32_t iIndex, uint32_t iHandle);
+	HRESULT				        Render_Lights(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
+	LIGHT_DESC*			        Find_LightMtrl(const LIGHT& eLight);
+	void				        Set_LightDesc(LIGHT_DESC& eLight);
+	shared_ptr<class CLight>	Select_Light(_fvector OriginPos, _fvector OriginDir);
+	void						Save_Lights(const _wstring& path, const string& strJsonKeyName);
+	HRESULT						Load_Lights(uint32_t iPrototypeLevel, const wstring& strPrototypeName, uint32_t iLevel, const _wstring& strLevelName, json& j);
+	void						Light_Dead();
+	LIGHT_DESC*					Get_LightToHandleOrigin(uint32_t iIndex, uint32_t iHandle);
 #ifdef _DEBUG
-	HRESULT				 Render_Debug_Lights();
+	HRESULT						Render_Debug_Lights();
 
 #endif 
 #pragma endregion
@@ -195,7 +195,20 @@ public:
 	HRESULT Debug_RT_Render(const _wstring& strMRTTag, shared_ptr<class CShader> pShader, const _char* pConstantName, shared_ptr<class CRect> pVIBuffer);
 #endif
 #pragma endregion
+#pragma SOUND_MANAGER
+public:
 
+	HRESULT	    Play_Sound_Once(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume = 0.5f);
+	HRESULT		Play_Sound(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume = 0.5f, _bool ChanelMode = TRUE);
+	HRESULT		Stop_Sound(CHANNELID _SoundChannel);
+	HRESULT		Stop_AllSound();
+
+	_bool		IsPlaying(CHANNELID _SoundChannel);
+	void		Set_ChannelVolume(CHANNELID _CID, FLOAT Volume);
+	void		Set_ChannelGroupVolume(CHANNELID _CID, FLOAT Volume);
+	_float		Get_ChannelVolume(CHANNELID _CID);
+
+#pragma endregion
 
 
 
@@ -221,6 +234,7 @@ private:
 	unique_ptr<class CTarget_Manager>			m_pTarget_Manager = { nullptr };
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };
+	unique_ptr<class SoundManager>				m_pSound_Manager = { nullptr };
 	
 public:
 	void Release_Engine();

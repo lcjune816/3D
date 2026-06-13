@@ -17,6 +17,7 @@
 #include "Event_Manager.h"
 #include "Particle_Manager.h"
 #include "Target_Manager.h"
+#include "SoundManager.h"
 CGameInstance::CGameInstance()
 {
 
@@ -86,7 +87,7 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pTexture_Manager))
 		return E_FAIL;
 
-	m_pLight_Manager = CLight_Manager::Create(pOutDevice, pOutContext);
+	m_pLight_Manager = CLight_Manager::Create(pOutDevice, pOutContext, EngineDesc.iNumLevels);
 	if (NULL_TRUE(m_pLight_Manager))
 		return E_FAIL;
 
@@ -104,6 +105,11 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	m_pParticle_Manager = CParticle_Manager::Create(EngineDesc.iNumLevels);
 	if (NULL_TRUE(m_pParticle_Manager))
 		return E_FAIL;
+
+	m_pSound_Manager = SoundManager::Create();
+	if (NULL_TRUE(m_pSound_Manager))
+			return E_FAIL;
+
 	return S_OK;
 }
 
@@ -112,13 +118,12 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 {
 	m_pInput_Device->Update_InputDev();
 
-	m_pPipeLine->Update();
-
+	m_pSound_Manager->Update_SoundManager();
 	m_pGui_Manager->Update();
 
 	m_pObject_Manager->Priority_Update(fTimeDelta);
 	m_pParticle_Manager->Priority_Update_Particle(fTimeDelta);
-	
+	 
 	m_pObject_Manager->Update(fTimeDelta);
 	m_pParticle_Manager->Update_Particle(fTimeDelta);
 	m_pObject_Manager->Late_Update(fTimeDelta);
@@ -126,6 +131,7 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pLevel_Manager->Update(fTimeDelta);
 	
 
+	m_pPipeLine->Update();
 
 	m_pAssimp_Manager->Update(fTimeDelta);
 	return S_OK;
@@ -148,6 +154,8 @@ void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
 	m_pPrototype_Manager->Clear(iClearLevelIndex);
 
  	m_pTrigger_Manager->Clear(iClearLevelIndex);
+
+	m_pLight_Manager->Clear(iClearLevelIndex);
 }
 #pragma region RENDERER
 
@@ -251,6 +259,10 @@ HRESULT				CGameInstance::Load_Lights(uint32_t iPrototypeLevel, const wstring& s
 {
 	return m_pLight_Manager->Load_Lights(iPrototypeLevel, strPrototypeName, iLevel, strLevelName, j);
 }
+LIGHT_DESC* CGameInstance::Get_LightToHandleOrigin(uint32_t iIndex, uint32_t iHandle)
+{
+	return m_pLight_Manager->Get_LightToHandleOrigin(iIndex, iHandle);
+}
 #ifdef _DEBUG
 HRESULT				 CGameInstance::Render_Debug_Lights()
 {
@@ -261,6 +273,10 @@ void				CGameInstance::Light_Dead()
 	m_pLight_Manager->Light_Dead();
 }
 
+HRESULT				 CGameInstance::Add_Render_Light(shared_ptr<CLight> pLight)
+{
+	return m_pLight_Manager->Add_Render_Light(pLight);
+}
 #endif 
 #pragma endregion
 
@@ -436,9 +452,9 @@ _bool	CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstr
 {
 	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, readStart, startmat, endMat, OriginMatrix, EdgePoses,iSizecnt, bFinished, bCheck);
 }
-CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj)
+CGameObject* CGameInstance::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack, _float4* fOutPos)
 {
-	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj);
+	return m_pCollision_Manager->AABB_CheckinLayer(endLayerIndex, LayerName, pObj, bBack, fOutPos);
 }
 _bool		CGameInstance::RayCast(const uint32_t endLayerIndex, const _wstring& strCompareLayerName, const _wstring& LayerName, const _char* tagName, weak_ptr<CTransform> pSrcTransform, _fvector OffsetRay)
 {
@@ -452,9 +468,9 @@ weak_ptr<CGameObject>	CGameInstance::Matrix_Check_Collision(_fmatrix Checck, COL
 {
 	return m_pCollision_Manager->Matrix_Check_Collision(Checck, eCollisionValue);
 }
-_vector				CGameInstance::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir)
+_bool				CGameInstance::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir, _float4* fOutPos)
 {
-	return m_pCollision_Manager->CheckMesh_Triangle(pObj, MeshNumbers, vOriginPos, vOriginDir);
+	return m_pCollision_Manager->CheckMesh_Triangle(pObj, MeshNumbers, vOriginPos, vOriginDir, fOutPos);
 }
 #pragma endregion
 
@@ -645,11 +661,50 @@ void	  CGameInstance::Save_ParticleData(uint32_t iNumLevel, const _wstring& path
 	m_pParticle_Manager->Save_ParticleData(iNumLevel, path, strJsonKeyName);
 }
 
+#pragma SOUND_MANAGER
+
+HRESULT	    CGameInstance::Play_Sound_Once(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume)
+{
+	return m_pSound_Manager->Play_Sound_Once(_FilePath, _SoundChannel, Volume);
+}
+HRESULT		CGameInstance::Play_Sound(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume, _bool ChanelMode)
+{
+
+	return m_pSound_Manager->Play_Sound(_FilePath, _SoundChannel, Volume, ChanelMode);
+}
+HRESULT		CGameInstance::Stop_Sound(CHANNELID _SoundChannel)
+{
+
+	return m_pSound_Manager->Stop_Sound(_SoundChannel);
+}
+HRESULT		CGameInstance::Stop_AllSound()
+{
+	return m_pSound_Manager->Stop_AllSound();
+}
+_bool		CGameInstance::IsPlaying(CHANNELID _SoundChannel)
+{
+	return m_pSound_Manager->IsPlaying(_SoundChannel);
+}
+void		CGameInstance::Set_ChannelVolume(CHANNELID _CID, FLOAT Volume)
+{
+	m_pSound_Manager->Set_ChannelVolume(_CID, Volume);
+}
+void		CGameInstance::Set_ChannelGroupVolume(CHANNELID _CID, FLOAT Volume)
+{
+	m_pSound_Manager->Set_ChannelGroupVolume(_CID, Volume);
+}
+_float		CGameInstance::Get_ChannelVolume(CHANNELID _CID)
+{
+	return m_pSound_Manager->Get_ChannelVolume(_CID);
+}
+
+#pragma endregion
+
 #pragma endregion
 void CGameInstance::Release_Engine()
 {
 	m_pLight_Manager.reset();
-	
+	m_pSound_Manager.reset();
 	m_pInstancing.reset();
 
 	m_pTarget_Manager.reset();

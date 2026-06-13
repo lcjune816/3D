@@ -147,6 +147,7 @@
     <ClInclude Include="..\public\Cat_Fog.h" />
     <ClInclude Include="..\public\Cat_FSM.h" />
     <ClInclude Include="..\public\Client_Defines.h" />
+    <ClInclude Include="..\public\Client_Macro.h" />
     <ClInclude Include="..\public\CWorldParticle.h" />
     <ClInclude Include="..\public\DecalObject.h" />
     <ClInclude Include="..\public\FSM_Cat_Nightmare.h" />

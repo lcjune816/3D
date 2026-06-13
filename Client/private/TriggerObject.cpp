@@ -91,7 +91,10 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	m_pTrigger->Set_Parent(SHARED_THIS(CTriggerObject));
  //	CGameInstance::Get().Add_NaviMeshInfo(m_pTransform->Get_WorldPtr());
 
+	m_CheckMeshNameList = m_MeshNameList;
 	m_Components.emplace(L"Trigger", m_pTrigger);
+
+	strcpy_s(m_pTagName, 32, desc->strTriggerName.c_str());
 	return S_OK;
 }
 void CTriggerObject::Priority_Update(_float fTimeDelta)
@@ -285,6 +288,7 @@ void CTriggerObject::Mesh_Change(vector<uint32_t> MeshList)
 {
 	m_MeshNameList.clear();
 	m_MeshNameList = MeshList;
+
 }
 void CTriggerObject::Set_TargetIDNumber(uint32_t iTargetNumber)
 {
@@ -324,14 +328,26 @@ json CTriggerObject::Save_Data()
 
 	j["TriggerRot"] = static_cast<int32_t>(m_TriggerInfo.eRot);
 	j["TriggerArrow"] = m_TriggerInfo.fArrrowRotation;
-	j["FrameTick"] = m_TriggerInfo.fFrameTickTime ;
+	j["FrameTick"] = m_TriggerInfo.fFrameTickTime;
 	j["FrameMaxTime"] = m_TriggerInfo.fMaxFrameTime;
 	j["WorldEvent"] = static_cast<int32_t>(m_TriggerInfo.eWorldEvent);
+	
+	if(NULL_FALSE(m_pLight))
+	j["Lights"] = m_pLight->Save_Data();
 	return j;
 }
 HRESULT CTriggerObject::Ready_Component()
 {
 
+	return S_OK;
+}
+HRESULT CTriggerObject::Add_Light(LIGHT_DESC& Light)
+{
+	auto pLight = CLight::Create(m_pDevice, m_pContext, Light);
+	if (NULL_TRUE(pLight))
+		MSG_BOX("Create Failed Light To Trigger");
+
+	m_pLight = pLight;
 	return S_OK;
 }
 HRESULT CTriggerObject::Create_Component(void* pArg)
@@ -351,7 +367,6 @@ HRESULT CTriggerObject::Create_Component(void* pArg)
 	m_pTrigger = static_pointer_cast<CTrigger>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), TriggerName, pArg));
 	if (nullptr == m_pTrigger) return E_FAIL;
 	
-	
 	return S_OK;
 }
 void CTriggerObject::Load_Data(void* pDesc, const json& j)
@@ -368,6 +383,16 @@ void CTriggerObject::Load_Data(void* pDesc, const json& j)
 	desc->iModeNumber    = iModelNumber;
 	m_TriggerInfo.iObjectID = j["ObjectID"];
 	m_TriggerInfo.iTargetObjectID = j["ObjectTargetID"];
+
+	if (j.contains("Lights"))
+	{
+		json Light = j["Lights"];
+		auto pLight = CLight::Create(m_pDevice, m_pContext, Light);
+		if (NULL_TRUE(pLight))
+			return;
+
+		m_pLight = pLight;
+	}
 	
 }
 unique_ptr<CTriggerObject> CTriggerObject::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)

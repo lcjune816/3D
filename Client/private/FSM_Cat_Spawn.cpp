@@ -20,8 +20,6 @@ HRESULT CFSM_Cat_Spawn::Initialize(void* pArg)
 	//126
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN, SHARED_THIS(CFSM_Cat_Spawn));
-
-	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Cat_Spawn));
 	return S_OK;
 }
 void CFSM_Cat_Spawn::Enter_State()

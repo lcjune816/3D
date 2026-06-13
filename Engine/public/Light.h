@@ -2,7 +2,7 @@
 #include "Engine_Defines.h"
 
 NS_BEGIN(Engine)
-class CLight final
+class ENGINE_DLL CLight final
 {
 private:
 	CLight(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -25,9 +25,9 @@ public:
 		return nullptr;
 	}
 	LIGHT_DESC* Get_LightDescNoCheckType() { return &m_LightDesc; }
-	void					Set_LightDesc(LIGHT_DESC Desc) {
-			m_LightDesc = Desc;
-	}
+
+	LIGHT_DESC* Get_LightDescOrigin() { return &m_LightOrigin; }
+	void					Set_LightDesc(LIGHT_DESC Desc);
 	void						Set_Dead(_bool bDead) { m_bDead = bDead; }
 public:
 	json						Save_Data();

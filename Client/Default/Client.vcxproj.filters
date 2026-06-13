@@ -246,6 +246,9 @@
     <ClInclude Include="..\public\WorldLight.h">
       <Filter>23.Light_Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Client_Macro.h">
+      <Filter>99.Defines</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">

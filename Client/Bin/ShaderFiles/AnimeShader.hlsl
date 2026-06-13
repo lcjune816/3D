@@ -47,14 +47,15 @@ VOut VS_MAIN(VS_IN In)
   
   
    vector vPosition = mul(float4(In.pos, 1.f), BoneMatirx);
-   
+    vector vNormal = mul(float4(In.vNormal, 0.f), BoneMatirx);
+    
    vPosition = mul(vPosition, matWVP);
    
    output.pos = vPosition;
+    output.vNormal = normalize(mul(vNormal, g_World));
    output.texcoord = In.texcoord;
-    output.vNormal = normalize(mul(float4(In.vNormal, 0.f), g_World));
    output.vWorldPos = mul(vector(In.pos, 1.f), g_World);
-    output.vProjPos = output.vWorldPos;
+    output.vProjPos = vPosition;
 	return output;
 }
 
@@ -72,7 +73,6 @@ struct PS_OUT
 {
     vector vDiffuse : SV_TARGET0;
     vector vNormal : SV_TARGET1;
-    
     vector vDepth : SV_TARGET2;
 };
 

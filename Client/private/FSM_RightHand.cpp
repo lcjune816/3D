@@ -53,7 +53,9 @@ void CFSM_RightHand::Enter_State()
 	m_pArm.lock()->Get_ArmMatrix().Matrix.resize(800);
 	m_fLength = 5.f;
 	Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::ENABLE);
+	PLAY_SOUND(PLAYER_SOUND_SHOOT_GRAB, CHANNELID::SOUND_EFFECT02,0.4f);
 	m_eAction = FSM_ACTION::ACTION;
+	m_bSound = false;
 }
 
 void CFSM_RightHand::Update_State(_float fTimeDelta)
@@ -74,6 +76,8 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 		Action_Hand(fTimeDelta,Player,pHand,pArm);
 		break;
 	case FSM_ACTION::RETURN:
+
+		IS_PLAYSOUND(PLAYER_SOUND_CABLE, CHANNELID::SOUND_EFFECT02, 0.2f);
 		Return_Hand(fTimeDelta, Player, pHand, pArm);
 		break;
 	}
@@ -86,6 +90,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 
 void CFSM_RightHand::Exit_State()
 {
+	STOP_SOUND(CHANNELID::SOUND_EFFECT02);
 	Set_Flag(ETOUI(FSM_HAND_FLAG::END), FLAGVALUE::RESET);
 
 	auto pObj = m_pHand.lock();
@@ -97,6 +102,7 @@ void CFSM_RightHand::Exit_State()
 	pObj->Get_HandState().bShoot = false;
 	pObj->Hand_Pivot();
 
+	PLAY_SOUND(PLAYER_SOUND_BACK_GRAB, CHANNELID::SOUND_EFFECT02, 0.4f);
 
 }
 void CFSM_RightHand::Set_RightHand(shared_ptr<CGameObject> pObj, shared_ptr<CGameObject> pArm)
@@ -120,6 +126,7 @@ void CFSM_RightHand::Action_Hand(const _float& fTimeDelta, shared_ptr<CPlayer> p
 		m_fSpeed = min(m_fSpeed, 500.f);
 		if (!(Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED))) && !m_bStop)
 		{
+			IS_PLAYSOUND(PLAYER_SOUND_CABLE, CHANNELID::SOUND_EFFECT02, 0.2f);
 			m_fShootTimeTick += fTimeDelta;
 			if (m_fShootTimeTick > 0.05f)
 			{
@@ -560,7 +567,6 @@ _bool CFSM_RightHand::Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj, CTr
 		bCheck = true;
 		break;
 	case TRIGGER_EVENT::ROLLUPDOOR:
-		if (!pTrigger->Get_TriggerPtr()->Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 		bCheck = false;
 		break;
 	case TRIGGER_EVENT::ELECTRICPOLE:
@@ -584,6 +590,7 @@ _bool CFSM_RightHand::Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj, CTr
 		}
 			
 		return true;
+
 		break;
 	}
 
@@ -624,6 +631,7 @@ void CFSM_RightHand::Hand_State_Chand(CHANGE_STATE eChange)
 	case CHANGE_STATE::END:
 		if (m_bFront)
 			return;
+
 		Set_Flag(ETOUI(FSM_HAND_FLAG::ATTACHED) | ETOUI(FSM_HAND_FLAG::SHOT) | ETOUI(FSM_HAND_FLAG::TIMER), FLAGVALUE::DISABLE);
 		m_eAction = FSM_ACTION::RETURN;
 		iFlag = ETOUI(FSM_HAND_FLAG::ALL_STOP);
