@@ -217,6 +217,12 @@
     <Filter Include="05.GameObject\LightEffect">
       <UniqueIdentifier>{32c68015-6a89-42f4-b486-174247b18fa2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="10.Trigger_Manager\Trigger\Button">
+      <UniqueIdentifier>{cb71dfaf-f6fa-4fe0-b4ac-083505cc2c03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="96.SoundManager">
+      <UniqueIdentifier>{cd938450-a064-481f-aaca-157e5a158150}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -336,9 +342,6 @@
     <ClInclude Include="..\public\RollupDoor.h">
       <Filter>10.Trigger_Manager\Trigger\RollupDoor</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Trigger_Manager.h">
-      <Filter>10.Trigger_Manager</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Battery.h">
       <Filter>10.Trigger_Manager\Trigger\Battery</Filter>
     </ClInclude>
@@ -453,6 +456,15 @@
     </ClInclude>
     <ClInclude Include="..\public\LightEffect.h">
       <Filter>05.GameObject\LightEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Trigger_Manager.h">
+      <Filter>10.Trigger_Manager\Trigger</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Button.h">
+      <Filter>10.Trigger_Manager\Trigger\Button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\SoundManager.h">
+      <Filter>96.SoundManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -701,6 +713,12 @@
     </ClCompile>
     <ClCompile Include="..\private\LightEffect.cpp">
       <Filter>05.GameObject\LightEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Button.cpp">
+      <Filter>10.Trigger_Manager\Trigger\Button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\SoundManager.cpp">
+      <Filter>96.SoundManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

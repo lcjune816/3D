@@ -48,13 +48,12 @@ HRESULT CCamera::Initialize(void* pArg)
 
 void CCamera::Priority_Update(_float fTimeDelta)
 {
-
+   
 }
 
 void CCamera::Update(_float fTimeDelta)
 {
-    
-    
+  
 }
 
 void CCamera::Late_Update(_float fTimeDelta)
@@ -123,9 +122,6 @@ void CCamera::Late_Update(_float fTimeDelta)
     }
     else
     {
-        // POINT mousePos;
-        // GetCursorPos(&mousePos);
-        // ScreenToClient(g_hWnd, &mousePos);
         _matrix SrcMatrix = XMLoadFloat4x4(&m_CurrentWorldMatrix);
         _matrix DestMatrix = XMLoadFloat4x4(m_pParentMatrix);
 
@@ -140,8 +136,8 @@ void CCamera::Late_Update(_float fTimeDelta)
             SrcRotation = -SrcRotation;
 
 
-        _vector vLastRotation = XMQuaternionSlerp(SrcRotation, DestRotaiton, 1.f - exp(-60.f * fTimeDelta));
-        _vector vLastPosition = XMVectorLerp(SrcMatrix.r[3], DestMatrix.r[3], 1.f - exp(-75.f * fTimeDelta));
+        _vector vLastRotation = XMQuaternionSlerp(SrcRotation, DestRotaiton, 1.f - exp(-40.f * fTimeDelta));
+        _vector vLastPosition = DestMatrix.r[3];
         FinalMatrix = XMMatrixRotationQuaternion(vLastRotation);
         FinalMatrix.r[3] = vLastPosition;
         CombinedMatrix(FinalMatrix);
@@ -153,7 +149,6 @@ void CCamera::Late_Update(_float fTimeDelta)
 
         SetCursorPos(pt.x, pt.y);
     }
-
 
     __super::Update_PipeLine();
 }

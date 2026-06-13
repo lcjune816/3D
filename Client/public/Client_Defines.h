@@ -4,7 +4,7 @@
 #include <memory>
 #include <process.h>
 #include "Engine_Defines.h"
-
+#include "Client_Macro.h"
 namespace Client
 {
 #define    SPTCAST(Src)  static_pointer_cast<Src>

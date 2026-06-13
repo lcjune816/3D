@@ -52,11 +52,12 @@ void CFSM_LeftHand::Enter_State()
 	m_pArm.lock()->Get_ArmMatrix().Matrix.resize(800);
 
 	Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::ENABLE);
+	PLAY_SOUND(PLAYER_SOUND_SHOOT_GRAB, CHANNELID::SOUND_EFFECT02, 0.4f);
 }
 
 void CFSM_LeftHand::Update_State(_float fTimeDelta)
 {
-
+	
 	auto Player = m_pPlayer.lock();
 	auto pHand = m_pHand.lock();
 	auto pArm = m_pArm.lock();
@@ -81,6 +82,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::ATTACHED)))
 		{
+			IS_PLAYSOUND(PLAYER_SOUND_CABLE, CHANNELID::SOUND_EFFECT02, 0.2f);
 			XMStoreFloat3(&m_fLastHandPos, XMLoadFloat3(&m_fLastHandPos) + XMLoadFloat3(&m_fFirstLook) * m_fSpeed * fTimeDelta); //마지막 위치 늘려서 보간하기
 		}
 		
@@ -97,6 +99,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 
 	if (!m_bReFinished && Flag_Check(ETOUI(FSM_HAND_FLAG::PULL)))
 	{
+		IS_PLAYSOUND(PLAYER_SOUND_CABLE, CHANNELID::SOUND_EFFECT02, 0.2f);
 		_matrix matrix = XMLoadFloat4x4(m_StartMatrix);
 		_vector StartPos = matrix.r[3];
 
@@ -164,6 +167,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 
 void CFSM_LeftHand::Exit_State()
 {
+	STOP_SOUND(CHANNELID::SOUND_EFFECT02);
 	Set_Flag(ETOUI(FSM_HAND_FLAG::END), FLAGVALUE::RESET);
 
 	auto pObj = m_pHand.lock();
@@ -175,6 +179,7 @@ void CFSM_LeftHand::Exit_State()
 	pObj->Get_HandState().bShoot = false;
 	pObj->Hand_Pivot();
 
+	PLAY_SOUND(PLAYER_SOUND_BACK_GRAB, CHANNELID::SOUND_EFFECT02, 0.4f);
 
 }
 
@@ -472,8 +477,10 @@ _bool CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, CTrig
 	case TRIGGER_EVENT::ELECTRICPOLE:
 		if (!Flag_Check(ETOUI(FSM_HAND_FLAG::WALLCOLLIDE)))
 			return false;
-
 		break;
+
+	case TRIGGER_EVENT::ROLLUPDOOR:
+		return false;
 	}
 
 	return true;

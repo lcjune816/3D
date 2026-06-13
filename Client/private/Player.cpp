@@ -33,7 +33,7 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 		NaviDesc.iIndex = 27;
 	else if (objDesc->iLevel == ETOUI(LEVEL::GASZONE))
 		NaviDesc.iIndex = 31;
-
+	m_iLevel = objDesc->iLevel;
 	//27
 	//233
 	if (FAILED(Add_Component(objDesc->iLevel, TEXT("Component_Navigation"), TEXT("Com_Navigation"), m_pNavigation, &NaviDesc)))
@@ -161,7 +161,6 @@ void CPlayer::Priority_Update(_float fTimeDelta)
 }
 void CPlayer::Update(_float fTimeDelta)
 {
-
 	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
 	//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
@@ -175,11 +174,16 @@ void CPlayer::Update(_float fTimeDelta)
 
   	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
-
-	uint32_t iFlag = ETOUI(PLAYER_FLAG::JUMP) | ETOUI(PLAYER_FLAG::CROUCH);
-	if (!Flag_Check(iFlag))
+	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f + m_fOffsetY));
+	auto pObj = CGameInstance::Get().Get_ObjectPtr(m_iLevel, TEXT("Layer_TriggerObject"), "OBJ_Elevator");
+	if (NULL_FALSE(pObj))
 	{
-		m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f));
+		if (CGameInstance::Get().Only_AABB_Collision(m_pTransform, pObj->Get_Transform()))
+		{
+			static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
+			_float fHeight = XMVectorGetY(static_cast<CTriggerObject*>(pObj)->Get_TransformPtr()->Get_State(STATE::POS));
+			m_pTransform->Set_State(STATE::POS, XMVectorSetY(m_pTransform->Get_State(STATE::POS), fHeight + 23.f + m_fOffsetY));
+		}
 	}
 
 	m_pPlayerLHand->Update(fTimeDelta);
@@ -188,14 +192,16 @@ void CPlayer::Update(_float fTimeDelta)
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pAim->Update(fTimeDelta);
 	m_pNavigation->Dead_Check();
+
+
+		
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer));
-
-
 }
 void CPlayer::Late_Update(_float fTimeDelta)
 {
 	m_pPlayerRHand->Late_Update(fTimeDelta);
 	m_pPlayerLHand->Late_Update(fTimeDelta);
+
 	m_pAim->Late_Update(fTimeDelta);
 }
 HRESULT CPlayer::Render()

@@ -118,7 +118,7 @@ HRESULT CBatteryCase::Action_Trigger(weak_ptr<class CTransform> pTransform)
 		
 	
 
-
+		IS_PLAYSOUND(BATTERYCASE_SOUND, CHANNELID::SOUND_OBJECT, 0.3f);
 
 
 

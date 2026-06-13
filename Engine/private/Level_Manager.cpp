@@ -20,6 +20,7 @@ HRESULT CLevel_Manager::Change_Level(uint32_t iNewLevelIndex, unique_ptr<class C
 	{
 		CGameInstance::Get().Clear_Resources(m_iCurrentLevelIndex);
 		m_pCurrentLevel.reset();
+
 	}
 
 

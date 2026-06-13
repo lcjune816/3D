@@ -25,10 +25,12 @@ public:
 
 private:
 	void			Action(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta);
-	void			Action_Return(shared_ptr<CBoss_Cat> pBoss);
+	void			Action_Return(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta);
 private:
 	uint32_t		m_iNaviEventIndex{};
 	_float3			m_fDestPos;
+	_float3			m_fCurrentPos, m_fCurretLook, m_fPreLook;
+	_float			m_fAngle{};
 public:
 	static unique_ptr<CFSM_Cat_Nightmare> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

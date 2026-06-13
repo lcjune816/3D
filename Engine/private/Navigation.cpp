@@ -65,6 +65,7 @@ HRESULT CNavigation::Ready_Neightbors()
 _bool CNavigation::InMove(_fvector vResultPos,_float3* fDir)
 {
     //더이상 갈수있는 노드가 없을경우
+
     if (-1 == m_iCurretnCellindex || m_Cells.empty())
         return false;
     
@@ -399,6 +400,19 @@ _vector CNavigation::Get_CellEventPos(CELL_EVENT eType)
     }
     return XMVectorSet(0,0,0,1);
 }
+void CNavigation::ReSearchCell(_fvector vPos)
+{
+    int32_t iIndex = -1;
+    for (auto& iter : m_Cells)
+    {
+        iIndex = iter->ReSearchCell(vPos);
+        if (iIndex != -1)
+        {
+            m_iCurretnCellindex = iIndex;
+            return;
+        }
+    }
+}
 void CNavigation::Dead_Check()
 {
 
@@ -422,15 +436,7 @@ void CNavigation::Event_Check(CELL_EVENT eCellEvent)
         eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
         CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP,eEvent);
     }
-    else if (eCellEvent == CELL_EVENT::BOSSTP)
-    {
-
-        EVENT eEvent;
-        eEvent.eEvent = WORLD_EVENT::BOSS_TP;
-        eEvent.iIndex = m_iCurretnCellindex;
-        eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
-        CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP, eEvent);
-    }
+   
     m_eEvent = eCellEvent;
 
 }

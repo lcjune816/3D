@@ -7,6 +7,7 @@ class CNonModel;
 class CCube;
 class CShader;
 class CTrigger;
+class CLight;
 class CDebugLine;
 NS_END
 
@@ -55,10 +56,10 @@ public:
 
 	
 	const TRIGGER_INFO	Get_TriggerInfo() { return m_TriggerInfo; }
-	Engine::CTrigger*			Get_TriggerPtr() { return m_pTrigger.get(); }
+	Engine::CTrigger*	Get_TriggerPtr() { return m_pTrigger.get(); }
 	void				Set_TargetIDNumber(uint32_t iTargetNumber);
 	void				Set_Trigger(); 
-
+	HRESULT				Add_Light(LIGHT_DESC& Light);
 	virtual void		Mesh_Change(vector<uint32_t> MeshList)override;
 private: 
 	HRESULT				Create_Component(void* pArg);
@@ -69,6 +70,7 @@ private:
 	shared_ptr<Engine::CTrigger>		m_pTrigger = { nullptr };
 	vector<uint32_t>					m_MeshNameList;
 
+	shared_ptr<Engine::CLight>			m_pLight;
 	TRIGGER_INFO						m_TriggerInfo;
 	_float4x4							m_TargetMatrix = {};
 	uint32_t							m_iLevel = { ETOUI(LEVEL::GAMEPLAY) };

@@ -26,7 +26,7 @@ void CFSM_Teacher_Move::Enter_State()
 
 void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 {
-
+	IS_PLAYSOUND(TEACHER_BGM_SOUND2, CHANNELID::SOUND_BGM01, 0.2f);
 	auto Boss = m_pBoss.lock();
 	auto pTransform = Boss->Get_Transform().lock();
 	if (NULL_TRUE(Boss)) return;
@@ -97,6 +97,8 @@ void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr
 {
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 	pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
+
+	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, 0.4f);
 
 	if (pBoss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
 		pBoss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);

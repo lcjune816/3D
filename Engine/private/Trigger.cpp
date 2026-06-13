@@ -117,6 +117,42 @@ _bool				CTrigger::Set_DstTransform(shared_ptr<CTransform> pTransform)
 	return false;
 }
 
+_bool CTrigger::StartPos(_fvector StartPos, _fvector OffsetPos,  _float4* OutPos, const _float fTimeDelta)
+{
+
+	_float fTimeCheck = m_fFrameTick += fTimeDelta ;
+	_float t = min(1.f, fTimeDelta / m_fMaxFrameTime);
+	_vector LinearPos = XMVectorLerp(StartPos,OffsetPos, fTimeDelta) ;
+
+	XMStoreFloat4(OutPos, LinearPos);
+	if (fabsf(fabsf(XMVectorGetY(StartPos)) - fabsf(XMVectorGetY(OffsetPos))) < 0.01f)
+	{
+		XMStoreFloat4(OutPos, OffsetPos);
+		return true;
+	}
+
+
+	return false;
+}
+
+_bool CTrigger::EndPos(_fvector StartPos, _fvector OffsetPos, _float4* OutPos, const _float fTimeDelta)
+{
+
+	_float t = min(1.f, fTimeDelta / m_fMaxFrameTime);
+	_vector LinearPos = XMVectorLerp(StartPos ,OffsetPos, fTimeDelta);
+
+	XMStoreFloat4(OutPos, LinearPos);
+	if (fabsf(fabsf(XMVectorGetY(StartPos)) - fabsf(XMVectorGetY(OffsetPos))) < 0.01f)
+	{
+
+		XMStoreFloat4(OutPos, OffsetPos);
+		return true;
+	}
+
+
+	return false;
+}
+
 void CTrigger::Set_Flag(uint32_t iFlag, FLAGVALUE eValue)
 {
 

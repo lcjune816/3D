@@ -27,7 +27,7 @@ public:
 	~CLight_Manager();
 
 public:
-	HRESULT Initialize();
+	HRESULT Initialize(uint32_t iLevel);
 
 	LIGHT_DESC*			  Find_LightMtrl(const LIGHT& eLight);
 	void				 Set_LightDesc(LIGHT_DESC& eLight);
@@ -36,16 +36,22 @@ public:
 	LIGHT_HANDLE		 Add_Light(const LIGHT_DESC& LightDesc);
 	HRESULT				 Render(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer);
 	
+	HRESULT				Add_Render_Light(shared_ptr<class CLight> pLight);
 	void				Save_Lights(const _wstring& path, const string& strJsonKeyName);
 	HRESULT				Load_Lights(uint32_t iPrototypeLevel, const wstring& strPrototypeName, uint32_t iLevel ,const _wstring& strLevelName, json& j);
 
 	void				Light_Dead();
+	void				Clear(uint32_t iCurrentLevel);
+
+	
 #ifdef _DEBUG
 	HRESULT				 Render_Debug_Lights();
 #endif 
 shared_ptr<class CLight>	 Select_Light(_fvector OriginPos, _fvector OriginDir);
 
 LIGHT_DESC* Get_LightToHandle(uint32_t iIndex, uint32_t iHandle);
+
+LIGHT_DESC* Get_LightToHandleOrigin(uint32_t iIndex, uint32_t iHandle);
 private:
 	HRESULT		Load_LightMtrl();
 
@@ -57,15 +63,16 @@ private:
 	vector<uint32_t>				m_Generation;
 
 
-	vector<shared_ptr<class CLight>>		m_Lights[ETOUI(USETYPE::END)];
-
+	vector<vector<vector<shared_ptr<class CLight>>>>	m_Lights;
+	vector<shared_ptr<CLight>>							m_ClientLights;
 	map<string, shared_ptr<LIGHT_VALUE>>			m_LightMtrls;
 	vector<string>									m_ObjectNames;
 
+	uint32_t										m_iCurrentLevel;
 	shared_ptr<class CShader>							m_pDebugShader{ nullptr };
 	shared_ptr<class CCube>								m_pDebugVIBuffer{ nullptr };
 public:
-	static unique_ptr<CLight_Manager> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
+	static unique_ptr<CLight_Manager> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext, uint32_t iLevel);
 
 };
 

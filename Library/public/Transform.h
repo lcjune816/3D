@@ -46,10 +46,10 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 public:
-	void Go_Straight(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation = nullptr);
-	void Go_BackWard(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation = nullptr);
-	void Go_Left(_float fTimeDelta,     shared_ptr<class CNavigation> pNavigation = nullptr);
-	void Go_Right(_float fTimeDelta,    shared_ptr<class CNavigation> pNavigation = nullptr);
+	void Go_Straight(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation = nullptr, _bool ZeroY = false);
+	void Go_BackWard(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation = nullptr, _bool ZeroY = false);
+	void Go_Left(_float fTimeDelta,     shared_ptr<class CNavigation> pNavigation = nullptr, _bool ZeroY = false);
+	void Go_Right(_float fTimeDelta,    shared_ptr<class CNavigation> pNavigation = nullptr, _bool ZeroY = false);
 	void Go_Up(_float fTimeDelta, _float m_fSpeed);
 	void Set_Matrix(_fmatrix matrix);
 	void Apply_Rotation(_fvector vAxis, _float fAngle);

@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject.h"
 NS_BEGIN(Engine)
-enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT,GENERATOR, ELEVATOR,END};
+enum class TRIGGER_EVENT{BATTERY, DOOR,PANNEL, GELECTRIC, BELECTRIC, LEVER,ROLLUPDOOR, BATTERYCASE , ELECTRICPOLE, PUZZLEROT,GENERATOR, ELEVATOR, BUTTON,END};
 enum class TRIGGER_FLAG
 {
 	SHADER = 0x0000001, FTRIGGER = 0x0000002, OTHERTRIGGER = 0x0000004, ATTACHED = 0x00000008, CANCLE = 0x00000010 ,PAUSE = 0x00000020, WORLD_EVENT = 0x00000040, END = 0xffffffff
@@ -47,6 +47,10 @@ public:
 	uint32_t						Get_TargetNumber() { return m_iTargetNumber; }
 	_bool							Set_DstTransform(shared_ptr<class CTransform> pTransform);
 	
+	_bool							StartPos(_fvector StartPos, _fvector OffsetPos, _float4* OutPos, const _float fTimeDelta);
+	_bool							EndPos(_fvector StartPos, _fvector OffsetPos,   _float4* OutPos, const _float fTimeDelta);
+
+
 	void							Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
 	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
 	_bool							Get_OtherTrigger() { return m_bOtherTrigger; }

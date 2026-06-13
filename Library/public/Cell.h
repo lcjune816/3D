@@ -45,6 +45,7 @@ public:
 	void			Set_CellEvent(CELL_EVENT eEvent) {
 		m_eEvent = eEvent;}
 	
+	int32_t			ReSearchCell(_fvector vPos);
 #ifdef _DEBUG
 	HRESULT Render(class CShader* pShader);
 

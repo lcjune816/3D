@@ -1,0 +1,45 @@
+{
+    "Lights": [
+        {
+            "LightAmbient": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "LightAngleRagne": 0.0,
+            "LightDiffuse": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "LightDir": [
+                1.0,
+                -1.0,
+                1.0,
+                0.0
+            ],
+            "LightPos": [
+                637.8929443359375,
+                52.48641586303711,
+                5.7372236251831055,
+                1.0
+            ],
+            "LightRangeF2": [
+                0.0,
+                0.0
+            ],
+            "LightSpecular": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "LightType": 0,
+            "LocalEvent": 0,
+            "UseType": 0,
+            "WorldEvent": 10
+        }
+    ]
+}

@@ -59,12 +59,14 @@ void CTransform::Set_Matrix(_fmatrix matrix)
 {
 	XMStoreFloat4x4(&m_WorldMatrix ,matrix);
 }
-void CTransform::Go_Straight(_float fTimeDelta, shared_ptr<CNavigation> pNavigation)
+void CTransform::Go_Straight(_float fTimeDelta, shared_ptr<CNavigation> pNavigation, _bool ZeroY)
 {
 	_vector		vPos = Get_State(STATE::POS);
 	_vector     vSlide = Get_State(STATE::POS);
 	_vector		vLook = Get_State(STATE::LOOK);
 
+	if (ZeroY)
+		vLook = XMVector3Normalize(XMVectorSetY(vLook, 0.f));
 		vPos += XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
 		_float3 fDir = {};
@@ -85,12 +87,14 @@ void CTransform::Go_Straight(_float fTimeDelta, shared_ptr<CNavigation> pNavigat
 	}
 }
 
-void CTransform::Go_BackWard(_float fTimeDelta, shared_ptr<CNavigation> pNavigation)
+void CTransform::Go_BackWard(_float fTimeDelta, shared_ptr<CNavigation> pNavigation, _bool ZeroY)
 {
 
 	_vector		vPos = Get_State(STATE::POS);
 	_vector		vLook = Get_State(STATE::LOOK);
 
+	if (ZeroY)
+		vLook = XMVector3Normalize(XMVectorSetY(vLook, 0.f));
 	vPos -= XMVector3Normalize(vLook) * m_fSpeedPerSec * fTimeDelta;
 
 
@@ -99,11 +103,13 @@ void CTransform::Go_BackWard(_float fTimeDelta, shared_ptr<CNavigation> pNavigat
 		Set_State(STATE::POS, vPos);
 }
 
-void CTransform::Go_Left(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation)
+void CTransform::Go_Left(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation, _bool ZeroY)
 {
 	_vector		vPos = Get_State(STATE::POS);
 	_vector		vRight = Get_State(STATE::RIGHT);
 
+	if (ZeroY)
+		vRight = XMVector3Normalize(XMVectorSetY(vRight, 0.f));
 	vPos -= XMVector3Normalize(vRight) * m_fSpeedPerSec * fTimeDelta;
 
 
@@ -112,13 +118,15 @@ void CTransform::Go_Left(_float fTimeDelta, shared_ptr<class CNavigation> pNavig
 		Set_State(STATE::POS, vPos);
 }
 
-void CTransform::Go_Right(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation)
+void CTransform::Go_Right(_float fTimeDelta, shared_ptr<class CNavigation> pNavigation, _bool ZeroY)
 {
 	_vector		vPos = Get_State(STATE::POS);
 	_vector		vRight = Get_State(STATE::RIGHT);
 
 	vPos += XMVector3Normalize(vRight) * m_fSpeedPerSec * fTimeDelta;
 
+	if (ZeroY)
+		vRight = XMVector3Normalize(XMVectorSetY(vRight, 0.f));
 	if (nullptr == pNavigation || true == pNavigation->InMove(vPos))
 		Set_State(STATE::POS, vPos);
 }
