@@ -96,7 +96,7 @@ void CBoss_Cat::Priority_Update(_float fTimeDelta)
 }
 void CBoss_Cat::Update(_float fTimeDelta)
 {
-	if (CGameInstance::Get().Get_DIKeyState(DIK_M))
+  	if (CGameInstance::Get().Get_DIKeyState(DIK_M))
 	{
 		EVENT eEvent{};
 		eEvent.eEvent = WORLD_EVENT::BOSS_SPAWN;
@@ -231,7 +231,8 @@ void CBoss_Cat::Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE eAnime, _bool bLo
 
 	if (m_bOnlyActionState)
 		return;
-
+	if (bLoop == false)
+		int a = 3;
 	m_bFinished = bLoop;
 	m_pAnimator[ETOUI(m_eFormType)]->Change_Animation_Enum(ETOUI(eAnime), bLoop, bForce);
 }

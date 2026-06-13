@@ -25,13 +25,13 @@ HRESULT CRollupDoor::Initialize(void* pArg)
 	__super::Initialize(pArg);
 	auto pDesc = static_cast<TRIGGER_DESC*>(pArg);
 	
-	m_eState = TRIGGER_STATE::ACTION;
+	m_eState = TRIGGER_STATE::IDLE;
+	m_fMaxFrameTime = 50.f;
 	if (WORLD_EVENT::ROLLUP_DOOR == pDesc->eWroldEvent)
 	{
- 		m_eState = TRIGGER_STATE::WORLD;
+		m_eEvent = WORLD_EVENT::ROLLUP_DOOR;
 	}
-	
-	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+
 	return S_OK;
 }
 
@@ -42,19 +42,48 @@ HRESULT CRollupDoor::Pirority_Interaction(_float fTimeDelta, _bool bOtherTrigger
 
 HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+	auto pParent = m_pParent.lock();
+	if (NULL_TRUE(pParent))
+		return E_FAIL;
+
+	auto pTransform = pParent->Get_TransformPtr();
 
 	switch (m_eState)
 	{
 	case	TRIGGER_STATE::IDLE:
+
+		XMStoreFloat4(&m_vOriginPos, pTransform->Get_State(STATE::POS));
 		break;
 
 	case	TRIGGER_STATE::ACTION:
-			Down_Door(fTimeDelta);
+		_float4 fPos{};
+		if (StartPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) + XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.02f ))
+		{
+			m_eState = TRIGGER_STATE::IDLE;
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+		}
+		else
+		{
+			pTransform->Set_State(STATE::POS, XMLoadFloat4(&fPos));
+		}
 		break;
 	case	TRIGGER_STATE::WORLD:
 		Down_DeadDoor(fTimeDelta);
 		break;
-	
+	case	TRIGGER_STATE::RETURN:
+
+		if (EndPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) - XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.02f))
+		{
+			m_eState = TRIGGER_STATE::IDLE;
+			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+			Special_Somthing();
+			Set_Trigger();
+		}
+		else
+		{
+			pTransform->Set_State(STATE::POS, XMLoadFloat4(&fPos));
+		}
+		break;
 	}
 	
 	return S_OK;
@@ -67,16 +96,38 @@ HRESULT CRollupDoor::Late_Interaction(_float fTimeDelta,  _bool bOtherTrigger)
 
 void CRollupDoor::Set_Trigger()
 {
+	auto pObj = CGameInstance::Get().Find_Trigger(m_iLevel, m_iTargetNumber).lock();
+
+	if (NULL_TRUE(pObj))
+		return;
+
+	pObj->TriggerToTrigger();
 }
 
 void CRollupDoor::TriggerToTrigger()
 {
+	if (m_eState != TRIGGER_STATE::IDLE)
+		return;
 
-	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
-	if (m_eState == TRIGGER_STATE::WORLD)
+	if (m_eEvent == WORLD_EVENT::ROLLUP_DOOR)
 	{
 		OnNotify({});
 	}
+	else
+	{
+		if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		{
+			IS_PLAYSOUND(ROLLUPDOOR_SOUND, CHANNELID::SOUND_OBJECT, 0.3f);
+			m_eState = TRIGGER_STATE::ACTION;
+		}
+		else 
+		{
+			IS_PLAYSOUND(ROLLUPDOOR_SOUND, CHANNELID::SOUND_OBJECT, 0.3f);
+			m_eState = TRIGGER_STATE::RETURN;
+		}
+			
+	}
+		
 }
 
 void CRollupDoor::OnNotify(const EVENT& event)
@@ -99,7 +150,7 @@ void CRollupDoor::OnNotify(const EVENT& event)
 	 m_fCurHeight = XMVectorGetY(vPos);
 	m_fSrcLength = XMVectorGetX(XMVector3Length(vSrcPos));
 	m_fDestLength = XMVectorGetX(XMVector3Length(vSrcPos - vDestPos));
-
+	m_eState = TRIGGER_STATE::WORLD;
 	EVENT eEvent;
 	eEvent.pArg = &m_fWorldTime;
 	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_DEAD, eEvent);
@@ -171,6 +222,10 @@ void CRollupDoor::Action_Trigger(_float fTimeDelta)
 	if(NULL_TRUE(pObj))
 		return;
 	pObj->Get_Transform().lock()->Go_Up(fTimeDelta, m_fRotationArrow);
+}
+
+void CRollupDoor::Special_Somthing()
+{
 }
 
 unique_ptr<CRollupDoor>CRollupDoor::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

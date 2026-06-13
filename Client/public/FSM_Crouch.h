@@ -19,7 +19,7 @@ public:
 
 private:
 	_float			m_fMinCrouch{ 5.f }, m_fMaxCrouch{ 10.f }, m_fCurrentCrouch{}, m_fCrouchTime{ 2 };
-
+	_float			m_fCurrentHeight{};
 	_bool			m_bhmm{ false };
 public:
 	static unique_ptr<CFSM_Crouch> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

@@ -46,12 +46,26 @@ HRESULT CLevel_GamePlay::Initialize()
 	if(FAILED(Ready_Layer_Gui(L"Layer_Gui")))
 		return E_FAIL;
 
-
+	PLAY_SOUND(TEACHER_BGM_SOUND1, CHANNELID::SOUND_BGM01, 0.0f);
 	return S_OK;
 }
 
 void CLevel_GamePlay::Update(_float fTimeDelta)
 {
+	if (!m_bEndSound)
+	{
+		m_fFirstBgm += fTimeDelta;
+		_float fVolume = (m_fFirstBgm /8.f )* 0.2f;
+		
+		if (fVolume >= 0.2f)
+		{
+			fVolume = 0.2f;
+			m_bEndSound = true;
+		}
+		VOLCTL(CHANNELID::SOUND_BGM01, fVolume);
+
+	}
+
 	if ((CGameInstance::Get().Get_DIKeyState(DIK_Q) & 0x80) && (CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80))
 	{
 		CGameInstance::Get().Change_Level(ETOUI(LEVEL::LOADING), 

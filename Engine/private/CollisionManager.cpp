@@ -296,81 +296,87 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 		return false;
 	
 	
-	_float fMaxDistance = 100000.f;
-	_float fPlayerDistance = {};
-	_vector CheckPos = {};
-	_vector DstPos = {};
-	_bool   bReturn = {true};
-
-	auto SrcTransform = pSrcTransform.lock();
+	auto    pSrcTrans = pSrcTransform.lock();
+	if (NULL_TRUE(pSrcTrans))
+		return true;
+	_vector vPlayerDestPos{}, vPlayerDestLook{};
+	_vector vSrcLook = XMVector3Normalize(pSrcTrans->Get_State(STATE::LOOK));
+	
 	for (auto& pLayerInObj : pLayer->Get_ObjectList())
 	{
 		if (pLayerInObj->Check_Name(tagName))
 		{
-			auto DstTransform = pLayerInObj->Get_Transform().lock();
-			if (NULL_TRUE(DstTransform) || NULL_TRUE(SrcTransform))
-				return false;
-
-			_vector SrcPos{}, SrcLook{}, Center{}, Extents{};
-			RayCalculator(SrcTransform.get(), DstTransform.get(), SrcPos, Center, Extents, XMVectorSet(0,0,0,1.f));
-			BoundingBox Dstbox;
-			_vector SrcYRot = XMVector3Normalize(SrcPos);
-			
-
-			XMStoreFloat3(&Dstbox.Center,Center);
-			XMStoreFloat3(&Dstbox.Extents, Extents);
-			SrcLook = XMVector3Normalize(Center - SrcPos);
-
-			_float Dist{};
-			if (Dstbox.Intersects(SrcPos, SrcLook, Dist))
-			{
-				//Player Look은 플레이어 -> 보스 Look 방향
-				//
-				_vector PlayerLook = XMVector3Normalize(DstTransform->Get_World().r[3] - SrcTransform->Get_World().r[3]);
-
-				// 현재 플레이어 원래 방향이랑  Player Look 방향이랑 내적해서 앞뒤 판정 false면 뒤라는거임
-				if (XMVectorGetX(XMVector3Dot(PlayerLook, XMVector3Normalize(DstTransform->Get_State(STATE::LOOK)))) > 0)
-					 return false;
-			
-				fPlayerDistance = Dist;
-				DstPos = Center;
-			}
-
-
+			vPlayerDestPos = pLayerInObj->Get_TransformPtr()->Get_State(STATE::POS);
+			vPlayerDestLook = XMVector3Normalize(pLayerInObj->Get_TransformPtr()->Get_State(STATE::LOOK));
 		}
 	}
-
-	for (auto& pLayerInObj : ComPareLayer->Get_ObjectList())
+	_vector vSrcPos = (pSrcTrans->Get_State(STATE::POS));
+	_vector vTargetDir = XMVector3Normalize(vPlayerDestPos- vSrcPos);
+	vSrcPos -= vTargetDir * 4.f;
+	vTargetDir = XMVector3Normalize(vPlayerDestPos- vSrcPos);
+	_float fTargetDis =  XMVectorGetX(XMVector3Length(vPlayerDestPos - vSrcPos));
+	
+	
+	_float fDisMax = FLT_MAX;
+	shared_ptr<CGameObject> pObj{};
+	for (auto& pLayerDestPos : ComPareLayer->Get_ObjectList())
 	{
-		auto DstTransform = pLayerInObj->Get_Transform().lock();
-		if (NULL_TRUE(DstTransform) || NULL_TRUE(SrcTransform))
-			return false;
+		auto  pDestTransform = pLayerDestPos->Get_TransformPtr();
+		_vector vDestPos = pDestTransform->Get_State(STATE::POS);
 
-		if (XMVectorGetX(XMVector3Length(DstTransform->Get_World().r[3] - SrcTransform->Get_World().r[3])) > fPlayerDistance)
+		if (XMVectorGetX(XMVector3Length(vDestPos - vSrcPos)) > fTargetDis )
+			continue;
+		
+		_float3 vDestMax = pDestTransform->Get_Max();
+		_float3 vDestMin = pDestTransform->Get_Min();
+		
+		if (vDestMax.y  < 25.f)
 			continue;
 
-		_vector SrcPos{}, SrcLook{}, Center{}, Extents{}, vUp{ 0,1,0 ,0};
-		RayCalculator(SrcTransform.get(), DstTransform.get(), SrcPos, Center, Extents, OffsetRay);
-		BoundingBox Dstbox;
-		XMStoreFloat3(&Dstbox.Center, Center);
-		XMStoreFloat3(&Dstbox.Extents, Extents);
-		
-	
-		SrcLook = XMVector3Normalize(DstPos - XMVectorSetY(SrcPos,0.f));
-		_float Dist{};
-		if (Dstbox.Intersects(SrcPos, SrcLook, Dist))
-		{
-			if (fMaxDistance > Dist)
-			{
-				fMaxDistance = Dist;
-			}
+		_matrix vDestInverseWorld = XMMatrixInverse(nullptr,pDestTransform->Get_World());
 
+		_vector vLocalDestMax = XMLoadFloat3(&vDestMax);
+		_vector vLocalDestMin = XMLoadFloat3(&vDestMin);
+		
+		
+		_vector vCenter = (vLocalDestMax + vLocalDestMin) * 0.5f;
+		_vector vExtents = (vLocalDestMax - vLocalDestMin) * 0.5f;
+
+		_vector vSrcLocalPos = XMVector3TransformCoord(vSrcPos, vDestInverseWorld);
+		_vector vTargetLocalDir= XMVector3Normalize(XMVector3TransformNormal(vTargetDir, vDestInverseWorld));
+
+		BoundingBox vDestBox{};
+		XMStoreFloat3(&vDestBox.Center, vCenter);
+		XMStoreFloat3(&vDestBox.Extents, vExtents);
+		
+		_float fDis{};
+		if (vDestBox.Intersects(vSrcLocalPos, vTargetLocalDir, fDis))
+		{
+			if (fDis < 1.f)
+				continue;
+			if (fDisMax > fDis)
+			{
+				fDisMax = fDis;
+				pObj = pLayerDestPos;
+			}
 		}
 	}
+	
+	if (fDisMax == FLT_MAX)
+	{
+		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > 0)
+			return false;
+	}
+	else
+	{
+		//if (CheckMesh_Triangle(pObj, pObj->Get_MeshIndexList(), vSrcPos, vTargetDir, nullptr))
+			return false;
+		
+	}
 
-	if (fMaxDistance < fPlayerDistance)
-		return false;
 
+	
+		
 	return true;
 }
 
@@ -391,12 +397,14 @@ void CCollisionManager::RayCalculator(class CTransform* pSrcTrasnform, class CTr
 
 }
 
-CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack)
+CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _wstring LayerName, weak_ptr<CGameObject> pObj, _bool bBack,_float4* fOutPos)
 {
 	auto SrcObj = pObj.lock();
 	if (NULL_TRUE(SrcObj))
 		return nullptr;
-
+	_vector SrcPos = SrcObj->Get_TransformPtr()->Get_State(STATE::POS);
+	_vector SrcDir = XMVector3Normalize(SrcObj->Get_TransformPtr()->Get_State(STATE::LOOK));
+	auto SrcTransform = SrcObj->Get_Transform();
 	CLayer* pLayer = nullptr;
 	for (size_t i = 0; i < endLayerIndex; ++i)
 	{
@@ -408,13 +416,24 @@ CGameObject* CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, 
 	if (NULL_TRUE(pLayer))
 		return nullptr;
 
-	for (auto& Layer : pLayer->Get_ObjectList())
+	for (auto& pDest : pLayer->Get_ObjectList())
 	{		
-		if (Layer->Get_EndObject())
+		if (pDest->Get_EndObject())
 			continue;
 
-			if (Only_AABB_Collision(SrcObj->Get_Transform(),Layer->Get_Transform(), bBack))
-			return Layer.get();
+		//여긴덷 
+		
+		auto DestTransform = pDest->Get_TransformPtr();
+		_vector DestPos = DestTransform->Get_State(STATE::POS);
+		
+		if (XMVectorGetX(XMVector3Length(SrcPos - DestPos)) > 50.f)
+			continue;
+
+			if(Only_AABB_Collision(SrcTransform, pDest->Get_Transform()))
+			if (CheckMesh_Triangle(pDest, pDest->Get_MeshIndexList(), SrcPos, SrcDir, fOutPos))
+				return pDest.get();
+		
+			
 	}
 
 	return nullptr;
@@ -603,14 +622,20 @@ _bool CCollisionManager::AABB_CheckinLayer(const uint32_t endLayerIndex, const _
 
 }
 
-_vector CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir)
+_bool CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const vector<uint32_t>& MeshNumbers, _fvector vOriginPos, _fvector vOriginDir,_float4* OutPos)
 {
 
 	auto pTransform = pObj->Get_Transform().lock();
 	_matrix pSrcWorld = pTransform->Get_World();
-	_matrix SrcInverseWorld = XMMatrixInverse(nullptr,pSrcWorld);
+
+	_matrix InverseMatrix = XMMatrixInverse(nullptr,pTransform->Get_World());
 	_float fMax = FLT_MAX;
 	_vector vPos = XMVectorSet(0,0,0,1);
+	_bool		bFinished{ false };
+
+	_vector vLocalPos = XMVector3TransformCoord(vOriginPos, InverseMatrix);
+	_vector vLocalDir = XMVector3Normalize(XMVector3TransformNormal(vOriginDir, InverseMatrix));
+
 	for (auto& iter : MeshNumbers)
 	{
 		auto Vertices = CGameInstance::Get().Get_MeshVetexesLists(iter);
@@ -619,18 +644,21 @@ _vector CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, cons
 		uint32_t index{ 0 };
 		for (size_t i = 0; i < Indices->size(); i+=3)
 		{
-			_vector V0 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i]].fPos)  , pSrcWorld);
-			_vector V1 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i + 1]].fPos), pSrcWorld);
-			_vector V2 = XMVector3TransformCoord(XMLoadFloat3(&(*Vertices)[(*Indices)[i + 2]].fPos), pSrcWorld);
+			_vector V0 = XMLoadFloat3(&(*Vertices)[(*Indices)[i]].fPos) ;
+			_vector V1 = XMLoadFloat3(&(*Vertices)[(*Indices)[i + 1]].fPos);
+			_vector V2 = XMLoadFloat3(&(*Vertices)[(*Indices)[i + 2]].fPos);
 			_float fDist{};
 
 
-			if (TriangleTests::Intersects(vOriginPos, vOriginDir,V0, V1, V2, fDist))
+			if (TriangleTests::Intersects(vLocalPos, vLocalDir,V0, V1, V2, fDist))
 			{
 				if (fMax > fDist)
 				{
-					vPos = vOriginPos + vOriginDir * fDist;
+					if (NULL_TRUE(OutPos))
+						return true;
+					vPos = vLocalPos + vLocalDir * fDist;
 					fMax = fDist;
+					bFinished = true;
 				}
 			}
 
@@ -638,10 +666,13 @@ _vector CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, cons
 	
 	}
 
-
+	if (NULL_FALSE(OutPos))
+	{
+		vPos = XMVector4Transform(vPos, pSrcWorld);
+		XMStoreFloat4(OutPos, vPos);
+	}
 	
-
-	return vPos;
+	return bFinished;
 }
 
 weak_ptr<CGameObject> CCollisionManager::Matrix_Check_Collision(_fmatrix Checck, COLLISION eCollisionValue)

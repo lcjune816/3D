@@ -19,6 +19,7 @@ public:
 private:
     uint32_t                m_iCurrentLevelIndex = {};
     unique_ptr<class CLevel>        m_pCurrentLevel = { nullptr };
+    _bool                           m_bReset{};
 
 public:
     static unique_ptr<CLevel_Manager> Create();

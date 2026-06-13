@@ -27,7 +27,7 @@
                 1.0,
                 0.0
             ],
-            "WorldEvent": 7,
+            "WorldEvent": 10,
             "fPos": [
                 700.9279174804688,
                 10.834656715393066,
@@ -95,11 +95,147 @@
                 0.9999983310699463,
                 1.6560600547138593e-12
             ],
-            "WorldEvent": 7,
+            "WorldEvent": 10,
             "fPos": [
                 854.5750732421875,
                 5.738227844238281,
                 412.9689025878906
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                -1.0,
+                -3.639851684056339e-06,
+                -9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Hero\\Elevator\\SM_ElevatorHeroTop_B.fbx",
+            "ObjectID": 10,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                -9.099629210140847e-07,
+                -1.6560650420438527e-12,
+                1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Elevator",
+            "Up": [
+                -3.639841452240944e-06,
+                0.9999971985816956,
+                -1.656060379974511e-12
+            ],
+            "WorldEvent": 10,
+            "fPos": [
+                300.6734924316406,
+                10.586145401000977,
+                211.72825622558594
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                1.0,
+                0.0,
+                9.099629210140847e-07
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\Kits\\Door\\SM_RollUp_Door_A.fbx",
+            "ObjectID": 13,
+            "ObjectTargetID": 10,
+            "OtherTriggerValue": true,
+            "Right": [
+                9.099629210140847e-07,
+                1.6560627652192905e-12,
+                -1.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_RollupDoor",
+            "Up": [
+                0.0,
+                0.9999902248382568,
+                1.6560466106069205e-12
+            ],
+            "WorldEvent": 10,
+            "fPos": [
+                327.425537109375,
+                15.374579429626465,
+                212.5126495361328
+            ]
+        },
+        {
+            "FrameMaxTime": 0.10000000149011612,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Buttons\\SimpleButton_A.fbx",
+            "ObjectID": 17,
+            "ObjectTargetID": 13,
+            "OtherTriggerValue": true,
+            "Right": [
+                0.8660253882408142,
+                -0.5,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Button",
+            "Up": [
+                0.5,
+                0.8660253882408142,
+                0.0
+            ],
+            "WorldEvent": 10,
+            "fPos": [
+                337.9223937988281,
+                16.256481170654297,
+                198.89048767089844
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\Buttons\\SimpleButton_A.fbx",
+            "ObjectID": 3,
+            "ObjectTargetID": 13,
+            "OtherTriggerValue": true,
+            "Right": [
+                0.7660443186759949,
+                0.6427871584892273,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_Button",
+            "Up": [
+                -0.6427871584892273,
+                0.7660443186759949,
+                0.0
+            ],
+            "WorldEvent": 10,
+            "fPos": [
+                325.4340515136719,
+                31.557470321655273,
+                204.22219848632813
             ]
         }
     ]

@@ -34,6 +34,9 @@ public:
 	void	Reset_Astar();
 	void   Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
 	_vector Get_CellEventPos(CELL_EVENT eType);
+
+	void	ReSearchCell(_fvector vPos);
+	void	InMove_Control(_bool   bMove) { m_bIsIn = bMove; }
 public:
 //GUI¿ë
 	_bool	Check_NeraPos(_float3* fPos); 
@@ -63,6 +66,7 @@ private:
 	list<ENGINE_ASTAR>					m_AstarCloseList;
 	list<ENGINE_ASTAR>					m_MoveToList;
 
+	_bool								m_bIsIn{true};
 	OWNER								m_eOwner;
 	CELL_EVENT							m_eEvent{};
 	vector<shared_ptr<class CCell>>		m_Cells;
