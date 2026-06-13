@@ -841,7 +841,7 @@ void CGuiObject::Select_Model()
 				TriggerDesc.iLevel = ETOUI(m_eLevel);
 				ImGui::Text(u8"트리거 옵션");
 				const char* items[] = { "OBJ_Door","OBJ_Lever","OBJ_RollupDoor","OBJ_GreenElectric","OBJ_Battery","OBJ_BatteryCase","OBJ_BlueElectric","OBJ_ElectricPole","OBJ_PoleHead","OBJ_ElectricPannel","OBJ_LowerFlip","OBJ_LowerFlip_Flip" 
-										, "OBJ_Generator"};
+										, "OBJ_Generator","OBJ_Elevator", "OBJ_Button"};
 				const char* Rotitems[] = { "X","Y","Z" };
 				#define X(name) #name,
 				const char* WorldEventItem[] = { WORLD_EVENT_LIST };
@@ -1375,6 +1375,25 @@ void CGuiObject::Light_Setting()
 				ImGui::InputFloat4(u8"방향(vDir)", reinterpret_cast<_float*>(&LightMtrl.vDir));
 				ImGui::InputFloat4(u8"위취(vPos)", reinterpret_cast<_float*>(&LightMtrl.vPos));
 				ImGui::InputFloat4(u8"빛의 하이라이트(vSpecular)", reinterpret_cast<_float*>(&LightMtrl.vSpecular));
+				if (ImGui::Button(u8"멈춰"))
+					LightMtrl.bLightStop = !LightMtrl.bLightStop;
+
+				if (LightMtrl.eUseType == USETYPE::CLIENT)
+				{
+				#define X(name) #name,
+					const char* WorldEventItem[] = { WORLD_EVENT_LIST };
+					const char* LocalEventItem[] = { LIGHT_STATE_LIST };
+				#undef X
+					const char* combo_preview_Eventvalue = WorldEventItem[Light_item_WorldEvent];
+					const char* combo_preview_Particlevalue = LocalEventItem[Light_item_LocalEvent];
+
+					ComboArray(WorldEventItem, IM_COUNTOF(WorldEventItem), Light_item_WorldEvent, u8"월드 이벤트", combo_preview_Eventvalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
+					ImGui::SameLine(300);
+					ComboArray(LocalEventItem, IM_COUNTOF(LocalEventItem), Light_item_LocalEvent, u8"로컬 이벤또", combo_preview_Particlevalue, ImGuiComboFlags_PopupAlignLeft | ImGuiComboFlags_WidthFitPreview);
+
+					LightMtrl.eWorldEventType = static_cast<WORLD_EVENT>(Light_item_WorldEvent);
+					LightMtrl.eLocalEventType = static_cast<LIGHT_STATE>(Light_item_LocalEvent);
+				}
 
 				pLight->Set_LightDesc(LightMtrl);
 
@@ -1831,6 +1850,7 @@ void CGuiObject::Navi_Creator()
 		#undef X
 		const _char* pTwogae = nullptr;
 		static CELL_EVENT event_Select_Index = CELL_EVENT::NONE;
+		static int32_t	  iCell_Select_Process = 0;
 		_bool  bClick{ false };
 		static int32_t iSelect{0};
 		static int32_t Picking(0);
@@ -1859,6 +1879,8 @@ void CGuiObject::Navi_Creator()
 		
 		ImGui::RadioButton(u8"터레인픽킹", &Picking, 0); ImGui::SameLine(130.f); ImGui::RadioButton(u8"매쉬단위 픽킹", &Picking, 1);
 
+		ImGui::RadioButton(u8"셀 비교", &iCell_Select_Process, 0); ImGui::SameLine(130.f); ImGui::RadioButton(u8"전체 개별픽킹", &iCell_Select_Process, 1);
+
 		if (ImGui::Button(u8"Y 수동 설정"))
 			dynamicY = !dynamicY;
 		
@@ -1877,7 +1899,9 @@ void CGuiObject::Navi_Creator()
 			if (NULL_FALSE(pObj))
 			{
 				m_bPickingObject = true;
-				XMStoreFloat3(&LastPos, CGameInstance::Get().CheckMesh_Triangle(pObj, pObj->Get_MeshNameList(), XMLoadFloat3(&m_fMosueLocalPos), XMLoadFloat3(&m_fMouseLocalDir)));
+				_float4 fInPos{};
+				if (CGameInstance::Get().CheckMesh_Triangle(pObj, pObj->Get_MeshNameList(), XMLoadFloat3(&m_fMosueLocalPos), XMLoadFloat3(&m_fMouseLocalDir), &fInPos))
+					LastPos = { fInPos.x, fInPos.y, fInPos.z };
 				Click_Reset();
 				bClick = true;
 				m_bMouseCheck = false;
@@ -1916,19 +1940,25 @@ void CGuiObject::Navi_Creator()
 				{
 					if (!A)
 					{
-						CGameInstance::Get().Check_NeraPos(&LastPos);
+						if (iCell_Select_Process == 0)
+						{
+							CGameInstance::Get().Check_NeraPos(&LastPos);
+						}
 						fPos[0] = LastPos;
 						A = true;
 					}
 					else if (!B)
 					{
-						CGameInstance::Get().Check_NeraPos(&LastPos);
+						if (iCell_Select_Process == 0)
+						{
+							CGameInstance::Get().Check_NeraPos(&LastPos);
+						}
 						fPos[1] = LastPos;
 						B = true;
 					}
 					else if (!C)
 					{
-						if (!bOnlyTwo)
+						if (!bOnlyTwo && iCell_Select_Process == 0)
 						{
 							CGameInstance::Get().Check_NeraPos(&LastPos);
 						}

@@ -178,6 +178,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Dead"),
 		CFSM_Teacher_Daed::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
 	//////////////////////////聽粽天天天////////////////////////////////////////////////////
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Cube",
 		Engine::CCube::Create(m_pDevice, m_pContext))))
@@ -238,6 +239,15 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Generator"),
 		CGenerator::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Elevator"),
+		CElevator::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Button"),
+		CButton::Create(m_pDevice, m_pContext))))
+		return E_FAIL; 
+
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Instance_Mesh"),
 		CVIBuffer_Instance_Mesh::Create(m_pDevice, m_pContext,nullptr))))
@@ -374,6 +384,7 @@ HRESULT CLoader::Loading_For_GasProduction()
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
 	//m_Objects.clear();
 
+	Load_LightsData(LEVEL::GASZONE, TEXT("OBJ_Light"), ETOUI(LEVEL::GASZONE), TEXT("../../LightsTo_GASZONE.json"), "Lights");
 	m_isFinished = true;
 
 	return S_OK;

@@ -39,7 +39,7 @@ protected:
 	FSM_ACTION							m_eAction;
 	weak_ptr<CPlayer>					m_pPlayer;
 	_float m_fShootMaxTime{}, m_fShootTime{}, m_fShootTimeTick{}, m_fSpeed{}, m_fBackShootTime{}, m_fBackShootTick{}, m_fTimerTick{}, m_fTimerTime{};
-
+	_bool								m_bSound{ false };
 public:
 	virtual shared_ptr<CPrototype> Clone(void* pArg) = 0;
 };

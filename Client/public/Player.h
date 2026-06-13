@@ -58,6 +58,8 @@ public:
 	void					Set_Flag(uint32_t eState, FLAGVALUE eValue);
 	_bool					Flag_Check(uint32_t iFlag);
 
+	void					Set_OffsetY(_float fOffset) { m_fOffsetY = fOffset; }
+	_float					Get_OffsetY() { return m_fOffsetY; }
 protected:
 	void					Timer(const _float& fTimeDelta);
 
@@ -92,6 +94,10 @@ private:
 	PLAYER_STATE						m_ePlayer = {}; //플레이어 상태 조정 bool값 모음ㄱ
 	PLAYER_FLAG							m_eFlag = {};
 	MOVE								m_eState = { MOVE::END };
+	_float								m_fOffsetY{};
+	uint32_t							m_iLevel;
+
+	
 private:
 	_bool								m_bOnlyActionState = { false }, m_bDelay[2] = {};
 public:

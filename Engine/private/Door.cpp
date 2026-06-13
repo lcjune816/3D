@@ -86,11 +86,14 @@ void CDoor::Set_Trigger()
 
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
+		IS_PLAYSOUND(DOOR_SOUND, CHANNELID::SOUND_OBJECT, 0.3f);
 		m_eState = TRIGGER_STATE::ACTION;
 		return;
 	}
 	else if (Check_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER)))
 	{
+
+		IS_PLAYSOUND(DOOR_SOUND, CHANNELID::SOUND_OBJECT, 0.3f);
 		m_eState = TRIGGER_STATE::RETURN;
 		return;
 	}

@@ -26,6 +26,7 @@ const _float4* CPipeLine::Get_CamPosition()
 void CPipeLine::Set_Transform(D3DTS eState, _fmatrix TransformMatrix)
 {
     XMStoreFloat4x4(&m_TransformStateMatrices[ETOUI(eState)], TransformMatrix);
+
 }
 
 HRESULT CPipeLine::MultiByteWstringToChar(const _wstring& strConvertwstring,  string& strDestName)

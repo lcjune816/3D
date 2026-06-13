@@ -32,7 +32,7 @@ private:
 private:
 	uint32_t		m_iNaviEventIndex{};
 
-
+	_bool			m_bOneSound{ false };
 	_float3			m_DestPos;
 public:
 	static unique_ptr<CFSM_Teacher_Spawn> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);

@@ -37,6 +37,7 @@
 #include "Elevator.h"
 #include "Light.h"
 #include "LightEffect.h"
+#include "Button.h"
 NS_BEGIN(Engine)
 class CPrototype_Manager final
 {

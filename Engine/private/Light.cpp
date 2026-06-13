@@ -43,15 +43,23 @@ HRESULT CLight::Initialize_Load(json& j)
     JsonSaveLoadManager::LoadJsonTypeFloat4(j, "LightDir", m_LightDesc.vDir);
     JsonSaveLoadManager::LoadJsonTypeFloat4(j, "LightPos", m_LightDesc.vPos);
     JsonSaveLoadManager::LoadJsonTypeFloat4(j, "LightSpecular", m_LightDesc.vSpecular);
-    m_LightOrigin = m_LightDesc;
+    memcpy(&m_LightOrigin,&m_LightDesc,sizeof LIGHT_DESC);
     return S_OK;
 }
 
+void CLight::Set_LightDesc(LIGHT_DESC Desc)
+{
+
+    m_LightDesc = Desc;
+    if(Desc.bLightStop)
+        memcpy(&m_LightOrigin, &m_LightDesc, sizeof LIGHT_DESC);
+    
+}
 HRESULT CLight::Render(shared_ptr<class CShader> pShader, shared_ptr<class CRect> pVIBuffer)
 {
     uint32_t    iPassIndex = {};
 
-    if (LIGHT::DIRECTIONAL == m_LightDesc.eType)
+     if (LIGHT::DIRECTIONAL == m_LightDesc.eType)
     {
         if (FAILED(pShader->Bind_RawValue("g_vLightDir", &m_LightDesc.vDir, sizeof m_LightDesc.vDir)))
             return E_FAIL;
@@ -113,13 +121,14 @@ json			CLight::Save_Data()
     JsonSaveLoadManager::SaveJsonTypeFloat2(j,"LightRangeF2", m_LightOrigin.fRange);
     JsonSaveLoadManager::SaveJsonTypeFloat4(j,"LightAmbient", m_LightOrigin.vAmbient);
     JsonSaveLoadManager::SaveJsonTypeFloat4(j,"LightDiffuse", m_LightOrigin.vDiffuse);
-    JsonSaveLoadManager::SaveJsonTypeFloat4(j, "LightDir",    m_LightOrigin.vDir);
-    JsonSaveLoadManager::SaveJsonTypeFloat4(j, "LightPos",    m_LightOrigin.vPos);
+    JsonSaveLoadManager::SaveJsonTypeFloat4(j, "LightDir", m_LightOrigin.vDir);
+    JsonSaveLoadManager::SaveJsonTypeFloat4(j, "LightPos", m_LightOrigin.vPos);
     JsonSaveLoadManager::SaveJsonTypeFloat4(j, "LightSpecular", m_LightOrigin.vSpecular);
 
     return j;
 
 }
+
 HRESULT CLight::Debug_Render(shared_ptr<class CShader> pShader, shared_ptr<class CCube> pViBuffer)
 {
     _float4x4 WorldMatrix{};

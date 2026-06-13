@@ -30,6 +30,9 @@ X(BATTERY)			     \
 X(ROLLUP_DOOR)		     \
 X(BOSS_DEAD)		     \
 X(BOSS_TP)			     \
+X(BOSS_LIGHT_FLICK)	     \
+X(BOSS_LIGHT_OFF)		 \
+X(BOSS_LIGHT_ON)		 \
 X(END)
 
 #define PARTICLE_LIST \
@@ -51,7 +54,10 @@ X(NONE)					 \
 X(LIGHT_BLINK1)			\
 X(LIGHT_BLINK2)			\
 X(LIGHT_BLINK3)			\
-X(LIGHT_BLINK4)
+X(LIGHT_BLINK4)			\
+X(LIGHT_WORLD)			\
+X(LIGHT_OFF)			\
+X(LIGHT_ON)				
 
 
 
@@ -104,5 +110,31 @@ X(LIGHT_BLINK4)
 	
 	
 
+
+//사운드 매니저
+#define DOOR_SOUND L"SW_Door_Metal_Rotating_01.wav"
+#define ROLLUPDOOR_SOUND L"SW_DormGate_OpenClose.wav"
+#define BATTERYCASE_SOUND L"SW_Battery_PowerOn_01.wav"
+#define GENERATOR_POWERON_SOUND L"SW_Generator_PowerOn.wav"
+#define GENERATOR_POWERON_LOOP L"SW_Generator_IdleHum_LOOP.wav"
+#define GENERATOR_BREAK L"SW_School_GeneratorSmash.wav"
+#define TEACHER_BGM_SOUND2 L"SW_Get_Out_Music_01_cut_54.wav"
+
+#define IS_PLAYSOUND(SoundName,ChannelId,Volume)\
+if(!CGameInstance::Get().IsPlaying(ChannelId))\
+{\
+CGameInstance::Get().Play_Sound_Once(SoundName,ChannelId,Volume);\
+}
+
+#define PLAY_SOUND(SoundName,ChannelId,Volume)\
+ CGameInstance::Get().Play_Sound_Once(SoundName,ChannelId,Volume)
+
+#define STOP_SOUND(ChannelID) CGameInstance::Get().Stop_Sound(ChannelID)
+
+#define VOLCTL(ChannelID,VOLUME)\
+CGameInstance::Get().Set_ChannelGroupVolume(ChannelID,VOLUME)
+
+#define GET_VOLUME(ChannelID)\
+CGameInstance::Get().Get_ChannelVolume(ChannelID)
 
 #endif // Engine_Macro_h__

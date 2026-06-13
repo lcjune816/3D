@@ -20,11 +20,11 @@ void CFSM_Jump::Enter_State()
 
 	Player->Change_Animation(PLAYER_ANIME::JUMP, false);
 
-	m_fMaxHeight = 25.f;
+	m_fMaxHeight = 8.f;
 	m_fJumpCnt = 0.f;
 	m_fJumpSpeed =30.f;
-	m_LastHeight = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
-	m_fCurrentHeight = XMVectorGetY(Player->Get_Transform().lock()->Get_State(STATE::POS));
+	m_LastHeight = 0;
+	m_fCurrentHeight = 0;
 	m_eAction = FSM_ACTION::ACTION;
 }
 
@@ -72,9 +72,10 @@ void CFSM_Jump::Action_Jump(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform> 
 	{
 		pPlayer->Change_Animation(PLAYER_ANIME::FALLING);
 		m_eAction = FSM_ACTION::RETURN;
-		m_fCurrentHeight = XMVectorGetY(pTransform->Get_State(STATE::POS));
+		
+
 	}
-	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_fCurrentHeight));
+	pPlayer->Set_OffsetY(m_fCurrentHeight);
 }
 
 void CFSM_Jump::Action_Return(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
@@ -82,7 +83,6 @@ void CFSM_Jump::Action_Return(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform
 
 	m_fJumpSpeed += -150.f* fTimeDelta;
 	m_fCurrentHeight += m_fJumpSpeed * fTimeDelta;
-
 	if (m_fCurrentHeight <= m_LastHeight)
 	{
 
@@ -90,7 +90,7 @@ void CFSM_Jump::Action_Return(shared_ptr<CPlayer> pPlayer, shared_ptr<CTransform
 		pPlayer->Change_Animation(PLAYER_ANIME::LAND,false , true,false);
 		m_eAction = FSM_ACTION::END;
 	}
-	pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_fCurrentHeight));
+	pPlayer->Set_OffsetY(m_fCurrentHeight);
 
 }
 
@@ -108,7 +108,7 @@ void CFSM_Jump::Action_End(shared_ptr<CPlayer> pPlayer ,shared_ptr<class CTransf
 		Machine->Change_State(FSM::IDLE);
 		return;
 	}else
-		pTransform->Set_State(STATE::POS, XMVectorSetY(pTransform->Get_State(STATE::POS), m_LastHeight));
+		pPlayer->Set_OffsetY(0);
 }
 
 unique_ptr<CFSM_Jump>		CFSM_Jump::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

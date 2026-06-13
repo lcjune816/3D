@@ -97,7 +97,7 @@ void CGreenElectric::Action_Trigger()
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
-			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+			TriggerCheck->TriggerToTrigger();
 		m_BindValue.fColor = { 0,1,0,1 };
 	}
 	else m_BindValue.fColor = { 1,1,1,1 };

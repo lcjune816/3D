@@ -74,6 +74,20 @@ void CPlayer_LeftHand::Hand_Pivot()
 
 	XMStoreFloat4x4(&CombinedMatrix, XMLoadFloat4x4(&m_fOffsetMatrix) * FinalMatrix * XMLoadFloat4x4(m_ParentsMatrix));
 	m_pTransform->CombinedMatrix(&CombinedMatrix);
+
+	if (CGameInstance::Get().Get_DIKeyState(DIK_U) & 0x80)
+	{
+		_float3 vLook{};
+		memcpy(&vLook, m_ParentsMatrix->m[0], sizeof _float3);
+
+		_vector vRight = XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMLoadFloat3(&vLook));
+		_vector vUp = XMVector3Cross(XMLoadFloat3(&vLook), vRight);
+		_vector vvLook = XMVector3Cross(vRight, vUp);
+		m_pTransform->Set_State(STATE::RIGHT, vRight);
+		m_pTransform->Set_State(STATE::UP, vUp);
+		m_pTransform->Set_State(STATE::LOOK, vvLook);
+
+	}
 }
 
 

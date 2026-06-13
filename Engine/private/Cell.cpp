@@ -261,6 +261,18 @@ json CCell::Save_Data()
     return j;
 }
 
+int32_t CCell::ReSearchCell(_fvector vPos)
+{
+    
+        int32_t iCnt = 0;
+        _float fDis{};
+        _vector vDir = XMVector3Normalize(XMVectorSet(0, -1, 0, 0) - vPos);
+        if (TriangleTests::Intersects(vPos, vDir, XMLoadFloat3(&m_NaviInfo.vPoints[0]), XMLoadFloat3(&m_NaviInfo.vPoints[1]),
+            XMLoadFloat3(&m_NaviInfo.vPoints[2]), fDis))
+            return m_NaviInfo.iIndex;
+
+    return -1;
+}
 
 HRESULT CCell::Render(CShader* pShader)
 {

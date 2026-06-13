@@ -74,6 +74,7 @@ HRESULT CWorldObject::Initialize(void* pArg)
 	{
 		CGameInstance::Get().Add_Instancing_ObjectData(m_MeshNameList[i], m_pTransform->Get_World(), SHARED_THIS(CWorldObject));
 	}
+	m_CheckMeshNameList = m_MeshNameList;
 	return S_OK;
 }
 void CWorldObject::Priority_Update(_float fTimeDelta)

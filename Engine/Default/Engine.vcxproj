@@ -122,7 +122,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>d3d11.lib;dxguid.lib;assimp.lib;Effects11d.lib;DirectXTKd.lib;%(AdditionalDependencies);dInput8.lib</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxguid.lib;assimp.lib;Effects11d.lib;DirectXTKd.lib;%(AdditionalDependencies);dInput8.lib;fmod_vc.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>../Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -161,6 +161,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\BatteryCase.h" />
     <ClInclude Include="..\public\BlueElectric.h" />
     <ClInclude Include="..\public\Bone.h" />
+    <ClInclude Include="..\public\Button.h" />
     <ClInclude Include="..\public\CameraNS.h" />
     <ClInclude Include="..\public\Cell.h" />
     <ClInclude Include="..\public\CollisionManager.h" />
@@ -216,6 +217,7 @@ call Copy.bat</Command>
     <ClInclude Include="..\public\RenderTarget.h" />
     <ClInclude Include="..\public\RollupDoor.h" />
     <ClInclude Include="..\public\Shader.h" />
+    <ClInclude Include="..\public\SoundManager.h" />
     <ClInclude Include="..\public\Target_Manager.h" />
     <ClInclude Include="..\public\Terrain.h" />
     <ClInclude Include="..\public\Texture_Manager.h" />
@@ -255,6 +257,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\BatteryCase.cpp" />
     <ClCompile Include="..\private\BlueElectric.cpp" />
     <ClCompile Include="..\private\Bone.cpp" />
+    <ClCompile Include="..\private\Button.cpp" />
     <ClCompile Include="..\private\CameraNS.cpp" />
     <ClCompile Include="..\private\Cell.cpp" />
     <ClCompile Include="..\private\CollisionManager.cpp" />
@@ -303,6 +306,7 @@ call Copy.bat</Command>
     <ClCompile Include="..\private\RenderTarget.cpp" />
     <ClCompile Include="..\private\RollupDoor.cpp" />
     <ClCompile Include="..\private\Shader.cpp" />
+    <ClCompile Include="..\private\SoundManager.cpp" />
     <ClCompile Include="..\private\Target_Manager.cpp" />
     <ClCompile Include="..\private\Terrain.cpp" />
     <ClCompile Include="..\private\Texture_Manager.cpp" />

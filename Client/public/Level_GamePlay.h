@@ -36,7 +36,10 @@ private:
 	HRESULT		Ready_ProtoType();
 
 	HRESULT		Ready_Layer_Gui(const _wstring& strLayerTag);
+private:
+	_float			m_fFirstBgm{};
 
+	_bool			m_bEndSound{ false };
 public:
 	static unique_ptr<CLevel_GamePlay> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 };

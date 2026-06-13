@@ -45,6 +45,7 @@ namespace Engine
 		_float4  vLightAngle;
 		_float2 fRange;
 		_float fAngleRange;
+		_bool  bLightStop{ true };
 	}LIGHT_DESC;
 	typedef struct tagevent
 	{
