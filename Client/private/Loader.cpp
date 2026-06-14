@@ -265,27 +265,39 @@ HRESULT CLoader::Loading_For_GamePlay()
 
 	CVIBuffer_Particle_Point::PARTICLE_INSTANCE_DESC ParticleDesc{};
 
-	ParticleDesc.fRange = _float3(4.f, 2.f, 4.f);
-	ParticleDesc.iNumInstances = 15;
+	ParticleDesc.fRange = _float3(5.f, 20.f, 5.f);
+	ParticleDesc.iNumInstances = 50;
 	ParticleDesc.isLoop = true;
 	ParticleDesc.vCenter = _float3(0, 0, 0);
-	ParticleDesc.vGrid = _float2(8.f, 8.f);
-	ParticleDesc.vLifeTime = _float2(0.3f, 0.8f);
-	ParticleDesc.vSize = _float2(0.3f, 2.f);
+	ParticleDesc.vGrid = _float2(0.f, 0.f);
+	ParticleDesc.vLifeTime = _float2(1.f, 0.2f);
+	ParticleDesc.vSize = _float2(0.005f, 0.4f);
 	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Spark"),
 		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
 		return E_FAIL;
 
 	ParticleDesc.fRange = _float3(0.f, 0.f, 1.f);
-	ParticleDesc.iNumInstances = 10;
+	ParticleDesc.iNumInstances = 1;
 	ParticleDesc.isLoop = true;
 	ParticleDesc.vCenter = _float3(0, 0, 0);
 	ParticleDesc.vGrid = _float2(8.f, 16.f);
 	ParticleDesc.vLifeTime = _float2(0.3f, 0.8f);
-	ParticleDesc.vSize = _float2(0.3f, 5.f);
+	ParticleDesc.vSize = _float2(15, 40.f);
 	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Fog"),
+		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
+		return E_FAIL;
+
+	ParticleDesc.fRange = _float3(0.f, 0.f, 1.f);
+	ParticleDesc.iNumInstances = 1;
+	ParticleDesc.isLoop = true;
+	ParticleDesc.vCenter = _float3(0, 0, 0);
+	ParticleDesc.vGrid = _float2(8.f, 8.f);
+	ParticleDesc.vLifeTime = _float2(0.3f, 0.8f);
+	ParticleDesc.vSize = _float2(30, 40.f);
+	ParticleDesc.vSpeed = _float2(10.f, 15.f);
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Fog_Small"),
 		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
 		return E_FAIL;
 
@@ -351,7 +363,11 @@ HRESULT CLoader::Loading_For_GasProduction()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
 		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-	
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Particle"),
+		CWorldParticle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("Component_Navigation"),
 		CNavigation::Create(m_pDevice, m_pContext, L"../../NaviGasZone.json", "Navi"))))
 		return E_FAIL;

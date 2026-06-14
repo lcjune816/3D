@@ -31,6 +31,7 @@ private:
 	HRESULT		Ready_Layer_TriggerObject(const _wstring& strLayerTag);
 	HRESULT		Ready_Layer_Boss(const _wstring& strLayerTag);
 	HRESULT		Ready_Layer_Gui(const _wstring& strLayerTag);
+	HRESULT		Ready_Partilce();
 	HRESULT		Ready_ProtoType();
 public:
 	static unique_ptr<CLevel_GasProduction> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

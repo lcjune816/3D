@@ -208,7 +208,7 @@ void CLight_Manager::Light_Dead()
                 if (NULL_FALSE((*iter)) && (*iter)->Dead_Check())
                 {
                     (*iter).reset();
-                    m_FreeList.push_back(i);
+                    m_FreeList.push_back(Cnt);
                     ++m_Generation[Cnt];
                 }
                 ++Cnt;

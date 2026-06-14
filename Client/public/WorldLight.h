@@ -41,7 +41,8 @@ private:
 	void			Light_Blink_EVENT(LIGHT_DESC* pDesc, const _float& fTimeDelta);
 private:
 	HRESULT			Ready_Component();
-
+	void			Ready_LightType(LIGHT_STATE eState ,LIGHT_DESC* pLightDesc);
+	void			Ready_WorldEvent(WORLD_EVENT eEvent,LIGHT_DESC* pLightDesc);
 private:
 	LIGHT_DESC		m_LightOrigin{};
 	LIGHT_DESC		m_LightCurrent{};
@@ -50,7 +51,7 @@ private:
 	_bool			m_bControl{ false };
 	_bool			m_bUpdateOriginDesc{ false };
 	uint32_t		m_iTickCnt{};
-	array<_bool,8>			m_LightPatternTable{ true, true ,false,true,false,true,false,true };
+	array<_bool,8>			m_LightPatternTable;
 public:
 	static unique_ptr<CWorldLight> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

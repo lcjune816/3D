@@ -41,6 +41,7 @@ void    CParticle_Manager::Update_Particle(_float fTimeDelta)
 	{
 		for (auto iter = m_Particles[i].begin(); iter != m_Particles[i].end();)
 		{
+			auto Next = std::next(iter);
 			_bool bEndCycle = (*iter)->EndCycle();
 
 			if (bEndCycle)
@@ -50,21 +51,21 @@ void    CParticle_Manager::Update_Particle(_float fTimeDelta)
 			else	
 				(*iter)->Update(fTimeDelta);
 		
-			++iter;
+			iter = Next;
 		}
 	
-		for (auto Pool = m_ParticlesPool[i].begin(); Pool != m_ParticlesPool[i].end();)
-		{
-			(*Pool)->Update(fTimeDelta);
-		
-			if ((*Pool)->Get_Dead())
-			{
-				Pool = m_ParticlesPool[i].erase(Pool);
-				continue;
-			}
-
-			++Pool;
-		}
+		//for (auto Pool = m_ParticlesPool[i].begin(); Pool != m_ParticlesPool[i].end();)
+		//{
+		//	(*Pool)->Update(fTimeDelta);
+		//
+		//	if ((*Pool)->Get_Dead())
+		//	{
+		//		Pool = m_ParticlesPool[i].erase(Pool);
+		//		continue;
+		//	}
+		//
+		//	++Pool;
+		//}
 	}
 
 }
@@ -78,23 +79,28 @@ void    CParticle_Manager::Late_Update_Particle(_float fTimeDelta)
 			pair->Late_Update(fTimeDelta);
 		}
 
-		for (auto& Pool : m_ParticlesPool[i])
-		{
-			Pool->Late_Update(fTimeDelta);
-		}
+		//for (auto& Pool : m_ParticlesPool[i])
+		//{
+		//	Pool->Late_Update(fTimeDelta);
+		//}
 	}
 
 }
 
 void CParticle_Manager::Clear(uint32_t iClearLevelIndex)
 {
-	if (iClearLevelIndex >= m_iNumLevels || m_Particles[iClearLevelIndex].empty())
+	if (iClearLevelIndex >= m_iNumLevels)
 		return;
 
 	for (auto& pObj : m_Particles[iClearLevelIndex])
 	{
 		pObj.reset();
 	}
+	for (auto& pObj : m_ParticlesPool[iClearLevelIndex])
+	{
+		pObj.reset();
+	}
+	m_ParticlesPool[iClearLevelIndex].clear();
 	m_Particles[iClearLevelIndex].clear();
 }
 HRESULT CParticle_Manager::Add_ParticleToPool(const _wstring strPrototypeTag,  uint32_t iPrototypeLevel, uint32_t iGameLevel,  void* pArg)
@@ -159,8 +165,8 @@ weak_ptr<class CParticleObject> CParticle_Manager::Select_Particle_Object(_fvect
 			_float3 fMax = { 1,1,1 };
 			_float3 fMin = { -1,-1,-1 };
 			
-			_vector pSrcLocalMax = XMVector3TransformCoord(XMLoadFloat3(&fMax), SrcInverseWorld);
-			_vector pSrcLocalMin = XMVector3TransformNormal(XMLoadFloat3(&fMin), SrcInverseWorld);
+			_vector pSrcLocalMax = XMLoadFloat3(&fMax);//XMVector3TransformCoord(XMLoadFloat3(&fMax), SrcInverseWorld);
+			_vector pSrcLocalMin = XMLoadFloat3(&fMin);// XMVector3TransformCoord(XMLoadFloat3(&fMin), SrcInverseWorld);
 
 			XMStoreFloat3(&box.Center, (pSrcLocalMax + pSrcLocalMin) * 0.5f);
 			XMStoreFloat3(&box.Extents, (pSrcLocalMax - pSrcLocalMin) * 0.5f);
@@ -190,12 +196,14 @@ void CParticle_Manager::Particle_Emit(WORLD_EVENT eParticleType)
 	{
 		for (auto iter = m_ParticlesPool[i].begin(); iter != m_ParticlesPool[i].end();)
 		{
+			auto Next = std::next(iter);
 
 			if (NULL_FALSE((*iter)) && (*iter)->CompareParticleType(eParticleType))
 			{
 				m_Particles[i].splice(m_Particles[i].end(), m_ParticlesPool[i], iter);
 			}
-			++iter;
+
+			iter = Next;
 		}
 	}
 }

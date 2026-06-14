@@ -71,6 +71,8 @@ public:
 #pragma region RENDERER
 	HRESULT Add_RenderObject(RENDERGROUP eRenderGroup, shared_ptr<class CGameObject> pRenderObject);
 	const uint32_t		Get_RanderCall();
+
+	HRESULT Add_RenderToParticle(shared_ptr<class CParticleObject> pObj);
 #pragma endregion
 #pragma region COLLISION_MANAGER
 	weak_ptr<class CGameObject> Check_Ray(uint32_t iLayerLevelIndex, const _wstring& strLayerTag, COLLISION_DESC& tagCollision);
@@ -112,7 +114,7 @@ public:
 	HRESULT							Add_Decal_Texture(const string filePath);
 	ID3D11ShaderResourceView*		Find_Decal_Texture(const uint32_t& strFileName);
 	HRESULT							Add_Direct_Decal_Texture(const string filePath, ComPtr<ID3D11ShaderResourceView> pTexture);
-	const	vector<string>&			Get_TextureFileNameList();
+	const	vector<string>&			Get_TextureFileNameList(TEXTURE_VALUE eType);
 	const int32_t					Find_TextueId(const string& filePath);
 
 	void						Set_Color(_float4 fColor);

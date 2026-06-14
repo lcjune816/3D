@@ -32,10 +32,26 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 	m_strPathName[ETOUI(PATHNAME::BUFFER)]  = desc->PathName[ETOUI(PATHNAME::BUFFER)];
 	m_strPathName[ETOUI(PATHNAME::TEXTURE)] = desc->PathName[ETOUI(PATHNAME::TEXTURE)];
 
-	if (FAILED(Ready_Component()))
-		return E_FAIL;
+	switch (desc->eParticleType)
+	{
+	case WORLD_EVENT::GENERATOR:
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::GENERATOR, SHARED_THIS(CWorldParticle));
+		m_eParticleEmitType = PARTICLE::END;
+		break;
+	case WORLD_EVENT::BOSS_SPAWN:
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN, SHARED_THIS(CWorldParticle));
+		CGameInstance::Get().Add_RenderToParticle(SHARED_THIS(CWorldParticle));
+		m_eParticleEmitType = PARTICLE::FOG_CONTROLLER;;
+		break;
+	}
 
-	__super::Initialize(desc);
+	if (desc->eParticleEmit != PARTICLE::FOG_CONTROLLER)
+	{
+		if (FAILED(Ready_Component()))
+			return E_FAIL;
+
+		__super::Initialize(desc);
+	}
 	return S_OK;
 }
 void CWorldParticle::Priority_Update(_float fTimeDelta)
@@ -53,13 +69,23 @@ void CWorldParticle::Update(_float fTimeDelta)
 	case PARTICLE::SPARK:
 		m_pVIBufferCom->Spark(fTimeDelta);
 		break;
+	case PARTICLE::FOG_SMALL:
+		if (m_pVIBufferCom->Steam(fTimeDelta))
+			m_bEndCycle = true;
+		break;
+	case PARTICLE::FOG_CONTROLLER:
+		Fog_Controller(fTimeDelta);
+		break;
+
+	case PARTICLE::END:
+		break;
 	}
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
 
 }
 void CWorldParticle::Late_Update(_float fTimeDelta)
 {
-
+	if(m_eParticleEmitType != PARTICLE::FOG_CONTROLLER)
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
 }
 HRESULT CWorldParticle::Render()
 {
@@ -74,7 +100,8 @@ HRESULT CWorldParticle::Render()
 	m_pShaderCom->Bind_RawValue("g_vCamePosition", CGameInstance::Get().Get_CamPosition(), sizeof _vector);
 	_float4 fText = *CGameInstance::Get().ColorTester();
 	m_pShaderCom->Bind_RawValue("g_Color",&fText, sizeof _float4);
-	m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
+	if(m_iTextureID != -1)
+		m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
 	m_pShaderCom->Begin(0);
 	
 	m_pVIBufferCom->Bind_Resource();
@@ -134,6 +161,23 @@ json CWorldParticle::Save_Data()
 
 	return j;
 }
+HRESULT CWorldParticle::Bind_Resource(const _char* pConstantName, shared_ptr<class CShader> pShader)
+{
+	return pShader->Bind_RawValue(pConstantName,&m_fFogDistance, sizeof m_fFogDistance);
+}
+void CWorldParticle::OnNotify(const EVENT& eEvent)
+{
+	switch (eEvent.eEvent)
+	{
+	case WORLD_EVENT::GENERATOR:
+		m_eParticleEmitType = PARTICLE::FOG_SMALL;
+		break;
+
+	case WORLD_EVENT::BOSS_SPAWN:
+		m_bStart = true;
+		break;
+	}
+}
 HRESULT CWorldParticle::Ready_Component()
 {
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), m_strPathName[ETOUI(PATHNAME::SHADER)], TEXT("Com_Shader"), m_pShaderCom)))
@@ -156,6 +200,24 @@ HRESULT CWorldParticle::Ready_Component()
 	CGameInstance::Get().Add_Decal_Texture(TexturePath);
 	m_iTextureID = CGameInstance::Get().Find_TextueId(TexturePath);
 	return S_OK;
+}
+
+void CWorldParticle::Fog_Controller(const _float& fTimeDelta)
+{
+	if (!m_bStart)
+		return;
+	m_fTick += fTimeDelta;
+
+	_float t = min(m_fTick / 4.f,1.f);
+
+	m_fFogDistance = 1000 - (200 + 1000) * t;
+	
+	if (m_fFogDistance <= 3500)
+	{
+		m_fFogDistance = 350;
+		m_bStart = true;
+	}
+		
 }
 
 void CWorldParticle::Load_Data(void* pDesc, const json& j)
