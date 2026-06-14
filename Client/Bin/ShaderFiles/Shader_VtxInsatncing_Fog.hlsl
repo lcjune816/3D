@@ -1,6 +1,7 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4  g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D g_Texture;
+float g_fAngle;
 float4 g_Color;
 vector g_vCamePosition;
 
@@ -72,10 +73,9 @@ void GS_MAIN(point GS_IN In[1], inout TriangleStream<GS_OUT> OutStream)
 {
     GS_OUT Out[4];
     
-    float3 vLook = g_vCamePosition.xyz - In[0].vPosition.xyz;
+    float3 vLook = (g_vCamePosition.xyz - In[0].vPosition.xyz) * 2.f;
     float3 vRight = normalize(cross(float3(0.f, 1.f, 0.f), vLook)) * In[0].vPSize.x * 0.5f;
     float3 vUp = normalize(cross(vLook, vRight)) * In[0].vPSize.y * 0.5f;
-    
     
     matrix matVP = mul(g_ViewMatrix, g_ProjMatrix);
     
@@ -125,8 +125,13 @@ PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord)* g_Color;
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
    
+    Out.vColor.xyz = 0.5f;
+    
+    Out.vColor.a *= 1.f - In.vLifeTime.x / 3.f;
+    
+    
     if (Out.vColor.a < 0.1f)
         discard;
     return Out;

@@ -156,6 +156,8 @@ void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
  	m_pTrigger_Manager->Clear(iClearLevelIndex);
 
 	m_pLight_Manager->Clear(iClearLevelIndex);
+
+	m_pParticle_Manager->Clear(iClearLevelIndex);
 }
 #pragma region RENDERER
 
@@ -166,6 +168,11 @@ HRESULT CGameInstance::Add_RenderObject(RENDERGROUP eRenderGroup, shared_ptr<CGa
 const uint32_t		CGameInstance::Get_RanderCall()
 {
 	return m_pRenderer->Get_RanderCall();
+}
+
+HRESULT CGameInstance::Add_RenderToParticle(shared_ptr<class CParticleObject> pObj)
+{
+	return m_pRenderer->Add_RenderToParticle(pObj);
 }
 #pragma endregion
 
@@ -585,9 +592,9 @@ ID3D11ShaderResourceView* CGameInstance::Find_Decal_Texture(const uint32_t& strF
 	return m_pTexture_Manager->Find_Decal_Texture(strFileName);
 }
 
-const	vector<string>&  CGameInstance::Get_TextureFileNameList()
+const	vector<string>&  CGameInstance::Get_TextureFileNameList(TEXTURE_VALUE eType)
 {
-	return m_pTexture_Manager->Get_TextureFileNameList();
+	return m_pTexture_Manager->Get_TextureFileNameList(eType);
 }
 HRESULT CGameInstance::Add_Direct_Decal_Texture(const string filePath, ComPtr<ID3D11ShaderResourceView> pTexture)
 {

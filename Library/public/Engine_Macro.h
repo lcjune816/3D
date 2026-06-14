@@ -38,6 +38,8 @@ X(END)
 #define PARTICLE_LIST \
 X(SPARK)			  \
 X(FOG)				  \
+X(FOG_SMALL)		  \
+X(FOG_CONTROLLER)	  \
 X(END)
 
 #define CELL_LIST \

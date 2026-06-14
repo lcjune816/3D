@@ -115,7 +115,7 @@ void CPlayer_LeftHand::Update(_float fTimeDelta)
 	m_pArm->Update(fTimeDelta);
 
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer_LeftHand));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer_LeftHand));
 
 }
 void CPlayer_LeftHand::Late_Update(_float fTimeDelta)
@@ -138,7 +138,6 @@ HRESULT CPlayer_LeftHand::Render()
 		iter->Render();
 
 	}
-	m_pArm->Render();
 	return S_OK;
 }
 void CPlayer_LeftHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine> pFsmMachine, shared_ptr<CFSM_LeftHand> pState, int32_t iKey)
@@ -157,7 +156,7 @@ void CPlayer_LeftHand::Bind_ResourceFromFlag(CShader* pShader, const _char* pCon
 	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 		fColor = { 0,1,0,1, };
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
-		fColor = { 1,0,1,1 };
+		fColor = { 0,1,0,1 };
 	else
 		fColor = { 1,1,1,1, };
 

@@ -50,7 +50,7 @@ void CFSM_Teacher_Spawn::Update_State(_float fTimeDelta)
 		KickDoor(Boss,fTimeDelta);
 		break;
 	case FSM_TEACHER::SMASH:
-		SMesh_Generator(Boss,pTransform);
+		SMesh_Generator(Boss,pTransform,fTimeDelta);
 		break;
 	case FSM_TEACHER::CHASE:
 		Chase(pNavi, Boss,pTransform, fTimeDelta);
@@ -121,22 +121,36 @@ void CFSM_Teacher_Spawn::Turn(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTrans
 	}
 }
 
-void CFSM_Teacher_Spawn::SMesh_Generator(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform)
+void CFSM_Teacher_Spawn::SMesh_Generator(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
 {
-	if (pBoss->Get_Finished())
-	{
-		//발전기 부수는걸로변경 배터리 슝
-		CGameInstance::Get().Notify(WORLD_EVENT::BATTERY, {});
-		CGameInstance::Get().Notify(WORLD_EVENT::GENERATOR, {});
 
+	m_fTick += fTimeDelta;
+	if (m_fTick > 0.1f)
+	{
+		++m_fTimeCnt;
+		m_fTick = 0.f;
+	}
+
+	if (m_fTimeCnt >= 11 && !m_bOneAction)
+	{
 		EVENT eEvent{};
+
+		//발전기 부수는걸로변경 배터리 슝
+		
+		CGameInstance::Get().Notify(WORLD_EVENT::BATTERY, {});
+		eEvent.eEvent = WORLD_EVENT::GENERATOR;
+		CGameInstance::Get().Notify(WORLD_EVENT::GENERATOR, eEvent);
+
 		eEvent.eEvent = WORLD_EVENT::BOSS_LIGHT_ON;
 		CGameInstance::Get().Notify(WORLD_EVENT::BOSS_LIGHT_ON, eEvent);
 
 		eEvent.eEvent = WORLD_EVENT::BOSS_LIGHT_OFF;
 		CGameInstance::Get().Notify(WORLD_EVENT::BOSS_LIGHT_OFF, eEvent);
-
-		pBoss->Change_Animation(TEACHER_ANIME::OVERWAL, false,true);
+		m_bOneAction = true;
+	}
+	if (pBoss->Get_Finished())
+	{
+		pBoss->Change_Animation(TEACHER_ANIME::OVERWAL, false, true);
 		m_eTeacher = FSM_TEACHER::TURN;
 	}
 }
@@ -156,7 +170,9 @@ void CFSM_Teacher_Spawn::Chase(shared_ptr<CNavigation> pNavi, shared_ptr<CBoss_T
 	{
 		pBoss->Change_Animation(TEACHER_ANIME::SMASH, false);
 		m_eTeacher = FSM_TEACHER::SMASH;
-		
+
+		m_fTick = 0.f;
+		m_fTimeCnt = 0;
 	}
 		
 	_vector SrcPos = pTransform->Get_State(STATE::POS);

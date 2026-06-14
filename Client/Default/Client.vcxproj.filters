@@ -237,9 +237,6 @@
     <ClInclude Include="..\public\Cat_Fog.h">
       <Filter>02.GameObject\03.Boss\Cat\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\CWorldParticle.h">
-      <Filter>02.GameObject\22.Particle_Object</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\FSM_Cat_Nightmare.h">
       <Filter>02.GameObject\03.Boss\Cat</Filter>
     </ClInclude>
@@ -248,6 +245,9 @@
     </ClInclude>
     <ClInclude Include="..\public\Client_Macro.h">
       <Filter>99.Defines</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\CWorldParticle.h">
+      <Filter>02.GameObject\22.Particle_Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

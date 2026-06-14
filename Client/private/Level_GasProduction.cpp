@@ -38,7 +38,9 @@ HRESULT CLevel_GasProduction::Initialize()
 
 	if (FAILED(Ready_Layer_Gui(L"Layer_Gui")))
 		return E_FAIL;
-		
+
+	if (FAILED(Ready_Partilce()))
+		return E_FAIL;
 	S_OK;
 }
 
@@ -87,6 +89,7 @@ HRESULT CLevel_GasProduction::Ready_Layer_Boss(const _wstring& strLayerTag)
 		ETOUI(LEVEL::GASZONE), strLayerTag)))
 		return E_FAIL;
 
+	
 	return S_OK;
 }
 HRESULT CLevel_GasProduction::Ready_Layer_Decal(const _wstring& strLayerTag)
@@ -136,6 +139,17 @@ HRESULT CLevel_GasProduction::Ready_Layer_Gui(const _wstring& strLayerTag)
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
 		ETOUI(LEVEL::GASZONE), strLayerTag, &objDesc)))
 		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CLevel_GasProduction::Ready_Partilce()
+{
+	CWorldParticle::WORLDPARTICLE_DESC Desc{};
+	Desc.iLevel = ETOUI(LEVEL::GASZONE);
+	Desc.eParticleType = WORLD_EVENT::BOSS_SPAWN;
+	Desc.eParticleEmit = PARTICLE::FOG_CONTROLLER;
+	CGameInstance::Get().Add_ParticleToPool(L"OBJ_Particle", ETOUI(LEVEL::GASZONE), ETOUI(LEVEL::GASZONE), &Desc);
 
 	return S_OK;
 }

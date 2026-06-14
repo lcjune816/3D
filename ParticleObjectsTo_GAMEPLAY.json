@@ -3,28 +3,82 @@
         {
             "BufferPath": "Component_Buffer_Particle_Fog",
             "Look": [
+                -0.15042802691459656,
+                0.6346835494041443,
+                0.757978081703186
+            ],
+            "ParticleEmit": 1,
+            "Right": [
+                0.9848833084106445,
+                0.02969156764447689,
+                0.17059770226478577
+            ],
+            "ShaderPath": "Component_Instancing_Fog",
+            "TexturePath": "../../Particles/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds",
+            "Up": [
+                0.08577077090740204,
+                0.7721896171569824,
+                -0.6295613646507263
+            ],
+            "WroldEvent": 10,
+            "fPos": [
+                376.4930419921875,
+                31.014671325683594,
+                692.7402954101563
+            ]
+        },
+        {
+            "BufferPath": "Component_Buffer_Particle_Fog_Small",
+            "Look": [
                 0.0,
                 0.0,
                 1.0
             ],
-            "ParticleEmit": 1,
+            "ParticleEmit": 4,
             "Right": [
                 1.0,
                 0.0,
                 0.0
             ],
             "ShaderPath": "Component_Instancing_Fog",
-            "TexturePath": "../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds",
+            "TexturePath": "../../Particles/Flipbooks\\Smoke\\T_Smoke_DDA(1).dds",
             "Up": [
                 0.0,
                 1.0,
                 0.0
             ],
-            "WroldEvent": 10,
+            "WroldEvent": 1,
             "fPos": [
-                463.626708984375,
-                10.575470924377441,
-                755.394287109375
+                396.5455017089844,
+                20.36057472229004,
+                732.61669921875
+            ]
+        },
+        {
+            "BufferPath": "Component_Buffer_Particle_Fog_Small",
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "ParticleEmit": 4,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "ShaderPath": "Component_Instancing_Fog",
+            "TexturePath": "../../Particles/Flipbooks\\Smoke\\T_Smoke_dda_3 (1).dds",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WroldEvent": 1,
+            "fPos": [
+                394.263916015625,
+                25.00471305847168,
+                738.4132080078125
             ]
         }
     ]

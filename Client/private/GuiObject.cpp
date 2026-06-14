@@ -14,6 +14,9 @@ CGuiObject::CGuiObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext>
 }
 CGuiObject::CGuiObject(const CGuiObject& Prototye) :CGameObject(Prototye)
 {
+	m_ParticleResources = Prototye.m_ParticleResources;
+	m_GuiResources = Prototye.m_GuiResources;
+
 }
 CGuiObject::~CGuiObject()
 {
@@ -22,7 +25,22 @@ CGuiObject::~CGuiObject()
 
 HRESULT CGuiObject::Initialize_Prototype()
 {
-	auto iter = CGameInstance::Get().Get_TextureFileNameList();
+	auto Particle = CGameInstance::Get().Get_TextureFileNameList(TEXTURE_VALUE::PARTICLE);
+	for (size_t i = 0; i < Particle.size(); ++i)
+	{
+		ComPtr<ID3D11ShaderResourceView> pTexture;
+
+		size_t iSize = MultiByteToWideChar(CP_UTF8, 0, Particle[i].c_str(), ETOUI(Particle[i].size()), NULL, 0);
+		_wstring TriggerName(iSize, 0);
+		MultiByteToWideChar(CP_UTF8, 0, Particle[i].c_str(), ETOUI(Particle[i].size()), TriggerName.data(), iSize);
+
+		if (FAILED(CreateDDSTextureFromFile(m_pDevice.Get(), TriggerName.c_str(), nullptr, &pTexture)))
+			return E_FAIL;
+
+		m_ParticleResources.push_back(pTexture);
+
+	}
+	auto iter = CGameInstance::Get().Get_TextureFileNameList(TEXTURE_VALUE::DECAL);
 
 	for (size_t i = 0; i < iter.size(); ++i)
 	{
@@ -38,6 +56,7 @@ HRESULT CGuiObject::Initialize_Prototype()
 		m_GuiResources.push_back(pTexture);
 
 	}
+	
 	return S_OK;
 }
 HRESULT CGuiObject::Initialize(void* pArg)
@@ -1566,7 +1585,7 @@ void CGuiObject::Add_Decal_Texture()
 		int32_t iCount(0),iNameCnt(0),iHorizontalCnt(0);
 		ImVec2 scroll_size = ImVec2(0, 0);
 		ImGui::BeginChild("Scroll", scroll_size, true, ImGuiWindowFlags_HorizontalScrollbar);
-		auto Name = CGameInstance::Get().Get_TextureFileNameList();
+		auto Name = CGameInstance::Get().Get_TextureFileNameList(TEXTURE_VALUE::DECAL);
 		static ImGuiTextFilter filter;
 		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
@@ -2106,6 +2125,7 @@ void CGuiObject::Particle_Installer()
 			}
 			_float4 vColor = { fColor[0],fColor[1],fColor[2],fColor[3] };
 			CGameInstance::Get().Set_Color(vColor);
+
 			if (m_iSelectParticle == 0)
 			{
 				_bool bCheck{};
@@ -2137,14 +2157,69 @@ void CGuiObject::Particle_Installer()
 						m_pObj = pObj;
 						m_bMouseCheck = true;
 					}
-
+					if (NULL_FALSE(pObj) &&CGameInstance::Get().Get_DIKeyState(DIK_DELETE) & 0x80)
+					{
+						pObj->Set_Dead();
+						m_pObj.reset();
+					}
 				}
 
 			}
 
+
+
 			ImGui::Text(u8"선택 좌표 x : %3.f, y : %3.f, z : %3.f", XMVectorGetX(vParticlePos), XMVectorGetY(vParticlePos), XMVectorGetZ(vParticlePos));
-			
-			if (bSelectPosToParticle && ImGui::Button(u8"누르면 깔림"))
+			_bool bParticleInstall{ false };
+			_wstring Path = L"";
+			{
+				_bool bSetTexture = false;
+				int32_t iCount(0), iNameCnt(0), iHorizontalCnt(0);
+				ImVec2 scroll_size = ImVec2(0, 0);
+				ImGui::BeginChild("Scroll", scroll_size, true, ImGuiWindowFlags_HorizontalScrollbar);
+				auto Name = CGameInstance::Get().Get_TextureFileNameList(TEXTURE_VALUE::PARTICLE);
+				static ImGuiTextFilter filter;
+				ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+				ImGui::SetNextWindowSize(ImVec2(650, 680), ImGuiCond_FirstUseEver);
+				//ImGuiCond_FirstUseEver 초기 값만 지정하고 이후에는 사용자에게 맡김
+				ImGui::Text(u8"이미지 검색");
+				filter.Draw();
+
+				for (auto iter : m_ParticleResources)
+				{
+					char ButtonName[256] = "##1";
+					if (iNameCnt < Name.size())
+					{
+						strncat_s(ButtonName, Name[iNameCnt].c_str(), sizeof(char) * 256);
+
+					}
+					ImGui::PushID(iCount);
+					if (filter.PassFilter(Name[iNameCnt].c_str()))
+					{
+						if (ImGui::ImageButton(ButtonName, (ImTextureRef)(iter.Get()), ImVec2(128.f, 128.f), ImVec2(0.f, 0.f), ImVec2(1.f, 1.f),
+							ImVec4(0, 0, 0, 0)))
+						{
+							bParticleInstall = true;
+							
+							CGameInstance::Get().MultiByteCharToWstring(Name[iNameCnt], Path);
+						}
+
+						if (iHorizontalCnt < 5)
+							ImGui::SameLine();
+						else iHorizontalCnt = 0;
+
+						++iHorizontalCnt;
+						++iCount;
+						++iNameCnt;
+
+
+					}
+					ImGui::PopID();
+
+				}
+				ImGui::EndChild();
+
+			}
+			if (bSelectPosToParticle && bParticleInstall)
 			{
 				_matrix matWorld = XMMatrixIdentity();
 
@@ -2162,22 +2237,32 @@ void CGuiObject::Particle_Installer()
 					
 					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)][0],256,  L"Component_Instancing_Spark");
 					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)][0],256,  L"Component_Buffer_Particle_Spark");
-					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256, L"../../Resource/Boss/Flipbooks/TrainCarFire/T_TrainCarFire_02_e_mip.dds");
+					//wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256, Path.c_str());
 					break;
 				case PARTICLE::FOG:
 
 					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)][0],256,  L"Component_Instancing_Fog");
 					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)][0],256,  L"Component_Buffer_Particle_Fog");
-					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256,  L"../../Resource/Boss/Flipbooks/GPZ_TubeGas/Looped/T_GPZ_TubeGas_Looped_dda.dds");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0],256, Path.c_str());
+					break;
+				case PARTICLE::FOG_SMALL:
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::SHADER)][0], 256, L"Component_Instancing_Fog");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::BUFFER)][0], 256, L"Component_Buffer_Particle_Fog_Small");
+					wcscpy_s(&ParticleDesc.PathName[ETOUI(PATHNAME::TEXTURE)][0], 256, Path.c_str());
+					break;
+				case PARTICLE::END:
+					
 					break;
 				}
 
-
+				if(ParticleDesc.eParticleEmit != PARTICLE::END)
 				CGameInstance::Get().Add_ParticleToPool(TEXT("OBJ_Particle"),ETOUI(m_eLevel), ETOUI(m_eLevel),&ParticleDesc);
 			}
 
 			if ((CGameInstance::Get().Get_DIKeyState(DIK_LCONTROL) & 0x80) && CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80)
 				CGameInstance::Get().Save_ParticleData(ETOUI(m_eLevel),m_strParticlesPathName , "Particles");
+
+			
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();

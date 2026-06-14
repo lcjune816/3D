@@ -27,6 +27,8 @@ private:
 
 private:
 	void			Action_Trigger();
+private:
+	_bool			m_bOne{ false };
 
 public:
 	static unique_ptr<CGenerator>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

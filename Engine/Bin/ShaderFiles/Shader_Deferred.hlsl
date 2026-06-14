@@ -10,7 +10,7 @@ texture2D g_ShadeTexture;
 texture2D g_NormalTexture;
 texture2D g_DepthTexture;
 texture2D g_SpecularTexture;
-
+texture2D g_FogTexture;
 vector g_vLightPos;
 float2 g_fLightRange;
 float g_fLightAngleRange;
@@ -21,7 +21,7 @@ vector g_vLightSpecular;
 vector g_vLightAngle;
 vector g_vMtrlAmbient = 1.f;
 vector g_vMtrlSpecular = 1.f;
-
+vector g_vEmissive;
 
 vector g_vCamPosition;
 
@@ -79,6 +79,10 @@ struct PS_OUT_LIGHT
     vector vSpecular : SV_TARGET1;
 };
 
+struct PS_OUT_FOG
+{
+    vector vFog : SV_TARGET0;
+};
 PS_OUT_BACKBUFFER PS_MAIN_DEBUG(PS_IN In)
 {
     PS_OUT_BACKBUFFER Out;
@@ -159,7 +163,7 @@ PS_OUT_LIGHT    PS_MAIN_POINT(PS_IN In)
     
     Out.vSpecular = (g_vLightSpecular* g_vMtrlSpecular) 
     * pow(saturate(dot(normalize(vReflect) * -1.f,
-    normalize(vLook))), 30.f) * fAtt;
+    normalize(vLook))), 15.f) * fAtt;
 
     return Out;
 }
@@ -209,11 +213,42 @@ PS_OUT_LIGHT PS_MAIN_SPOTLIGHT(PS_IN In)
   
     Out.vSpecular = (g_vLightSpecular * g_vMtrlSpecular)
     * pow(saturate(dot(normalize(vReflect) * -1.f,
-    normalize(vLook))), 30.f) * fAtt * fAttLen;
+    normalize(vLook))), 15.f) * fAtt * fAttLen;
 
     return Out;
 }
 
+PS_OUT_FOG PS_MAIN_FOG(PS_IN In)
+{
+    PS_OUT_FOG Out;
+    vector vDiffuse   = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vShade     = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);    
+    vector vSPecular  = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vDepthDesc = g_DepthTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    vector vWorldPos;
+    
+    vWorldPos.x = In.vTexcoord.x * 2.f - 1.f;
+    vWorldPos.y = In.vTexcoord.y * -2.f + 1.f;
+    vWorldPos.z = vDepthDesc.x;
+    vWorldPos.w = 1.f;
+    
+    float fViewSpaceZ = vDepthDesc.y * 1000.f;
+    vWorldPos = vWorldPos * fViewSpaceZ;
+    vWorldPos = mul(vWorldPos, g_ProjMatrixInverse);
+    vWorldPos = mul(vWorldPos, g_ViewMatrixInverse);
+    
+    vector vLightDir = vWorldPos - g_vCamPosition;
+    float fDistance = length(vLightDir);
+    
+    
+    float fAtt = saturate(fDistance / g_fLightAngleRange);
+    
+    vDiffuse.rgb = lerp(vDiffuse.rgb * vShade.rgb + vSPecular.rgb, float3(0.45f, 0.01f, 0.01f), fAtt);
+    Out.vFog = vDiffuse;
+ 
+    return Out;
+}
 PS_OUT_LIGHT PS_MAIN_LINE(PS_IN In)
 {
     PS_OUT_LIGHT Out;
@@ -272,8 +307,11 @@ PS_OUT_BACKBUFFER PS_MAIN_COMBINED(PS_IN In)
     vector vShade = g_ShadeTexture.Sample(LinearSampler, In.vTexcoord);
     
     vector vSPecular = g_SpecularTexture.Sample(LinearSampler, In.vTexcoord);
-    
-    Out.vBackBuffer = vDiffuse * vShade + vSPecular;
+    vector vFog = g_FogTexture.Sample(LinearSampler, In.vTexcoord);
+    if (vFog.x > 0.f)
+    Out.vBackBuffer = vFog;
+    else
+        Out.vBackBuffer = vDiffuse * vShade + vSPecular ;
     
     return Out;
 
@@ -339,6 +377,16 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_LINE();
+    }
+    
+    pass Fog
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_FOG();
     }
 }
 

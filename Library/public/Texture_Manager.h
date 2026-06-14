@@ -25,7 +25,7 @@ public:
 	void						Set_Color(_float4 fColor) { m_fColor = fColor; }
 	_float4*						ColorTester() { return &m_fColor; }
 	const int32_t				Find_TextueId(const string& filePath);
-	const vector<string>& Get_TextureFileNameList() { return m_NameList; }
+	const vector<string>& Get_TextureFileNameList(TEXTURE_VALUE eType) { return m_NameList[ETOUI(eType)]; }
 
 public:
 
@@ -36,7 +36,7 @@ private:
 
 	map<string, uint32_t>					 m_TextueMapID = {};
 	vector<ComPtr<ID3D11ShaderResourceView>> m_TextureLists = {};
-	vector<string>							 m_NameList = {};
+	vector<string>							 m_NameList[ETOUI(TEXTURE_VALUE::END)] = {};
 	ComPtr<ID3D11Device>		m_pDevice ;
 	ComPtr<ID3D11DeviceContext> m_pContext;
 
