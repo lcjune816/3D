@@ -33,34 +33,9 @@ HRESULT CWorldLight::Initialize(void* pArg)
 		return E_FAIL;
 
 	m_LightOrigin = *pLIghtDesc;
+	Ready_WorldEvent(pDesc->eWorldEventType, pLIghtDesc);
+	Ready_LightType(pDesc->eLocalEventType, pLIghtDesc);
 
-	switch (pDesc->eWorldEventType)
-	{
-	case WORLD_EVENT::BOSS_LIGHT_FLICK:
-		m_eLocalEventType = LIGHT_STATE::NONE;
-		pLIghtDesc->vAmbient = _float4(0, 0, 0, 0);
-		pLIghtDesc->vDiffuse = _float4(0, 0, 0, 0);
-		pLIghtDesc->bLightStop = false;
-		CGameInstance::Get().Add_Observers(pDesc->eWorldEventType, SHARED_THIS(CWorldLight));
-		break;
-	case WORLD_EVENT::BOSS_LIGHT_ON:
-		m_eLocalEventType = LIGHT_STATE::NONE;
-		CGameInstance::Get().Add_Observers(pDesc->eWorldEventType, SHARED_THIS(CWorldLight));
-		break;
-	case WORLD_EVENT::BOSS_LIGHT_OFF:
-		m_eLocalEventType = LIGHT_STATE::NONE;
-		CGameInstance::Get().Add_Observers(pDesc->eWorldEventType, SHARED_THIS(CWorldLight));
-		break;
-	case WORLD_EVENT::GENERATOR:
-		m_eLocalEventType = LIGHT_STATE::NONE;
-		CGameInstance::Get().Add_Observers(pDesc->eWorldEventType, SHARED_THIS(CWorldLight));
-		break;
-	case WORLD_EVENT::BOSS_TP:
-		CGameInstance::Get().Add_Observers(pDesc->eWorldEventType, SHARED_THIS(CWorldLight));
-		break;
-	case WORLD_EVENT::END:
-		break;
-	}
 	return S_OK;
 }
 void CWorldLight::Priority_Update(_float fTimeDelta)
@@ -81,6 +56,7 @@ void CWorldLight::Late_Update(_float fTimeDelta)
 		return;
 
 	bUpdate = pDesc->bLightStop;
+
 	if (!bUpdate)
 	{
 		switch (m_eLocalEventType)
@@ -101,6 +77,7 @@ void CWorldLight::Late_Update(_float fTimeDelta)
 			break;
 
 		case LIGHT_STATE::LIGHT_BLINK4:
+			Light_Blink4(pDesc, fTimeDelta);
 			break;
 		case LIGHT_STATE::LIGHT_ON:
 			Light_ON(pDesc, fTimeDelta);
@@ -247,6 +224,32 @@ void CWorldLight::Light_Blink3(LIGHT_DESC* pDesc,const _float& fTimeDelta)
 }
 void CWorldLight::Light_Blink4(LIGHT_DESC* pDesc, const _float& fTimeDelta)
 {
+	m_fTick += fTimeDelta;
+
+	if (m_fTick > 0.4f)
+	{
+		++m_iTickCnt;
+		m_fTick = 0.f;
+	}
+
+	
+	uint32_t iSize = m_LightPatternTable.size() - 1;
+
+	if (m_iTickCnt >= m_LightPatternTable.size())
+		m_iTickCnt = 0;
+
+	uint32_t iPattern = min(m_iTickCnt, iSize);
+	
+	if (m_LightPatternTable[iPattern] == true)
+	{
+		pDesc->vAmbient = _float4(0.f, 0.f, 0.f, 0.f);
+		pDesc->vDiffuse = _float4(0.f, 0.f, 0.f, 0.f);
+	}
+	else
+	{
+		pDesc->vDiffuse = m_LightOrigin.vDiffuse;
+		pDesc->vAmbient = m_LightOrigin.vAmbient;
+	}
 }
 void CWorldLight::Light_ON(LIGHT_DESC* pDesc, const _float& fTimeDelta)
 {
@@ -329,6 +332,65 @@ HRESULT CWorldLight::Ready_Component()
 {
 	
 	return S_OK;
+}
+
+void CWorldLight::Ready_LightType(LIGHT_STATE eState, LIGHT_DESC* pLightDesc)
+{
+	switch (m_eLocalEventType)
+	{
+	case LIGHT_STATE::NONE:
+		break;
+
+	case LIGHT_STATE::LIGHT_BLINK1:
+		break;
+
+	case LIGHT_STATE::LIGHT_BLINK2:
+		break;
+
+	case LIGHT_STATE::LIGHT_BLINK3:
+		break;
+	case LIGHT_STATE::LIGHT_BLINK4:
+		m_LightPatternTable = { true, true ,true,true,false,true,false,true };
+		break;
+	case LIGHT_STATE::LIGHT_ON:
+		break;
+	case LIGHT_STATE::LIGHT_OFF:
+		break;
+	case LIGHT_STATE::LIGHT_WORLD:
+		break;
+	}
+}
+
+void CWorldLight::Ready_WorldEvent(WORLD_EVENT eEvent, LIGHT_DESC* pLightDesc)
+{
+	switch (eEvent)
+	{
+	case WORLD_EVENT::BOSS_LIGHT_FLICK:
+		m_eLocalEventType = LIGHT_STATE::NONE;
+		pLightDesc->vAmbient = _float4(0, 0, 0, 0);
+		pLightDesc->vDiffuse = _float4(0, 0, 0, 0);
+		pLightDesc->bLightStop = false;
+		m_LightPatternTable = { true, true ,false,true,false,true,false,true };
+		CGameInstance::Get().Add_Observers(eEvent, SHARED_THIS(CWorldLight));
+		break;
+	case WORLD_EVENT::BOSS_LIGHT_ON:
+		m_eLocalEventType = LIGHT_STATE::NONE;
+		CGameInstance::Get().Add_Observers(eEvent, SHARED_THIS(CWorldLight));
+		break;
+	case WORLD_EVENT::BOSS_LIGHT_OFF:
+		m_eLocalEventType = LIGHT_STATE::NONE;
+		CGameInstance::Get().Add_Observers(eEvent, SHARED_THIS(CWorldLight));
+		break;
+	case WORLD_EVENT::GENERATOR:
+		m_eLocalEventType = LIGHT_STATE::NONE;
+		CGameInstance::Get().Add_Observers(eEvent, SHARED_THIS(CWorldLight));
+		break;
+	case WORLD_EVENT::BOSS_TP:
+		CGameInstance::Get().Add_Observers(eEvent, SHARED_THIS(CWorldLight));
+		break;
+	case WORLD_EVENT::END:
+		break;
+	}
 }
 
 void CWorldLight::Load_Data(void* pDesc, const json& j)

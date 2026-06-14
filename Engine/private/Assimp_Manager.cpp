@@ -974,7 +974,7 @@ void CAssimp_Manager::Binary_File_Import_Mesh(vector<shared_ptr<CVIBuffer>>& pPr
 	{
 		CMesh::MESH_DESC Desc;
 		Desc.m_Mesh.Load_Data(readFile, m_pDevice.Get(), m_pContext.Get(), m_TextureMapIdList,m_TextureLists);
-		pPrototype.emplace_back(static_pointer_cast<CMesh>(m_pMesh->Clone(&Desc)));
+ 		pPrototype.emplace_back(static_pointer_cast<CMesh>(m_pMesh->Clone(&Desc)));
 		
 	}
 	size_t iChildren = 0;

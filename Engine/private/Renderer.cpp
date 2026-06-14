@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include "GameInstance.h"
-
+#include "ParticleObject.h"
 CRenderer::CRenderer(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
     : m_pDevice{ pDevice }
     , m_pContext{ pContext }
@@ -31,6 +31,8 @@ HRESULT CRenderer::Initialize()
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Depth"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R32G32B32A32_FLOAT, _float4(0.f, 0.f, 0.f, 1.f))))
         return E_FAIL;
 
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Fog"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R32G32B32A32_FLOAT, _float4(0.f, 0.f, 0.f, 1.f))))
+        return E_FAIL;
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Diffuse"))))
         return E_FAIL;
@@ -46,6 +48,11 @@ HRESULT CRenderer::Initialize()
         return E_FAIL;
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_LightAcc"), TEXT("Target_Specular"))))
         return E_FAIL;
+
+    //For MRT_Fog
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Fog"), TEXT("Target_Fog"))))
+        return E_FAIL;
+    
     m_pVIBuffer = CRect::Create(m_pDevice, m_pContext);
     if(NULL_TRUE(m_pVIBuffer))
         return E_FAIL;
@@ -69,6 +76,7 @@ HRESULT CRenderer::Initialize()
        return E_FAIL;
 #endif
 
+
     return S_OK;
 }
 
@@ -80,6 +88,14 @@ HRESULT CRenderer::Add_RenderObject(RENDERGROUP eRenderGroup, shared_ptr<CGameOb
 
     m_RenderObjects[ETOUI(eRenderGroup)].push_back(pRenderObject);
 
+    return S_OK;
+}
+HRESULT CRenderer::Add_RenderToParticle(shared_ptr<class CParticleObject> pObj)
+{
+    if (NULL_TRUE(pObj))
+        return E_FAIL;
+
+    m_pParticleFog = pObj;
     return S_OK;
 }
 _bool CRenderer::Culling(CGameObject* pObj, _vector* vec)
@@ -186,6 +202,9 @@ HRESULT CRenderer::Draw()
 
     if (FAILED(Render_Lights()))
         return E_FAIL;
+    
+    if(FAILED(Render_Fog()))
+        return E_FAIL;
 
     if (FAILED(Render_Combined()))
         return E_FAIL;
@@ -223,11 +242,8 @@ HRESULT CRenderer::Render_Priority()
     {
         if (nullptr != pRenderObject)
         {
-          //if (Culling(pRenderObject.get(), vPlane))
-          //{
-                ++iRanderCall;
-                pRenderObject->Render();
-           //}
+            ++iRanderCall;
+            pRenderObject->Render();
         }
     }
 
@@ -290,6 +306,57 @@ HRESULT CRenderer::Render_Lights()
     return S_OK;
 }
 
+HRESULT CRenderer::Render_Fog()
+{
+    auto pObj = m_pParticleFog.lock();
+    if (NULL_TRUE(pObj))
+        return S_OK;
+
+    if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_Fog"))))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Diffuse"), m_pShader, "g_DiffuseTexture")))
+        return E_FAIL;
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Shade"), m_pShader, "g_ShadeTexture")))
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Diffuse"), m_pShader, "g_DiffuseTexture")))
+        return E_FAIL;
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Specular"), m_pShader, "g_SpecularTexture")))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Depth"), m_pShader, "g_DepthTexture")))
+        return E_FAIL;
+    
+   
+    m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);
+    m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix);
+    m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix);
+    pObj->Bind_Resource("g_fLightAngleRange", m_pShader);
+
+    m_pShader->Bind_Matrix("g_ProjMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::PROJ));
+    m_pShader->Bind_Matrix("g_ViewMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW));
+
+    m_pShader->Bind_RawValue("g_vCamPosition", CGameInstance::Get().Get_CamPosition(), sizeof _float4);
+
+    if (FAILED(m_pVIBuffer->Bind_Resource()))
+        return E_FAIL;
+
+
+    if (FAILED(m_pShader->Begin(ETOUI(DEFERRED::FOG))))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Bind_Resource()))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Render()))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().End_MRT()))
+        return E_FAIL;
+
+    return S_OK;
+}
+
 HRESULT CRenderer::Render_Combined()
 {
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Diffuse"), m_pShader, "g_DiffuseTexture")))
@@ -299,6 +366,8 @@ HRESULT CRenderer::Render_Combined()
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Specular"), m_pShader, "g_SpecularTexture")))
         return E_FAIL;
 
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Fog"), m_pShader, "g_FogTexture")))
+        return E_FAIL;
     m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);
     m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix);
     m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix);

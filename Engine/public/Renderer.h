@@ -17,10 +17,13 @@ public:
 	HRESULT Draw();
 
 
+	HRESULT Add_RenderToParticle(shared_ptr<class CParticleObject> pObj);
 	const uint32_t		Get_RanderCall() { return iRanderCall; }
 	_bool  Culling(CGameObject* pObjm, _vector* vec);
 private:
 	void		Culling_Calcurator(_fvector* vP);
+
+	
 private:
 	ComPtr<ID3D11Device>			m_pDevice = { nullptr };
 	ComPtr<ID3D11DeviceContext>		m_pContext = { nullptr };
@@ -29,14 +32,16 @@ private:
 	uint32_t						iRanderCall = {};
 
 private:
-	shared_ptr<class CRect>			m_pVIBuffer = { nullptr };
-	shared_ptr<class CShader>		m_pShader = { nullptr };
-	_float4x4						m_WorldMatrix{}, m_ViewMatrix{}, m_ProjMatrix{};
+	shared_ptr<class CRect>			 m_pVIBuffer = { nullptr };
+	shared_ptr<class CShader>		 m_pShader = { nullptr };
+	weak_ptr<class CParticleObject>m_pParticleFog = {};
+	_float4x4						 m_WorldMatrix{}, m_ViewMatrix{}, m_ProjMatrix{};
 
 private:
 	HRESULT	Render_Priority();
 	HRESULT Render_NonBlend();
 	HRESULT Render_Lights();
+	HRESULT	Render_Fog();
 	HRESULT Render_Combined();
 	HRESULT Render_NonLights();
 	HRESULT Render_Blend();

@@ -222,8 +222,6 @@ HRESULT CPlayer::Render()
 		iter->Render();
 
 	}
-	m_pPlayerRHand->Render();
-	m_pPlayerLHand->Render();
 	
 	m_pAim->Render();
 	

@@ -129,7 +129,6 @@ HRESULT CPLayer_RightHand::Render()
 		iter->Render();
 
 	}
-	m_pArm->Render();
 	return S_OK;
 }
 void CPLayer_RightHand::Connet_Player(shared_ptr<CGameObject> pPlayer, FSM HAND, shared_ptr<CFSM_Machine> pFsmMachine, shared_ptr<class CFSM_RightHand> pState, int32_t iKey)

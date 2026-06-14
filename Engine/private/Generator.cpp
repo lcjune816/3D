@@ -114,7 +114,7 @@ void CGenerator::Action_Work(const _float& fTimeDelta)
 		++m_fFrameTickTime;
 	}
 
-	if (m_fFrameTickTime >= 5.f)
+	if (m_fFrameTickTime >= 3.f)
 	{
 		auto pObj = m_pParent.lock();
 		if (NULL_TRUE(pObj))
