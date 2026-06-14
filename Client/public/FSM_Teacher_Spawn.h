@@ -26,13 +26,13 @@ public:
 private:
 	void		KickDoor(shared_ptr<CBoss_Teacher> pTeacher, const _float& fTimeDelta);
 	void		Turn(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform);
-	void		SMesh_Generator(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform);
+	void		SMesh_Generator(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform,const _float& fTimeDelta);
 	void		StandBy(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform> pTransform);
 	void		Chase(shared_ptr<CNavigation> pNavi,shared_ptr<CBoss_Teacher>pBoss,shared_ptr<CTransform> pTransform, const _float& fTimeDelta);
 private:
 	uint32_t		m_iNaviEventIndex{};
 
-	_bool			m_bOneSound{ false };
+	_bool			m_bOneSound{ false }, m_bOneAction{ false };
 	_float3			m_DestPos;
 public:
 	static unique_ptr<CFSM_Teacher_Spawn> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);

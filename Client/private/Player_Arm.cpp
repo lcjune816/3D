@@ -50,7 +50,6 @@ void CPlayer_Arm::Priority_Update(_float fTimeDelta)
 {
 
 	Timer(fTimeDelta);
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CPlayer_Arm));
 }
 void CPlayer_Arm::Update(_float fTimeDelta)
 {
@@ -76,6 +75,7 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
 
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer_Arm));
 }
 HRESULT CPlayer_Arm::Render()
 {
@@ -136,7 +136,7 @@ void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstant
 	if(Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 		fColor = { 0,1,0,1, };
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
-		fColor = { 1,0,1,1 };
+		fColor = { 0.f,0.f,1.f,1 };
 	else 
 		fColor = { 0,0,0,1, };
 

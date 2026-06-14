@@ -28,7 +28,7 @@ public:
 public:
 	void Fog_Spread(const _float& fTimeDelta);
 	void Spark(const _float& fTimeDelta);
-	void Steam(const _float& fTimeDelta);
+	_bool Steam(const _float& fTimeDelta);
 private:
 	shared_ptr<VTXINSTANCE_PARTICLE[]>			m_pInstanceData = { nullptr };
 	shared_ptr<_float[]>						m_pSpeeds = { nullptr };

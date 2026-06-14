@@ -22,8 +22,12 @@ HRESULT CCat_Fog::Ready_Component()
 	if (FAILED(Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Instancing_Fog"), TEXT("Com_Fog"), m_pShaderCom, nullptr)))
 		return E_FAIL;
 
-	CGameInstance::Get().Add_Decal_Texture("../../Resource/Boss/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
-	m_iTextureID = CGameInstance::Get().Find_TextueId("../../Resource/Boss/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
+	CGameInstance::Get().Add_Decal_Texture("../../Particles/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
+	m_iTextureID = CGameInstance::Get().Find_TextueId("../../Particles/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
+	if (m_iTextureID == -1)
+		return E_FAIL;
+
+	return S_OK;
 }
 
 void CCat_Fog::CombinedMatrix()

@@ -16,6 +16,7 @@ protected:
 public:
 	virtual ~CParticleObject();
 
+	virtual HRESULT Bind_Resource(const _char* pConstantName, shared_ptr<class CShader> pShader) { return S_OK; };
 public:
 	_bool			EndCycle() { return m_bEndCycle; }
 	_bool			CompareParticleType(WORLD_EVENT eType)

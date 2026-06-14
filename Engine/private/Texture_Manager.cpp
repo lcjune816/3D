@@ -88,7 +88,16 @@ HRESULT CTexture_Manager::Texture_File_Loader()
 		if (iter.path().extension() == ".dds")
 		{
 			string strPathName = iter.path().string();
-			m_NameList.push_back(strPathName);
+			m_NameList[ETOUI(TEXTURE_VALUE::DECAL)].push_back(strPathName);
+		}
+	}
+	path = "../../Particles/";
+	for (auto& iter : filesystem::recursive_directory_iterator(path))
+	{
+		if (iter.path().extension() == ".dds")
+		{
+			string strPathName = iter.path().string();
+			m_NameList[ETOUI(TEXTURE_VALUE::PARTICLE)].push_back(strPathName);
 		}
 	}
 
