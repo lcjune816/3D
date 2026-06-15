@@ -639,8 +639,11 @@ _bool CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const 
 	for (auto& iter : MeshNumbers)
 	{
 		auto Vertices = CGameInstance::Get().Get_MeshVetexesLists(iter);
+		
 		auto Indices = CGameInstance::Get().Get_MeshIndicesLists(iter);
-	
+		if (NULL_TRUE(Vertices) || NULL_TRUE(Indices))
+			return false;
+
 		uint32_t index{ 0 };
 		for (size_t i = 0; i < Indices->size(); i+=3)
 		{

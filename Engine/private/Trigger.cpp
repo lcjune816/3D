@@ -119,8 +119,8 @@ _bool				CTrigger::Set_DstTransform(shared_ptr<CTransform> pTransform)
 
 _bool CTrigger::StartPos(_fvector StartPos, _fvector OffsetPos,  _float4* OutPos, const _float fTimeDelta)
 {
-
-	_float fTimeCheck = m_fFrameTick += fTimeDelta ;
+	
+	_float fTimeCheck = m_fFrameTick * fTimeDelta ;
 	_float t = min(1.f, fTimeDelta / m_fMaxFrameTime);
 	_vector LinearPos = XMVectorLerp(StartPos,OffsetPos, fTimeDelta) ;
 
@@ -151,6 +151,17 @@ _bool CTrigger::EndPos(_fvector StartPos, _fvector OffsetPos, _float4* OutPos, c
 
 
 	return false;
+}
+
+_bool CTrigger::StartPosDeltaTime(_fvector StartPos, _fvector vDir, _float offset, _float4* OutPos, const _float fTimeDelta)
+{
+	
+	return false;
+}
+
+_bool CTrigger::EndPosDeltaTime(_fvector StartPos, _fvector vDir, _float offset, _float4* OutPos, const _float fTimeDelta)
+{
+	return _bool();
 }
 
 void CTrigger::Set_Flag(uint32_t iFlag, FLAGVALUE eValue)

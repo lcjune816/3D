@@ -50,6 +50,8 @@ public:
 	_bool							StartPos(_fvector StartPos, _fvector OffsetPos, _float4* OutPos, const _float fTimeDelta);
 	_bool							EndPos(_fvector StartPos, _fvector OffsetPos,   _float4* OutPos, const _float fTimeDelta);
 
+	_bool							StartPosDeltaTime(_fvector StartPos, _fvector vDir,  _float offset,_float4* OutPos, const _float fTimeDelta);
+	_bool							EndPosDeltaTime(_fvector StartPos, _fvector vDir,    _float offset,_float4* OutPos, const _float fTimeDelta);
 
 	void							Set_TargetNumber(uint32_t iTargetNumber) { m_iTargetNumber = iTargetNumber; }
 	void							Set_OtherTrigger(_bool bTrigger) {m_bOtherTrigger = bTrigger;}
