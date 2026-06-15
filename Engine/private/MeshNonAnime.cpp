@@ -42,14 +42,14 @@ HRESULT CMeshNonAnime::Initialize(void* pArg)
 	m_eMatrial = Dest->eMatrial;
 
 
-	Dest->InstanceData->indices = m_iNumIndices;
-	Dest->InstanceData->Vertices = m_iNumVertices;
-	
-	
-	for (int32_t i = 0; i < AI_TEXTURE_TYPE_MAX; ++i)
-		Dest->InstanceData->Textures[i] = m_TextureList[i];
-	Dest->InstanceData->pIB = m_pIB;
-	Dest->InstanceData->pVB = m_pVB;
+Dest->InstanceData->indices = m_iNumIndices;
+Dest->InstanceData->Vertices = m_iNumVertices;
+
+
+for (int32_t i = 0; i < AI_TEXTURE_TYPE_MAX; ++i)
+	Dest->InstanceData->Textures[i] = m_TextureList[i];
+Dest->InstanceData->pIB = m_pIB;
+Dest->InstanceData->pVB = m_pVB;
 	
 	return S_OK;
 }

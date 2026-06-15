@@ -57,8 +57,8 @@ void CWorldLight::Late_Update(_float fTimeDelta)
 
 	bUpdate = pDesc->bLightStop;
 
-	if (!bUpdate)
-	{
+	//if (!bUpdate)
+	//{
 		switch (m_eLocalEventType)
 		{
 		case LIGHT_STATE::NONE:
@@ -89,11 +89,11 @@ void CWorldLight::Late_Update(_float fTimeDelta)
 			Light_Blink_EVENT(pDesc, fTimeDelta);
 			break;
 		}
-	}
-	else
-	{
-		m_LightOrigin = *pDesc;
-	}
+	//}
+	//else
+	//{
+	//	m_LightOrigin = *pDesc;
+	//}
 
 }
 HRESULT CWorldLight::Render()

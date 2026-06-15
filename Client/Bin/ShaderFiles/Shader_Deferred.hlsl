@@ -244,7 +244,7 @@ PS_OUT_FOG PS_MAIN_FOG(PS_IN In)
     
     float fAtt = saturate(fDistance / g_fLightAngleRange);
     
-    vDiffuse.rgb = lerp(vDiffuse.rgb * vShade.rgb + vSPecular.rgb, float3(0.45f, 0.01f, 0.01f), fAtt);
+    vDiffuse.rgb = lerp(vDiffuse.rgb * vShade.rgb + vSPecular.rgb, g_vLightAmbient.rgb, fAtt);
     Out.vFog = vDiffuse;
  
     return Out;

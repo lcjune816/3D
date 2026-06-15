@@ -57,7 +57,7 @@ HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 
 	case	TRIGGER_STATE::ACTION:
 		_float4 fPos{};
-		if (StartPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) + XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.02f ))
+		if (StartPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) + XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.05f ))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
@@ -72,7 +72,7 @@ HRESULT CRollupDoor::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 		break;
 	case	TRIGGER_STATE::RETURN:
 
-		if (EndPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) - XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.02f))
+		if (EndPos(pTransform->Get_State(STATE::POS), XMLoadFloat4(&m_vOriginPos) - XMVectorSet(0, 50.f, 0.f, 0.f), &fPos, 0.05f))
 		{
 			m_eState = TRIGGER_STATE::IDLE;
 			Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
