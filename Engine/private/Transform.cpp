@@ -163,11 +163,19 @@ void CTransform::Apply_Rotation(_fvector vAxis, _float fAngle)
 void CTransform::MoveToAstar(shared_ptr<class CNavigation> pNavi, const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, const _float& fTimeDelta)
 {
 	_float3 vLookPos{};
-	if (pNavi->AStartAlgorithm(endLayerIndex, LayerName, tagName, Get_State(STATE::POS)))
+	_float3 vEndPos{};
+	if (pNavi->AStartAlgorithm(endLayerIndex, LayerName, tagName, Get_State(STATE::POS), &vEndPos))
 	{
+		if(XMVectorGetX(XMVector3Length(XMLoadFloat3(&vEndPos))) == 0.f)
+			Set_State(STATE::POS, pNavi->MoveToAstar(Get_State(STATE::POS), m_fSpeedPerSec, fTimeDelta, &vLookPos));
+		else
+		{
+			XMStoreFloat3(&vLookPos ,(XMLoadFloat3(&vEndPos) - Get_State(STATE::POS)));
+			_vector vTarget = XMVector3Normalize(XMLoadFloat3(&vLookPos));
 
-		Set_State(STATE::POS, pNavi->MoveToAstar(Get_State(STATE::POS), m_fSpeedPerSec, fTimeDelta, &vLookPos));
-
+			Set_State(STATE::POS, Get_State(STATE::POS) + vTarget * m_fSpeedPerSec * fTimeDelta);
+		
+		}
 		LookAt(XMLoadFloat3(&vLookPos));
 	}
 }
@@ -243,7 +251,8 @@ void CTransform::LookAt(_fvector vAt)
 	if(XMVectorGetX(XMVector3Length(vAt - Get_State(STATE::POS))) < 3.f)
 		return;
 
-	_vector		vLook = XMVectorSetW(XMVector3Normalize(vAt - Get_State(STATE::POS)),0.f);
+	_vector		vLook = XMVectorSetW(
+		XMVector3Normalize(XMVectorSetY(XMVectorLerp(XMVector3Normalize(Get_State(STATE::LOOK)), XMVector3Normalize(vAt -Get_State(STATE::POS)),0.6f),0.f)),0.f);
 	
 	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
 	_vector		vUp = XMVector3Cross(vLook, vRight);

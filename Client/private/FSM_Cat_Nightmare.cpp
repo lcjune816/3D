@@ -79,7 +79,7 @@ void CFSM_Cat_Nightmare::Action(shared_ptr<CTransform> pTransform, shared_ptr<CB
 	_vector vDestPos = XMLoadFloat3(&m_fDestPos);
 	
 	m_fTick += fTimeDelta;
-	_float fTime = min(1.f,m_fTick / 6.f);
+	_float fTime = min(1.f,m_fTick / 4.f);
 	
 	_vector vLinearPos = XMVectorLerp(XMLoadFloat3(&m_fCurrentPos), vDestPos, fTime);
 	pTransform->Set_State(STATE::POS, XMVectorSetW(vLinearPos,1.f));
@@ -134,7 +134,7 @@ void CFSM_Cat_Nightmare::OnNotify(const EVENT& eEvent)
 		m_fDestPos = eEvent.fPos;
 		pAnimator->Stop_Animation(false);
 		pAnimator->Set_RootNode(true);
-		pAnimator->Set_Double_Speed(2.5f);
+		pAnimator->Set_Double_Speed(4.f);
 		m_eAction = FSM_ACTION::ACTION;
 		XMStoreFloat3(&m_fPreLook, pTransform->Get_State(STATE::LOOK));
 		XMStoreFloat3(&m_fCurrentPos, pTransform->Get_State(STATE::POS));

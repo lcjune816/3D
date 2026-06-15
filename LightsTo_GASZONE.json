@@ -39,7 +39,7 @@
             "LightType": 0,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 10
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -80,7 +80,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 1,
-            "WorldEvent": 10
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -121,7 +121,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 1,
-            "WorldEvent": 10
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -162,7 +162,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 1,
-            "WorldEvent": 10
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -203,7 +203,7 @@
             "LightType": 1,
             "LocalEvent": 0,
             "UseType": 1,
-            "WorldEvent": 10
+            "WorldEvent": 12
         }
     ]
 }

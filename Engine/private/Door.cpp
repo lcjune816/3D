@@ -26,6 +26,11 @@ HRESULT CDoor::Initialize(void* pArg)
  		CGameInstance::Get().Add_Observers(pDesc->eWroldEvent, SHARED_THIS(CDoor));
 
 	}
+	else if (pDesc->eWroldEvent == WORLD_EVENT::BOSS_EVENT1)
+	{
+		m_bOtherTrigger = true;
+		CGameInstance::Get().Add_Observers(pDesc->eWroldEvent, SHARED_THIS(CDoor));
+	}
 
 	__super::Initialize(pArg);
 	m_eEventTrigger = TRIGGER_EVENT::DOOR;
@@ -102,12 +107,27 @@ void CDoor::OnNotify(const EVENT& event)
 {
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 		return;
-
-	m_eState = TRIGGER_STATE::WORLD;
-	m_fEndAngle = 140.f;
-	m_fMaxFrameTime = 1.f;
-	m_fRotation = { 0,1,0,0 };
-	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	
+	if (event.eEvent == WORLD_EVENT::DOOR)
+	{
+		m_eState = TRIGGER_STATE::WORLD;
+		m_fEndAngle = 140.f;
+		m_fMaxFrameTime = 1.f;
+		m_fRotation = { 0,1,0,0 };
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	}
+	else if(event.eEvent == WORLD_EVENT::BOSS_EVENT1)
+	{
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT2, SHARED_THIS(CDoor));
+	}
+	else if (event.eEvent == WORLD_EVENT::BOSS_EVENT2)
+	{
+		m_eState = TRIGGER_STATE::WORLD;
+		m_fEndAngle = 140.f;
+		m_fMaxFrameTime = 1.f;
+		m_fRotation = { 0,1,0,0 };
+		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
+	}
 }
 void CDoor::Action_Trigger()
 {

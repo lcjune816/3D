@@ -75,7 +75,7 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer_Arm));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CPlayer_Arm));
 }
 HRESULT CPlayer_Arm::Render()
 {
