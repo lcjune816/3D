@@ -23,7 +23,8 @@ HRESULT CFSM_Teacher_Move::Initialize(void* pArg)
 void CFSM_Teacher_Move::Enter_State()
 {
 	m_eAction = FSM_ACTION::RETURN;
-
+	auto pObj = CGameInstance::Get().Get_ObjectPtr(ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player");
+	m_pPlayerTransform = pObj->Get_Transform();
 }
 
 void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
@@ -31,17 +32,17 @@ void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 	IS_PLAYSOUND(TEACHER_BGM_SOUND2, CHANNELID::SOUND_BGM01, 0.2f);
 	auto Boss = m_pBoss.lock();
 	auto pTransform = Boss->Get_Transform().lock();
-	if (NULL_TRUE(Boss)) return;
-	if (NULL_TRUE(pTransform)) return;
-
+	auto pPlayer = m_pPlayerTransform.lock();
+	if (NULL_TRUE(Boss) || NULL_TRUE(pPlayer) || NULL_TRUE(pTransform)) return;
 	Action_Change(Boss, pTransform);
 	switch(m_eAction)
 	{
 	case FSM_ACTION::IDLE:
+		IDLE(Boss, pTransform, pPlayer, fTimeDelta);
 		break;
 
 	case FSM_ACTION::ACTION:
-		Action_Chase(Boss,pTransform,fTimeDelta);
+		Action_Chase(Boss,pTransform, pPlayer, fTimeDelta);
 		break;
 
 	case FSM_ACTION::RETURN:
@@ -52,7 +53,7 @@ void CFSM_Teacher_Move::Update_State(_float fTimeDelta)
 		Boss_Tp(Boss, pTransform, fTimeDelta);
 		break;
 	case FSM_ACTION::EVENT2:
-		Boss_FrontDoorPause(Boss, pTransform, fTimeDelta);
+		Boss_FrontDoorPause(Boss, pTransform, pPlayer, fTimeDelta);
 		break;
 
 	case FSM_ACTION::EVENT3:
@@ -105,6 +106,17 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 		
 }
 
+void CFSM_Teacher_Move::IDLE(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform> pTransform, shared_ptr<CTransform> pPlayerTransform, const _float& fTimeDelta)
+{
+	_float fDis = XMVectorGetX(XMVector3Length(pPlayerTransform->Get_State(STATE::POS) - pTransform->Get_State(STATE::POS)));
+
+	int32_t iRand = rand() % 5;
+	//if(iRand == 4)
+	//IS_PLAYSOUND(TEACHER_BREATH, CHANNELID::SOUND_BOSS, min(max(0.f,1.f - fDis / 30.f * fTimeDelta),0.7f));
+
+	
+}
+
 void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform)
 {
 	if (!m_bStop)
@@ -112,7 +124,7 @@ void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr
 
 	if (CGameInstance::Get().RayCast(ETOUI(LEVEL::END), L"Layer_WorldObject", L"Layer_Player", "Player", pTransform, XMVectorSet(0.f, 8.f, 0.f, 1.f)))
 	{
-
+		
 		pBoss->GetAnimator()->Stop_Animation(true);
 		m_eAction = FSM_ACTION::IDLE;
 	}
@@ -123,12 +135,12 @@ void CFSM_Teacher_Move::Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr
 	}
 
 }
-void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta)
+void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, shared_ptr<CTransform> pPlayerTransform, const _float& fTimeDelta)
 {
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 	pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
-
-	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, 0.4f);
+	_float fDis = XMVectorGetX(XMVector3Length(pPlayerTransform->Get_State(STATE::POS) - pTransform->Get_State(STATE::POS)));
+	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, min(max(0.f, 1.f - fDis / 20.f * fTimeDelta),0.7f));
 
 	if (pBoss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
 		pBoss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
@@ -160,7 +172,7 @@ void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTran
 	
 }
 
-void CFSM_Teacher_Move::Boss_FrontDoorPause(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
+void CFSM_Teacher_Move::Boss_FrontDoorPause(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform> pTransform, shared_ptr<CTransform> pPlayerTransform, const _float& fTimeDelta)
 {
 
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
@@ -172,7 +184,7 @@ void CFSM_Teacher_Move::Boss_FrontDoorPause(shared_ptr<CBoss_Teacher> pBoss, sha
 
 	}
 	else
-		Action_Chase(pBoss, pTransform,fTimeDelta);
+		Action_Chase(pBoss, pTransform, pPlayerTransform, fTimeDelta);
 	
 }
 

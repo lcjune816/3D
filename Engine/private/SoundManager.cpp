@@ -16,6 +16,9 @@ HRESULT SoundManager::Ready_SoundManager() {
 	SoundSystem->createChannelGroup("Effect2",	&ChannelGroup[(int)CHANNELID::SOUND_EFFECT02]);
 	SoundSystem->createChannelGroup("Effect3",	&ChannelGroup[(int)CHANNELID::SOUND_EFFECT03]);
 	SoundSystem->createChannelGroup("Object", &ChannelGroup[(int)CHANNELID::SOUND_OBJECT]);
+	SoundSystem->createChannelGroup("Object2", &ChannelGroup[(int)CHANNELID::SOUND_OBJECT2]);
+	SoundSystem->createChannelGroup("Object3", &ChannelGroup[(int)CHANNELID::SOUND_OBJECT3]);
+	SoundSystem->createChannelGroup("Object4", &ChannelGroup[(int)CHANNELID::SOUND_OBJECT4]);
 	SoundSystem->createChannelGroup("Object_WorldEvent", &ChannelGroup[(int)CHANNELID::SOUND_WORLDEVENT]);
 	SoundSystem->createChannelGroup("Boss", &ChannelGroup[(int)CHANNELID::SOUND_BOSS]);
 	SoundSystem->createChannelGroup("Boss_Effect", &ChannelGroup[(int)CHANNELID::SOUND_BOSS_EFFECT]);
