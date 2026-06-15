@@ -52,6 +52,7 @@ private:
 	 uint32_t									m_iTickCnt{};
 	 _bool										m_bStart{ false };
 	 _float									    m_fTick{ 0 };
+	 _float4									m_vFog{};
 	 _float										m_fFogDistance{ 10000 };
 public:
 	static unique_ptr<CWorldParticle> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

@@ -163,6 +163,8 @@ json CWorldParticle::Save_Data()
 }
 HRESULT CWorldParticle::Bind_Resource(const _char* pConstantName, shared_ptr<class CShader> pShader)
 {
+	
+	pShader->Bind_RawValue("g_vLightAmbient", &m_vFog, sizeof m_vFog);
 	return pShader->Bind_RawValue(pConstantName,&m_fFogDistance, sizeof m_fFogDistance);
 }
 void CWorldParticle::OnNotify(const EVENT& eEvent)
@@ -208,14 +210,19 @@ void CWorldParticle::Fog_Controller(const _float& fTimeDelta)
 		return;
 	m_fTick += fTimeDelta;
 
-	_float t = min(m_fTick / 4.f,1.f);
-
+	_float t = min(m_fTick / 10.f,1.f);
+	
+	
+	XMStoreFloat4(&m_vFog, XMVectorLerp(XMVectorSet(0, 0, 0, 0), XMVectorSet(0.45f, 0.01f, 0.01f, 0.f),t));
 	m_fFogDistance = 1000 - (200 + 1000) * t;
 	
+	if (t >= 1.f)
+	{
+		m_bStart = true;
+	}
 	if (m_fFogDistance <= 3500)
 	{
 		m_fFogDistance = 350;
-		m_bStart = true;
 	}
 		
 }
