@@ -25,7 +25,7 @@ HRESULT CElectricPoleHead::Initialize(void* pArg)
 
 	__super::Initialize(pArg);
 
-	m_eEventTrigger = TRIGGER_EVENT::ELECTRICPOLE;
+	m_eEventTrigger = TRIGGER_EVENT::POLEHEAD;
 	m_fRotationArrow = 10.f;
 	m_bOtherTrigger = true;
 	return S_OK;
@@ -37,6 +37,7 @@ HRESULT CElectricPoleHead::Pirority_Interaction(_float fTimeDelta, _bool bOtherT
 }
 HRESULT CElectricPoleHead::Interaction(_float fTimeDelta, _bool bOtherTrigger)
 {
+
 	Action_Trigger();
 	return S_OK;
 }
@@ -57,8 +58,14 @@ void CElectricPoleHead::Action_Trigger()
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
-		if (NULL_FALSE(TriggerCheck))		
-			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
+		if (NULL_FALSE(TriggerCheck))
+		{
+		
+			if (TriggerCheck->Check_Trigger_Event(TRIGGER_EVENT::PANNEL))
+				TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::ENABLE);
+			else TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::OTHERTRIGGER), FLAGVALUE::ENABLE);
+		}
+			
 		m_BindValue.fColor = { 0,0,1,1 };
 	}
 	else

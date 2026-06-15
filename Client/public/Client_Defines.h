@@ -22,6 +22,7 @@ namespace Client
 
 	enum class  PATHNAME { SHADER, BUFFER, TEXTURE, END };
 
+	enum class  INIT_TYPE{OBJECT,END};
 }
 
 extern HWND			g_hWnd;

@@ -22,7 +22,17 @@ HRESULT CWorldLight::Initialize(void* pArg)
 {
 	auto pDesc = static_cast<WORLDLIGHT_DESC*>(pArg);
 
+	if (pDesc->eType == INIT_TYPE::OBJECT)
+	{
+		m_eInit = pDesc->eType;
+		m_pLight = CLight::Create(m_pDevice, m_pContext, pDesc->LightDesc);
+		m_LightOrigin = *m_pLight->Get_LightDescNoCheckType();
 
+		if (NULL_TRUE(m_pLight))
+			return E_FAIL;
+
+		return S_OK;
+	}
 	if (FAILED(Ready_Component()))
 		return E_FAIL;
 
@@ -49,16 +59,26 @@ void CWorldLight::Update(_float fTimeDelta)
 void CWorldLight::Late_Update(_float fTimeDelta)
 {
 	_bool bUpdate{ false };
-	LIGHT_DESC* pDesc = CGameInstance::Get().Get_LightToHandle(m_eHandle.iIndex, m_eHandle.iHandle);
-	LIGHT_DESC* pDescOrigin = CGameInstance::Get().Get_LightToHandleOrigin(m_eHandle.iIndex, m_eHandle.iHandle);
+	LIGHT_DESC* pDesc = nullptr;
+	LIGHT_DESC* pDescOrigin = nullptr;
+	if (NULL_TRUE(m_pLight))
+	{
+		pDesc = CGameInstance::Get().Get_LightToHandle(m_eHandle.iIndex, m_eHandle.iHandle);
+		pDescOrigin = CGameInstance::Get().Get_LightToHandleOrigin(m_eHandle.iIndex, m_eHandle.iHandle);
 
-	if (NULL_TRUE(pDesc) || NULL_TRUE(pDescOrigin))
+	}
+	else
+	{
+		pDesc = m_pLight->Get_LightDescNoCheckType();
+	}
+	
+	if (NULL_TRUE(pDesc))
 		return;
 
 	bUpdate = pDesc->bLightStop;
 
-	if (!bUpdate)
-	{
+	//if (!bUpdate)
+	//{
 		switch (m_eLocalEventType)
 		{
 		case LIGHT_STATE::NONE:
@@ -85,16 +105,24 @@ void CWorldLight::Late_Update(_float fTimeDelta)
 		case LIGHT_STATE::LIGHT_OFF:
 			Light_OFF(pDesc, fTimeDelta);
 			break;
+		case LIGHT_STATE::LIGHT_SLOWOFF:
+			Light_SLOW_OFF(pDesc, fTimeDelta);
+			break;
+		case LIGHT_STATE::LIGHT_SLOWON:
+			Light_SLOW_ON(pDesc, fTimeDelta);
+			break;
 		case LIGHT_STATE::LIGHT_WORLD:
 			Light_Blink_EVENT(pDesc, fTimeDelta);
 			break;
 		}
-	}
-	else
-	{
-		m_LightOrigin = *pDesc;
-	}
+	//}
+	//else
+	//{
+	//	m_LightOrigin = *pDesc;
+	//}
 
+	if (m_eLocalEventType != LIGHT_STATE::NONE && m_eInit == INIT_TYPE::OBJECT)
+		CGameInstance::Get().Add_Render_Light(m_pLight);
 }
 HRESULT CWorldLight::Render()
 {
@@ -267,6 +295,50 @@ void CWorldLight::Light_ON(LIGHT_DESC* pDesc, const _float& fTimeDelta)
 	{
 		m_eLocalEventType == LIGHT_STATE::NONE;
 	}
+}
+void CWorldLight::Light_SLOW_OFF(LIGHT_DESC* pDesc, const _float& fTimeDelta)
+{
+	if (m_eLocalEventType != m_PreState)
+	{
+		m_PreState = m_eLocalEventType;
+		m_fTick = 0.f;
+	}
+
+	m_fTick += fTimeDelta;
+
+	
+		
+	_float t = min(m_fTick / 1.5f,1.f);
+	
+	if (t <= 1.f)
+	{
+		XMStoreFloat4(&pDesc->vAmbient, XMVectorLerp(XMLoadFloat4(&m_LightOrigin.vAmbient), XMVectorSet(0, 0, 0, 1.f), t));
+		XMStoreFloat4(&pDesc->vDiffuse, XMVectorLerp(XMLoadFloat4(&m_LightOrigin.vDiffuse), XMVectorSet(0, 0, 0, 1.f), t));
+	}
+	
+	
+}
+void CWorldLight::Light_SLOW_ON(LIGHT_DESC* pDesc, const _float& fTimeDelta)
+{
+	if (m_eLocalEventType != m_PreState)
+	{
+		m_PreState = m_eLocalEventType;
+		m_fTick = 0.f;
+	}
+
+	m_fTick += fTimeDelta;
+	_float t = min(m_fTick / 1.5f, 1.f);
+
+	
+
+	if (t <= 1.f)
+	{
+		XMStoreFloat4(&pDesc->vAmbient, XMVectorLerp(XMVectorSet(0, 0, 0, 1.f), XMLoadFloat4(&m_LightOrigin.vAmbient), t));
+		XMStoreFloat4(&pDesc->vDiffuse, XMVectorLerp(XMVectorSet(0, 0, 0, 1.f), XMLoadFloat4(&m_LightOrigin.vDiffuse), t));
+	}
+
+	
+
 }
 void CWorldLight::Light_OFF(LIGHT_DESC* pDesc, const _float& fTimeDelta)
 {

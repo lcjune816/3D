@@ -117,6 +117,7 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
             if (CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().iIndex == *iSrcIndex)
             {
                 Astar.iParent_node = parentsNode.iNode_Nubmer;
+                Astar.iNode_Nubmer = m_NaviInfo.iNeighborIndices[i];
                 XMStoreFloat3(&Astar.Pos, XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter));
                 CloseList.push_back(Astar);
                 return true;
@@ -150,7 +151,7 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
                 {
                     if (iter->iNode_Nubmer == m_NaviInfo.iNeighborIndices[i])
                     {
-                        if (iter->G > Astar.G || fabsf(iter->G - Astar.G) < 0.0001f )
+                        if (iter->G > Astar.G )//|| fabsf(iter->G - Astar.G) < 0.0001f )
                         {
                             OpenCheck = false;
                             break;
