@@ -127,6 +127,11 @@ X(LIGHT_SLOWON)
 #define GENERATOR_POWERON_LOOP L"SW_Generator_IdleHum_LOOP.wav"
 #define GENERATOR_BREAK L"SW_School_GeneratorSmash.wav"
 #define TEACHER_BGM_SOUND2 L"SW_Get_Out_Music_01_cut_54.wav"
+#define LEVER_SOUND L"SW_Lever_Pull_01.wav"
+#define POLE_SOUND L"SW_Conduit_ElectricPole_Charged.wav"
+#define ELECTRIC_PANNEL_SOUND L"SW_GrabTurret_Shot.wav"
+#define ELECTRIC_HAND		 L"SW_Conduit_HandGrab_Coiling.wav"
+
 
 #define IS_PLAYSOUND(SoundName,ChannelId,Volume)\
 if(!CGameInstance::Get().IsPlaying(ChannelId))\

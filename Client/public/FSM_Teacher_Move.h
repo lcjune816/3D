@@ -20,11 +20,12 @@ public:
 
 
 private:
+	void IDLE(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, shared_ptr<class CTransform> pPlayerTransform, const _float& fTimeDelta);
 	void Action_Change(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform);
-	void Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+	void Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, shared_ptr<class CTransform> pPlayerTransform, const _float& fTimeDelta);
 	void Return_StopMove();
 	void Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
-	void Boss_FrontDoorPause(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+	void Boss_FrontDoorPause(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, shared_ptr<CTransform> pPlayerTransform, const _float& fTimeDelta);
 	void Boss_DoorKick(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
 
 private:
@@ -32,6 +33,7 @@ private:
 	int32_t			m_iIndex{};
 	_bool			m_bOneSound{ false };
 	_bool			m_bStop{ true };
+	weak_ptr		<class CTransform> m_pPlayerTransform;
 public:
 	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

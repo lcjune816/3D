@@ -97,6 +97,9 @@ void CLever::TriggerToTrigger()
 
 void CLever::Set_Trigger()
 {
+
+	IS_PLAYSOUND(LEVER_SOUND, CHANNELID::SOUND_OBJECT2, 0.4f);
+
 	if (!Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER),FLAGVALUE::ENABLE);
