@@ -24,9 +24,13 @@ private:
 	void Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
 	void Return_StopMove();
 	void Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+	void Boss_FrontDoorPause(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+	void Boss_DoorKick(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
+
 private:
 	_float3			m_fPos{};
 	int32_t			m_iIndex{};
+	_bool			m_bOneSound{ false };
 	_bool			m_bStop{ true };
 public:
 	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

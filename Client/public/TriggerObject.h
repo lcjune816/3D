@@ -62,6 +62,7 @@ public:
 	HRESULT				Add_Light(LIGHT_DESC& Light);
 	virtual void		Mesh_Change(vector<uint32_t> MeshList)override;
 private: 
+	void				Light_Changer(const _float& fTimeDelta);
 	HRESULT				Create_Component(void* pArg);
 
 private:
@@ -70,7 +71,7 @@ private:
 	shared_ptr<Engine::CTrigger>		m_pTrigger = { nullptr };
 	vector<uint32_t>					m_MeshNameList;
 
-	shared_ptr<Engine::CLight>			m_pLight;
+	shared_ptr<class CWorldLight>			m_pLight;
 	TRIGGER_INFO						m_TriggerInfo;
 	_float4x4							m_TargetMatrix = {};
 	uint32_t							m_iLevel = { ETOUI(LEVEL::GAMEPLAY) };

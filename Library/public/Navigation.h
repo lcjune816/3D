@@ -28,7 +28,7 @@ public:
 
 	_bool  InMove(_fvector vResultPos, _float3* fDir = nullptr);
 	_vector SetUp_OnNavigation(_fvector vPos, _float offsetY);
-	_bool	AStartAlgorithm(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, _fvector SrcPos);
+	_bool	AStartAlgorithm(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, _fvector SrcPos, _float3* fPos);
 	_vector	MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook);
 	void	Event_Check(CELL_EVENT eCellEvent);
 	void	Reset_Astar();
@@ -37,6 +37,8 @@ public:
 
 	void	ReSearchCell(_fvector vPos);
 	void	InMove_Control(_bool   bMove) { m_bIsIn = bMove; }
+
+	_bool	Is_CurrentCell(int32_t iIndex) { if (m_iCurretnCellindex == iIndex) return true;   return false; }
 public:
 //GUI¿ë
 	_bool	Check_NeraPos(_float3* fPos); 
@@ -45,6 +47,8 @@ public:
 	void	Undo_Cell();
 	void    Dead_Check();
 	_vector Find_CellPos(int32_t index);
+
+
 private:
 	const _vector Get_CurrentCell_Info(int32_t* iDestIndex);
 	shared_ptr<class CGameObject> Find_Object(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName);
