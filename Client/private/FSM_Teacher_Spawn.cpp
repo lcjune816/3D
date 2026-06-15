@@ -18,7 +18,7 @@ HRESULT CFSM_Teacher_Spawn::Initialize(void* pArg)
 	auto pDesc = static_cast<TEACHER_SPAWN_DESC*>(pArg);
 
 	m_iNaviEventIndex = pDesc->iNaviEventIndex;
-	m_iNaviEventIndex = 126;
+	m_iNaviEventIndex = 118;
 	//126
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN,SHARED_THIS(CFSM_Teacher_Spawn));
@@ -86,9 +86,11 @@ void CFSM_Teacher_Spawn::KickDoor(shared_ptr<CBoss_Teacher> pTeacher, const _flo
 		m_fTick = 0;
 	}
 	
-	if (m_fTimeCnt >= 3)
+	if (m_fTimeCnt == 3)
 	{
-		CGameInstance::Get().Notify(WORLD_EVENT::DOOR, {});
+		EVENT eEvent{};
+		eEvent.eEvent = WORLD_EVENT::DOOR;
+		CGameInstance::Get().Notify(WORLD_EVENT::DOOR, eEvent);
 	}
 	if (m_fTimeCnt == 4 && m_bOneSound == false)
 	{

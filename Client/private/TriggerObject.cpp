@@ -2,6 +2,7 @@
 #include "GameInstance.h"
 #include "GuiObject.h"
 #include "Layer.h"
+#include "WorldLight.h"
 CTriggerObject::CTriggerObject(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CGameObject(pDevice, pContext)
 {
@@ -95,6 +96,37 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 	m_Components.emplace(L"Trigger", m_pTrigger);
 
 	strcpy_s(m_pTagName, 32, desc->strTriggerName.c_str());
+	if (m_pTrigger->Get_Event() == TRIGGER_EVENT::POLEHEAD)
+	{
+		CWorldLight::WORLDLIGHT_DESC Light{};
+		Light.eType = INIT_TYPE::OBJECT;
+		Light.LightDesc.eUseType = USETYPE::CLIENT;
+		Light.LightDesc.eType = LIGHT::POINT;
+		Light.LightDesc.eLocalEventType = LIGHT_STATE::NONE;
+		Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
+		Light.LightDesc.fRange = _float2(30.f,0.f);
+		Light.LightDesc.vDiffuse = _float4(1.2f,1.8f, 5.f,1.f);
+		Light.LightDesc.vAmbient = _float4(0.5f, 0.5f, 1.f, 1.f);
+		Light.LightDesc.vSpecular = _float4(1.f, 1.f, 0.8f, 1.f);
+		XMStoreFloat4(&Light.LightDesc.vPos, m_pTransform->Get_State(STATE::POS) + XMVectorSet(0,55,0,0));
+		m_pLight = static_pointer_cast<CWorldLight>(CGameInstance::Get().Clone_Prototype(m_iLevel, L"OBJ_Light", &Light));
+	}
+	else if (m_pTrigger->Get_Event() == TRIGGER_EVENT::GELECTRIC)
+	{
+		CWorldLight::WORLDLIGHT_DESC Light{};
+		Light.eType = INIT_TYPE::OBJECT;
+		Light.LightDesc.eUseType = USETYPE::CLIENT;
+		Light.LightDesc.eType = LIGHT::POINT;
+		Light.LightDesc.eLocalEventType = LIGHT_STATE::NONE;
+		Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
+		Light.LightDesc.fRange = _float2(13.f, 0.f);
+		Light.LightDesc.vDiffuse = _float4(0.3f, 0.8f, 0.3f, 0.f);
+		Light.LightDesc.vAmbient = _float4(0.5f, 1.2f, 0.5f, 0.f);
+		Light.LightDesc.vSpecular = _float4(0.3f, 0.3f, 0.3f, 0.f);
+		XMStoreFloat4(&Light.LightDesc.vPos, m_pTransform->Get_State(STATE::POS));
+
+		m_pLight = static_pointer_cast<CWorldLight>(CGameInstance::Get().Clone_Prototype(m_iLevel, L"OBJ_Light", &Light));
+	}
 	return S_OK;
 }
 void CTriggerObject::Priority_Update(_float fTimeDelta)
@@ -111,7 +143,7 @@ void CTriggerObject::Update(_float fTimeDelta)
 void CTriggerObject::Late_Update(_float fTimeDelta)
 {
 	m_pTrigger->Late_Interaction(fTimeDelta);
-
+	Light_Changer(fTimeDelta);
 	if (0 != m_TriggerInfo.iTargetObjectID)
 	{
 		//타겟이 있는 경우에만
@@ -332,8 +364,8 @@ json CTriggerObject::Save_Data()
 	j["FrameMaxTime"] = m_TriggerInfo.fMaxFrameTime;
 	j["WorldEvent"] = static_cast<int32_t>(m_TriggerInfo.eWorldEvent);
 	
-	if(NULL_FALSE(m_pLight))
-	j["Lights"] = m_pLight->Save_Data();
+	//if(NULL_FALSE(m_pLight))
+	//j["Lights"] = m_pLight->Save_Data();
 	return j;
 }
 HRESULT CTriggerObject::Ready_Component()
@@ -347,8 +379,34 @@ HRESULT CTriggerObject::Add_Light(LIGHT_DESC& Light)
 	if (NULL_TRUE(pLight))
 		MSG_BOX("Create Failed Light To Trigger");
 
-	m_pLight = pLight;
 	return S_OK;
+}
+void CTriggerObject::Light_Changer(const _float& fTimeDelta)
+{
+	if (NULL_TRUE(m_pLight))
+		return;
+
+	switch(m_pTrigger->Get_Event())
+	{
+	case TRIGGER_EVENT::POLEHEAD:
+		if (m_pTrigger->Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		{
+			m_pLight->Set_LightState(LIGHT_STATE::LIGHT_SLOWON);
+		}else 
+			m_pLight->Set_LightState(LIGHT_STATE::LIGHT_SLOWOFF);
+		break;
+
+	case TRIGGER_EVENT::GELECTRIC:
+		if (m_pTrigger->Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
+		{
+			m_pLight->Set_LightState(LIGHT_STATE::LIGHT_BLINK2);
+		}else 
+			m_pLight->Set_LightState(LIGHT_STATE::NONE);
+		break;
+	}
+
+	m_pLight->Late_Update(fTimeDelta);
+
 }
 HRESULT CTriggerObject::Create_Component(void* pArg)
 {
@@ -384,15 +442,15 @@ void CTriggerObject::Load_Data(void* pDesc, const json& j)
 	m_TriggerInfo.iObjectID = j["ObjectID"];
 	m_TriggerInfo.iTargetObjectID = j["ObjectTargetID"];
 
-	if (j.contains("Lights"))
-	{
-		json Light = j["Lights"];
-		auto pLight = CLight::Create(m_pDevice, m_pContext, Light);
-		if (NULL_TRUE(pLight))
-			return;
-
-		m_pLight = pLight;
-	}
+	//if (j.contains("Lights"))
+	//{
+	//	json Light = j["Lights"];
+	//	auto pLight = CLight::Create(m_pDevice, m_pContext, Light);
+	//	if (NULL_TRUE(pLight))
+	//		return;
+	//
+	//	m_pLight = pLight;
+	//}
 	
 }
 unique_ptr<CTriggerObject> CTriggerObject::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
