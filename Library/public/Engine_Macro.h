@@ -33,6 +33,8 @@ X(BOSS_TP)			     \
 X(BOSS_LIGHT_FLICK)	     \
 X(BOSS_LIGHT_OFF)		 \
 X(BOSS_LIGHT_ON)		 \
+X(BOSS_EVENT1)			 \
+X(BOSS_EVENT2)			 \
 X(END)
 
 #define PARTICLE_LIST \
@@ -49,6 +51,8 @@ X(SECOND)		  \
 X(BOSSTP)		  \
 X(ELEVATOR)		  \
 X(ARROW)		  \
+X(BOSS_EVENT1)	  \
+X(BOSS_EVENT2)	  \
 X(END)
 
 #define LIGHT_STATE_LIST \
@@ -59,7 +63,9 @@ X(LIGHT_BLINK3)			\
 X(LIGHT_BLINK4)			\
 X(LIGHT_WORLD)			\
 X(LIGHT_OFF)			\
-X(LIGHT_ON)				
+X(LIGHT_ON)				\
+X(LIGHT_SLOWOFF)		\
+X(LIGHT_SLOWON)
 
 
 

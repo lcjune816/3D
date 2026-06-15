@@ -115,7 +115,7 @@ _vector CNavigation::SetUp_OnNavigation(_fvector vPos, _float offsetY)
     return XMVectorSetY(vPos, m_Cells[m_iCurretnCellindex]->Compute_Height(vPos) + offsetY);
     
 }
-_bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring& LayerName, const _char* tagName, _fvector SrcPos)
+_bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring& LayerName, const _char* tagName, _fvector SrcPos,_float3 *fPos)
 {
     if (m_Cells.empty())
         return false;
@@ -134,8 +134,12 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
     _vector LastPos = pDestNavi->Get_CurrentCell_Info(&index);
     if (-1 == index)
         return false;
-     if (index == m_iDestIndex && !m_MoveToList.empty())
-            return true;
+    if (m_iCurretnCellindex == index )
+    {
+        XMStoreFloat3(fPos, LastPos);
+        return true;
+    }
+    XMStoreFloat3(fPos ,XMVectorSet(0,0,0,0));
      _vector DestPos = pObj->Get_Transform().lock()->Get_State(STATE::POS);
 
      m_AstarCloseList.clear();
@@ -145,7 +149,7 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
      ENGINE_ASTAR FirstAstar{};
      
      FirstAstar.H = Huritices;
-     FirstAstar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter)));
+     FirstAstar.G = XMVectorGetX(XMVector3Length(XMLoadFloat3(&m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter) - SrcPos));
      FirstAstar.F = FirstAstar.G + FirstAstar.H;
      FirstAstar.iParent_node = -1;
      FirstAstar.iNode_Nubmer = m_iCurretnCellindex;
@@ -213,29 +217,65 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
 _vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook)
 {
     if (m_MoveToList.empty())
+    {
         return vPos;
+    }
     
-    _vector vSrcPos{};
+    _vector vSrcPos{}, vDir{}, FinalPos{};
     if (!m_MoveToList.empty())
+    {
         vSrcPos = XMLoadFloat3(&m_MoveToList.front().Pos);
+        vDir = XMVector3Normalize(vSrcPos - vPos);
+
+        XMStoreFloat3(vLook, vSrcPos);
+        FinalPos = vPos + vDir * fSpeed * fTimeDelta;
+       //XMVectorGetX(XMVector3Length(XMVectorSetY(FinalPos, 0.f) - XMVectorSetY(vSrcPos, 0.f))) < 5.f ||
+        if (XMVectorGetX(XMVector3Length(XMVectorSetY(FinalPos, 0.f) - XMVectorSetY(vSrcPos, 0.f))) < 5.f || m_iCurretnCellindex == m_MoveToList.front().iNode_Nubmer)
+        {
+            m_MoveToList.pop_front();
+
+            if (!m_MoveToList.empty())
+                vSrcPos = XMLoadFloat3(&m_MoveToList.front().Pos);
+            else
+                return vPos;
+            
+            vDir = XMVector3Normalize(vSrcPos- vPos);
+
+            FinalPos = vPos + vDir * fSpeed * fTimeDelta;
+
+        }
+
+    }
         
     
         
-     _vector vDir = XMVector3Normalize(vSrcPos - vPos);
-     XMStoreFloat3(vLook, vSrcPos);
-     _vector FinalPos = vPos + vDir * fSpeed * fTimeDelta;
+    _float3 fDir{};
+     if (true == InMove(FinalPos,&fDir))
+         return XMVectorSetW(FinalPos,1.f);
 
-     if (XMVectorGetX(XMVector3Length(FinalPos - vSrcPos)) < 15.f)
-     {
-         m_MoveToList.pop_front();
- 
+     _vector vSlidDir = XMVector3Normalize(XMLoadFloat3(&fDir));
+     _float HalfSpeed = fSpeed * 0.5f;
+     _vector Move = vDir * HalfSpeed * fTimeDelta;
 
-     }
+     //R = P + n(-P * n)    
+     _vector FinalLook = XMVector3Normalize(Move + vSlidDir * (XMVectorGetX(XMVector3Dot(-Move, vSlidDir))));
 
-     if (!InMove(FinalPos))
-         return vPos;
+     _vector vSlide = vPos + FinalLook * HalfSpeed * fTimeDelta;
+     //원래 가려했던 힘 P
+     if (true == InMove(vSlide))
+        return  XMVectorSetW(vSlide, 1.f);
 
-    return XMVectorSetW(FinalPos,1.f);
+     
+     _vector vRight = XMVector3Cross(XMVectorSet(0,1,0,0),vDir);
+     _vector vRightMove = vPos + vRight * HalfSpeed * fTimeDelta;
+     _vector vRightFinal = XMVector3Normalize(vRightMove + vSlidDir * (XMVectorGetX(XMVector3Dot(-vRightMove, vSlidDir))));
+     
+     _vector vRightSlide = vPos + vRightFinal * HalfSpeed * fTimeDelta;
+
+     if (true == InMove(vRightSlide))
+         return  XMVectorSetW(vRightSlide, 1.f);
+
+    return XMVectorSetW(vPos,1.f);
 }
 shared_ptr<CGameObject> CNavigation::Find_Object(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName)
 {
@@ -436,7 +476,30 @@ void CNavigation::Event_Check(CELL_EVENT eCellEvent)
         eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
         CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP,eEvent);
     }
-   
+    else if (eCellEvent == CELL_EVENT::BOSS_EVENT1)
+    {
+        EVENT eEvent;
+        eEvent.eEvent = WORLD_EVENT::BOSS_EVENT1;
+        eEvent.iIndex = m_iCurretnCellindex;
+        eEvent.fPos = m_Cells[m_iCurretnCellindex]->Get_NaviInfo().vCenter;
+        CGameInstance::Get().Notify(WORLD_EVENT::BOSS_EVENT1, eEvent);
+
+     }else if(eCellEvent == CELL_EVENT::ARROW)
+     {
+         EVENT eEvent;
+         eEvent.eEvent = WORLD_EVENT::BOSS_EVENT2;
+         for (auto& iter : m_Cells)
+         {
+             if (iter->Event_Check(CELL_EVENT::BOSS_EVENT2))
+             {
+                 eEvent.iIndex = iter->Get_NaviInfo().iIndex;
+                 eEvent.fPos = iter->Get_NaviInfo().vCenter;
+                 break;
+             }
+         }
+         CGameInstance::Get().Notify(WORLD_EVENT::BOSS_EVENT2, eEvent);
+
+     }
     m_eEvent = eCellEvent;
 
 }
