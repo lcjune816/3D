@@ -60,11 +60,17 @@ void CElectricPole::Action_Trigger()
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
+		if (!m_bSound)
+		{
+			PLAY_SOUND(POLE_SOUND, CHANNELID::SOUND_OBJECT, 0.5f);
+			m_bSound = true;
+		}
 		if (NULL_FALSE(TriggerCheck))
 			TriggerCheck->Set_Trigger();
 	}
 	else
 	{
+		m_bSound = false;
 		if (NULL_FALSE(TriggerCheck))
 			TriggerCheck->Set_Flag(ETOUI(TRIGGER_FLAG::SHADER) | ETOUI(TRIGGER_FLAG::FTRIGGER), FLAGVALUE::DISABLE);
 	}

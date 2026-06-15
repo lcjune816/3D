@@ -28,7 +28,7 @@ private:
 private:
 	_float						m_fRotationArrow = { 1.f };
 
-
+	_bool						m_bSound{ false };
 public:
 	static unique_ptr<CElectricPole>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype>		 Clone(void* pArg) override;

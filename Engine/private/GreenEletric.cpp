@@ -78,6 +78,7 @@ _bool CGreenElectric::offsetMatrix(_float4x4* pMatrix)
 }
 void CGreenElectric::Set_Trigger()
 {
+	PLAY_SOUND(ELECTRIC_HAND, CHANNELID::PLAYER_EFFECT, 0.5f);
 	Set_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER) | ETOUI(TRIGGER_FLAG::SHADER), FLAGVALUE::ENABLE);
 }
 void CGreenElectric::TriggerToTrigger()
@@ -97,7 +98,11 @@ void CGreenElectric::Action_Trigger()
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
 	{
 		if (NULL_FALSE(TriggerCheck))
+		{
 			TriggerCheck->TriggerToTrigger();
+			PLAY_SOUND(ELECTRIC_PANNEL_SOUND, CHANNELID::PLAYER_EFFECT, 0.5f);
+		}
+			
 		m_BindValue.fColor = { 0,1,0,1 };
 	}
 	else m_BindValue.fColor = { 1,1,1,1 };

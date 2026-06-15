@@ -34,6 +34,7 @@ private:
 
 	vector<GRAB_ARM_EDGE>						m_EdgePoses;
 
+	_bool								m_bSound{ false };
 	_float4x4* m_StartMatrix = { nullptr };
 	uint32_t									m_iEdgeCnt = {}, m_iMaxSpeed{ 400 };
 	vector<uint32_t>							m_iSizeCnt;

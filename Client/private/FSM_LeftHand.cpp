@@ -48,7 +48,7 @@ void CFSM_LeftHand::Enter_State()
 	m_fOffset = { 0.f,0.f,0.f };
 	_float4x4 matrix = *m_StartMatrix;
 	memcpy(&m_fLastHandPos, matrix.m[3], sizeof _float3);
-
+	m_bSound = false;
 	m_pArm.lock()->Get_ArmMatrix().Matrix.resize(800);
 
 	Set_Flag(ETOUI(FSM_HAND_FLAG::SHOT), FLAGVALUE::ENABLE);
@@ -168,6 +168,7 @@ void CFSM_LeftHand::Update_State(_float fTimeDelta)
 void CFSM_LeftHand::Exit_State()
 {
 	STOP_SOUND(CHANNELID::SOUND_EFFECT02);
+	STOP_SOUND(CHANNELID::SOUND_EFFECT03);
 	Set_Flag(ETOUI(FSM_HAND_FLAG::END), FLAGVALUE::RESET);
 
 	auto pObj = m_pHand.lock();
@@ -460,6 +461,11 @@ _bool CFSM_LeftHand::Hand_Trigger_Event(shared_ptr<CPlayer_LeftHand> pObj, CTrig
 		return false;
 		break;
 	case TRIGGER_EVENT::BELECTRIC:
+		if (!m_bSound)
+		{
+			PLAY_SOUND(PLAYER_SOUND_BLUE_ELECTRIC, CHANNELID::SOUND_EFFECT03, 0.4f);
+			m_bSound = true;
+		}
 		Hand_State_Chand(CHANGE_STATE::ATTACHED_LONG);
 
 		iFlag = ETOUI(PLAYER_FLAG::ELECTRIC_LONG);

@@ -49,7 +49,6 @@ private:
 	int32_t								m_iOffsetIndex = {};
 	_float4x4							 m_fOffsetMatrix, m_FinalWorldMatrix;
 	_float4x4							m_bones[BONE_MATRIX];
-
 	_float4x4* m_ParentsMatrix{};
 	HAND_STATE							m_tagHandState = {};
 	PLAYER_HAND							m_eRHand = { PLAYER_HAND::END };
