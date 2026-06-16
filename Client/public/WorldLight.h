@@ -33,6 +33,7 @@ public:
 
 	void    Set_LightState(LIGHT_STATE eType) { m_eLocalEventType = eType; }
 	virtual void OnNotify(const EVENT& eEvent) override;
+	LIGHT_DESC* Get_LightDescPtr();
 private:
 	void			Light_Blink (LIGHT_DESC* pDesc,  const _float& fTimeDelta);
 	void			Light_Blink2(LIGHT_DESC* pDesc,  const _float& fTimeDelta);

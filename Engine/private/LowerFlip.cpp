@@ -98,7 +98,7 @@ void CLowerFlip::Action_Trigger()
 	auto pObj = m_pParent.lock();
 	if (NULL_TRUE(pObj))
 		return;
-	pObj->Get_Transform().lock()->Rotation(XMLoadFloat4(&m_fRotation), m_fAngle);
+	pObj->Get_Transform().lock()->Rotation_Origin(XMLoadFloat4(&m_fRotation), m_fAngle);
 
 	auto TriggerCheck = CGameInstance::Get().Find_Trigger(m_iLevel,m_iTargetNumber).lock();
 	if (Check_Flag(ETOUI(TRIGGER_FLAG::FTRIGGER)))
@@ -134,12 +134,15 @@ _bool CLowerFlip::offsetMatrix(_float4x4* pMatrix)
 	_vector vCenter = {};
 	_vector vLocal = (XMLoadFloat3(&fMax) + XMLoadFloat3(&fMin)) * 0.5f;
 
-
+	_vector vLook = XMVector3Normalize(SrcPos - DstPos);
+	_vector vRight = XMVector3Cross(pTransform->Get_World().r[1], vLook);
+	_vector vUp    = XMVector3Cross(vLook,vRight);
+	vLook = XMVector3Cross(vRight, vUp);
 	vCenter = XMVector3TransformCoord(vLocal, pTransform->Get_World());
-	matOffset.r[0] = XMVector3Normalize(pTransform->Get_State(STATE::RIGHT));
-	matOffset.r[1] = XMVector3Normalize(pTransform->Get_State(STATE::UP));
-	matOffset.r[2] = XMVector3Normalize(pTransform->Get_State(STATE::LOOK));
-	matOffset.r[3] = vCenter;
+	matOffset.r[0] = XMVector3Normalize(vRight);
+	matOffset.r[1] = XMVector3Normalize(vUp);
+	matOffset.r[2] = XMVector3Normalize(vLook);
+	matOffset.r[3] = XMVectorSetW(SrcPos - XMVector3Normalize(vLook) * 0.5f,1.f);
 	XMStoreFloat4x4(pMatrix, matOffset);
 	return true;
 }

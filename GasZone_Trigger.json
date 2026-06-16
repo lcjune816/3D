@@ -237,6 +237,108 @@
                 31.557470321655273,
                 204.22219848632813
             ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Pole.fbx",
+            "ObjectID": 4,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_ElectricPole",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 12,
+            "fPos": [
+                778.0339965820313,
+                20.197166442871094,
+                -22.225143432617188
+            ]
+        },
+        {
+            "FrameMaxTime": 0.0,
+            "FrameTick": 0.0,
+            "Look": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_Top.fbx",
+            "ObjectID": 6,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                1.0,
+                0.0,
+                0.0
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 0,
+            "TriggerValue": "OBJ_PoleHead",
+            "Up": [
+                0.0,
+                1.0,
+                0.0
+            ],
+            "WorldEvent": 12,
+            "fPos": [
+                777.7691650390625,
+                -1.1116056442260742,
+                -21.98685646057129
+            ]
+        },
+        {
+            "FrameMaxTime": 1.0,
+            "FrameTick": 180.0,
+            "Look": [
+                -0.9999985098838806,
+                -3.6398459997144528e-06,
+                -4.371132433789171e-08
+            ],
+            "MeshType": 2,
+            "ModeNumber": 0,
+            "Name": "../../Resource\\GamePlay\\PuzzelPole\\SM_PuzzlePole_LowerFlap.fbx",
+            "ObjectID": 7,
+            "ObjectTargetID": 0,
+            "OtherTriggerValue": true,
+            "Right": [
+                -4.371132433789171e-08,
+                -7.955136251342268e-14,
+                0.9999985098838806
+            ],
+            "TriggerArrow": 0.0,
+            "TriggerRot": 1,
+            "TriggerValue": "OBJ_LowerFlip",
+            "Up": [
+                -3.6398212159838295e-06,
+                0.9999916553497314,
+                -7.955082041233644e-14
+            ],
+            "WorldEvent": 12,
+            "fPos": [
+                777.6299438476563,
+                42.333744049072266,
+                -21.807933807373047
+            ]
         }
     ]
 }

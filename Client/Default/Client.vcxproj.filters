@@ -249,6 +249,9 @@
     <ClInclude Include="..\public\CWorldParticle.h">
       <Filter>02.GameObject\22.Particle_Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Player_Light.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -389,6 +392,9 @@
     </ClCompile>
     <ClCompile Include="..\private\WorldLight.cpp">
       <Filter>23.Light_Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Player_Light.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

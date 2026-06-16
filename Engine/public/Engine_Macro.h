@@ -121,7 +121,7 @@ X(LIGHT_SLOWON)
 
 //사운드 매니저
 #define DOOR_SOUND L"SW_Door_Metal_Rotating_01.wav"
-#define ROLLUPDOOR_SOUND L"SW_DormGate_OpenClose.wav"
+#define ROLLUPDOOR_SOUND L"SW_DormGate_OpenClose_Cut.wav"
 #define BATTERYCASE_SOUND L"SW_Battery_PowerOn_01.wav"
 #define GENERATOR_POWERON_SOUND L"SW_Generator_PowerOn.wav"
 #define GENERATOR_POWERON_LOOP L"SW_Generator_IdleHum_LOOP.wav"

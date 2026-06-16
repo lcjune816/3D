@@ -111,6 +111,14 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	CGameInstance::Get().Connect_Navigaion(m_pNavigation);
 	m_pTransform->Set_State(STATE::POS, XMVectorSetW(m_pNavigation->Find_CellPos(NaviDesc.iIndex), 1.f));
 
+	///////////////////////////////////////////////////¼ÕÀüµî/////////////////////////////////////////////
+	
+	CPlayer_Light::PLAYER_LIGHT_DESC PlayerLightDesc;
+	PlayerLightDesc.iLevel = objDesc->iLevel;
+	PlayerLightDesc.pParentMatrix = m_pTransform->Get_WorldPtr();
+	m_pHandLight = static_pointer_cast<CPlayer_Light>(CGameInstance::Get().Clone_Prototype(objDesc->iLevel, L"Player_LIght", &PlayerLightDesc));
+	if (NULL_TRUE(m_pHandLight)) return E_FAIL;
+	 
 	return S_OK;
 
 }
@@ -192,7 +200,7 @@ void CPlayer::Update(_float fTimeDelta)
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pAim->Update(fTimeDelta);
 	m_pNavigation->Dead_Check();
-
+	m_pHandLight->Update(fTimeDelta);
 
 		
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer));
@@ -203,6 +211,8 @@ void CPlayer::Late_Update(_float fTimeDelta)
 	m_pPlayerLHand->Late_Update(fTimeDelta);
 
 	m_pAim->Late_Update(fTimeDelta);
+	m_pHandLight->Late_Update(fTimeDelta);
+
 }
 HRESULT CPlayer::Render()
 {

@@ -20,6 +20,7 @@ HRESULT CFSM_Cat_Spawn::Initialize(void* pArg)
 	//126
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN, SHARED_THIS(CFSM_Cat_Spawn));
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT1, SHARED_THIS(CFSM_Cat_Spawn));
 	return S_OK;
 }
 void CFSM_Cat_Spawn::Enter_State()
@@ -78,6 +79,7 @@ void CFSM_Cat_Spawn::Action(shared_ptr<CBoss_Cat> pBoss,shared_ptr<CTransform> p
 
 void CFSM_Cat_Spawn::Action_Return(shared_ptr<CBoss_Cat> pBoss)
 {
+
 	auto pMachine = m_pMachine.lock();
 	pMachine->Change_State(FSM::MOVE);
 }
@@ -98,7 +100,10 @@ void CFSM_Cat_Spawn::OnNotify(const EVENT& eEvent)
 		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 		pAnimator->Stop_Animation(false);
 	}
-
+	else if (eEvent.eEvent == WORLD_EVENT::BOSS_EVENT1)
+	{
+		m_eAction = FSM_ACTION::RETURN;
+	}
 }
 unique_ptr<CFSM_Cat_Spawn>		CFSM_Cat_Spawn::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)
 {

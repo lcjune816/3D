@@ -47,6 +47,7 @@ HRESULT CElevator::Initialize(void* pArg)
 	m_eState = TRIGGER_STATE::IDLE;
 	Set_Flag(ETOUI(TRIGGER_FLAG::CANCLE), FLAGVALUE::ENABLE);
 
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT1, SHARED_THIS(CElevator));
 
 	return S_OK;
 }
@@ -64,7 +65,11 @@ HRESULT CElevator::Late_Interaction(_float fTimeDelta, _bool bOtherTrigger)
 
 void CElevator::TriggerToTrigger()
 {
-
+	EVENT eEvent;
+	eEvent.eEvent = WORLD_EVENT::BOSS_TP;
+	eEvent.iIndex = m_iIndex;
+	eEvent.fPos = m_vPos;
+	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_TP, eEvent);
 	m_eState = TRIGGER_STATE::ACTION;
 }
 
@@ -72,11 +77,20 @@ void CElevator::Set_Trigger()
 {
 }
 
+void CElevator::OnNotify(const EVENT& eEvent)
+{
+	if (eEvent.eEvent == WORLD_EVENT::BOSS_EVENT1)
+	{
+		m_iIndex = eEvent.iIndex;
+		m_vPos = eEvent.fPos;
+	}
+}
+
 void CElevator::Action_Trigger(const _float& fTimeDelta)
 {
 	auto pObj = m_pParent.lock();
-	auto pDestTransform = m_pDstTransform.lock();
-	if (NULL_TRUE(pObj) || NULL_TRUE(pDestTransform))
+	auto pDestTransform = CGameInstance::Get().Get_ObjectPtr(m_iLevel, L"Layer_Player", "Player")->Get_Transform().lock();
+	if (NULL_TRUE(pObj))
 		return;
 	auto pSrcTransform = pObj->Get_Transform().lock();
 	
@@ -86,7 +100,7 @@ void CElevator::Action_Trigger(const _float& fTimeDelta)
 	_vector SrcPos = pSrcTransform->Get_State(STATE::POS);
 	_float SrcHeight = XMVectorGetY(SrcPos);
 	
-	SrcHeight +=15.f * fTimeDelta;
+	SrcHeight +=18.f * fTimeDelta;
 	
 	pSrcTransform->Set_State(STATE::POS,XMVectorSetY(SrcPos,SrcHeight));
 	

@@ -1,8 +1,8 @@
 #pragma once
 #include "GameObject.h"
 #include "Client_Defines.h"
-
 #include "GameInstance.h"
+
 namespace Engine
 {
 	class CAnimator;
@@ -85,6 +85,7 @@ private:
 	shared_ptr<class CPLayer_RightHand>	m_pPlayerRHand = { nullptr };
 	shared_ptr<class CNavigation>		m_pNavigation = { nullptr };
 	shared_ptr<class CPlayerAim>		m_pAim = { nullptr };
+	shared_ptr<class CPlayer_Light>		m_pHandLight = { nullptr };
 	vector<string>						m_ShootBone;
 private:
 	_float								m_fTimerTick{ 0 }, m_fTimerCnt{ 0 };
