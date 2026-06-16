@@ -24,7 +24,7 @@
 #include "Player_RightHand.h"
 #include "FSM_LeftHand.h"
 #include "FSM_RightHand.h"
-
+#include "Player_Light.h"
 /////////////////º¸½º//////////////
 #include "Boss_Teacher.h"
 #include "Teacher_FSM.h"

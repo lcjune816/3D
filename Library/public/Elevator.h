@@ -1,9 +1,9 @@
 #pragma once
 #include "Trigger.h"
-
+#include "Observer.h"
 NS_BEGIN(Engine)
 
-class ENGINE_DLL CElevator final : public CTrigger
+class ENGINE_DLL CElevator final : public CTrigger, public CObserver
 {
 protected:
 	CElevator(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -24,11 +24,15 @@ public:
 	virtual void					Set_Trigger() override;
 
 	
-
+	virtual void					OnNotify(const EVENT& eEvent)override;
 private:	
 	void							Action_Trigger(const _float& fTimeDelta);
 	void							Pause_Trigger();
 	void							Idle_Trigger();
+
+private:
+	int32_t							m_iIndex;
+	_float3							m_vPos;
 public:
 	static unique_ptr<CElevator>	Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

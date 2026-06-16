@@ -266,9 +266,9 @@ _vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _flo
         return  XMVectorSetW(vSlide, 1.f);
 
      
-     _vector vRight = XMVector3Cross(XMVectorSet(0,1,0,0),vDir);
+     _vector vRight = XMVector3Cross(XMVectorSet(0,1,0,0), XMVector3Normalize(vSlide));
      _vector vRightMove = vPos + vRight * HalfSpeed * fTimeDelta;
-     _vector vRightFinal = XMVector3Normalize(vRightMove + vSlidDir * (XMVectorGetX(XMVector3Dot(-vRightMove, vSlidDir))));
+     _vector vRightFinal = XMVector3Normalize(vRightMove + vRight * (XMVectorGetX(XMVector3Dot(-vRightMove, vRight))));
      
      _vector vRightSlide = vPos + vRightFinal * HalfSpeed * fTimeDelta;
 

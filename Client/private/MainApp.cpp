@@ -99,7 +99,13 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Array_VtxTex.hlsl"),
 			VERTEX_NOANIME::Elements, VERTEX_NOANIME::iNumElements))))
 		return E_FAIL;
-
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("Component_Rect"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxTex.hlsl"),
+			VTX_TEX::Elements, VTX_TEX::iNumElements))))
+		return E_FAIL;
+	
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("Component_UI"),

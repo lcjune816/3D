@@ -248,6 +248,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CButton::Create(m_pDevice, m_pContext))))
 		return E_FAIL; 
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Player_LIght"),
+		CPlayer_Light::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Instance_Mesh"),
 		CVIBuffer_Instance_Mesh::Create(m_pDevice, m_pContext,nullptr))))
