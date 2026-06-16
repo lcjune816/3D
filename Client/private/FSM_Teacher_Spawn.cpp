@@ -22,6 +22,7 @@ HRESULT CFSM_Teacher_Spawn::Initialize(void* pArg)
 	//126
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_SPAWN,SHARED_THIS(CFSM_Teacher_Spawn));
+
 	return S_OK;
 }
 void CFSM_Teacher_Spawn::Enter_State()

@@ -66,7 +66,7 @@ void CFSM_RightHand::Update_State(_float fTimeDelta)
 	if (NULL_TRUE(Player)) return;
 
 	MOVE eMove = Player->Get_State();
-
+	//¸ÁÇß³×ÀÌ°Å
 	Timer(fTimeDelta);
 	switch (m_eAction)
 	{
@@ -466,7 +466,7 @@ void CFSM_RightHand::Hand_End(CPlayer* Player)
 void CFSM_RightHand::Hand_Collision_Check(shared_ptr<CPLayer_RightHand> pObj, shared_ptr<CPlayer_Arm> pArm,const _float& fTimeDelta)
 {
 	uint32_t iFlag =  ETOUI(FSM_HAND_FLAG::TIMER) | ETOUI(FSM_HAND_FLAG::ALL_STOP);
-	if (Flag_Check(iFlag) && (!Flag_Check(ETOUI(FSM_HAND_FLAG::PAUSE))))
+	if (Flag_Check(iFlag))
 		return;
 
 	auto pTransform = pObj->Get_Transform().lock();
@@ -502,13 +502,11 @@ _bool CFSM_RightHand::Update_LastPos(CTriggerObject* pTrigger, CTransform* pTran
 	
 	XMStoreFloat3(&m_fLastHandPos, offsetmat.r[3]);
 	
-	if (m_bFront)
-	{
-		XMStoreFloat3(&m_fFirstLook, XMVectorSet(-1, 0, 0, 0));
-		pTransform->Set_State(STATE::RIGHT, offsetmat.r[0] * fScale.x);
-		pTransform->Set_State(STATE::UP, offsetmat.r[1] * fScale.y);
-		pTransform->Set_State(STATE::LOOK, offsetmat.r[2] * fScale.z);
-	}
+	//if (m_bFront)
+	//{
+	//	XMStoreFloat3(&m_fFirstLook, offsetmat.r[2]);
+	//	pTransform->LookAt(XMLoadFloat3(&m_fFirstLook));
+	//}
 	pTransform->Set_State(STATE::POS  ,offsetmat.r[3]);
 
 	return true;
@@ -574,21 +572,16 @@ _bool CFSM_RightHand::Hand_Trigger_Event(shared_ptr<CPLayer_RightHand> pObj, CTr
 		break;
 	case TRIGGER_EVENT::PUZZLEROT:
 		Hand_State_Chand(CHANGE_STATE::PAUSE);
-
-		m_bFront = true;
-		if (!(Update_LastPos(pTrigger, pTransform)))
+		if (pTrigger->Get_TriggerPtr()->Check_Flag(ETOUI(TRIGGER_FLAG::PAUSE)))
 		{
-			m_bStop = false;
-			return false;
-		}
-		else
-		{
-			m_bStop = true;
-			if(!m_bOnlyone)
-				m_fShootMaxTime += 0.001f;
-
-		}
+			_float4x4 fMatrix{};
+			pTrigger->Get_TriggerPtr()->offsetMatrix(&fMatrix);
 			
+			memcpy(&m_fFirstLook, &fMatrix.m[2], sizeof _float3);
+			memcpy(&m_fLastHandPos, &fMatrix.m[3], sizeof _float4);
+			m_bStop = true;
+		}else
+			m_bStop = false;
 		return true;
 
 		break;

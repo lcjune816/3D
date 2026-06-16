@@ -114,18 +114,18 @@ HRESULT CLevel_GasProduction::Ready_Layer_BackGround(const _wstring& strLayerTag
 
 HRESULT CLevel_GasProduction::Ready_Layer_WorldObject(const _wstring& strLayerTag)
 {
-	while (true)
-	{
-		CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
-	
-		if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
-			return S_OK;
-	
-		if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
-			ETOUI(LEVEL::GASZONE), strLayerTag, &InstanceData)))
-			return E_FAIL;
-	
-	}
+	//while (true)
+	//{
+	//	CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
+	//
+	//	if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
+	//		return S_OK;
+	//
+	//	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
+	//		ETOUI(LEVEL::GASZONE), strLayerTag, &InstanceData)))
+	//		return E_FAIL;
+	//
+	//}
 	return S_OK;
 }
 HRESULT CLevel_GasProduction::Ready_Layer_TriggerObject(const _wstring& strLayerTag)

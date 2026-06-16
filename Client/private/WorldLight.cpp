@@ -188,6 +188,10 @@ void CWorldLight::OnNotify(const EVENT& eEvent)
 
 	}
 }
+LIGHT_DESC* CWorldLight::Get_LightDescPtr()
+{
+	return m_pLight->Get_LightDescNoCheckType(); 
+}
 void CWorldLight::Light_Blink(LIGHT_DESC* pDesc, const _float& fTimeDelta)
 {
 	m_fTick += fTimeDelta;

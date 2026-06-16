@@ -178,6 +178,7 @@
     <ClInclude Include="..\public\Player_Arm.h" />
     <ClInclude Include="..\public\Player_FSM.h" />
     <ClInclude Include="..\public\Player_LeftHand.h" />
+    <ClInclude Include="..\public\Player_Light.h" />
     <ClInclude Include="..\public\Player_RightHand.h" />
     <ClInclude Include="..\public\Stageone_Terrain.h" />
     <ClInclude Include="..\public\Teacher_FSM.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="..\private\Player_Arm.cpp" />
     <ClCompile Include="..\private\Player_FSM.cpp" />
     <ClCompile Include="..\private\Player_LeftHand.cpp" />
+    <ClCompile Include="..\private\Player_Light.cpp" />
     <ClCompile Include="..\private\Player_RightHand.cpp" />
     <ClCompile Include="..\private\Stageone_Terrain.cpp" />
     <ClCompile Include="..\private\Teacher_FSM.cpp" />

@@ -71,7 +71,7 @@ private:
 	shared_ptr<Engine::CTrigger>		m_pTrigger = { nullptr };
 	vector<uint32_t>					m_MeshNameList;
 
-	shared_ptr<class CWorldLight>			m_pLight;
+	shared_ptr<class CWorldLight>		m_pLight;
 	TRIGGER_INFO						m_TriggerInfo;
 	_float4x4							m_TargetMatrix = {};
 	uint32_t							m_iLevel = { ETOUI(LEVEL::GAMEPLAY) };
