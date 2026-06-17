@@ -17,8 +17,7 @@ public:
 protected:
 	ComPtr<ID3D11Device>		m_pDevice  = { nullptr };
 	ComPtr<ID3D11DeviceContext> m_pContext = { nullptr};
-
-
+	shared_ptr<class CUIObject>			m_pLoadingScreen;
 };
 
 NS_END

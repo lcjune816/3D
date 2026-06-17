@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "Loader_Defines.h"
 #include "Level_Loading.h"
+#include "UILoadingScreen.h"
 #include <assimp/Importer.hpp>
 Client::CMainApp::CMainApp()
 {
@@ -135,6 +136,11 @@ HRESULT Client::CMainApp::Ready_Prototype()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("OBJ_Gui"),
 		CGuiObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("Prototype_UILoadingScreen"),
+		CUILoadingScreen::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	return S_OK;
