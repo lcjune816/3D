@@ -252,6 +252,9 @@
     <ClInclude Include="..\public\Player_Light.h">
       <Filter>02.GameObject\02.Player</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\UILoadingScreen.h">
+      <Filter>01.Levels\Loading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -395,6 +398,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Player_Light.cpp">
       <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UILoadingScreen.cpp">
+      <Filter>01.Levels\Loading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
