@@ -30,6 +30,26 @@ HRESULT CPlayer_Light::Initialize(void* pArg)
 
 	XMStoreFloat4x4(&m_OffsetMatrix, XMMatrixIdentity());
 	CGameObject::Initialize(pArg);
+
+	CWorldLight::WORLDLIGHT_DESC Light{};
+	Light.eType = INIT_TYPE::OBJECT;
+	Light.LightDesc.eUseType = USETYPE::CLIENT;
+	Light.LightDesc.eType = LIGHT::SPOTLIGHT;
+	Light.LightDesc.eLocalEventType = LIGHT_STATE::LIGHT_DEFAULT;
+	Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
+	Light.LightDesc.fRange = _float2(80.f, 0.f);
+	Light.LightDesc.fAngleRange= 0.4f;
+	Light.LightDesc.vDiffuse = _float4(0.5f, 0.5f, 0.7f, 1.f);
+	Light.LightDesc.vAmbient = _float4(0.5f, 0.5f, 0.7f, 1.f);
+	Light.LightDesc.vSpecular = _float4(1.f, 1.f, 0.8f, 1.f);
+
+	m_pLight = static_pointer_cast<CWorldLight>(CGameInstance::Get().Clone_Prototype(pDesc->iLevel, L"OBJ_Light", &Light));
+	if (NULL_TRUE(m_pLight)) return E_FAIL;
+
+	XMStoreFloat4x4(&m_OffsetMatrix, XMMatrixScaling(8.f, 8.f, 8.f));
+
+	_float4 vOffsetPos = _float4(0, 0, 5.f, 1.f);
+	memcpy(&m_OffsetMatrix.m[3], &vOffsetPos, sizeof(_float4));
 	return S_OK;
 }
 
@@ -63,39 +83,40 @@ HRESULT CPlayer_Light::Render()
 }
 void CPlayer_Light::CombineMatrix()
 {
-	_matrix WorldMatrix = XMLoadFloat4x4(&m_OffsetMatrix) * XMLoadFloat4x4(m_pParentMatrix);
+	_matrix matrix = XMLoadFloat4x4(m_pParentMatrix);
+	for (uint32_t i = 0; i < 3; ++i)
+		matrix.r[i] = XMVector3Normalize(matrix.r[i]);
+	
+	_matrix WorldMatrix = XMLoadFloat4x4(&m_OffsetMatrix) * matrix;
 	m_pTransform->Set_Matrix(WorldMatrix);
 	LIGHT_DESC* pDesc = m_pLight->Get_LightDescPtr();
 	if (NULL_TRUE(pDesc))
 		return;
 
-	XMStoreFloat4(&pDesc->vPos, m_pTransform->Get_State(STATE::POS));
+
+	_vector vSrcPos = m_pTransform->Get_State(STATE::POS);
+	_float3 vDestPos = {};
+
+	memcpy(&vDestPos , reinterpret_cast<_float*>(&m_pParentMatrix->m[3]),sizeof _float3);
+
+	_vector vLook = XMVector3Normalize(vSrcPos - XMLoadFloat3(&vDestPos));
+	XMStoreFloat4(&pDesc->vDir, vLook);
+	XMStoreFloat4(&pDesc->vPos, vSrcPos);
 }
 HRESULT CPlayer_Light::Ready_Component(void* pArg, uint32_t iLevelIndex)
 {
 	m_pVIBufferCom = static_pointer_cast<CRect>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Rect", nullptr));
 	if (NULL_TRUE(m_pVIBufferCom)) return E_FAIL;
 	
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Rect"), TEXT("Com_Shader"), m_pShaderCom)))
+	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Rect"), TEXT("Com_Shader"), m_pShaderCom))) return E_FAIL;
 
 
-	CGameInstance::Get().Add_Decal_Texture("../../Particles/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
-	m_iTextureID = CGameInstance::Get().Find_TextueId("../../Particles/Flipbooks/HSHDoorway/T_HSHSmoke_dda.dds");
+	CGameInstance::Get().Add_Decal_Texture("../../Resource/Character/Player/dgruwier_flashlights_27.dds");
+
+	m_iTextureID = CGameInstance::Get().Find_TextueId("../../Resource/Character/Player/dgruwier_flashlights_27.dds");
         	if (m_iTextureID == -1) return E_FAIL;
 	
-	CWorldLight::WORLDLIGHT_DESC Light{};
-	Light.eType = INIT_TYPE::OBJECT;
-	Light.LightDesc.eUseType = USETYPE::CLIENT;
-	Light.LightDesc.eType = LIGHT::SPOTLIGHT;
-	Light.LightDesc.eLocalEventType = LIGHT_STATE::NONE;
-	Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
-	Light.LightDesc.fRange = _float2(30.f, 0.f);
-	Light.LightDesc.vDiffuse = _float4(1.2f, 1.8f, 5.f, 1.f);
-	Light.LightDesc.vAmbient = _float4(0.5f, 0.5f, 1.f, 1.f);
-	Light.LightDesc.vSpecular = _float4(1.f, 1.f, 0.8f, 1.f);
-	XMStoreFloat4(&Light.LightDesc.vPos, m_pTransform->Get_State(STATE::POS) + XMVectorSet(0, 55, 0, 0));
-	m_pLight = static_pointer_cast<CWorldLight>(CGameInstance::Get().Clone_Prototype(iLevelIndex, L"OBJ_Light", &Light));
-	if (NULL_TRUE(m_pLight)) return E_FAIL;
+	
 
 	return S_OK;
 }

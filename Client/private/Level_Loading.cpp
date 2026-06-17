@@ -7,6 +7,7 @@
 #include "Level_GamePlay.h"
 #include "Level_GasProduction.h"
 
+#include "UILoadingScreen.h"
 
 CLevel_Loading::CLevel_Loading(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CLevel{ pDevice, pContext }
@@ -30,11 +31,14 @@ HRESULT CLevel_Loading::Initialize(LEVEL eNextLevelIndex)
 	if (nullptr == m_pLoader)
 		return E_FAIL;
 
+	//m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", nullptr));
+	//if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
 	return S_OK;
 }
 
 void CLevel_Loading::Update(_float fTimeDelta)
 {
+	//m_pLoadingScreen->Update(fTimeDelta);
 	if (GetKeyState(VK_SPACE) & 0x8000&&
 		true == m_pLoader->isFinished())
 	{
@@ -64,7 +68,7 @@ void CLevel_Loading::Update(_float fTimeDelta)
 
 HRESULT CLevel_Loading::Render()
 {
-
+	//m_pLoadingScreen->Render();
 	return S_OK;
 }
 
