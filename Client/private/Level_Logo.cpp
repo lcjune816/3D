@@ -28,14 +28,12 @@ HRESULT CLevel_Logo::Initialize()
 
 void CLevel_Logo::Update(_float fTimeDelta)
 {
-	if (GetKeyState(VK_RETURN) & 0x8000)
-	{
+
 		if (FAILED(CGameInstance::Get().Change_Level(ETOUI(LEVEL::LOADING),
 			CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL::GAMEPLAY))))
 			return;
 	
-		return;
-	}
+	
 }	
 
 HRESULT CLevel_Logo::Render()

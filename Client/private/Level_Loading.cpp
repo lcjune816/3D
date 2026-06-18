@@ -31,16 +31,29 @@ HRESULT CLevel_Loading::Initialize(LEVEL eNextLevelIndex)
 	if (nullptr == m_pLoader)
 		return E_FAIL;
 
-	//m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", nullptr));
-	//if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
+	CUILoadingScreen::LOADING_SCREEN_DESC LoadingScreenDesc{};
+	LoadingScreenDesc.eType = SCREEN::LOADING;
+
+	m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", &LoadingScreenDesc));
+	if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
+
+	LoadingScreenDesc.eType = SCREEN::BLACK;
+	m_pBlackBackGround = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", &LoadingScreenDesc));
+	if (NULL_TRUE(m_pBlackBackGround)) return E_FAIL;
+
 	return S_OK;
 }
 
 void CLevel_Loading::Update(_float fTimeDelta)
 {
-	//m_pLoadingScreen->Update(fTimeDelta);
-	if (GetKeyState(VK_SPACE) & 0x8000&&
-		true == m_pLoader->isFinished())
+	m_pLoadingScreen->Update(fTimeDelta);
+	if (true == m_pLoader->isFinished() && !m_bLoading)
+	{
+		static_pointer_cast<CUILoadingScreen>(m_pLoadingScreen)->Change_Screen(SCREEN::END);
+		m_bLoading = true;
+	}
+
+	if (m_pLoadingScreen->Get_Dead())
 	{
 
 		unique_ptr<CLevel>		pNewLevel = { nullptr };
@@ -60,15 +73,15 @@ void CLevel_Loading::Update(_float fTimeDelta)
 
 		if (FAILED(CGameInstance::Get().Change_Level(ETOUI(m_eNextLevelIndex), std::move(pNewLevel))))
 			return;
-		
 
-		return;
+
 	}
 }
 
 HRESULT CLevel_Loading::Render()
 {
-	//m_pLoadingScreen->Render();
+	m_pBlackBackGround->Render();
+	m_pLoadingScreen->Render();
 	return S_OK;
 }
 

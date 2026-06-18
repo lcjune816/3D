@@ -31,8 +31,8 @@ HRESULT CPlayerAim::Initialize(void* pArg)
 {
 	PLAYERAIM_DESC pDesc = {};
 
-	pDesc.fSizeX = 20.f;
-	pDesc.fSizeY = 20.f;
+	pDesc.fSizeX = 30.f;
+	pDesc.fSizeY = 30.f;
 
 	pDesc.fX = g_iWinSizeX * 0.5f;
 	pDesc.fY = g_iWinSizeY * 0.5f;
@@ -47,6 +47,7 @@ HRESULT CPlayerAim::Initialize(void* pArg)
 
 void CPlayerAim::Priority_Update(_float fTimeDelta)
 {
+	__super::Priority_Update(fTimeDelta);
 }
 
 void CPlayerAim::Update(_float fTimeDelta)
@@ -71,7 +72,7 @@ HRESULT CPlayerAim::Render()
 	m_pShader->Begin(0);
 	m_pBuffer->Bind_Resource();
 	m_pBuffer->Render();
-	return E_NOTIMPL;
+	return S_OK;
 }
 
 shared_ptr<CPrototype> CPlayerAim::Clone(void* pArg)

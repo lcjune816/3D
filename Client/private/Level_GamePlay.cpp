@@ -6,6 +6,7 @@
 #include "NaviObject.h"
 #include "Loader_Defines.h"
 #include "Loader.h"
+#include "UILoadingScreen.h"
 CLevel_GamePlay::CLevel_GamePlay(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CLevel{ pDevice, pContext }
 {
@@ -45,13 +46,38 @@ HRESULT CLevel_GamePlay::Initialize()
 
 	if(FAILED(Ready_Layer_Gui(L"Layer_Gui")))
 		return E_FAIL;
+	
+	CUILoadingScreen::LOADING_SCREEN_DESC LoadingScreenDesc{};
+	LoadingScreenDesc.eType = SCREEN::FADEOUT;
+
+	m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", &LoadingScreenDesc));
+	if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
 
 	PLAY_SOUND(TEACHER_BGM_SOUND1, CHANNELID::SOUND_BGM01, 0.0f);
 	return S_OK;
 }
+void CLevel_GamePlay::Priority_Update(_float fTimeDelta)
+{
+	if (m_bLevelChange && m_pLoadingScreen->Get_Dead())
+	{
+		CGameInstance::Get().Change_Level(ETOUI(LEVEL::LOADING),
+			CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL::GASZONE));
 
+	}
+
+	if ((CGameInstance::Get().Get_DIKeyState(DIK_Q) & 0x80) && (CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80))
+	{
+		LeveL_Change();
+	}
+}
 void CLevel_GamePlay::Update(_float fTimeDelta)
 {
+
+	if (NULL_FALSE(m_pLoadingScreen))
+	{
+		m_pLoadingScreen->Update(fTimeDelta);
+	}
+		
 	if (!m_bEndSound)
 	{
 		m_fFirstBgm += fTimeDelta;
@@ -65,20 +91,22 @@ void CLevel_GamePlay::Update(_float fTimeDelta)
 		VOLCTL(CHANNELID::SOUND_BGM01, fVolume);
 
 	}
-
-	if ((CGameInstance::Get().Get_DIKeyState(DIK_Q) & 0x80) && (CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80))
-	{
-		CGameInstance::Get().Change_Level(ETOUI(LEVEL::LOADING), 
-				CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL::GASZONE));
-	}
+	
 	uint32_t iData = 10;
 }
 
 HRESULT CLevel_GamePlay::Render()
 {
 
+	if (NULL_FALSE(m_pLoadingScreen))
+		m_pLoadingScreen->Render();
 
 	return S_OK;
+}
+void CLevel_GamePlay::LeveL_Change()
+{
+	static_pointer_cast<CUILoadingScreen>(m_pLoadingScreen)->Change_Screen(SCREEN::FADEIN);
+	m_bLevelChange = true;
 }
 HRESULT CLevel_GamePlay::Ready_Lights()
 {

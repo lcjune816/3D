@@ -284,9 +284,9 @@ HRESULT CLoader::Loading_For_GamePlay()
 	ParticleDesc.iNumInstances = 1;
 	ParticleDesc.isLoop = true;
 	ParticleDesc.vCenter = _float3(0, 0, 0);
-	ParticleDesc.vGrid = _float2(8.f, 16.f);
+	ParticleDesc.vGrid = _float2(8.f, 8.f);
 	ParticleDesc.vLifeTime = _float2(0.3f, 0.8f);
-	ParticleDesc.vSize = _float2(15, 40.f);
+	ParticleDesc.vSize = _float2(15, 60.f);
 	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Fog"),
 		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
@@ -448,7 +448,6 @@ HRESULT CLoader::Load_Data(LEVEL eLevel, const _wstring strFilePath, const _wstr
 
 	file.close();
 
-	MSG_BOX("로드 된듯?");
 	return S_OK;
 }
 
@@ -472,7 +471,6 @@ HRESULT CLoader::Load_ParticleData(LEVEL eLevel, const _wstring& strPrototypeTag
 	}
 	file.close();
 
-	MSG_BOX("파티클 로드 된듯?");
 	
 	return S_OK;
 }
@@ -489,7 +487,6 @@ HRESULT CLoader::Load_LightsData(LEVEL eLevel, const _wstring& strPrototypeTag, 
 	
 
 	file.close();
-	MSG_BOX("라이트 로드 된듯?");
 	return S_OK;
 }
 

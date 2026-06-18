@@ -18,6 +18,8 @@ HRESULT CRenderer::Initialize()
     //For Target Diffuse
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Diffuse"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R8G8B8A8_UNORM, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_DiffuseBloom"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
+        return E_FAIL;
     //For Target Normal
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Normal"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_UNORM, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
@@ -32,6 +34,9 @@ HRESULT CRenderer::Initialize()
         return E_FAIL;
 
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Fog"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R32G32B32A32_FLOAT, _float4(0.f, 0.f, 0.f, 1.f))))
+        return E_FAIL;
+  
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Emissive"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Diffuse"))))
@@ -53,6 +58,12 @@ HRESULT CRenderer::Initialize()
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Fog"), TEXT("Target_Fog"))))
         return E_FAIL;
     
+    //For MRT_Bloom
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_BloomBefore"), TEXT("Target_DiffuseBloom"))))
+        return E_FAIL;
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Bloom"), TEXT("Target_Emissive"))))
+        return E_FAIL;
+
     m_pVIBuffer = CRect::Create(m_pDevice, m_pContext);
     if(NULL_TRUE(m_pVIBuffer))
         return E_FAIL;
@@ -214,9 +225,18 @@ HRESULT CRenderer::Draw()
     if (FAILED(Render_NonLights()))
         return E_FAIL;
 
+    if (FAILED(Render_BloomBefore()))
+        return E_FAIL;
+    if (FAILED(Render_Bloom()))
+        return E_FAIL;
+
+    if (FAILED(Render_BloomCombine()))
+        return E_FAIL;
+
     if (FAILED(Render_Blend()))
         return E_FAIL;
-   
+
+  
     if (FAILED(Render_UI()))
         return E_FAIL;
  
@@ -319,8 +339,6 @@ HRESULT CRenderer::Render_Fog()
         return E_FAIL;
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Shade"), m_pShader, "g_ShadeTexture")))
 
-    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Diffuse"), m_pShader, "g_DiffuseTexture")))
-        return E_FAIL;
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Specular"), m_pShader, "g_SpecularTexture")))
         return E_FAIL;
 
@@ -387,7 +405,7 @@ HRESULT CRenderer::Render_Combined()
 HRESULT CRenderer::Render_NonLights()
 {
 
-    m_pContext->PSSetShaderResources(0, 0, nullptr);
+    //m_pContext->PSSetShaderResources(0, 0, nullptr);
     for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::NONLIGHT)])
     {
         if (nullptr != pRenderObject)
@@ -418,6 +436,74 @@ HRESULT CRenderer::Render_Blend()
 
     m_RenderObjects[ETOUI(RENDERGROUP::BLEND)].clear();
     
+    return S_OK;
+}
+
+HRESULT CRenderer::Render_BloomBefore()
+{
+    if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_BloomBefore"))))
+        return E_FAIL;
+
+    for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::BLOOM_BEFORE)])
+    {
+        if (nullptr != pRenderObject)
+        {
+            ++iRanderCall;
+            pRenderObject->Render();
+
+        }
+    }
+
+    m_RenderObjects[ETOUI(RENDERGROUP::BLOOM_BEFORE)].clear();
+    if (FAILED(CGameInstance::Get().End_MRT()))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CRenderer::Render_Bloom()
+{
+    if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_Bloom"))))
+        return E_FAIL;
+
+    for (auto& pRenderObject : m_RenderObjects[ETOUI(RENDERGROUP::BLOOM)])
+    {
+        if (nullptr != pRenderObject)
+        {       
+            ++iRanderCall;
+            pRenderObject->Render_Bloom();
+         
+        }
+    }
+
+    m_RenderObjects[ETOUI(RENDERGROUP::BLOOM)].clear();
+    if (FAILED(CGameInstance::Get().End_MRT()))
+        return E_FAIL;
+
+    return S_OK;
+}
+
+HRESULT CRenderer::Render_BloomCombine()
+{
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_DiffuseBloom", m_pShader, "g_DiffuseTexture")))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_Emissive", m_pShader, "g_EmissiveTexture")))
+        return E_FAIL;
+
+    m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);
+    m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix);
+    m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix);
+
+    if (FAILED(m_pShader->Begin(ETOUI(DEFERRED::BLOOM))))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Bind_Resource()))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Render()))
+        return E_FAIL;
+
     return S_OK;
 }
 

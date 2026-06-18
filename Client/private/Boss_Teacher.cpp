@@ -17,7 +17,7 @@ HRESULT CBoss_Teacher::Ready_Component()
 {
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../../Resource/Boss/Teacher/TeacherVer3.fbx";
+	importModel.pFile = "../../Resource/Boss/Teacher/Teacher.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/SK_CustomBody.fbx";
 	//importModel.pFile = "../../Resource/Boss/Teacher/Avatar_Kiana_C8_WS.fbx";
 	importModel.bAllModel = 1;
@@ -239,7 +239,7 @@ unique_ptr<CBoss_Teacher> CBoss_Teacher::Create(ComPtr<ID3D11Device> pDevice, Co
 	auto pInstance = unique_ptr<CBoss_Teacher>(new CBoss_Teacher(pDevice, pContext));
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed BackGround");
+		MSG_BOX("Create Failed Teacher");
 		return nullptr;
 	}
 	return pInstance;
@@ -250,7 +250,7 @@ shared_ptr<CPrototype> CBoss_Teacher::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed BackGround_Clone ");
+		MSG_BOX("Create Failed Teacher_Clone");
 		return pInstance;
 	}
 	return pInstance;

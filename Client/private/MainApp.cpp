@@ -46,12 +46,13 @@ HRESULT Client::CMainApp::Initialize()
 	EngineDesc.hInstance = g_hInstance;
 	if (FAILED(CGameInstance::Get().Initialize_Engine(EngineDesc, m_pDevice, m_pContext)))
 		return E_FAIL;
-	
-	if (FAILED(Start_Level(LEVEL::LOGO)))
-		return E_FAIL;
-	
+
 	if (FAILED(Ready_Prototype()))
 		return E_FAIL;
+
+	if (FAILED(Start_Level(LEVEL::LOGO)))
+		return E_FAIL;
+
 
 	return S_OK;
 }
@@ -111,7 +112,7 @@ HRESULT Client::CMainApp::Ready_Prototype()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("Component_UI"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/UIShader.hlsl"),
-			VERTEX_NOANIME::Elements, VERTEX_NOANIME::iNumElements))))
+			VTX_TEX::Elements, VTX_TEX::iNumElements))))
 		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),TEXT("Component_Instancing_NonAnime"),

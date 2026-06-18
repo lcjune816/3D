@@ -28,9 +28,6 @@ HRESULT CBackGround::Initialize(void* pArg)
 	if (FAILED(__super::Initialize(&desc)))
 		return E_FAIL;
 
-	
-	if (nullptr == m_pGuiObj)
-		return E_FAIL;
 
 	return S_OK;
 }
@@ -44,7 +41,7 @@ void CBackGround::Update(_float fTimeDelta)
 void CBackGround::Late_Update(_float fTimeDelta)
 {
 	
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CBackGround));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::PRIORITY, SHARED_THIS(CBackGround));
 }
 HRESULT CBackGround::Render()
 {

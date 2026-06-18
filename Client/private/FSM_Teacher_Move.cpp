@@ -101,8 +101,12 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 		pBoss->Change_Animation(TEACHER_ANIME::DOORKICK, false);
 		pBoss->GetAnimator()->Stop_Animation(false);
 		m_eAction = FSM_ACTION::EVENT3;
-	}else
+
+	}else if(eEvent.eEvent == WORLD_EVENT::BOSS_DEAD)
+	{
 		pMachine->Change_State(FSM::END);
+
+	}
 		
 }
 
@@ -160,7 +164,7 @@ void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTran
 		++m_fTimeCnt;
 	}
 
-	if (m_fTimeCnt >= 3.f)
+	if (m_fTimeCnt >= 1.5f)
 	{
 		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 		pNavi->Set_CurrentIndex(m_iIndex);
@@ -179,9 +183,17 @@ void CFSM_Teacher_Move::Boss_FrontDoorPause(shared_ptr<CBoss_Teacher> pBoss, sha
 	
 	if (pNavi->Is_CurrentCell(m_iIndex))
 	{
-		
-		pBoss->GetAnimator()->Stop_Animation(true);
-
+		//pBoss->Change_Animation(TEACHER_ANIME::JUMPSCALE,false);
+		////if (!m_bOneAnimation)
+		////{
+		////	pTransform->Apply_Rotation(XMVectorSet(0, 1, 0, 0), 180.f);
+		////	m_bOneAnimation = true;
+		////}
+		//
+		//if(pBoss->Get_Finished())
+			pBoss->GetAnimator()->Stop_Animation(true);
+		//else 
+		//	pBoss->GetAnimator()->Stop_Animation(false);
 	}
 	else
 		Action_Chase(pBoss, pTransform, pPlayerTransform, fTimeDelta);

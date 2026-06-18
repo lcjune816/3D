@@ -66,7 +66,7 @@ unique_ptr<CStageone_Terrain> CStageone_Terrain::Create(ComPtr<ID3D11Device> pDe
 	auto pInstance = unique_ptr<CStageone_Terrain>(new CStageone_Terrain(pDevice, pContext));
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed BackGround");
+		MSG_BOX("Create Failed Stageone_Terrian");
 		return nullptr;
 	}
 	return pInstance;
@@ -77,7 +77,7 @@ shared_ptr<CPrototype> CStageone_Terrain::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed BackGround_Clone ");
+		MSG_BOX("Create Failed Stageone_Terrian_Clone ");
 		return pInstance;
 	}
 	return pInstance;

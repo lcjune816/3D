@@ -52,8 +52,8 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out;
     
     vector vColor = g_Texture.Sample(LinearSampler, In.vTexcoord );
-    
-    if (vColor.a < 0.6f)
+   vColor *=float4(1.f, 1.f, 1.f,0.5f);
+    if (vColor.a < 0.3f)
         discard;
     Out.vColor = vColor;
     return Out;
@@ -67,6 +67,17 @@ technique11 DefaultTechnique
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
         SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN();
+
+    }
+    pass DefaultPassAlpha
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;

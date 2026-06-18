@@ -152,6 +152,7 @@ void CRollupDoor::OnNotify(const EVENT& event)
 	m_fDestLength = XMVectorGetX(XMVector3Length(vSrcPos - vDestPos));
 	m_eState = TRIGGER_STATE::WORLD;
 	EVENT eEvent;
+	eEvent.eEvent = WORLD_EVENT::BOSS_DEAD;
 	eEvent.pArg = &m_fWorldTime;
 	CGameInstance::Get().Notify(WORLD_EVENT::BOSS_DEAD, eEvent);
 	XMStoreFloat3(&m_fDestPos, vDestPos);

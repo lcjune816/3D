@@ -35,6 +35,7 @@ public:
 	virtual void	Update(_float fTimeDelta);
 	virtual void	Late_Update(_float fTimeDelta);
 	virtual HRESULT	Render();
+	virtual HRESULT	Render_Bloom() { return S_OK; }
 
 	virtual  void			ReBindsComponnet(uint32_t iLevelIndex);
 	_bool					Get_Dead()      { return m_bDead; }

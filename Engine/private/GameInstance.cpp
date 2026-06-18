@@ -121,6 +121,7 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pSound_Manager->Update_SoundManager();
 	m_pGui_Manager->Update();
 
+	m_pLevel_Manager->Priority_Update(fTimeDelta);
 	m_pObject_Manager->Priority_Update(fTimeDelta);
 	m_pParticle_Manager->Priority_Update_Particle(fTimeDelta);
 	 

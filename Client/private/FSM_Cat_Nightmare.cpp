@@ -28,6 +28,7 @@ void CFSM_Cat_Nightmare::Enter_State()
 		return;
 	pBoss->Change_Form(CATFORM::NIGHTMARE);
 	pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::WALK,true);
+	m_fTick = 0.f;
 	
 }
 
@@ -126,7 +127,7 @@ void CFSM_Cat_Nightmare::OnNotify(const EVENT& eEvent)
 		m_fDestPos = eEvent.fPos;
 		pAnimator->Stop_Animation(false);
 		pAnimator->Set_RootNode(true);
-		pAnimator->Set_Double_Speed(5.f);
+		pAnimator->Set_Double_Speed(10.f);
 		m_eAction = FSM_ACTION::ACTION;
 		XMStoreFloat3(&m_fPreLook, pTransform->Get_State(STATE::LOOK));
 		XMStoreFloat3(&m_fCurrentPos, pTransform->Get_State(STATE::POS));

@@ -136,7 +136,16 @@ PS_OUT PS_MAIN(PS_IN In)
         discard;
     return Out;
 }
-
+PS_OUT PS_FOG_BIG(PS_IN In)
+{
+    PS_OUT Out;
+    
+    Out.vColor = g_Texture.Sample(LinearSampler, In.vTexcoord);
+    Out.vColor.xyz = 0.5f;
+    if (Out.vColor.a < 0.1f)
+        discard;
+    return Out;
+}
 technique11 DefaultTechnique
 {
         
@@ -150,6 +159,18 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = compile gs_5_0 GS_MAIN();
         PixelShader = compile ps_5_0 PS_MAIN();
+
+    }
+    pass DefaultPassBig
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        //vsMain에있는거를 컴파일 해라
+       
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = compile gs_5_0 GS_MAIN();
+        PixelShader = compile ps_5_0 PS_FOG_BIG();
 
     }
 }

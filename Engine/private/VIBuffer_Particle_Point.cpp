@@ -121,13 +121,13 @@ HRESULT CVIBuffer_Particle_Point::Render()
 	return S_OK;
 }
 
-void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
+_bool CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 {
 	D3D11_MAPPED_SUBRESOURCE		MappedSubResource{};
 
-															//기존꺼 유지
+	//기존꺼 유지
 	if (FAILED(m_pContext->Map(m_pVBInstance.Get(), 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &MappedSubResource)))
-		return;
+		return false;
 
 	auto	pVertices = static_cast<VTXINSTANCE_PARTICLE*>(MappedSubResource.pData);
 
@@ -137,9 +137,12 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 		// 최소      x최대      y최대
 
 		m_pInstanceData[i].fTick += fTimeDelta;
+		pVertices[i].fTranslation.y += 1.3f * fTimeDelta;
+		pVertices[i].fLifeTime.x += fTimeDelta;
 
-		if (m_pInstanceData[i].fTick > 0.01f)
+		if (m_pInstanceData[i].fTick > 0.1f)
 		{
+
 			m_pInstanceData[i].fTick = 0;
 			pVertices[i].fUv.x = pVertices[i].fUv.z;
 			pVertices[i].fUv.z += 1.f / m_vGrid.x;
@@ -150,24 +153,32 @@ void CVIBuffer_Particle_Point::Fog_Spread(const _float& fTimeDelta)
 				pVertices[i].fUv.z = 1.f / m_vGrid.x;
 				pVertices[i].fUv.y = pVertices[i].fUv.w;
 				pVertices[i].fUv.w += 1.f / m_vGrid.y;
-
 			}
 			if (pVertices[i].fUv.y > 1.f - 0.0001f)
 			{
 
-				pVertices[i].fUv.x = 0.f;
+				pVertices[i].fUv.x = 0;
 				pVertices[i].fUv.z = 1.f / m_vGrid.x;
-
-				pVertices[i].fUv.y = 0.f;
+				pVertices[i].fUv.y = 0;
 				pVertices[i].fUv.w = 1.f / m_vGrid.y;
-
 			}
-
 		}
-		
+
+		_float fT = pVertices[i].fLifeTime.x / 15.f;
+		_float fTime = 1.f - fT;
+
+		if (fT >= 1.f)
+		{
+			m_pContext->Unmap(m_pVBInstance.Get(), 0);
+			return true;
+		}
+
+
 	}
 
+
 	m_pContext->Unmap(m_pVBInstance.Get(), 0);
+	return false;
 
 }
 

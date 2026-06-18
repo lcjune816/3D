@@ -19,9 +19,12 @@ public:
 
 public:
 	virtual HRESULT Initialize() override;
+	virtual void Priority_Update(_float fTimeDelta) override;
 	virtual void Update(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+public:
+	void						LeveL_Change();
 private:
 	HRESULT		Ready_Lights();
 	HRESULT		Ready_Layer_Camera(const _wstring& strLayerTag);
@@ -39,6 +42,7 @@ private:
 private:
 	_float			m_fFirstBgm{};
 
+	_bool			m_bLevelChange{ false };
 	_bool			m_bEndSound{ false };
 public:
 	static unique_ptr<CLevel_GamePlay> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

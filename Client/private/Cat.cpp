@@ -241,7 +241,7 @@ unique_ptr<CBoss_Cat> CBoss_Cat::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3
 	auto pInstance = unique_ptr<CBoss_Cat>(new CBoss_Cat(pDevice, pContext));
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed BackGround");
+		MSG_BOX("Create Failed Cat");
 		return nullptr;
 	}
 	return pInstance;
@@ -252,7 +252,7 @@ shared_ptr<CPrototype> CBoss_Cat::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed BackGround_Clone ");
+		MSG_BOX("Create Failed Cat_Failed ");
 		return pInstance;
 	}
 	return pInstance;

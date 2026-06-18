@@ -26,7 +26,7 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 		Load_Data(desc, desc->j);
 	
 	m_eParticleType		= desc->eParticleType;
-	m_eParticleEmitType = desc->eParticleEmit;
+	m_eParticleEmitTypeOrigin = m_eParticleEmitType = desc->eParticleEmit;
 	m_iLevelIndex		= desc->iLevel;
 	m_strPathName[ETOUI(PATHNAME::SHADER)]  = desc->PathName[ETOUI(PATHNAME::SHADER)];
 	m_strPathName[ETOUI(PATHNAME::BUFFER)]  = desc->PathName[ETOUI(PATHNAME::BUFFER)];
@@ -44,7 +44,9 @@ HRESULT CWorldParticle::Initialize(void* pArg)
 		m_eParticleEmitType = PARTICLE::FOG_CONTROLLER;;
 		break;
 	}
-
+	if (desc->eParticleEmit == PARTICLE::FOG)
+		m_iPassIndex = 1;
+	else m_iPassIndex = 0;
 	if (desc->eParticleEmit != PARTICLE::FOG_CONTROLLER)
 	{
 		if (FAILED(Ready_Component()))
@@ -64,14 +66,14 @@ void CWorldParticle::Update(_float fTimeDelta)
 	switch (m_eParticleEmitType)
 	{
 	case PARTICLE::FOG:
-		m_pVIBufferCom->Fog_Spread(fTimeDelta);
+		m_bEndCycle = m_pVIBufferCom->Fog_Spread(fTimeDelta);
+
 		break;
 	case PARTICLE::SPARK:
 		m_pVIBufferCom->Spark(fTimeDelta);
 		break;
 	case PARTICLE::FOG_SMALL:
-		if (m_pVIBufferCom->Steam(fTimeDelta))
-			m_bEndCycle = true;
+		m_bEndCycle = m_pVIBufferCom->Steam(fTimeDelta);
 		break;
 	case PARTICLE::FOG_CONTROLLER:
 		Fog_Controller(fTimeDelta);
@@ -155,7 +157,7 @@ json CWorldParticle::Save_Data()
 	 j["BufferPath"]  = Path[ETOUI(PATHNAME::BUFFER)];
 	 j["TexturePath"] = Path[ETOUI(PATHNAME::TEXTURE)];
 	uint32_t	iParticleTypeWorldEvent = static_cast<uint32_t>(m_eParticleType);
-	uint32_t	iParticleTypeEmit = static_cast<uint32_t>(m_eParticleEmitType);
+	uint32_t	iParticleTypeEmit = static_cast<uint32_t>(m_eParticleEmitTypeOrigin);
 	j["WroldEvent"] = iParticleTypeWorldEvent;
 	j["ParticleEmit"] = iParticleTypeEmit;
 
@@ -172,7 +174,7 @@ void CWorldParticle::OnNotify(const EVENT& eEvent)
 	switch (eEvent.eEvent)
 	{
 	case WORLD_EVENT::GENERATOR:
-		m_eParticleEmitType = PARTICLE::FOG_SMALL;
+		m_eParticleEmitType = m_eParticleEmitTypeOrigin;
 		break;
 
 	case WORLD_EVENT::BOSS_SPAWN:

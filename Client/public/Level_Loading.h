@@ -27,6 +27,9 @@ private:
 	LEVEL							m_eNextLevelIndex = { LEVEL::END };
 	unique_ptr<class CLoader>		m_pLoader = { nullptr };
 
+	_bool							m_bLoading = { false };
+
+	shared_ptr<class CUIObject>		m_pBlackBackGround = { nullptr };
 private:
 	HRESULT Ready_Layer_BackGround(const _wstring& strLayerTag);
 	

@@ -74,7 +74,7 @@ HRESULT CPlayer_Light::Render()
 	m_pShaderCom->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
-	m_pShaderCom->Begin(0);
+	m_pShaderCom->Begin(1);
 
 	m_pVIBufferCom->Bind_Resource();
 	m_pVIBufferCom->Render();

@@ -11,6 +11,8 @@ texture2D g_NormalTexture;
 texture2D g_DepthTexture;
 texture2D g_SpecularTexture;
 texture2D g_FogTexture;
+texture2D g_EmissiveTexture;
+
 vector g_vLightPos;
 float2 g_fLightRange;
 float g_fLightAngleRange;
@@ -316,7 +318,20 @@ PS_OUT_BACKBUFFER PS_MAIN_COMBINED(PS_IN In)
     return Out;
 
 }
+PS_OUT_BACKBUFFER PS_MAIN_BLOOM(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+    
+    vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+ 
+    vector vEmissiv = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    Out.vBackBuffer = vDiffuse + vEmissiv;
+   // vDiffuse + vEmissiv;
+    
+    return Out;
 
+}
 technique11 DefaultTechnique
 {
     pass Debug
@@ -387,6 +402,15 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_FOG();
+    }
+    pass Bloom
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLOOM();
     }
 }
 

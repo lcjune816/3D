@@ -2,6 +2,7 @@
 #include "GameInstance.h"
 #include "Loader_Defines.h"
 #include "Camera.h"
+#include "UILoadingScreen.h"
 #include "Player.h"
 CLevel_GasProduction::CLevel_GasProduction(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext)
 	: CLevel{ pDevice, pContext }
@@ -41,17 +42,29 @@ HRESULT CLevel_GasProduction::Initialize()
 
 	if (FAILED(Ready_Partilce()))
 		return E_FAIL;
-	S_OK;
+
+	CUILoadingScreen::LOADING_SCREEN_DESC LoadingScreenDesc{};
+	LoadingScreenDesc.eType = SCREEN::FADEOUT;
+
+	m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", &LoadingScreenDesc));
+	if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
+
+	return S_OK;
 }
 
 void CLevel_GasProduction::Update(_float fTimeDelta)
 {
+	if (NULL_FALSE(m_pLoadingScreen))
+	{
+		m_pLoadingScreen->Update(fTimeDelta);
+	}
 	uint32_t iData = 10;
 }
 
 HRESULT CLevel_GasProduction::Render()
 {
-
+	if (NULL_FALSE(m_pLoadingScreen))
+		m_pLoadingScreen->Render();
 
 	return S_OK;
 }
@@ -114,18 +127,18 @@ HRESULT CLevel_GasProduction::Ready_Layer_BackGround(const _wstring& strLayerTag
 
 HRESULT CLevel_GasProduction::Ready_Layer_WorldObject(const _wstring& strLayerTag)
 {
-	//while (true)
-	//{
-	//	CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
-	//
-	//	if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
-	//		return S_OK;
-	//
-	//	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
-	//		ETOUI(LEVEL::GASZONE), strLayerTag, &InstanceData)))
-	//		return E_FAIL;
-	//
-	//}
+	while (true)
+	{
+		CInstance_WorldObject::INSTANCING_WORLDOBJECT_DESC InstanceData;
+	
+		if (false == CGameInstance::Get().Create_Instancing_Desc(InstanceData.InstancingData))
+			return S_OK;
+	
+		if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GASZONE), TEXT("OBJ_Instancing_WorldObject"),
+			ETOUI(LEVEL::GASZONE), strLayerTag, &InstanceData)))
+			return E_FAIL;
+	
+	}
 	return S_OK;
 }
 HRESULT CLevel_GasProduction::Ready_Layer_TriggerObject(const _wstring& strLayerTag)

@@ -47,8 +47,11 @@ private:
 	int32_t										m_iTextureID = { -1 };
 	uint32_t									m_iLevelIndex = { ETOUI(LEVEL::END) };
 	PARTICLE									m_eParticleEmitType = { PARTICLE::END };
-	 _wstring									m_strPathName[ETOUI(PATHNAME::END)] = {};
+	PARTICLE									m_eParticleEmitTypeOrigin = { PARTICLE::END };
 
+	_wstring									m_strPathName[ETOUI(PATHNAME::END)] = {};
+
+	 uint32_t									m_iPassIndex;
 	 uint32_t									m_iTickCnt{};
 	 _bool										m_bStart{ false };
 	 _float									    m_fTick{ 0 };

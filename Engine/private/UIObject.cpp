@@ -46,6 +46,8 @@ void    CUIObject::Update(_float fTimeDelta)
 }
 void    CUIObject::Late_Update(_float fTimeDelta)
 {
+
+	Update_Transfrom();
 }
 HRESULT CUIObject::Render()
 {

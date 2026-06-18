@@ -1,7 +1,7 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4 g_World[800], g_View, g_Projection;
 float4 g_Color;
-
+float4 g_Emissive;
 struct VS_IN
 {
     float3 vPosition : POSITION;
@@ -41,16 +41,25 @@ struct PS_OUT
 {
     vector vColor : SV_TARGET0;
 };
-
+struct PS_OUT_BLOOM
+{
+    
+    vector vEmissive : SV_TARGET0;
+};
 PS_OUT PS_MAIN(PS_IN In)
 {
     PS_OUT Out;
     
-    Out.vColor =g_Color;
-    
+    Out.vColor = g_Color;
     return Out;
 }
-
+PS_OUT_BLOOM PS_MAIN_BLOOM(PS_IN In)
+{
+    PS_OUT_BLOOM Out;
+  
+    Out.vEmissive = g_Emissive;
+    return Out;
+}
 technique11 DefaultTechnique
 {
         
@@ -63,6 +72,17 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
+
+    }
+    pass Bloom
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_Default, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLOOM();
 
     }
 }

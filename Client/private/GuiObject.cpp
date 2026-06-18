@@ -160,7 +160,7 @@ void CGuiObject::Late_Update(_float fTimeDelta)
 		
 	}
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CGuiObject));
+	//CGameInstance::Get().Add_RenderObject(RENDERGROUP::UI, SHARED_THIS(CGuiObject));
 }
 HRESULT CGuiObject::Render()
 {
@@ -2339,7 +2339,6 @@ HRESULT CGuiObject::Load_Value(LEVEL eLevel, const _wstring strFilePath, const _
 
 	file.close();
 
-	MSG_BOX("로드 된듯?");
 	return S_OK;
 }
 

@@ -225,7 +225,7 @@ _vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _flo
     if (!m_MoveToList.empty())
     {
         vSrcPos = XMLoadFloat3(&m_MoveToList.front().Pos);
-        vDir = XMVector3Normalize(vSrcPos - vPos);
+        vDir = XMVector3Normalize(vSrcPos - XMVectorSetY(vPos,0.f));
 
         XMStoreFloat3(vLook, vSrcPos);
         FinalPos = vPos + vDir * fSpeed * fTimeDelta;
@@ -353,7 +353,6 @@ HRESULT CNavigation::Save_Navi(const _wstring& FilePath, const _char* pName)
 
     file.close();
 
-    MSG_BOX("된듯?");
 
     return S_OK;
 }
@@ -395,7 +394,6 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
     }
     file.close();
 
-    MSG_BOX("로드 된듯?");
 
     for (auto Cell = m_Cells.begin(); Cell != m_Cells.end();)
     {

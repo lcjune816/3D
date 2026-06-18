@@ -45,6 +45,11 @@ private:
 	HRESULT Render_Combined();
 	HRESULT Render_NonLights();
 	HRESULT Render_Blend();
+
+	HRESULT Render_BloomBefore();
+	HRESULT Render_Bloom();
+	HRESULT Render_BloomCombine();
+
 	HRESULT Render_UI();
 
 #ifdef _DEBUG

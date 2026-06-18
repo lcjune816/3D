@@ -26,7 +26,7 @@ public:
 	virtual HRESULT  Render()		override;
 
 public:
-	void Fog_Spread(const _float& fTimeDelta);
+	_bool Fog_Spread(const _float& fTimeDelta);
 	void Spark(const _float& fTimeDelta);
 	_bool Steam(const _float& fTimeDelta);
 private:

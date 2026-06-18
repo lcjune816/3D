@@ -1,27 +1,26 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4 g_World, g_View , g_Projection;
 Texture2D g_Diffuse;
-
+float g_Time;
+float4 g_vColor;
+float4 g_TexCoord;
 sampler DefaultSampler = sampler_state
 {
     Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = wrap;
-    AddressV = wrap;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 struct VS_IN
 {
     float3 pos :      POSITION;
-    float3 vNormal : NORMAL;
     float2 texcoord : TEXCOORD0;
     
 };
 
 struct VS_OUT {
 	float4 pos : SV_POSITION;
-    float4 vNormal : NORMAL;
 	float2 texcoord : TEXCOORD0;
-    float4 vWorldPos : TEXCOORD1;
 }; 
 
 VS_OUT VS_MAIN(VS_IN In)
@@ -36,7 +35,6 @@ VS_OUT VS_MAIN(VS_IN In)
    
    output.pos = mul(float4(In.pos, 1.f), matWVP);
    output.texcoord = In.texcoord;
-   output.vWorldPos = mul(vector(In.pos, 1.f), g_World);
    
 	return output;
 }
@@ -44,9 +42,7 @@ VS_OUT VS_MAIN(VS_IN In)
 struct PS_IN
 {
     float4 pos : SV_POSITION;
-    float4 vNormal : NORMAL;
     float2 texcoord : TEXCOORD0;
-    float4 vWorldPos : TEXCOORD1;
 };
 
 struct PS_OUT
@@ -60,13 +56,63 @@ PS_OUT PS_MAIN(PS_IN In)
     PS_OUT Out;
     //xy 좌표에 있는 색상 rgb 값을 가지고와라
     float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
-    textureColor *= float4(1.f, 1.f, 1.f, 0.5f);
     if (textureColor.a < 0.1f)
         discard;
-    Out.textureColor = textureColor;
+       Out.textureColor = textureColor;
     return Out;
 }
 
+PS_OUT PS_MAIN_FADEIN(PS_IN In)
+{
+    PS_OUT Out;
+    //xy 좌표에 있는 색상 rgb 값을 가지고와라
+    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+   
+    vector vColor = vector(lerp(textureColor.rgb, float3(0, 0, 0), g_Time), 1.f) ;
+    
+    Out.textureColor = vColor;
+    if (Out.textureColor.r > 0.1f)
+        discard;
+    return Out;
+}
+
+PS_OUT PS_MAIN_FADEOUT(PS_IN In)
+{
+    PS_OUT Out;
+    //xy 좌표에 있는 색상 rgb 값을 가지고와라
+    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+   
+    vector vColor = vector(lerp(float3(0, 0, 0), textureColor.rgb, g_Time), 1.f);
+    float fDiscard = 0.1f - (0 + 0.1f) * g_Time;
+    if (vColor.r > fDiscard)
+        discard;
+    Out.textureColor = vColor;
+    return Out;
+}
+
+PS_OUT PS_MAIN_LOADING(PS_IN In)
+{
+    PS_OUT Out;
+    
+    
+    In.texcoord.x = In.texcoord.x *(1 / 8.f) + g_TexCoord.z; //0.125
+    In.texcoord.y = In.texcoord.y * (1 / 4.f) + g_TexCoord.w; //0.25
+   
+    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+    // 0 0 10
+    // 0 1 11
+    
+
+    textureColor.a = g_TexCoord.x;
+    Out.textureColor = textureColor;
+    return Out;
+}
+PS_OUT PS_MAIN_BLACK(PS_IN In)
+{
+    PS_OUT Out;
+    Out.textureColor = float4(0, 0, 0, 0);
+    return Out;
+ }
 technique11 DefaultTechnique
 {
         
@@ -74,12 +120,60 @@ technique11 DefaultTechnique
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_Default, 0);
-        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
 
         //vsMain에있는거를 컴파일 해라
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN();
+
+    }
+    pass FadeIN
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_FADEIN();
+
+    }
+    pass FadeOUT
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_AlphaBlend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_FADEOUT();
+
+    }
+    pass Loading
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_LOADING();
+
+    }
+    pass Black
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLACK();
 
     }
 }

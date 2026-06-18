@@ -12,6 +12,7 @@ public:
 
 public:
     HRESULT Change_Level(uint32_t iNewLevelIndex, unique_ptr<class CLevel> pNewLevel);
+    void Priority_Update(_float fTimeDelta);
     void Update(_float fTimeDelta);
     HRESULT Render();
 

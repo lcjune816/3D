@@ -30,7 +30,12 @@ HRESULT CLevel_Manager::Change_Level(uint32_t iNewLevelIndex, unique_ptr<class C
 
 	return S_OK;
 }
-
+void CLevel_Manager::Priority_Update(_float fTimeDelta)
+{
+	if (nullptr == m_pCurrentLevel)
+		return;
+	m_pCurrentLevel->Priority_Update(fTimeDelta);
+}
 void CLevel_Manager::Update(_float fTimeDelta)
 {
 	if (nullptr == m_pCurrentLevel)

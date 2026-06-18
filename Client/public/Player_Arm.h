@@ -25,8 +25,9 @@ public:
 	virtual void			Update(_float fTimeDelta) override;
 	virtual void			Late_Update(_float fTimeDelta) override;
 	virtual HRESULT			Render();
-
+	virtual HRESULT			Render_Bloom() override;
 	void					Bind_ResourceFromFlag(CShader* pShader,const _char* pConstantName);
+	void					Bind_ResourceFromFlag_Default(CShader* pShader, const _char* pConstantName);
 	void					Set_Shoot(_bool bShoot) { m_bShoot = bShoot; }
 
 	void					Set_SameFlag(uint32_t iFlag) { m_iStateFlag = iFlag; }
@@ -43,6 +44,7 @@ private:
 	_float4x4							m_offSet = {};
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
 
+	_float4x4							m_matOffset{};
 	vector<uint32_t>					m_MeshNameList;
 	strGrabarm							m_ArmMatrix;
 public:

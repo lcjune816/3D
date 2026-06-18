@@ -44,6 +44,10 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 	CGameInstance::Get().ImportModel_NonAnime(importModel, m_pTransform, m_MeshNameList);
 
 	m_ArmMatrix.Matrix.resize(800);
+	XMStoreFloat4x4(&m_matOffset, XMMatrixIdentity());
+
+	_float4 vOffsetPos = _float4(0, 0.5, 0.1,1.f);
+	memcpy(&m_matOffset.m[3], &vOffsetPos, sizeof _float4);
 	return S_OK;
 }
 void CPlayer_Arm::Priority_Update(_float fTimeDelta)
@@ -74,8 +78,12 @@ void CPlayer_Arm::Update(_float fTimeDelta)
 }
 void CPlayer_Arm::Late_Update(_float fTimeDelta)
 {
-
+	for (size_t i = 0; i < m_ArmMatrix.Matrix.size(); ++i)
+	{
+		XMStoreFloat4x4(&m_ArmMatrix.Matrix[i], XMLoadFloat4x4(&m_matOffset) * XMLoadFloat4x4(&m_ArmMatrix.Matrix[i]));
+	}
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CPlayer_Arm));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLOOM, SHARED_THIS(CPlayer_Arm));
 }
 HRESULT CPlayer_Arm::Render()
 {
@@ -85,24 +93,25 @@ HRESULT CPlayer_Arm::Render()
 
 	uint32_t iArraySize = m_ArmMatrix.Matrix.size();
 
+
 	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
+	Bind_ResourceFromFlag_Default(m_pShaderCom.get(), "g_Color");
 
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
 		if (pMesh == nullptr)
 			continue;
-		//pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
-			
+		
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();
 
 		pMesh->Render_Array(iArraySize);
 
 	}
+
 	for (auto& iter : m_ArmMatrix.CollisionIndex)
 	{
 		fColor = { 1,0,0,1 };
@@ -130,18 +139,61 @@ HRESULT CPlayer_Arm::Render()
 	return S_OK;
 }
 
+HRESULT CPlayer_Arm::Render_Bloom()
+{
+
+	uint32_t iArraySize = m_ArmMatrix.Matrix.size();
+
+	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
+	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
+
+	for (auto iter : m_MeshNameList)
+	{
+		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
+		if (pMesh == nullptr)
+			continue;
+		
+		m_pShaderCom->Begin(1);
+		pMesh->Bind_Resource();
+
+		pMesh->Render_Array(iArraySize);
+
+	}
+	return S_OK;
+}
+
 void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName)
 {
 	_float4 fColor{ 0,0,0,1 };
-	if(Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
-		fColor = { 0,1,0,1, };
+	_float4 fEmissive{ 0,0,0,1 };
+	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+	{
+		fEmissive = { 0.f ,100.f ,0.2f ,1.f };
+	}
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
-		fColor = { 0.f,0.f,1.f,1 };
-	else 
-		fColor = { 0,0,0,1, };
+	{
+		fEmissive = { 0.f,0.3f,100.f,1.f };
+	}
+
+	pShader->Bind_RawValue("g_Emissive", &fEmissive, sizeof _float4);
+}
+
+void CPlayer_Arm::Bind_ResourceFromFlag_Default(CShader* pShader, const _char* pConstantName)
+{
+	_float4 fColor{ 0,0,0,1 };
+	_float4 fEmissive{ 0,0,0,1 };
+	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+	{
+		fColor = { 0.f ,3.f ,0.0f, 1.f };
+	}
+	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+	{
+		fColor = { 0.f,0.0f,3.f,1 };
+	}
 
 	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);
-
 }
 
 HRESULT CPlayer_Arm::Ready_Component()

@@ -116,8 +116,8 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	CPlayer_Light::PLAYER_LIGHT_DESC PlayerLightDesc;
 	PlayerLightDesc.iLevel = objDesc->iLevel;
 	PlayerLightDesc.pParentMatrix = m_pTransform->Get_WorldPtr();
-	m_pHandLight = static_pointer_cast<CPlayer_Light>(CGameInstance::Get().Clone_Prototype(objDesc->iLevel, L"Player_LIght", &PlayerLightDesc));
-	if (NULL_TRUE(m_pHandLight)) return E_FAIL;
+	//m_pHandLight = static_pointer_cast<CPlayer_Light>(CGameInstance::Get().Clone_Prototype(objDesc->iLevel, L"Player_LIght", &PlayerLightDesc));
+	//if (NULL_TRUE(m_pHandLight)) return E_FAIL;
 	 
 	return S_OK;
 
@@ -200,7 +200,7 @@ void CPlayer::Update(_float fTimeDelta)
 	m_bFinished = m_pAnimator->Animation_End();
 	m_pAim->Update(fTimeDelta);
 	m_pNavigation->Dead_Check();
-	m_pHandLight->Update(fTimeDelta);
+	//m_pHandLight->Update(fTimeDelta);
 
 		
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer));
@@ -211,7 +211,7 @@ void CPlayer::Late_Update(_float fTimeDelta)
 	m_pPlayerLHand->Late_Update(fTimeDelta);
 
 	m_pAim->Late_Update(fTimeDelta);
-	m_pHandLight->Late_Update(fTimeDelta);
+	//m_pHandLight->Late_Update(fTimeDelta);
 
 }
 HRESULT CPlayer::Render()
@@ -232,8 +232,6 @@ HRESULT CPlayer::Render()
 		iter->Render();
 
 	}
-	
-	m_pAim->Render();
 	
 	return S_OK;
 }
@@ -394,7 +392,7 @@ unique_ptr<CPlayer> CPlayer::Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11D
 	auto pInstance = unique_ptr<CPlayer>(new CPlayer(pDevice, pContext));
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed BackGround");
+		MSG_BOX("Create Failed Player");
 		return nullptr;
 	}
 	return pInstance;
@@ -405,7 +403,7 @@ shared_ptr<CPrototype> CPlayer::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed BackGround_Clone ");
+		MSG_BOX("Create Failed Player_Clone ");
 		return pInstance;
 	}
 	return pInstance;
