@@ -170,11 +170,12 @@ void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstant
 	_float4 fEmissive{ 0,0,0,1 };
 	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 	{
-		fEmissive = { 0.f ,100.f ,0.2f ,1.f };
+		fEmissive =  { 0.15f ,200.f ,0.15f ,1.f };
 	}
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
 	{
-		fEmissive = { 0.f,0.3f,100.f,1.f };
+		
+		fEmissive = { 0.2f,0.8f,100.f,1.f };
 	}
 
 	pShader->Bind_RawValue("g_Emissive", &fEmissive, sizeof _float4);
@@ -186,11 +187,11 @@ void CPlayer_Arm::Bind_ResourceFromFlag_Default(CShader* pShader, const _char* p
 	_float4 fEmissive{ 0,0,0,1 };
 	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 	{
-		fColor = { 0.f ,3.f ,0.0f, 1.f };
+		fColor =  { 0.f ,3.f ,0.0f, 1.f };
 	}
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
 	{
-		fColor = { 0.f,0.0f,3.f,1 };
+		fColor = { 0.f,1.f,1.f,1 }; //*CGameInstance::Get().ColorTester();// { 0.f,0.0f,3.f,1 };
 	}
 
 	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);

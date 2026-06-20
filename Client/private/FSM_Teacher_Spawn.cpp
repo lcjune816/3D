@@ -95,7 +95,7 @@ void CFSM_Teacher_Spawn::KickDoor(shared_ptr<CBoss_Teacher> pTeacher, const _flo
 	}
 	if (m_fTimeCnt == 4 && m_bOneSound == false)
 	{
-		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_BOSS, 0.3f);
+		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_BOSS, 0.5f);
 		m_bOneSound = true;
 	}
 		

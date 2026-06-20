@@ -255,6 +255,9 @@
     <ClInclude Include="..\public\UILoadingScreen.h">
       <Filter>01.Levels\Loading</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\FSM_Dead.h">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -401,6 +404,9 @@
     </ClCompile>
     <ClCompile Include="..\private\UILoadingScreen.cpp">
       <Filter>01.Levels\Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\FSM_Dead.cpp">
+      <Filter>02.GameObject\02.Player\FSM_Move</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

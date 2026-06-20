@@ -2119,10 +2119,7 @@ void CGuiObject::Particle_Installer()
 
 			ImGui::InputFloat4(u8"Ä®¶ó Å×½ºÆ®", fColor);
 
-			for (int32_t i = 0; i < 4; ++i)
-			{
-				fColor[i] = min(1.f, max(0.f, fColor[i]));
-			}
+			
 			_float4 vColor = { fColor[0],fColor[1],fColor[2],fColor[3] };
 			CGameInstance::Get().Set_Color(vColor);
 

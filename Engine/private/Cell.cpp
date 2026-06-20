@@ -144,6 +144,23 @@ _bool CCell::CheckAstar(ENGINE_ASTAR& parentsNode, list<ENGINE_ASTAR>& OpenList,
             Astar.Pos = CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vCenter;
             Astar.iNode_Nubmer = m_NaviInfo.iNeighborIndices[i];
             Astar.iParent_node = parentsNode.iNode_Nubmer;
+         
+            uint32_t iCnt = 0;
+            for (int32_t i = 0; i < 3; ++i)
+            {
+                for (int32_t j = 0; j < 3; ++j)
+                {
+                    if (Compare_Points(XMLoadFloat3(&m_NaviInfo.vPoints[i]), XMLoadFloat3(&CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vPoints[j])))
+                    {
+                        Astar.Arrow[iCnt] = CellList[m_NaviInfo.iNeighborIndices[i]]->Get_NaviInfo().vPoints[j];
+                        ++iCnt;
+                    }
+                    if (iCnt >= 2)
+                        break;
+                }
+
+            }
+
             if (!OpenList.empty())
             {//열린 노드에서 중복된거 있는지 확인
                 _bool OpenCheck{ false };

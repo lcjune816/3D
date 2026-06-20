@@ -311,13 +311,12 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 		}
 	}
 	_vector vSrcPos = (pSrcTrans->Get_State(STATE::POS));
-	_vector vTargetDir = XMVector3Normalize(vPlayerDestPos- vSrcPos);
-	vSrcPos -= vTargetDir * 4.f;
-	vTargetDir = XMVector3Normalize(vPlayerDestPos- vSrcPos);
+	_vector vTargetDir = XMVector3Normalize(XMVectorSetY(vPlayerDestPos,35.f)- XMVectorSetY(vSrcPos,35.f));
 	_float fTargetDis =  XMVectorGetX(XMVector3Length(vPlayerDestPos - vSrcPos));
 	
 	
 	_float fDisMax = FLT_MAX;
+	list<shared_ptr<CGameObject>> ObjList{};
 	shared_ptr<CGameObject> pObj{};
 	for (auto& pLayerDestPos : ComPareLayer->Get_ObjectList())
 	{
@@ -330,21 +329,22 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 		_float3 vDestMax = pDestTransform->Get_Max();
 		_float3 vDestMin = pDestTransform->Get_Min();
 		
-		if (vDestMax.y  < 25.f)
+		if (vDestMax.y  < 45.f)
 			continue;
 
 		_matrix vDestInverseWorld = XMMatrixInverse(nullptr,pDestTransform->Get_World());
-
+		
 		_vector vLocalDestMax = XMLoadFloat3(&vDestMax);
 		_vector vLocalDestMin = XMLoadFloat3(&vDestMin);
 		
 		
-		_vector vCenter = (vLocalDestMax + vLocalDestMin) * 0.5f;
-		_vector vExtents = (vLocalDestMax - vLocalDestMin) * 0.5f;
-
+		_vector vCenter = (vLocalDestMax + vLocalDestMin) * 0.7f;
+		_vector vExtents = (vLocalDestMax - vLocalDestMin) * 0.8f;
+		
 		_vector vSrcLocalPos = XMVector3TransformCoord(vSrcPos, vDestInverseWorld);
+		
 		_vector vTargetLocalDir= XMVector3Normalize(XMVector3TransformNormal(vTargetDir, vDestInverseWorld));
-
+		
 		BoundingBox vDestBox{};
 		XMStoreFloat3(&vDestBox.Center, vCenter);
 		XMStoreFloat3(&vDestBox.Extents, vExtents);
@@ -352,15 +352,22 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 		_float fDis{};
 		if (vDestBox.Intersects(vSrcLocalPos, vTargetLocalDir, fDis))
 		{
-			if (fDis < 1.f)
+			ObjList.push_front(pLayerDestPos);
+			if (fDis < 5.f)
 				continue;
 			if (fDisMax > fDis)
 			{
 				fDisMax = fDis;
-				pObj = pLayerDestPos;
 			}
 		}
 	}
+	ObjList.sort([vPlayerDestPos](shared_ptr<CGameObject> Src1, shared_ptr<CGameObject> Src2) {
+
+		_vector Src1Pos = Src1->Get_TransformPtr()->Get_State(STATE::POS);
+		_vector Src2Pos = Src2->Get_TransformPtr()->Get_State(STATE::POS);
+		return XMVectorGetX(XMVector3Length(Src1Pos - vPlayerDestPos)) < XMVectorGetX(XMVector3Length(Src2Pos - vPlayerDestPos));
+
+		});
 	
 	if (fDisMax == FLT_MAX)
 	{
@@ -369,14 +376,25 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 	}
 	else
 	{
-		//if (CheckMesh_Triangle(pObj, pObj->Get_MeshIndexList(), vSrcPos, vTargetDir, nullptr))
+		uint32_t iCnt(0);
+		for (auto& List : ObjList)
+		{
+			if (CheckMesh_Triangle(List, List->Get_MeshIndexList(), vSrcPos, vTargetDir, nullptr))
+			{
+				return false;
+				ObjList.clear();
+			}
+			//++iCnt;
+			//if (iCnt > 6)
+			//	return true;
+		}
+		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > 0)
 			return false;
-		
 	}
 
 
 	
-		
+	ObjList.clear();
 	return true;
 }
 
@@ -628,7 +646,9 @@ _bool CCollisionManager::CheckMesh_Triangle(shared_ptr<CGameObject> pObj, const 
 	auto pTransform = pObj->Get_Transform().lock();
 	_matrix pSrcWorld = pTransform->Get_World();
 
-	_matrix InverseMatrix = XMMatrixInverse(nullptr,pTransform->Get_World());
+	_float4x4 mat{};
+	XMStoreFloat4x4(&mat, pSrcWorld);
+	_matrix InverseMatrix = XMMatrixInverse(nullptr, XMLoadFloat4x4(&mat));
 	_float fMax = FLT_MAX;
 	_vector vPos = XMVectorSet(0,0,0,1);
 	_bool		bFinished{ false };
@@ -733,129 +753,3 @@ unique_ptr<CCollisionManager> CCollisionManager::Create()
 	return unique_ptr<CCollisionManager>(new CCollisionManager);
 }
 
-
-//for (int i = 0; i < 3; ++i)
-//{
-//	memcpy(vPlayerAxis[i], vPlayerWorld.m[i], sizeof(_vec3));  //obb 비교할 대상의 축 3개 추출
-//	memcpy(vMonsterAxis[i], vMonsterWorld.m[i], sizeof(_vec3));//obb 비교할 대상의 축 3개 추출
-//	D3DXVec3Normalize(&vPlayerAxis[i], &vPlayerAxis[i]);
-//	D3DXVec3Normalize(&vMonsterAxis[i], &vMonsterAxis[i]);
-//}
-//for (int i = 0; i < 3; ++i)
-//{
-//	_float fDot = fabsf(D3DXVec3Dot(&vDistance, &vPlayerAxis[i])); //중심 거리 벡터를 현재 플레이어 축에서 투영한 길이
-//	_float rA, rB;												   //현재 중심 - 중심의 길이와 축 하나를 Dot할 경우 해당 축기준으로 바라본 중심의 길이가 나옴
-//
-//	rA = 2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[0], &vPlayerAxis[i])) +   //
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[1], &vPlayerAxis[i])) +    // right up look을 을 각각 비교 축 기준으로 비교하여 더한 길이의 값
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[2], &vPlayerAxis[i]));     //
-//
-//	rB = 2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[0], &vPlayerAxis[i])) +
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[1], &vPlayerAxis[i])) +
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[2], &vPlayerAxis[i]));
-//
-//	fBack = rA + rB - fDot;
-//	if ((fDot > fabsf(rA + rB)))
-//	{
-//		m_bTrue = true;
-//		break;
-//	}
-//	else
-//	{
-//		if (fBack < fMin)// 제일거리 짧은거 기준으로 밀어내기
-//		{
-//			vAxis = vPlayerAxis[i]; //그떄 충돌했던 축을 담아놓기
-//			fMin = fBack; // 최소값저장
-//		}
-//	}
-//
-//}
-//
-//for (int i = 0; i < 3; ++i)
-//{
-//	_float fDot = fabsf(D3DXVec3Dot(&vDistance, &vMonsterAxis[i])); //대상과의 거리와 현재 몬스터 축 하나를 내적
-//	_float rA, rB;
-//
-//	rA = 2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[0], &vMonsterAxis[i])) +   //몬스터 축기준으로 비교
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[1], &vMonsterAxis[i])) +
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[2], &vMonsterAxis[i]));
-//
-//	rB = 2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[0], &vMonsterAxis[i])) +
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[1], &vMonsterAxis[i])) +
-//		2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[2], &vMonsterAxis[i]));
-//
-//	fBack = rA + rB - fDot;
-//
-//	if ((fDot > fabsf(rA + rB)))
-//	{
-//		m_bTrue = true;
-//		break;
-//	}
-//	else
-//	{
-//		if (fBack < fMin)
-//		{
-//			vAxis = vMonsterAxis[i];
-//			fMin = fBack;
-//		}
-//	}
-//}
-//
-//
-//for (int i = 0; i < 3; ++i)
-//{
-//	for (int j = 0; j < 3; ++j)
-//	{
-//		_vec3 vCross;
-//		D3DXVec3Cross(&vCross, &vPlayerAxis[i], &vMonsterAxis[j]);
-//
-//		if (D3DXVec3LengthSq(&vCross) < 0.0001f);
-//		continue;
-//		D3DXVec3Normalize(&vCross, &vCross);
-//
-//		_float fDot = fabsf(D3DXVec3Dot(&vDistance, &vCross)); //대상과의 거리와 현재 몬스터 축 하나를 외적
-//		_float rA, rB;
-//
-//		rA = 2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[0], &vCross)) +   //플레이어의 축기준으로 비교
-//			2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[1], &vCross)) +
-//			2 * 0.5f * fabsf(D3DXVec3Dot(&vPlayerAxis[2], &vCross));
-//
-//		rB = 2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[0], &vCross)) +
-//			2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[1], &vCross)) +
-//			2 * 0.5f * fabsf(D3DXVec3Dot(&vMonsterAxis[2], &vCross));
-//
-//
-//
-//		fBack = rA + rB - fDot;
-//
-//		if ((fDot > fabsf(rA + rB)))
-//		{
-//			m_bTrue = true;
-//			break;
-//		}
-//		else
-//		{
-//			if (fBack < fMin)
-//			{
-//				vAxis = vCross;
-//				fMin = fBack;
-//			}
-//		}
-//	}
-//}
-//
-//if (!m_bTrue)
-//{
-//	D3DXVec3Normalize(&vAxis, &vAxis);
-//
-//	if (D3DXVec3Dot(&vDistance, &vAxis) < 0.f)
-//		vAxis *= -1.f;
-//
-//	fMin += 0.001f;
-//	vAxis = vAxis * fMin;
-//
-//	vPlayerPos -= vAxis;
-//
-//	m_bJump = false;
-//	m_bFalling = false;
-//}

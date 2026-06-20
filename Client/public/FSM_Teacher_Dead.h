@@ -21,10 +21,11 @@ public:
 
 private:
 	void Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
-	void Change_Dead(shared_ptr<CBoss_Teacher> pBoss);
+	void Change_Dead(shared_ptr<CBoss_Teacher> pBoss, const _float& fTimeDelta);
 	void Daed(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta);
 
 private:
+	_float	m_fTimeTick{};
 	_float* m_fWorldTime;
 public:
 	static unique_ptr<CFSM_Teacher_Daed> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

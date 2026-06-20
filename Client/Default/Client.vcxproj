@@ -153,6 +153,7 @@
     <ClInclude Include="..\public\FSM_Cat_Nightmare.h" />
     <ClInclude Include="..\public\FSM_Cat_Spawn.h" />
     <ClInclude Include="..\public\FSM_Crouch.h" />
+    <ClInclude Include="..\public\FSM_Dead.h" />
     <ClInclude Include="..\public\FSM_Hand.h" />
     <ClInclude Include="..\public\FSM_Idle.h" />
     <ClInclude Include="..\public\FSM_Jump.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="..\private\FSM_Cat_Nightmare.cpp" />
     <ClCompile Include="..\private\FSM_Cat_Spawn.cpp" />
     <ClCompile Include="..\private\FSM_Crouch.cpp" />
+    <ClCompile Include="..\private\FSM_Dead.cpp" />
     <ClCompile Include="..\private\FSM_Hand.cpp" />
     <ClCompile Include="..\private\FSM_Idle.cpp" />
     <ClCompile Include="..\private\FSM_Jump.cpp" />

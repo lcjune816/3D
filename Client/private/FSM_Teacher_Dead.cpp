@@ -24,6 +24,8 @@ void CFSM_Teacher_Daed::Enter_State()
 	//Boss->GetAnimator()->Set_RootNode(false);
 	Boss->Change_Animation(TEACHER_ANIME::DEAD_FAST,false);
 	Boss->GetAnimator()->Set_RootNode(false);
+	m_eAction = FSM_ACTION::ACTION;
+	PLAY_SOUND(TEACHER_DEADTH, CHANNELID::SOUND_BOSS, 0.7f);
 }
 
 void CFSM_Teacher_Daed::Update_State(_float fTimeDelta)
@@ -37,13 +39,13 @@ void CFSM_Teacher_Daed::Update_State(_float fTimeDelta)
 	switch (m_eAction)
 	{
 	case FSM_ACTION::IDLE:
-		Action_Chase(Boss, pTransform, fTimeDelta);
 		break;
 
 	case FSM_ACTION::ACTION:
+		Action_Chase(Boss, pTransform, fTimeDelta);
 		break;
 	case FSM_ACTION::RETURN:
-		Daed(Boss, pTransform, fTimeDelta);
+		Change_Dead(Boss,  fTimeDelta);
 		break;
 	}
 
@@ -64,17 +66,32 @@ void CFSM_Teacher_Daed::OnNotify(const EVENT& eEvent)
 
 void CFSM_Teacher_Daed::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta)
 {
-	//auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
-	//pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
-
 	if (pBoss->Get_Finished())
+	{
 		pBoss->GetAnimator()->Stop_Animation(true);
-
+		m_eAction = FSM_ACTION::RETURN;
+	}
+		
 
 }
 
-void CFSM_Teacher_Daed::Change_Dead(shared_ptr<CBoss_Teacher> pBoss)
+void CFSM_Teacher_Daed::Change_Dead(shared_ptr<CBoss_Teacher> pBoss, const _float& fTimeDelta)
 {
+	
+		m_fTimeTick += fTimeDelta;
+		_float fTime = 8 - m_fTimeTick;
+			
+		_float fVolume = (fTime /  8.f) * 0.3f;
+
+		if (fVolume <= 0.0f)
+		{
+			fVolume = 0.0f;
+			m_eAction = FSM_ACTION::END;
+			STOP_SOUND(CHANNELID::SOUND_BGM01);
+		}
+		VOLCTL(CHANNELID::SOUND_BGM01, fVolume);
+
+	
 }
 
 void CFSM_Teacher_Daed::Daed(shared_ptr<CBoss_Teacher> pBoss, shared_ptr<CTransform>pTransform, const _float& fTimeDelta)

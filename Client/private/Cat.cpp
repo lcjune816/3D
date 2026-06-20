@@ -87,7 +87,9 @@ void CBoss_Cat::Priority_Update(_float fTimeDelta)
 {
 	if (CGameInstance::Get().Get_DIKeyState(DIK_K))
 	{
+		
 		m_eFormType = CATFORM::NIGHTMARE;
+		m_pStateMachine->Change_State(FSM::MOVE);
 	}
 	if (CGameInstance::Get().Get_DIKeyState(DIK_L))
 	{

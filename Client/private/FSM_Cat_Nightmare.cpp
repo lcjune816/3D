@@ -18,6 +18,7 @@ HRESULT CFSM_Cat_Nightmare::Initialize(void* pArg)
 	auto pDesc = static_cast<TEACHER_SPAWN_DESC*>(pArg);
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Cat_Nightmare));
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT3, SHARED_THIS(CFSM_Cat_Nightmare));
 	m_eAction = FSM_ACTION::IDLE;
 	return S_OK;
 }
@@ -42,8 +43,6 @@ void CFSM_Cat_Nightmare::Update_State(_float fTimeDelta)
 
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 	if (NULL_TRUE(pNavi)) return;
-
-
 	switch (m_eAction)
 	{
 	case FSM_ACTION::IDLE:
@@ -58,6 +57,13 @@ void CFSM_Cat_Nightmare::Update_State(_float fTimeDelta)
 		break;
 
 	case FSM_ACTION::EVENT:
+		if (pBoss->Get_Finished())
+			m_eAction = FSM_ACTION::END;
+
+		IS_PLAYSOUND(CAT_ELEVATOR, CHANNELID::SOUND_BOSS, 0.6f);
+		SOUND_SPEED(CHANNELID::SOUND_BOSS, 0.9f);
+		break;
+	case FSM_ACTION::DEAD:
 		break;
 	}
 }
@@ -67,19 +73,44 @@ void CFSM_Cat_Nightmare::Exit_State()
 
 }
 
+void CFSM_Cat_Nightmare::Kill_Player(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta)
+{
+
+	pTransform->Set_State(STATE::POS, XMVectorSet(0,0,0,1.f));
+
+	m_bKill = true;
+	m_eAction = FSM_ACTION::DEAD;
+	pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::JUMPSCALE,false);
+
+	auto pAnimator = static_pointer_cast<CAnimator>(pBoss->Find_Component(L"Com_Animator_Nightmare"));
+	
+	EVENT eEvent;
+	eEvent.matrix = pAnimator->Find_Matrix(pAnimator->Find_Key("Root"));
+	eEvent.eEvent = WORLD_EVENT::PLAYER_DEAD;
+	CGameInstance::Get().Notify(WORLD_EVENT::PLAYER_DEAD, eEvent);
+}
+
+void CFSM_Cat_Nightmare::Deaddddd()
+{
+}
+
 void CFSM_Cat_Nightmare::Action(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta)
 {
 	_vector vDestPos = XMLoadFloat3(&m_fDestPos);
 	
 	m_fTick += fTimeDelta;
 	_float fTime = min(1.f,m_fTick / 2.f);
-	
+
 	_vector vLinearPos = XMVectorLerp(XMLoadFloat3(&m_fCurrentPos), vDestPos, fTime);
 	pTransform->Set_State(STATE::POS, XMVectorSetW(vLinearPos,1.f));
 
+	IS_PLAYSOUND(CAT_WALK, CHANNELID::SOUND_BOSS, 0.7f);
+	SOUND_SPEED(CHANNELID::SOUND_BOSS, 7.f);
 	if (fTime >= 1.f)
 	{
 		m_fTick = 0.f;
+
+		pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::WALK, false);
 
 		m_eAction = FSM_ACTION::RETURN;
 	}
@@ -88,7 +119,7 @@ void CFSM_Cat_Nightmare::Action(shared_ptr<CTransform> pTransform, shared_ptr<CB
 void CFSM_Cat_Nightmare::Action_Return(shared_ptr<CTransform> pTransform, shared_ptr<CBoss_Cat> pBoss, const _float& fTimeDelta)
 {
 	m_fTick += fTimeDelta;
-	_float fTime = min(1.f, m_fTick / 1.f);
+	_float fTime = min(1.f, m_fTick / 0.8f);
 
 
 	_vector vLinearLook = XMVectorLerp(XMLoadFloat3(&m_fCurretLook), XMLoadFloat3(&m_fPreLook), fTime);
@@ -103,10 +134,11 @@ void CFSM_Cat_Nightmare::Action_Return(shared_ptr<CTransform> pTransform, shared
 	if (fTime >= 1.f)
 	{
 
+		SOUND_SPEED(CHANNELID::SOUND_BOSS, 1.f);
 		auto pAnimator = static_pointer_cast<CAnimator>(pBoss->Find_Component(L"Com_Animator_Nightmare"));
 		pAnimator->Set_Double_Speed(1.f);
 		pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::ELEVEATOR, false, false);
-		m_eAction = FSM_ACTION::IDLE;
+		m_eAction = FSM_ACTION::EVENT;
 	}
 }
 
@@ -140,6 +172,10 @@ void CFSM_Cat_Nightmare::OnNotify(const EVENT& eEvent)
 		pBoss->Get_TransformPtr()->Set_State(STATE::UP, vUp);
 		pBoss->Get_TransformPtr()->Set_State(STATE::LOOK, vLook);
 
+	}
+	else if(eEvent.eEvent == WORLD_EVENT::BOSS_EVENT3)
+	{
+		Kill_Player(pTransform, pBoss, 1);
 	}
 
 }

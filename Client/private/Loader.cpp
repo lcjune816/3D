@@ -160,6 +160,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CFSM_RightHand::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("FSM_Dead"),
+		CFSM_Dead::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	///////////////////////////////////////////º¸½º²¨/////////////////////////////////////////
 
 	

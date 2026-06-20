@@ -103,10 +103,11 @@ void CElevator::Action_Trigger(const _float& fTimeDelta)
 	SrcHeight +=18.f * fTimeDelta;
 	
 	pSrcTransform->Set_State(STATE::POS,XMVectorSetY(SrcPos,SrcHeight));
-	
+	IS_PLAYSOUND(ELEVATOR_LOOP, CHANNELID::SOUND_OBJECT, 0.7f);
 	if (SrcHeight >= 455.f)
 	{
-
+		STOP_SOUND(CHANNELID::SOUND_OBJECT);
+		PLAY_SOUND(ELEVATOR_FINISH, CHANNELID::SOUND_OBJECT,0.7f);
 		m_eState = TRIGGER_STATE::PAUSE;
 		
 		auto pObj = CGameInstance::Get().Get_ObjectPtr(m_iLevel, L"Layer_Player", "Player");

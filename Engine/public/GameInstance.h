@@ -204,6 +204,7 @@ public:
 	HRESULT		Play_Sound(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume = 0.5f, _bool ChanelMode = TRUE);
 	HRESULT		Stop_Sound(CHANNELID _SoundChannel);
 	HRESULT		Stop_AllSound();
+	void		Sound_Speed(CHANNELID _SoundChannel, const _float& SoundSpeed);
 
 	_bool		IsPlaying(CHANNELID _SoundChannel);
 	void		Set_ChannelVolume(CHANNELID _CID, FLOAT Volume);

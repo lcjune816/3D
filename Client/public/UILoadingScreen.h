@@ -1,6 +1,7 @@
 #pragma once
 #include "UIObject.h"
 #include "Client_Defines.h"
+#include "Observer.h"
 NS_BEGIN(Engine)
 class CShader;
 class CRect;
@@ -9,7 +10,7 @@ NS_END
 
 enum class SCREEN{FADEIN = 1, FADEOUT = 2, LOADING = 3, BLACK, END};
 NS_BEGIN(Client)
-class CUILoadingScreen : public CUIObject
+class CUILoadingScreen : public CUIObject, public CObserver
 {
 public:
 	typedef struct strLoadingScreen : CUIObject::UIOBJECT_DESC
@@ -29,6 +30,8 @@ public:
 	virtual void Late_Update(_float fTimeDelta)override;
 	virtual HRESULT Render()override;
 
+public:
+	virtual void OnNotify(const EVENT& eEvent) override;
 public:
 	void						Change_Screen(SCREEN eType) {
 		m_eType = eType; m_bStop = false;

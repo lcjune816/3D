@@ -103,6 +103,10 @@ HRESULT SoundManager::Stop_AllSound() {
   }
   return S_OK;
 }
+void SoundManager::Sound_Speed(CHANNELID _SoundChannel, const _float& SoundSpeed)
+{
+	ChannelGroup[ETOUI(_SoundChannel)]->setPitch(SoundSpeed);
+}
 BOOL SoundManager::IsPlaying(CHANNELID _SoundChannel) {
   bool PlayingCheck = FALSE;
 

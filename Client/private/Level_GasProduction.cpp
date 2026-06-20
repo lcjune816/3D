@@ -45,10 +45,11 @@ HRESULT CLevel_GasProduction::Initialize()
 
 	CUILoadingScreen::LOADING_SCREEN_DESC LoadingScreenDesc{};
 	LoadingScreenDesc.eType = SCREEN::FADEOUT;
-
+	LoadingScreenDesc.iLevel = ETOUI(LEVEL::GASZONE);
 	m_pLoadingScreen = static_pointer_cast<CUILoadingScreen>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_UILoadingScreen", &LoadingScreenDesc));
 	if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
 
+	PLAY_SOUND(CAT_BGM, CHANNELID::SOUND_BGM01, 0.0f);
 	return S_OK;
 }
 
@@ -57,6 +58,19 @@ void CLevel_GasProduction::Update(_float fTimeDelta)
 	if (NULL_FALSE(m_pLoadingScreen))
 	{
 		m_pLoadingScreen->Update(fTimeDelta);
+	}
+	if (!m_bEndSound)
+	{
+		m_fFirstBgm += fTimeDelta;
+		_float fVolume = (m_fFirstBgm / 8.f) * 0.2f;
+
+		if (fVolume >= 0.2f)
+		{
+			fVolume = 0.2f;
+			m_bEndSound = true;
+		}
+		VOLCTL(CHANNELID::SOUND_BGM01, fVolume);
+
 	}
 	uint32_t iData = 10;
 }

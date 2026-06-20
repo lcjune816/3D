@@ -12,6 +12,8 @@ texture2D g_DepthTexture;
 texture2D g_SpecularTexture;
 texture2D g_FogTexture;
 texture2D g_EmissiveTexture;
+texture2D g_BlurHorizontalTexture;
+texture2D g_BlurVerticalTexture;
 
 vector g_vLightPos;
 float2 g_fLightRange;
@@ -80,7 +82,11 @@ struct PS_OUT_LIGHT
     vector vShade : SV_TARGET0;
     vector vSpecular : SV_TARGET1;
 };
-
+struct PS_OUT_BLUR
+{
+    vector vHorizontal : SV_TARGET0;
+    vector vVertical : SV_TARGET1;
+};
 struct PS_OUT_FOG
 {
     vector vFog : SV_TARGET0;
@@ -324,11 +330,61 @@ PS_OUT_BACKBUFFER PS_MAIN_BLOOM(PS_IN In)
     
     vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
  
-    vector vEmissiv = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vBlurH = g_BlurHorizontalTexture.Sample(LinearSampler, In.vTexcoord);
     
-    Out.vBackBuffer = vDiffuse + vEmissiv;
-   // vDiffuse + vEmissiv;
+    vector vBlurV = g_BlurVerticalTexture.Sample(LinearSampler, In.vTexcoord);
     
+    
+    Out.vBackBuffer = vDiffuse + vBlurV + vBlurH ; //+vEmissive;
+ 
+    return Out;
+
+}
+PS_OUT_BLUR PS_MAIN_BLUR(PS_IN In)
+{
+    PS_OUT_BLUR Out;
+    
+    vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
+ 
+    vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    float2 texel = float2(1.0 / 1280, 0);
+
+    float4 col = 0;
+
+    float Offset[5] = { 0.2f, 0.5f, 0.9f, 0.5f, 0.2f };
+    float fWeight =1.f;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    
+    Out.vHorizontal = col ;
+    
+    texel = float2(1.0 / 720.f, 0);
+
+    col = 0;
+
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
+    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0]* fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1]* fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2]* fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3]* fWeight;
+    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+   
+    Out.vVertical = col ;
     return Out;
 
 }
@@ -412,5 +468,16 @@ technique11 DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_BLOOM();
     }
+    pass Blur
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLUR();
+    }
+
+
 }
 

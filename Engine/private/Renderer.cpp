@@ -18,7 +18,7 @@ HRESULT CRenderer::Initialize()
     //For Target Diffuse
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Diffuse"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R8G8B8A8_UNORM, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
-    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_DiffuseBloom"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_DiffuseBloom"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R8G8B8A8_UNORM, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
     //For Target Normal
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Normal"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_UNORM, _float4(0, 0, 0, 1.f))))
@@ -38,6 +38,13 @@ HRESULT CRenderer::Initialize()
   
     if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_Emissive"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
         return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_BlurHorizontal"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Add_RenderTarget(TEXT("Target_BlurVertical"), vViewportSize.x, vViewportSize.y, DXGI_FORMAT_R16G16B16A16_FLOAT, _float4(0, 0, 0, 1.f))))
+        return E_FAIL;
+    
     //For MRT_GameObject
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_GameObject"), TEXT("Target_Diffuse"))))
         return E_FAIL;
@@ -62,6 +69,13 @@ HRESULT CRenderer::Initialize()
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_BloomBefore"), TEXT("Target_DiffuseBloom"))))
         return E_FAIL;
     if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Bloom"), TEXT("Target_Emissive"))))
+        return E_FAIL;
+
+    //For MRT_Blur
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Blur"), TEXT("Target_BlurHorizontal"))))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Add_MRT(TEXT("MRT_Blur"), TEXT("Target_BlurVertical"))))
         return E_FAIL;
 
     m_pVIBuffer = CRect::Create(m_pDevice, m_pContext);
@@ -228,6 +242,9 @@ HRESULT CRenderer::Draw()
     if (FAILED(Render_BloomBefore()))
         return E_FAIL;
     if (FAILED(Render_Bloom()))
+        return E_FAIL;
+
+    if (FAILED(Render_Blur()))
         return E_FAIL;
 
     if (FAILED(Render_BloomCombine()))
@@ -483,12 +500,51 @@ HRESULT CRenderer::Render_Bloom()
     return S_OK;
 }
 
+HRESULT CRenderer::Render_Blur()
+{
+    if (FAILED(CGameInstance::Get().Begin_MRT(TEXT("MRT_Blur"))))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_DiffuseBloom"), m_pShader, "g_DiffuseTexture")))
+        return E_FAIL;
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(TEXT("Target_Emissive"), m_pShader, "g_EmissiveTexture")))
+        return E_FAIL;
+
+    m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);
+    m_pShader->Bind_Matrix("g_ViewMatrix", &m_ViewMatrix);
+    m_pShader->Bind_Matrix("g_ProjMatrix", &m_ProjMatrix);
+
+    m_pShader->Bind_Matrix("g_ProjMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::PROJ));
+    m_pShader->Bind_Matrix("g_ViewMatrixInverse", CGameInstance::Get().Get_Transform_Inverse(D3DTS::VIEW));
+
+
+    if (FAILED(m_pVIBuffer->Bind_Resource()))
+        return E_FAIL;
+
+    if (FAILED(m_pShader->Begin(ETOUI(DEFERRED::BLUR))))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Bind_Resource()))
+        return E_FAIL;
+
+    if (FAILED(m_pVIBuffer->Render()))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().End_MRT()))
+        return E_FAIL;
+
+    return S_OK;
+}
+
 HRESULT CRenderer::Render_BloomCombine()
 {
     if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_DiffuseBloom", m_pShader, "g_DiffuseTexture")))
         return E_FAIL;
 
-    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_Emissive", m_pShader, "g_EmissiveTexture")))
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_BlurHorizontal", m_pShader, "g_BlurHorizontalTexture")))
+        return E_FAIL;
+
+    if (FAILED(CGameInstance::Get().Bind_RT_ShaderResource(L"Target_BlurVertical", m_pShader, "g_BlurVerticalTexture")))
         return E_FAIL;
 
     m_pShader->Bind_Matrix("g_WorldMatrix", &m_WorldMatrix);

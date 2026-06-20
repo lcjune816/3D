@@ -95,6 +95,9 @@ void CFSM_Cat_Spawn::OnNotify(const EVENT& eEvent)
 
 	if (eEvent.eEvent == WORLD_EVENT::BOSS_SPAWN)
 	{		
+		STOP_SOUND(CHANNELID::SOUND_BGM01);
+		PLAY_SOUND(CAT_NIGHTMAREBGM, CHANNELID::SOUND_BGM01, 0.15f);
+		PLAY_SOUND(CAT_GAS,CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
 		m_eAction = FSM_ACTION::ACTION;
 		auto pAnimator = static_pointer_cast<CAnimator>(pBoss->Find_Component(L"Com_Animator_Normal"));
 		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));

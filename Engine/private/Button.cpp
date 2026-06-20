@@ -88,6 +88,7 @@ void CButton::Set_Trigger()
 	if (m_eState != TRIGGER_STATE::IDLE)
 		return;
 
+	PLAY_SOUND(SOUND_BUTTON, CHANNELID::SOUND_OBJECT3, 0.6f);
 	m_eState = TRIGGER_STATE::ACTION;
 	
 }

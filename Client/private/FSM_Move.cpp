@@ -41,10 +41,12 @@ void CFSM_Move::Update_State(_float fTimeDelta)
 	if (CGameInstance::Get().Get_DIKeyState(DIK_LSHIFT) & 0x80)
 	{
 		Player->GetAnimator()->Set_Double_Speed(2.5f);
+		SOUND_SPEED(CHANNELID::PLAYER_MOVE, 2.f);
 		m_fVelocity = 2.f;
 	}
 	else
 	{
+		SOUND_SPEED(CHANNELID::PLAYER_MOVE, 1.f);
 		Player->GetAnimator()->Set_Double_Speed(1.f);
 		m_fVelocity = 1.f;
 

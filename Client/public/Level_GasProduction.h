@@ -33,6 +33,12 @@ private:
 	HRESULT		Ready_Layer_Gui(const _wstring& strLayerTag);
 	HRESULT		Ready_Partilce();
 	HRESULT		Ready_ProtoType();
+private:
+
+	_float			m_fFirstBgm{};
+
+	_bool			m_bLevelChange{ false };
+	_bool			m_bEndSound{ false };
 public:
 	static unique_ptr<CLevel_GasProduction> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);
 };

@@ -1,7 +1,7 @@
 #pragma once
 #include "Client_Defines.h"
 #include "CameraNS.h"
-
+#include "Observer.h"
 
 NS_BEGIN(Client)
 class CCamera : public CCameraNS
@@ -33,6 +33,7 @@ public:
 
     void            Pitch(_float fAngle);
     void            RotationY(_float fAngle);
+
 private:
     INFO                m_pInfo = {};
 

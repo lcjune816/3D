@@ -206,6 +206,7 @@ void CCamera::RotationY(_float fAngle)
     XMStoreFloat3(&m_fLook, XMVector3TransformNormal(XMLoadFloat3(&m_fLook), matRot2));
 
 }
+
 unique_ptr<CCamera>  CCamera::Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext>pContext)
 {
     auto pInstance = unique_ptr<CCamera>(new CCamera(pDevice,pContext));

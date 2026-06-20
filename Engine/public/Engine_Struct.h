@@ -52,6 +52,7 @@ namespace Engine
 		WORLD_EVENT eEvent;
 		int32_t iIndex = { -1 };
 		_float3 fPos{};
+		_float4x4 matrix;
 		void* pArg = nullptr;
 	}EVENT;
 	typedef struct strcollisioninfo
@@ -118,7 +119,7 @@ namespace Engine
 		_float	  G, H, F;
 		int32_t   iParent_node{-1}, iNode_Nubmer;
 		_float3	  Pos;
-
+		_float3   Arrow[2];
 	}ENGINE_ASTAR;
 
 	typedef struct strnavimesh

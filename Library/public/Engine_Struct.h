@@ -52,6 +52,7 @@ namespace Engine
 		WORLD_EVENT eEvent;
 		int32_t iIndex = { -1 };
 		_float3 fPos{};
+		_float4x4 matrix;
 		void* pArg = nullptr;
 	}EVENT;
 	typedef struct strcollisioninfo

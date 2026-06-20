@@ -705,7 +705,10 @@ _float		CGameInstance::Get_ChannelVolume(CHANNELID _CID)
 {
 	return m_pSound_Manager->Get_ChannelVolume(_CID);
 }
-
+void		CGameInstance::Sound_Speed(CHANNELID _SoundChannel, const _float& SoundSpeed)
+{
+	m_pSound_Manager->Sound_Speed(_SoundChannel, SoundSpeed);
+}
 #pragma endregion
 
 #pragma endregion

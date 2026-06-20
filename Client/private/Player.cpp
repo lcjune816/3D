@@ -11,7 +11,6 @@ CPlayer::CPlayer(const CPlayer& Prototye) : CGameObject(Prototye)
 }
 CPlayer::~CPlayer()
 {
-	m_pPlayerRHand.reset();
 };
 
 HRESULT CPlayer::Ready_Component(void* pArg)
@@ -90,7 +89,9 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	auto FsmLeftHand = static_pointer_cast<CFSM_LeftHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_LeftHand", &pFsmLeftDesc));
 	if (NULL_TRUE(FsmLeftHand)) return E_FAIL;
 	///////////////////////////////////////Ме//////////////////////////////////////////////////////////////////////////////////
-
+	auto FSM_Dead = static_pointer_cast<CFSM_Dead>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"FSM_Dead", nullptr));
+	if (NULL_TRUE(FSM_Dead)) return E_FAIL;
+	
 	//"JNT_R_Grabpack_Tube_06"
 	//	"JNT_R_Grabpack_Gun"
 
@@ -105,6 +106,7 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	m_pStateMachine->Add_State(FSM::IDLE, Idle);
 	m_pStateMachine->Add_State(FSM::MOVE, Move);
 	m_pStateMachine->Add_State(FSM::JUMP, Jump);
+	m_pStateMachine->Add_State(FSM::DEAD, FSM_Dead);
 	m_pStateMachine->Add_State(FSM::CROUCH, Crouch);
 	m_pStateMachine->Change_State(FSM::IDLE);
 	//17537
@@ -119,6 +121,8 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	//m_pHandLight = static_pointer_cast<CPlayer_Light>(CGameInstance::Get().Clone_Prototype(objDesc->iLevel, L"Player_LIght", &PlayerLightDesc));
 	//if (NULL_TRUE(m_pHandLight)) return E_FAIL;
 	 
+
+	CGameInstance::Get().Add_Observers(WORLD_EVENT::PLAYER_DEAD, SHARED_THIS(CPlayer));
 	return S_OK;
 
 }
@@ -177,12 +181,18 @@ void CPlayer::Update(_float fTimeDelta)
 	//if (name != "")
 	//	m_pAnimator->Change_Animation(name);
 
+	if(m_bTurn)
 	Turn(fTimeDelta);
+	else
+		m_pStateMachine->Change_State(FSM::DEAD);
 	State_Move();
 
   	m_pAnimator->Update(fTimeDelta);
 	m_pStateMachine->Update_Machine(fTimeDelta);
+
+	if (m_bTurn)
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f + m_fOffsetY));
+
 	auto pObj = CGameInstance::Get().Get_ObjectPtr(m_iLevel, TEXT("Layer_TriggerObject"), "OBJ_Elevator");
 	if (NULL_FALSE(pObj))
 	{
@@ -191,7 +201,9 @@ void CPlayer::Update(_float fTimeDelta)
 			static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
 			_float fHeight = XMVectorGetY(static_cast<CTriggerObject*>(pObj)->Get_TransformPtr()->Get_State(STATE::POS));
 			m_pTransform->Set_State(STATE::POS, XMVectorSetY(m_pTransform->Get_State(STATE::POS), fHeight + 23.f + m_fOffsetY));
-		}
+		}else
+			static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(nullptr);
+
 	}
 
 	m_pPlayerLHand->Update(fTimeDelta);
@@ -356,6 +368,11 @@ _bool CPlayer::Flag_Check(uint32_t iFlag)
 	return false;
 }
 
+
+void CPlayer::OnNotify(const EVENT& eEvent)
+{
+	m_bTurn = false;
+}
 
 void CPlayer::Timer(const _float& fTimeDelta)
 {

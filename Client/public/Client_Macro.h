@@ -16,6 +16,12 @@ namespace Client
 #define TEACHER_BREAKDOOR L"TEMP_SW_Teacher_BreakDoor_01.wav"
 #define TEACHER_WALK		L"SW_Teacher_Footstep_Default_06.wav"
 #define TEACHER_BREATH		L"SW_MissDelight_Breath_03.wav"
+#define TEACHER_DEAD		L"SW_MissDelight_Death.wav"
 
-
+#define CAT_BGM				L"SW_GPZ_Ambience_LOOP.wav"
+#define CAT_NIGHTMAREBGM    L"SW_Uphill_Climb_Music_02.wav"
+#define CAT_JUMPSCARE		L"SW_CatNap_Jumpscare.wav"
+#define CAT_GAS				L"SW_CatNap_SpewingGas_LOOP.wav"
+#define CAT_ELEVATOR		L"SW_CatNap_Fence_Footstep_01.wav"
+#define CAT_WALK			L"SW_CatNap_Footstep_04.wav"
 }

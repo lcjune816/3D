@@ -2,7 +2,7 @@
 #include "GameObject.h"
 #include "Client_Defines.h"
 #include "GameInstance.h"
-
+#include "OBserver.h"
 namespace Engine
 {
 	class CAnimator;
@@ -20,7 +20,7 @@ enum class PLAYER_MACHINE{NORMAL, LEFT_HAND, RIGHT_HAND,END};
 
 enum class PLAYER_FLAG { ELECTRIC_SHORT = 0x00000001, ELECTRIC_LONG = 0x00000002, TIMER = 0x00000004,CONNECTHAND = 0x00000008,
 				RUN = 0x00000010, CROUCH = 0x00000020, IDLE = 0x00000040, MOVE = 0x00000080, JUMP = 0x00000100, FALLING = 0x00000200,	END = 0xffffffff };
-class CPlayer : public CGameObject
+class CPlayer : public CGameObject, public CObserver
 {
 protected:
 	typedef struct HandState
@@ -60,6 +60,8 @@ public:
 
 	void					Set_OffsetY(_float fOffset) { m_fOffsetY = fOffset; }
 	_float					Get_OffsetY() { return m_fOffsetY; }
+
+	virtual void            OnNotify(const EVENT& eEvent)override;
 protected:
 	void					Timer(const _float& fTimeDelta);
 
@@ -100,7 +102,7 @@ private:
 
 	
 private:
-	_bool								m_bOnlyActionState = { false }, m_bDelay[2] = {};
+	_bool								m_bOnlyActionState = { false }, m_bDelay[2] = {}, m_bTurn{ true};
 public:
 	static unique_ptr<CPlayer> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

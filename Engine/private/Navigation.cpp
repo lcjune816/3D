@@ -183,6 +183,12 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
 
                          if (m_MoveToList.front().iParent_node == iter->iNode_Nubmer)
                          {
+                             _vector Src1 = XMVector3Normalize(XMLoadFloat3(&iter->Arrow[0]) - SrcPos);
+                             _vector Src2 = XMVector3Normalize(XMLoadFloat3(&iter->Arrow[1]) - SrcPos);
+
+                             if (XMVectorGetX(XMVector3Cross(Src1, Src2)) < 0.f)
+                                 swap(iter->Arrow[0], iter->Arrow[1]);
+
                              m_MoveToList.push_front(*iter);
                              iter = m_AstarCloseList.erase(iter);
                              continue;
@@ -194,6 +200,7 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
                          m_MoveToList.pop_front();
                          m_iDestIndex = index;
                          bFinished = true;
+                         PunnelAlgorithm(SrcPos);
                          return true;
                      }
                  }
@@ -214,6 +221,17 @@ _bool CNavigation::AStartAlgorithm(const uint32_t endLayerIndex,  const _wstring
 
     return false;
 }
+void CNavigation::PunnelAlgorithm(_fvector vSrcPos)
+{
+    
+    for (auto& iter : m_MoveToList)
+    {
+        PunnelArrow Arrow(iter.Arrow);
+
+        m_PunnelList.push_back(iter.Arrow);
+    }
+    
+}
 _vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook)
 {
     if (m_MoveToList.empty())
@@ -229,7 +247,6 @@ _vector CNavigation::MoveToAstar(_fvector vPos, const _float& fSpeed, const _flo
 
         XMStoreFloat3(vLook, vSrcPos);
         FinalPos = vPos + vDir * fSpeed * fTimeDelta;
-       //XMVectorGetX(XMVector3Length(XMVectorSetY(FinalPos, 0.f) - XMVectorSetY(vSrcPos, 0.f))) < 5.f ||
         if (XMVectorGetX(XMVector3Length(XMVectorSetY(FinalPos, 0.f) - XMVectorSetY(vSrcPos, 0.f))) < 5.f || m_iCurretnCellindex == m_MoveToList.front().iNode_Nubmer)
         {
             m_MoveToList.pop_front();
@@ -352,7 +369,7 @@ HRESULT CNavigation::Save_Navi(const _wstring& FilePath, const _char* pName)
     file << j.dump(4);
 
     file.close();
-
+    MSG_BOX("네비 된듯");
 
     return S_OK;
 }
@@ -498,6 +515,21 @@ void CNavigation::Event_Check(CELL_EVENT eCellEvent)
          CGameInstance::Get().Notify(WORLD_EVENT::BOSS_EVENT2, eEvent);
 
      }
+     else if (eCellEvent == CELL_EVENT::PLAYER_DEAD)
+    {
+        EVENT eEvent;
+        eEvent.eEvent = WORLD_EVENT::BOSS_EVENT3;
+        for (auto& iter : m_Cells)
+        {
+            if (iter->Event_Check(CELL_EVENT::PLAYER_DEAD))
+            {
+                eEvent.iIndex = iter->Get_NaviInfo().iIndex;
+                eEvent.fPos = iter->Get_NaviInfo().vCenter;
+                break;
+            }
+        }
+        CGameInstance::Get().Notify(WORLD_EVENT::BOSS_EVENT3, eEvent);
+    }
     m_eEvent = eCellEvent;
 
 }

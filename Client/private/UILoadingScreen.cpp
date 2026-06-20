@@ -22,6 +22,9 @@ HRESULT CUILoadingScreen::Initialize(void* pArg)
 {
 	auto pDesc = static_cast<LOADING_SCREEN_DESC*>(pArg);
 
+	if (pDesc->iLevel == ETOUI(LEVEL::GASZONE))
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::END, SHARED_THIS(CUILoadingScreen));
+
 	m_eType = pDesc->eType;
 	
 	m_pVIBufferCom = static_pointer_cast<CRect>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Rect", nullptr));
@@ -119,6 +122,12 @@ HRESULT CUILoadingScreen::Render()
 	m_pVIBufferCom->Bind_Resource();
 	m_pVIBufferCom->Render();
 	return S_OK;
+}
+
+void CUILoadingScreen::OnNotify(const EVENT& eEvent)
+{
+	m_bStop = false;
+	m_eType = SCREEN::BLACK;
 }
 
 void CUILoadingScreen::FadeIn(const _float& fTimeDelta)

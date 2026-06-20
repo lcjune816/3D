@@ -144,8 +144,9 @@ void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 	pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
 	_float fDis = XMVectorGetX(XMVector3Length(pPlayerTransform->Get_State(STATE::POS) - pTransform->Get_State(STATE::POS)));
-	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, min(max(0.f, 1.f - fDis / 20.f * fTimeDelta),0.7f));
+	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, min(1.f - (1.f - 150.f / fDis),0.5f));
 
+	SOUND_SPEED(CHANNELID::SOUND_BOSS, 2.f);
 	if (pBoss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
 		pBoss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
 }
@@ -164,11 +165,12 @@ void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTran
 		++m_fTimeCnt;
 	}
 
-	if (m_fTimeCnt >= 1.5f)
+	if (m_fTimeCnt >= 3.f)
 	{
 		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 		pNavi->Set_CurrentIndex(m_iIndex);
 
+		pBoss->GetAnimator()->Stop_Animation(false);
 		pBoss->Get_Transform().lock()->Set_State(STATE::POS, XMVectorSetW(XMLoadFloat3(&m_fPos), 1.f));
 		m_eAction = FSM_ACTION::ACTION;
 	
@@ -183,17 +185,7 @@ void CFSM_Teacher_Move::Boss_FrontDoorPause(shared_ptr<CBoss_Teacher> pBoss, sha
 	
 	if (pNavi->Is_CurrentCell(m_iIndex))
 	{
-		//pBoss->Change_Animation(TEACHER_ANIME::JUMPSCALE,false);
-		////if (!m_bOneAnimation)
-		////{
-		////	pTransform->Apply_Rotation(XMVectorSet(0, 1, 0, 0), 180.f);
-		////	m_bOneAnimation = true;
-		////}
-		//
-		//if(pBoss->Get_Finished())
-			pBoss->GetAnimator()->Stop_Animation(true);
-		//else 
-		//	pBoss->GetAnimator()->Stop_Animation(false);
+		pBoss->GetAnimator()->Stop_Animation(true);
 	}
 	else
 		Action_Chase(pBoss, pTransform, pPlayerTransform, fTimeDelta);
@@ -225,7 +217,7 @@ void CFSM_Teacher_Move::Boss_DoorKick(shared_ptr<CBoss_Teacher> pBoss, shared_pt
 	}
 	if (m_fTimeCnt == 4 && m_bOneSound == false)
 	{
-		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_BOSS, 0.3f);
+		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
 		m_bOneSound = true;
 	}
 }

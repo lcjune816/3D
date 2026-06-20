@@ -35,6 +35,8 @@ X(BOSS_LIGHT_OFF)		 \
 X(BOSS_LIGHT_ON)		 \
 X(BOSS_EVENT1)			 \
 X(BOSS_EVENT2)			 \
+X(PLAYER_DEAD)			\
+X(BOSS_EVENT3)			\
 X(END)
 
 #define PARTICLE_LIST \
@@ -53,6 +55,7 @@ X(ELEVATOR)		  \
 X(ARROW)		  \
 X(BOSS_EVENT1)	  \
 X(BOSS_EVENT2)	  \
+X(PLAYER_DEAD)	  \
 X(END)
 
 #define LIGHT_STATE_LIST \
@@ -122,7 +125,7 @@ X(LIGHT_DEFAULT)
 
 //사운드 매니저
 #define DOOR_SOUND L"SW_Door_Metal_Rotating_01.wav"
-#define ROLLUPDOOR_SOUND L"SW_DormGate_OpenClose_Cut.wav"
+#define ROLLUPDOOR_SOUND L"SW_DormGate_OpenClose_Small.wav"
 #define BATTERYCASE_SOUND L"SW_Battery_PowerOn_01.wav"
 #define GENERATOR_POWERON_SOUND L"SW_Generator_PowerOn.wav"
 #define GENERATOR_POWERON_LOOP L"SW_Generator_IdleHum_LOOP.wav"
@@ -132,7 +135,9 @@ X(LIGHT_DEFAULT)
 #define POLE_SOUND L"SW_Conduit_ElectricPole_Charged.wav"
 #define ELECTRIC_PANNEL_SOUND L"SW_GrabTurret_Shot.wav"
 #define ELECTRIC_HAND		 L"SW_Conduit_HandGrab_Coiling.wav"
-
+#define ELEVATOR_LOOP		L"SW_UtilityElevator_Moving_LOOP.wav"
+#define ELEVATOR_FINISH		L"SW_UtilityElevator_Stopped.wav"
+#define SOUND_BUTTON		L"SW_Interactable_Button.wav"
 
 #define IS_PLAYSOUND(SoundName,ChannelId,Volume)\
 if(!CGameInstance::Get().IsPlaying(ChannelId))\
@@ -151,4 +156,6 @@ CGameInstance::Get().Set_ChannelGroupVolume(ChannelID,VOLUME)
 #define GET_VOLUME(ChannelID)\
 CGameInstance::Get().Get_ChannelVolume(ChannelID)
 
+#define SOUND_SPEED(ChannelID,Speed)\
+CGameInstance::Get().Sound_Speed(ChannelID, Speed)
 #endif // Engine_Macro_h__
