@@ -29,7 +29,7 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 		return E_FAIL;
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../Resource/Character/Player/PlayerCable.fbx";
+	importModel.pFile = "../Resource/Character/Player/PlayerCable2.fbx";
 	importModel.bAllModel = 1;
 	importModel.eType = MESH_TYPE::NONANIME;
 
@@ -43,11 +43,16 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 
 	CGameInstance::Get().ImportModel_NonAnime(importModel, m_pTransform, m_MeshNameList);
 
-	m_ArmMatrix.Matrix.resize(800);
+	m_ArmMatrix.Matrix.resize(100);
 	XMStoreFloat4x4(&m_matOffset, XMMatrixIdentity());
+	CGameInstance::Get().Add_Decal_Texture("../../Resource/Character/Effect/T_Noise_6.dds");
+	m_iTextureId = CGameInstance::Get().Find_TextueId("../../Resource/Character/Effect/T_Noise_6.dds");
 
 	_float4 vOffsetPos = _float4(0, 0.5, 0.1,1.f);
-	memcpy(&m_matOffset.m[3], &vOffsetPos, sizeof _float4);
+	_matrix OffsetMatrix = XMMatrixRotationZ(180.f) * XMMatrixTranslation(0, 0.5, 0.1);
+	
+	XMStoreFloat4x4(&m_matOffset, OffsetMatrix);
+
 	return S_OK;
 }
 void CPlayer_Arm::Priority_Update(_float fTimeDelta)
@@ -82,8 +87,10 @@ void CPlayer_Arm::Late_Update(_float fTimeDelta)
 	{
 		XMStoreFloat4x4(&m_ArmMatrix.Matrix[i], XMLoadFloat4x4(&m_matOffset) * XMLoadFloat4x4(&m_ArmMatrix.Matrix[i]));
 	}
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CPlayer_Arm));
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLOOM, SHARED_THIS(CPlayer_Arm));
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPlayer_Arm));
+
+	if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
+		CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLOOM, SHARED_THIS(CPlayer_Arm));
 }
 HRESULT CPlayer_Arm::Render()
 {
@@ -97,7 +104,6 @@ HRESULT CPlayer_Arm::Render()
 	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	Bind_ResourceFromFlag_Default(m_pShaderCom.get(), "g_Color");
 
 	for (auto iter : m_MeshNameList)
 	{
@@ -105,6 +111,7 @@ HRESULT CPlayer_Arm::Render()
 		if (pMesh == nullptr)
 			continue;
 		
+		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_DiffuseTexture", aiTextureType_DIFFUSE, 0);
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();
 
@@ -147,8 +154,9 @@ HRESULT CPlayer_Arm::Render_Bloom()
 	m_pShaderCom->Bind_Matrix_Array("g_World", m_ArmMatrix.Matrix.data(), iArraySize);
 	m_pShaderCom->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	m_pShaderCom->Bind_SRV("g_NoiseTexture", CGameInstance::Get().Find_Decal_Texture(m_iTextureId));
 	Bind_ResourceFromFlag(m_pShaderCom.get(), "g_Color");
-
+	
 	for (auto iter : m_MeshNameList)
 	{
 		CMeshNonAnime* pMesh = CGameInstance::Get().Find_Mesh(iter);
@@ -166,16 +174,19 @@ HRESULT CPlayer_Arm::Render_Bloom()
 
 void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstantName)
 {
-	_float4 fColor{ 0,0,0,1 };
 	_float4 fEmissive{ 0,0,0,1 };
 	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
 	{
-		fEmissive =  { 0.15f ,200.f ,0.15f ,1.f };
+		fEmissive = { 0.5f,2.5f ,1.f ,1.f};// *CGameInstance::Get().ColorTester();// { 0.297f ,100.f ,0.387f ,1.f };
 	}
 	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
 	{
-		
-		fEmissive = { 0.2f,0.8f,100.f,1.f };
+
+			//"R": 0.004458,
+			//"G" : 0.765625,
+			//"B" : 0.070283,
+
+		fEmissive =  { 0.45f, 0.75f, 5.f, 1.f }; //*CGameInstance::Get().ColorTester(); //
 	}
 
 	pShader->Bind_RawValue("g_Emissive", &fEmissive, sizeof _float4);
@@ -183,16 +194,7 @@ void CPlayer_Arm::Bind_ResourceFromFlag(CShader* pShader, const _char* pConstant
 
 void CPlayer_Arm::Bind_ResourceFromFlag_Default(CShader* pShader, const _char* pConstantName)
 {
-	_float4 fColor{ 0,0,0,1 };
-	_float4 fEmissive{ 0,0,0,1 };
-	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
-	{
-		fColor =  { 0.f ,3.f ,0.0f, 1.f };
-	}
-	else if (Flag_Check(ETOUI(PLAYER_FLAG::CONNECTHAND)) || Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_LONG)))
-	{
-		fColor = { 0.f,1.f,1.f,1 }; //*CGameInstance::Get().ColorTester();// { 0.f,0.0f,3.f,1 };
-	}
+	_float4 fColor{ 0.f,0.f,0.f,1 };
 
 	pShader->Bind_RawValue(pConstantName, &fColor, sizeof _float4);
 }

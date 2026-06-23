@@ -2,6 +2,7 @@
 
 float4x4 g_WorldMatrix, g_ViewMatrix, g_ProjMatrix;
 texture2D g_DiffuseTexture;
+texture2D g_NormalTexture;
 
 sampler LinearSampler = sampler_state
 {
@@ -23,6 +24,8 @@ struct VS_IN
 struct VS_OUT {
 	float4 pos : SV_POSITION;
     float4 vNormal : NORMAL;
+    float4 vTangent : TANGENT;
+    float4 vBinormal : BINORMAL;
 	float2 texcoord : TEXCOORD0;
     float4 vProjPos : TEXCOORD1;
 }; 
@@ -39,6 +42,8 @@ VS_OUT VS_MAIN(VS_IN In)
     output.pos = mul(float4(In.pos, 1.f), matWVP);
     output.texcoord = In.texcoord;
     output.vNormal = normalize(mul(float4(In.vNormal, 0.f), g_WorldMatrix));
+    output.vTangent = normalize(mul(float4(In.vTangent, 0.f), g_WorldMatrix));
+    output.vBinormal = normalize(mul(float4(In.vBinormal, 0.f), g_WorldMatrix));
     output.vProjPos = output.pos;
   
 	return output;
@@ -48,6 +53,8 @@ struct PS_IN
 {
     float4 pos : SV_POSITION;
     float4 vNormal : NORMAL;
+    float4 vTangent : TANGENT;
+    float4 vBinormal : BINORMAL;
     float2 texcoord : TEXCOORD0;
     
     float4 vProjPos : TEXCOORD1;
@@ -69,8 +76,17 @@ PS_OUT PS_MAIN(PS_IN In)
     if (vMtrlDiffuse.a < 0.3f)
         discard;
     
+    vector vNormalDesc = g_NormalTexture.Sample(LinearSampler, In.texcoord);
+    float3 vNormal = vNormalDesc.xyz * 2.f - 1.f;
+    
+    float3x3 WorldMatrix = float3x3(In.vTangent.xyz, In.vBinormal.xyz * -1.f, In.vNormal.xyz);
+    
+    vNormal = normalize(mul(vNormal, WorldMatrix));
+    
     Out.vDiffuse = vMtrlDiffuse;
-    Out.vNormal = vector(In.vNormal.xyz * 0.5f + 0.5f, 0.f);
+    
+    
+    Out.vNormal = vector(vNormal.xyz * 0.5f + 0.5f, 0.f);
     
     Out.vDepth = float4(In.vProjPos.z / In.vProjPos.w, In.vProjPos.w / 1000.f, 0.f, 0.f);
     return Out;

@@ -104,7 +104,7 @@ HRESULT CTriggerObject::Initialize(void* pArg)
 		Light.LightDesc.eType = LIGHT::POINT;
 		Light.LightDesc.eLocalEventType = LIGHT_STATE::NONE;
 		Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
-		Light.LightDesc.fRange = _float2(30.f,0.f);
+		Light.LightDesc.fRange = _float2(60.f,0.f);
 		Light.LightDesc.vDiffuse = _float4(1.2f,1.8f, 5.f,1.f);
 		Light.LightDesc.vAmbient = _float4(0.5f, 0.5f, 1.f, 1.f);
 		Light.LightDesc.vSpecular = _float4(1.f, 1.f, 0.8f, 1.f);
@@ -206,7 +206,9 @@ HRESULT CTriggerObject::Render()
 			continue;
 
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_DiffuseTexture", aiTextureType_DIFFUSE, 0);
-			
+		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
+
+		
 		m_pShaderCom->Begin(0);
 		
 		pMesh->Bind_Resource();

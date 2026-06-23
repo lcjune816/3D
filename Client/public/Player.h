@@ -91,7 +91,6 @@ private:
 	vector<string>						m_ShootBone;
 private:
 	_float								m_fTimerTick{ 0 }, m_fTimerCnt{ 0 };
-	_float4x4							m_bones[BONE_MATRIX];
 
 	PLAYER_ANIME						m_eAnimeState = {};
 	PLAYER_STATE						m_ePlayer = {}; //플레이어 상태 조정 bool값 모음ㄱ

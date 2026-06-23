@@ -134,6 +134,7 @@ HRESULT CBoss_Cat::Render()
 	for (auto iter : m_pMeshList[ETOUI(m_eFormType)])
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 		m_pShaderCom->Begin(0);
 		iter->Bind_Resource();
 		iter->Render();

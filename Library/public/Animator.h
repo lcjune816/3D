@@ -38,6 +38,7 @@ public:
 	void						Bind_Resource_BoneMatrix(class CShader* pShader, const _char* constName);
 	vector<_float4x4>			Get_FinalBoneMatrix() { return m_FinalBoneMatrices; }
 	vector<string>&				Get_NameList();
+	_float4x4*					Find_OriginBone(const string& Name);
 	const uint32_t				Get_BoneCnt() { return m_iBoneCnt; }
 	void						Change_Animation(const string& name);
 	_bool						Change_Animation_Enum(uint32_t iNumber, _bool bLoop = true, _bool bForce = false,_bool Blend = true);

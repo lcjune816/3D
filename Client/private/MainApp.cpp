@@ -85,6 +85,12 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		return E_FAIL;
 
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("Component_Effect"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Effect.hlsl"),
+			VERTEX_NOANIME::Elements, VERTEX_NOANIME::iNumElements))))
+		return E_FAIL;
+
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("Component_Box"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/BoxShader.hlsl"),
 			VERTEX_BOX::Elements, VERTEX_BOX::iNumElements))))

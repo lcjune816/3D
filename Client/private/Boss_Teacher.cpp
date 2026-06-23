@@ -53,14 +53,14 @@ HRESULT CBoss_Teacher::Ready_Component()
 	if (NULL_TRUE(Spawn))
 		return E_FAIL;
 
-	auto Dead = static_pointer_cast<CFSM_Teacher_Spawn>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Dead"), &pDesc));
+	auto Dead = static_pointer_cast<CFSM_Teacher_Daed>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("FSM_Teacher_Dead"), &pDesc));
 	if (NULL_TRUE(Dead))
 		return E_FAIL;
 
 	m_pStateMachine->Add_State(FSM::IDLE, idle);
 	m_pStateMachine->Add_State(FSM::MOVE, Move);
 	m_pStateMachine->Add_State(FSM::SPAWN, Spawn);
-	m_pStateMachine->Add_State(FSM::END, Dead);
+	m_pStateMachine->Add_State(FSM::DEAD, Dead);
 	m_pStateMachine->Set_Owner(SHARED_THIS(CBoss_Teacher));
 	m_pStateMachine->Change_State(FSM::IDLE);
 	//m_pStateMachine->Change_State(FSM::MOVE);
@@ -144,6 +144,7 @@ HRESULT CBoss_Teacher::Render()
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 		m_pShaderCom->Begin(0);
 		iter->Bind_Resource();
 		iter->Render();

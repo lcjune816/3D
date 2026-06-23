@@ -12,8 +12,11 @@ texture2D g_DepthTexture;
 texture2D g_SpecularTexture;
 texture2D g_FogTexture;
 texture2D g_EmissiveTexture;
-texture2D g_BlurHorizontalTexture;
-texture2D g_BlurVerticalTexture;
+texture2D g_BlurTexture;
+texture2D g_DownSample;
+texture2D g_SceneTexture;
+
+float2 g_ViewPortSize;
 
 vector g_vLightPos;
 float2 g_fLightRange;
@@ -35,7 +38,12 @@ sampler LinearSampler = sampler_state
     AddressU = Wrap;
     AddressV = Wrap;
 };
-
+sampler LinearClampSampler = sampler_state
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
 struct VS_IN
 {
     float3 vPosition : POSITION;
@@ -84,8 +92,7 @@ struct PS_OUT_LIGHT
 };
 struct PS_OUT_BLUR
 {
-    vector vHorizontal : SV_TARGET0;
-    vector vVertical : SV_TARGET1;
+    vector vBlur : SV_TARGET0;
 };
 struct PS_OUT_FOG
 {
@@ -324,67 +331,124 @@ PS_OUT_BACKBUFFER PS_MAIN_COMBINED(PS_IN In)
     return Out;
 
 }
+
 PS_OUT_BACKBUFFER PS_MAIN_BLOOM(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+ 
+    vector vSample = g_DownSample.Sample(LinearSampler, In.vTexcoord);
+    vector Scene = g_SceneTexture.Sample(LinearSampler, In.vTexcoord);
+    
+    Out.vBackBuffer = Scene + vSample;// * vOffset;
+    return Out;
+
+}
+PS_OUT_BACKBUFFER PS_MAIN_BLOOMTEST(PS_IN In)
 {
     PS_OUT_BACKBUFFER Out;
     
     vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
  
-    vector vBlurH = g_BlurHorizontalTexture.Sample(LinearSampler, In.vTexcoord);
-    
-    vector vBlurV = g_BlurVerticalTexture.Sample(LinearSampler, In.vTexcoord);
+    vector vSample = g_DownSample.Sample(LinearSampler, In.vTexcoord);
     
     
-    Out.vBackBuffer = vDiffuse + vBlurV + vBlurH ; //+vEmissive;
+    Out.vBackBuffer = vDiffuse;
  
     return Out;
 
 }
-PS_OUT_BLUR PS_MAIN_BLUR(PS_IN In)
+
+PS_OUT_BACKBUFFER PS_MAIN_DOWNSAMPLE2(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+    
+    vector vEmissive = g_EmissiveTexture.Sample(LinearClampSampler, In.vTexcoord);
+ 
+
+    Out.vBackBuffer = vEmissive;
+    return Out;
+
+}
+PS_OUT_BACKBUFFER PS_MAIN_DOWNSAMPLE4(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+   
+    vector vDownSample = g_DownSample.Sample(LinearClampSampler, In.vTexcoord);
+    
+    Out.vBackBuffer = vDownSample; //vDownSample;
+ 
+    return Out;
+
+}
+
+PS_OUT_BACKBUFFER PS_MAIN_UPSAMPLE2(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+    
+    vector vBlur = g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord);
+
+    vector vDownSample = g_DownSample.Sample(LinearClampSampler, In.vTexcoord);
+    
+    Out.vBackBuffer = vBlur + vDownSample * 0.2f;
+ 
+    return Out;
+
+}
+PS_OUT_BACKBUFFER PS_MAIN_UPSAMPLE4(PS_IN In)
+{
+    PS_OUT_BACKBUFFER Out;
+    
+    
+    vector vDownSample = g_DownSample.Sample(LinearClampSampler, In.vTexcoord);
+    vector vBlur = g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord);
+     
+    Out.vBackBuffer = vBlur + vDownSample * 0.2f;
+ 
+    return Out;
+
+}
+
+PS_OUT_BLUR PS_MAIN_BLURHORIZON(PS_IN In)
 {
     PS_OUT_BLUR Out;
     
-    vector vDiffuse = g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord);
- 
-    vector vEmissive = g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord);
-    
-    float2 texel = float2(1.0 / 1280, 0);
+  
+    float2 texel = float2(1.0 / g_ViewPortSize.x, 0);
 
     float4 col = 0;
 
-    float Offset[5] = { 0.2f, 0.5f, 0.9f, 0.5f, 0.2f };
-    float fWeight =1.f;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    float Offset[5] = { 0.1554f, 0.2534f, 0.8542, 0.2534f, 0.1554f };
+    float fWeight =0.5f;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord)              * Offset[2] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * 2)  * Offset[4] * fWeight;
     
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
-    
-    Out.vHorizontal = col ;
-    
-    texel = float2(1.0 / 720.f, 0);
 
-    col = 0;
+    Out.vBlur = col ;
 
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3] * fWeight;
-    col += g_DiffuseTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    return Out;
+
+}
+
+PS_OUT_BLUR PS_MAIN_BLURVERTICAL(PS_IN In)
+{
+    PS_OUT_BLUR Out;
     
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -2) * Offset[0]* fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * -1) * Offset[1]* fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord)              * Offset[2]* fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 1)  * Offset[3]* fWeight;
-    col += g_EmissiveTexture.Sample(LinearSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
-   
-    Out.vVertical = col ;
+ 
+    float4 col = 0;
+    float2 texel = float2(0, 1.0 / g_ViewPortSize.y);
+    float Offset[5] = { 0.1554f, 0.2534f, 0.8542, 0.2534f, 0.1554f };
+    float fWeight = 0.9f;
+    
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * -2) * Offset[0] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * -1) * Offset[1] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord) * Offset[2] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * 1) * Offset[3] * fWeight;
+    col += g_BlurTexture.Sample(LinearClampSampler, In.vTexcoord + texel * 2) * Offset[4] * fWeight;
+    
+    Out.vBlur = col;
     return Out;
 
 }
@@ -463,21 +527,75 @@ technique11 DefaultTechnique
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_ZDisable, 0);
-        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_BLOOM();
     }
-    pass Blur
+    pass BlurHorizon
     {
         SetRasterizerState(RS_Default);
         SetDepthStencilState(DSS_ZDisable, 0);
         SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
-        PixelShader = compile ps_5_0 PS_MAIN_BLUR();
+        PixelShader = compile ps_5_0 PS_MAIN_BLURHORIZON();
     }
 
+    pass BlurVertical
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLURVERTICAL();
+    }
+    pass DownSample2
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_DOWNSAMPLE2();
+    }
+    pass DownSample4
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_DOWNSAMPLE4();
+    }
+    pass UpSample2
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_UPSAMPLE2();
+    }
+    pass UpSample4
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_UPSAMPLE4();
+    }
+    pass Sibal
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Blend, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_BLOOMTEST();
+    }
 
 }
 

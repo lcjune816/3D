@@ -3,6 +3,9 @@
 #include "TriggerObject.h"
 #include "Player_Arm.h"
 #include "FSM_RightHand.h"
+#include "WorldLight.h"
+#include "RightHand_Effect_Particle.h"
+#include "Player_RightHand_Effect.h"
 CPLayer_RightHand::CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext) :
 	CPlayer (pDevice, pContext)
 {
@@ -88,6 +91,55 @@ HRESULT CPLayer_RightHand::Initialize(void* pArg)
 	offset *= XMMatrixScaling(-0.12f, 0.12f, 0.12f);
 	offset.r[3] = XMVectorSet(-2.f,-1.31f,-2.980f ,1.f);
 	XMStoreFloat4x4(&m_fOffsetMatrix, offset);
+
+	CWorldLight::WORLDLIGHT_DESC Light{};
+	Light.eType = INIT_TYPE::OBJECT;
+	Light.LightDesc.eUseType = USETYPE::CLIENT;
+	Light.LightDesc.eType = LIGHT::POINT;
+	Light.LightDesc.eLocalEventType = LIGHT_STATE::NONE;
+	Light.LightDesc.eWorldEventType = WORLD_EVENT::END;
+	Light.LightDesc.fRange = _float2(9.f, 0.f);
+	Light.LightDesc.vDiffuse = _float4(0.4f, 0.8f, 0.4f, 1.f);
+	Light.LightDesc.vAmbient = _float4(0.2f, 40.f, 0.2f, 1.f);
+	Light.LightDesc.vSpecular = _float4(0.4f, 0.4f, 0.4f, 1.f);
+	XMStoreFloat4(&Light.LightDesc.vPos, m_pTransform->Get_State(STATE::POS) + XMVectorSet(0, 55, 15, 0));
+	m_pLight = static_pointer_cast<CWorldLight>(CGameInstance::Get().Clone_Prototype(pDesc->iLevel, L"OBJ_Light", &Light));
+	//OBJ_Player_RightHand_Effect
+	CPlayer_RightHand_Effect::RHAND_EFFECT_DESC RHandEffectDesc;
+
+	RHandEffectDesc.ParentsMatrix = m_pTransform->Get_WorldPtr();
+	RHandEffectDesc.eRightEffectType = RIGHTEFFECT::SPARK1;
+	RHandEffectDesc.piFlag = &m_iStateFlag;
+	RHandEffectDesc.vOffsetPos = _float3(-0.13f, 0.5f, -0.1f);
+	RHandEffectDesc.vOffsetScale= _float3(0.036f, 0.07f, 0.031f);
+
+	auto pObj1 = static_pointer_cast<CPlayer_RightHand_Effect>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("OBJ_Player_RightHand_Effect"), &RHandEffectDesc));
+
+	if (NULL_TRUE(pObj1)) return E_FAIL;
+	m_pRHandEffect.push_back(pObj1);
+
+	RHandEffectDesc.eRightEffectType = RIGHTEFFECT::SPARK1;
+	RHandEffectDesc.piFlag = &m_iStateFlag;
+	RHandEffectDesc.vOffsetPos = _float3(-0.13f, 1.2f, -0.1f);
+	RHandEffectDesc.vOffsetScale = _float3(1.5f,1.5f,1.5f);
+	auto pObj2  = static_pointer_cast<CRightHand_Effect_Particle>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("OBJ_RightHand_Effect_Particle"), &RHandEffectDesc));
+	
+	if (NULL_TRUE(pObj2)) return E_FAIL;
+	m_pRHandEffect.push_back(pObj2);
+	
+	
+	//RHandEffectDesc.eRightEffectType = RIGHTEFFECT::SPARK2;
+	//RHandEffectDesc.piFlag = &m_iStateFlag;
+	//RHandEffectDesc.vOffsetPos = _float3(-0.13f, 1.f, -0.1f);
+	//RHandEffectDesc.vOffsetScale = _float3(1.f, 1.f, 1.f);
+	//auto pObj3= static_pointer_cast<CRightHand_Effect_Particle>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC),
+	//	TEXT("OBJ_RightHand_Effect_Particle"), &RHandEffectDesc));
+	//
+	//if (NULL_TRUE(pObj3)) return E_FAIL;
+	//m_pRHandEffect.push_back(pObj3);
+
 	return S_OK;
 }
 void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
@@ -95,6 +147,8 @@ void CPLayer_RightHand::Priority_Update(_float fTimeDelta)
 
 	Timer(fTimeDelta);
 	m_pArm->Priority_Update(fTimeDelta);
+	for (auto& iter : m_pRHandEffect)
+		iter->Priority_Update(fTimeDelta);
 }
 void CPLayer_RightHand::Update(_float fTimeDelta)
 {
@@ -105,14 +159,28 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 	m_pArm->Set_SameFlag(m_iStateFlag);
 	m_pArm->Update(fTimeDelta);
 
+	if (Flag_Check(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT)))
+	{
+		XMStoreFloat4(&m_pLight->Get_LightDescPtr()->vPos, m_pTransform->Get_State(STATE::POS) + XMVectorSet(0, 0, 5, 0));
+		m_pLight->Set_LightState(LIGHT_STATE::LIGHT_SLOWON);
+	}
+	else
+		m_pLight->Set_LightState(LIGHT_STATE::LIGHT_OFF);
+		
+	Set_Flag(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT), FLAGVALUE::ENABLE);
+	m_pLight->Update(fTimeDelta);
 
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPLayer_RightHand));
-
+	for(auto& iter : m_pRHandEffect)
+		iter->Update(fTimeDelta);
 }
 void CPLayer_RightHand::Late_Update(_float fTimeDelta)
 {
+	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CPLayer_RightHand));
 	
+	m_pLight->Late_Update(fTimeDelta);
 	m_pArm->Late_Update(fTimeDelta);
+	for (auto& iter : m_pRHandEffect)
+		iter->Late_Update(fTimeDelta);
 }
 HRESULT CPLayer_RightHand::Render()
 {
@@ -124,6 +192,7 @@ HRESULT CPLayer_RightHand::Render()
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 		m_pShaderCom->Begin(0);
 		iter->Bind_Resource();
 		iter->Render();

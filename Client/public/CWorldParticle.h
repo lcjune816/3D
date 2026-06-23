@@ -35,6 +35,8 @@ public:
 	virtual json	Save_Data();
 	virtual HRESULT Bind_Resource(const _char* pConstantName, shared_ptr<class CShader> pShader) override;
 	virtual void OnNotify(const EVENT& eEvent) override;
+
+	virtual HRESULT			Render_Bloom() override;
 private:
 	HRESULT			Ready_Component();
 	void			Fog_Controller(const _float& fTimeDelta);

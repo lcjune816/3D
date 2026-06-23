@@ -50,6 +50,7 @@ HRESULT CInstance_WorldObject::Render()
 	m_pShaderCom->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
 	m_pShaderCom->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
 	m_pViBufferCom->Bind_ResourceSRV(m_pShaderCom.get(), "g_DiffuseTexture", aiTextureType_DIFFUSE, 0);
+	m_pViBufferCom->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 	m_pShaderCom->Begin(0);
 	m_pViBufferCom->Bind_Resource();
 	m_pViBufferCom->Render();

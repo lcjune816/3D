@@ -28,6 +28,10 @@ public:
 public:
 	_bool Fog_Spread(const _float& fTimeDelta);
 	void Spark(const _float& fTimeDelta);
+	void Spark1(const _float& fTimeDelta);
+	void Spark2(const _float& fTimeDelta);
+	void Spark3(const _float& fTimeDelta);
+
 	_bool Steam(const _float& fTimeDelta);
 private:
 	shared_ptr<VTXINSTANCE_PARTICLE[]>			m_pInstanceData = { nullptr };

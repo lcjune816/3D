@@ -19,9 +19,6 @@ public:
 
 	HRESULT Add_RenderToParticle(shared_ptr<class CParticleObject> pObj);
 	const uint32_t		Get_RanderCall() { return iRanderCall; }
-	_bool  Culling(CGameObject* pObjm, _vector* vec);
-private:
-	void		Culling_Calcurator(_fvector* vP);
 
 	
 private:
@@ -30,26 +27,39 @@ private:
 	list<shared_ptr<CGameObject>>	m_RenderObjects[ETOUI(RENDERGROUP::END)];
 
 	uint32_t						iRanderCall = {};
+	int32_t							iDebuhRender{};
 
+	_float							m_iSampleing[2]{ 2.f,4.f };
 private:
 	shared_ptr<class CRect>			 m_pVIBuffer = { nullptr };
 	shared_ptr<class CShader>		 m_pShader = { nullptr };
 	weak_ptr<class CParticleObject>m_pParticleFog = {};
 	_float4x4						 m_WorldMatrix{}, m_ViewMatrix{}, m_ProjMatrix{};
+	_float2							m_fViewPortSize{};
 
+	void							SetUp_ViewPort(uint32_t iWidth, uint32_t iHeight);
 private:
 	HRESULT	Render_Priority();
 	HRESULT Render_NonBlend();
 	HRESULT Render_Lights();
+	HRESULT Render_LightsBloom();
+
 	HRESULT	Render_Fog();
 	HRESULT Render_Combined();
 	HRESULT Render_NonLights();
 	HRESULT Render_Blend();
 
 	HRESULT Render_BloomBefore(); 
-	HRESULT Render_Bloom();
-	HRESULT Render_Blur();
+	HRESULT Render_Emissive();
+	
+	HRESULT Render_BlurHorizontal();
+	HRESULT Render_BlurVertical();
+	
 	HRESULT Render_BloomCombine();
+	HRESULT Render_DownSample();
+	HRESULT Render_DownSampleBlur();
+	HRESULT Render_UpSampleBlur();
+	//HRESULT Render_UpSample();
 
 	HRESULT Render_UI();
 

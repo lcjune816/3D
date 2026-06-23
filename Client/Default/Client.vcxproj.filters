@@ -258,6 +258,12 @@
     <ClInclude Include="..\public\FSM_Dead.h">
       <Filter>02.GameObject\02.Player\FSM_Move</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Player_RightHand_Effect.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\RightHand_Effect_Particle.h">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -408,6 +414,12 @@
     <ClCompile Include="..\private\FSM_Dead.cpp">
       <Filter>02.GameObject\02.Player\FSM_Move</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Player_RightHand_Effect.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\RightHand_Effect_Particle.cpp">
+      <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl">
@@ -435,6 +447,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Fog.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Effect.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

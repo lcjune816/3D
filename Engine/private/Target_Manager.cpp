@@ -53,7 +53,8 @@ HRESULT CTarget_Manager::Begin_MRT(const _wstring& strMRTTag)
         return E_FAIL;
 
     m_pContext->OMGetRenderTargets(1, &m_pBackBufferRTV, &m_pOriginalDSV);
-
+    uint32_t       iViewPort{1};
+    m_pContext->RSGetViewports(&iViewPort, &m_ViewPort);
     ComPtr<ID3D11RenderTargetView>     RenderTargets[8] = {};
 
     uint32_t        iNumRenderTargets = { 0 };
@@ -73,8 +74,8 @@ HRESULT CTarget_Manager::End_MRT()
 {
     ID3D11RenderTargetView*      RenderTargets[8] = { m_pBackBufferRTV.Get(),nullptr};
 
+    m_pContext->RSSetViewports(1, &m_ViewPort);
     m_pContext->OMSetRenderTargets(8, RenderTargets, m_pOriginalDSV.Get());
-
     return S_OK;
 }
 

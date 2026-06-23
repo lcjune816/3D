@@ -10,7 +10,7 @@ public:
 		_bool  check = true;
 		KEYANI Key;
 		int32_t index;
-		uint32_t ID;
+		uint32_t	ID;
 		uint32_t	iNumPosition;
 		uint32_t	iNumRotation;
 		uint32_t	iNumScale;

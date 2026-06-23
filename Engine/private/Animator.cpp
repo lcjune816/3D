@@ -187,6 +187,23 @@ vector<string>& CAnimator::Get_NameList()
 {
 	return m_pCurrentAnimation.get()->Get_NameList();
 }
+_float4x4* CAnimator::Find_OriginBone(const string& Name)
+{
+	auto Index = m_BoneList.find(Name);
+
+	if (Index == m_BoneList.end())
+		return nullptr;
+
+	for (size_t i = 0; i < m_pCurrentAnimation->Get_BoneInfo().size(); ++i)
+	{
+		if (m_pCurrentAnimation->Get_BoneInfo()[i].index == Index->second)
+			return &m_pCurrentAnimation->Get_BoneInfo()[i].matBone;
+		
+
+	}
+	
+	return nullptr;
+}
 void CAnimator::Player_Animation(unique_ptr<CAnimation> pAin)
 {
 	m_pCurrentAnimation = std::move(pAin);

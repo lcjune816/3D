@@ -66,6 +66,7 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	CPlayer_LeftHand::LEFT_HAND_DESC pLeftDesc;
 
 	pDesc.ParentsMatrix = m_pTransform->Get_WorldPtr();
+	pDesc.iLevel = m_iLevel;
 	pLeftDesc.ParentsMatrix = m_pTransform->Get_WorldPtr();
 
 	auto RHand = static_pointer_cast<CPLayer_RightHand>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"OBJ_PlayerRightHand", &pDesc));
@@ -239,6 +240,8 @@ HRESULT CPlayer::Render()
 	for (auto iter : m_pMeshList)
 	{
 		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_Diffuse", aiTextureType_DIFFUSE, 0);
+
+		iter->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 		m_pShaderCom->Begin(0);
 		iter->Bind_Resource();
 		iter->Render();

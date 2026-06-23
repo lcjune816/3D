@@ -11,6 +11,8 @@
 #include "CWorldParticle.h"
 #include "GuiObject.h"
 #include "WorldLight.h"
+
+
 ///////////플레이어/////////
 #include "Player.h"
 #include "PlayerAim.h"
@@ -26,6 +28,8 @@
 #include "FSM_Dead.h"
 #include "FSM_RightHand.h"
 #include "Player_Light.h"
+#include "Player_RightHand_Effect.h"
+#include "RightHand_Effect_Particle.h"
 /////////////////보스//////////////
 #include "Boss_Teacher.h"
 #include "Teacher_FSM.h"

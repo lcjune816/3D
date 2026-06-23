@@ -118,7 +118,7 @@ namespace Engine
 	{
 		_float	  G, H, F;
 		int32_t   iParent_node{-1}, iNode_Nubmer;
-		_float3	  Pos;
+		_float3	  Pos, vDir;
 		_float3   Arrow[2];
 	}ENGINE_ASTAR;
 
@@ -210,7 +210,7 @@ namespace Engine
 		_float4		fRight, fUp, fLook, fTranslation;
 		_float4     fUv;
 		_float2	    fLifeTime;
-		_float	    fTick{};
+		_float4	    fTick{};
 	}VTXINSTANCE_PARTICLE;
 	typedef struct tagVertexInstanceMesh
 	{

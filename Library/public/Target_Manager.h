@@ -31,6 +31,8 @@ private:
 	ComPtr<ID3D11RenderTargetView> m_pBackBufferRTV = { nullptr };
 	ComPtr<ID3D11DepthStencilView> m_pOriginalDSV = { nullptr };
 
+	
+	D3D11_VIEWPORT					m_ViewPort{};
 private:
 	map<const _wstring, shared_ptr<class CRenderTarget>> m_RenderTargets;
 	map<const _wstring, list<shared_ptr<class CRenderTarget>>> m_MRTs;

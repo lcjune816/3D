@@ -42,11 +42,15 @@ private:
 	
 	_bool								m_bShoot = false;
 	_float4x4							m_offSet = {};
+	
 	shared_ptr<Engine::CCube>			m_pBoxMesh = { nullptr };
 
 	_float4x4							m_matOffset{};
 	vector<uint32_t>					m_MeshNameList;
 	strGrabarm							m_ArmMatrix;
+
+	
+	uint32_t							m_iTextureId;
 public:
 	static unique_ptr<CPlayer_Arm> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

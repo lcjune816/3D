@@ -86,8 +86,14 @@ void CWorldParticle::Update(_float fTimeDelta)
 }
 void CWorldParticle::Late_Update(_float fTimeDelta)
 {
-	if(m_eParticleEmitType != PARTICLE::FOG_CONTROLLER)
-	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
+	if (m_eParticleEmitType != PARTICLE::FOG_CONTROLLER)
+	{
+		if (m_eParticleEmitType != PARTICLE::SPARK)
+			CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
+		else
+			CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLOOM_BEFORE, SHARED_THIS(CWorldParticle));
+	}
+		
 }
 HRESULT CWorldParticle::Render()
 {
@@ -181,6 +187,28 @@ void CWorldParticle::OnNotify(const EVENT& eEvent)
 		m_bStart = true;
 		break;
 	}
+}
+HRESULT CWorldParticle::Render_Bloom()
+{
+	_float4x4 matWorld{};
+	_float4 fColor = { 0.5,0.5f,0.5f,1.f };
+
+	XMStoreFloat4x4(&matWorld, m_pTransform->Get_World());
+
+	m_pTransform->Bind_Matrix(m_pShaderCom, "g_WorldMatrix");
+	m_pShaderCom->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	m_pShaderCom->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	m_pShaderCom->Bind_RawValue("g_vCamePosition", CGameInstance::Get().Get_CamPosition(), sizeof _vector);
+	_float4 fText = *CGameInstance::Get().ColorTester();
+	m_pShaderCom->Bind_RawValue("g_Color", &fText, sizeof _float4);
+	if (m_iTextureID != -1)
+		m_pShaderCom->Bind_SRV("g_Texture", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
+	m_pShaderCom->Begin(1);
+
+	m_pVIBufferCom->Bind_Resource();
+	m_pVIBufferCom->Render();
+
+	return S_OK;
 }
 HRESULT CWorldParticle::Ready_Component()
 {

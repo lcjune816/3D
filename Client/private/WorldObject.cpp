@@ -118,6 +118,7 @@ HRESULT CWorldObject::Render()
 		if (pMesh == nullptr)
 			continue;
 
+		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_NormalTexture", aiTextureType_NORMALS, 0);
 		pMesh->Bind_ResourceSRV(m_pShaderCom.get(), "g_DiffuseTexture", aiTextureType_DIFFUSE, 0);
 		m_pShaderCom->Begin(0);
 		pMesh->Bind_Resource();

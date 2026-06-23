@@ -262,6 +262,7 @@ HRESULT CLoader::Loading_For_GamePlay()
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Light"),
 		CWorldLight::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+	
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Instancing_WorldObject"),
 		CInstance_WorldObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
@@ -270,6 +271,12 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Player_RightHand_Effect"),
+		CPlayer_RightHand_Effect::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_RightHand_Effect_Particle"),
+		CRightHand_Effect_Particle::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	CVIBuffer_Particle_Point::PARTICLE_INSTANCE_DESC ParticleDesc{};
 
 	ParticleDesc.fRange = _float3(5.f, 20.f, 5.f);
@@ -281,6 +288,30 @@ HRESULT CLoader::Loading_For_GamePlay()
 	ParticleDesc.vSize = _float2(0.005f, 0.4f);
 	ParticleDesc.vSpeed = _float2(10.f, 15.f);
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("Component_Buffer_Particle_Spark"),
+		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
+		return E_FAIL;
+	
+	ParticleDesc.fRange = _float3(0.5f,0.6f,0.5f);
+	ParticleDesc.iNumInstances = 60;
+	ParticleDesc.isLoop = true;
+	ParticleDesc.vCenter = _float3(0, 0, 0);
+	ParticleDesc.vGrid = _float2(3.f, 2.f);
+	ParticleDesc.vLifeTime = _float2(0.1, 1.f);
+	ParticleDesc.vSize = _float2(0.2f, 0.2);
+	ParticleDesc.vSpeed = _float2(0.2, 0.4f);
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Buffer_Particle_Spark2"),
+		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
+		return E_FAIL;
+
+	ParticleDesc.fRange = _float3(0.5f, 1.8f, 1.5f);
+	ParticleDesc.iNumInstances = 100;
+	ParticleDesc.isLoop = true;
+	ParticleDesc.vCenter = _float3(0, 0, 0);
+	ParticleDesc.vGrid = _float2(2.f, 2.f);
+	ParticleDesc.vLifeTime = _float2(0.1, 1.f);
+	ParticleDesc.vSize = _float2(1.2, 1.5);
+	ParticleDesc.vSpeed = _float2(0.2, 0.4f);
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("Component_Buffer_Particle_Spark3"),
 		CVIBuffer_Particle_Point::Create(m_pDevice, m_pContext, &ParticleDesc))))
 		return E_FAIL;
 

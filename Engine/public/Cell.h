@@ -1,5 +1,10 @@
 #pragma once
 #include "Engine_Defines.h"
+
+struct CheckArrow {
+	_float fDis;
+	_float3 vPos;
+};
 NS_BEGIN(Engine)
 class CCell final
 {
@@ -7,6 +12,7 @@ private:
 	CCell(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 public:
 	~CCell();
+
 
 public:
 	HRESULT Initialize(NAVI Navi, CELL_EVENT eEvent, int32_t iIndex, _float3* pPoints = nullptr);

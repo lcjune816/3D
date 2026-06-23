@@ -80,6 +80,7 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 	{
 		m_fPos = eEvent.fPos;
 		m_iIndex = eEvent.iIndex;
+		m_fTimeCnt = 0.f;
 		m_eAction = FSM_ACTION::EVENT;
 		m_bStop = false;
 	}
@@ -104,7 +105,7 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 
 	}else if(eEvent.eEvent == WORLD_EVENT::BOSS_DEAD)
 	{
-		pMachine->Change_State(FSM::END);
+		pMachine->Change_State(FSM::DEAD);
 
 	}
 		
@@ -165,7 +166,7 @@ void CFSM_Teacher_Move::Boss_Tp(shared_ptr<CBoss_Teacher>pBoss, shared_ptr<CTran
 		++m_fTimeCnt;
 	}
 
-	if (m_fTimeCnt >= 3.f)
+	if (m_fTimeCnt >= 1.5f)
 	{
 		auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 		pNavi->Set_CurrentIndex(m_iIndex);

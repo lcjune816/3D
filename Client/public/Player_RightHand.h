@@ -11,12 +11,15 @@ NS_BEGIN(Client)
 class CPLayer_RightHand : public CPlayer
 {
 public:
-	typedef struct strPlayerRightHand
+	typedef struct strPlayerRightHand : public CGameObject::GAMEOBJECT_DESC
 	{
 		_float4x4* ParentsMatrix; 
 		_float4x4   BoneoffsetMatrix;
+		
 	}RIGHT_HAND_DESC;
-private:
+protected:
+	enum class RIGHTEFFECT { SPARK1 = 2, SPARK2};
+protected:
 	CPLayer_RightHand(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	CPLayer_RightHand(const CPLayer_RightHand& Prototye);
 public:
@@ -43,12 +46,13 @@ private:
 	HRESULT					Ready_Component();
 private:
 	shared_ptr<class CPlayer_Arm>		m_pArm = { nullptr };
+	shared_ptr<class CWorldLight>		m_pLight{ nullptr };
+	vector<shared_ptr<CPLayer_RightHand>> m_pRHandEffect{ };
+protected:
 	weak_ptr<class CPlayer>				m_pPlayer;
-
 private:
 	int32_t								m_iOffsetIndex = {};
 	_float4x4							m_fOffsetMatrix, m_FinalWorldMatrix;
-	_float4x4							m_bones[BONE_MATRIX];
 
 	_float4x4*							m_ParentsMatrix{};
 	HAND_STATE							m_tagHandState = {};

@@ -6,7 +6,12 @@ NS_BEGIN(Engine)
 enum class OWNER{PLAYER,BOSS,END};
 class ENGINE_DLL CNavigation final : public CComponent
 {
-
+//	XMFLOAT3& operator=(const XMFLOAT3&) = default;
+	struct PunnelArrow
+	{
+		PunnelArrow(_float3* pArrow) { Arrow[0] = pArrow[0]; Arrow[1] = pArrow[1]; }
+		_float3 Arrow[2];
+};
 public:
 	typedef struct strnavigationdesc
 	{
@@ -29,10 +34,11 @@ public:
 	_bool  InMove(_fvector vResultPos, _float3* fDir = nullptr);
 	_vector SetUp_OnNavigation(_fvector vPos, _float offsetY);
 	_bool	AStartAlgorithm(const uint32_t endLayerIndex, const _wstring& LayerName, const _char* tagName, _fvector SrcPos, _float3* fPos);
+	void	PunnelAlgorithm(_fvector vSrcPos);
 	_vector	MoveToAstar(_fvector vPos, const _float& fSpeed, const _float& fTimeDelta, _float3* vLook);
 	void	Event_Check(CELL_EVENT eCellEvent);
 	void	Reset_Astar();
-	void   Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
+	void    Set_CurrentIndex(int32_t index) { m_iCurretnCellindex = index; }
 	_vector Get_CellEventPos(CELL_EVENT eType);
 
 	void	ReSearchCell(_fvector vPos);
@@ -70,6 +76,7 @@ private:
 	list<ENGINE_ASTAR>					m_AstarCloseList;
 	list<ENGINE_ASTAR>					m_MoveToList;
 
+	list<PunnelArrow>					m_PunnelList;
 	_bool								m_bIsIn{true};
 	OWNER								m_eOwner;
 	CELL_EVENT							m_eEvent{};

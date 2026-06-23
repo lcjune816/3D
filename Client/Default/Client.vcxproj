@@ -181,6 +181,8 @@
     <ClInclude Include="..\public\Player_LeftHand.h" />
     <ClInclude Include="..\public\Player_Light.h" />
     <ClInclude Include="..\public\Player_RightHand.h" />
+    <ClInclude Include="..\public\Player_RightHand_Effect.h" />
+    <ClInclude Include="..\public\RightHand_Effect_Particle.h" />
     <ClInclude Include="..\public\Stageone_Terrain.h" />
     <ClInclude Include="..\public\Teacher_FSM.h" />
     <ClInclude Include="..\public\TriggerObject.h" />
@@ -231,6 +233,8 @@
     <ClCompile Include="..\private\Player_LeftHand.cpp" />
     <ClCompile Include="..\private\Player_Light.cpp" />
     <ClCompile Include="..\private\Player_RightHand.cpp" />
+    <ClCompile Include="..\private\Player_RightHand_Effect.cpp" />
+    <ClCompile Include="..\private\RightHand_Effect_Particle.cpp" />
     <ClCompile Include="..\private\Stageone_Terrain.cpp" />
     <ClCompile Include="..\private\Teacher_FSM.cpp" />
     <ClCompile Include="..\private\TriggerObject.cpp" />
@@ -264,6 +268,10 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Effect.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxInsatncing_Fog.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
