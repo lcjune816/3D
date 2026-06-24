@@ -72,6 +72,7 @@ HRESULT CPlayerAim::Render()
 	m_pShader->Begin(0);
 	m_pBuffer->Bind_Resource();
 	m_pBuffer->Render();
+
 	return S_OK;
 }
 

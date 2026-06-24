@@ -395,6 +395,7 @@ void CPlayer::Timer(const _float& fTimeDelta)
 	{
 		m_fTimerCnt = 0;
 		uint32_t iFlag = ETOUI(PLAYER_FLAG::END);
+		PLAY_SOUND(PLAYER_SOUND_ELECTRIC_OFF, CHANNELID::SOUND_EFFECT02, 0.5f);
 		Set_Flag(iFlag,FLAGVALUE::RESET);
 	}
 

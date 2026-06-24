@@ -189,6 +189,7 @@
     <ClInclude Include="..\public\UILoadingScreen.h" />
     <ClInclude Include="..\public\WorldLight.h" />
     <ClInclude Include="..\public\WorldObject.h" />
+    <ClInclude Include="..\public\WorldUI.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Resource.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="..\private\UILoadingScreen.cpp" />
     <ClCompile Include="..\private\WorldLight.cpp" />
     <ClCompile Include="..\private\WorldObject.cpp" />
+    <ClCompile Include="..\private\WorldUI.cpp" />
     <ClCompile Include="Client.cpp" />
   </ItemGroup>
   <ItemGroup>

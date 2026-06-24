@@ -10,11 +10,16 @@ namespace Client
 #define PLAYER_SOUND_BACK_GRAB L"SW_Grabpack_HandRetract_01.wav"
 #define PLAYER_SOUND_CABLE L"SW_Grabpack_HandLaunch_Cable_LOOP.wav"
 #define PLAYER_SOUND_BLUE_ELECTRIC L"SW_GrabTurret_ElectricCurrent_LOOP.wav"
+#define PLAYER_SOUND_ELECTRIC_OFF L"SW_Conduit_ElectricPole_Discharged.wav"
+
 //보스관련
 #define TEACHER_BGM_SOUND1 L"SW_School_Ambience_LOOP.wav"
 #define TEACHER_BGM_SOUND2 L"SW_Today_s_Lesson_Survival_Music_LOOP_03.wav"
 #define TEACHER_BREAKDOOR L"TEMP_SW_Teacher_BreakDoor_01.wav"
-#define TEACHER_WALK		L"SW_Teacher_Footstep_Default_06.wav"
+
+#define TEACHER_WALK1		L"SW_Teacher_Footstep_Default_01.wav"
+#define TEACHER_WALK2		L"SW_Teacher_Footstep_Default_02.wav"
+#define TEACHER_WALK3		L"SW_Teacher_Footstep_Default_03.wav"
 #define TEACHER_BREATH		L"SW_MissDelight_Breath_03.wav"
 #define TEACHER_DEADTH		L"SW_MissDelight_Death.wav"
 
@@ -23,5 +28,8 @@ namespace Client
 #define CAT_JUMPSCARE		L"SW_NightmareCatNap_Jumpscare.wav"
 #define CAT_GAS				L"SW_CatNap_SpewingGas_LOOP.wav"
 #define CAT_ELEVATOR		L"SW_CatNap_Fence_Footstep_01.wav"
-#define CAT_WALK			L"SW_Nightmare_Catnap_Footstep_04.wav"
+#define CAT_WALK1			L"SW_Nightmare_Catnap_Footstep_04.wav"
+#define CAT_WALK2			L"SW_Nightmare_Catnap_Footstep_05.wav"
+#define CAT_WALK3			L"SW_Nightmare_Catnap_Footstep_06.wav"
+	 
 }

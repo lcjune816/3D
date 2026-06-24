@@ -19,6 +19,9 @@ HRESULT CFSM_Cat_Nightmare::Initialize(void* pArg)
 
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Cat_Nightmare));
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT3, SHARED_THIS(CFSM_Cat_Nightmare));
+	m_SoundName[0] = CAT_WALK1;
+	m_SoundName[1] = CAT_WALK2;
+	m_SoundName[2] = CAT_WALK3;
 	m_eAction = FSM_ACTION::IDLE;
 	return S_OK;
 }
@@ -58,10 +61,15 @@ void CFSM_Cat_Nightmare::Update_State(_float fTimeDelta)
 
 	case FSM_ACTION::EVENT:
 		if (pBoss->Get_Finished())
+		{
+			EVENT eEvent{};
+			eEvent.eEvent = WORLD_EVENT::BOSS_LIGHT_OFF;
+			CGameInstance::Get().Notify(WORLD_EVENT::BOSS_LIGHT_OFF,eEvent);
 			m_eAction = FSM_ACTION::END;
+		}
 
 		IS_PLAYSOUND(CAT_ELEVATOR, CHANNELID::SOUND_BOSS, 0.6f);
-		SOUND_SPEED(CHANNELID::SOUND_BOSS, 0.9f);
+		SOUND_SPEED(CHANNELID::SOUND_BOSS, 0.91f);
 		break;
 	case FSM_ACTION::DEAD:
 		break;
@@ -104,14 +112,14 @@ void CFSM_Cat_Nightmare::Action(shared_ptr<CTransform> pTransform, shared_ptr<CB
 	_vector vLinearPos = XMVectorLerp(XMLoadFloat3(&m_fCurrentPos), vDestPos, fTime);
 	pTransform->Set_State(STATE::POS, XMVectorSetW(vLinearPos,1.f));
 
-	IS_PLAYSOUND(CAT_WALK, CHANNELID::SOUND_BOSS, 0.7f);
-	SOUND_SPEED(CHANNELID::SOUND_BOSS, 7.f);
+	uint32_t iRand = rand() % 3;
+	IS_PLAYSOUND(m_SoundName[iRand], CHANNELID::SOUND_BOSS, 0.7f);
+	SOUND_SPEED(CHANNELID::SOUND_BOSS, 3.f);
 	if (fTime >= 1.f)
 	{
 		m_fTick = 0.f;
 
 		pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::WALK, false);
-
 		m_eAction = FSM_ACTION::RETURN;
 	}
 }
@@ -136,7 +144,7 @@ void CFSM_Cat_Nightmare::Action_Return(shared_ptr<CTransform> pTransform, shared
 
 		SOUND_SPEED(CHANNELID::SOUND_BOSS, 1.f);
 		auto pAnimator = static_pointer_cast<CAnimator>(pBoss->Find_Component(L"Com_Animator_Nightmare"));
-		pAnimator->Set_Double_Speed(1.f);
+		pAnimator->Set_Double_Speed(1.0f);
 		pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::ELEVEATOR, false, false);
 		m_eAction = FSM_ACTION::EVENT;
 	}

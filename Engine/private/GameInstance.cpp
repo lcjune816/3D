@@ -18,6 +18,9 @@
 #include "Particle_Manager.h"
 #include "Target_Manager.h"
 #include "SoundManager.h"
+#include "Font_Manager.h"
+#include "UIManager.h"
+
 CGameInstance::CGameInstance()
 {
 
@@ -110,6 +113,14 @@ HRESULT CGameInstance::Initialize_Engine(const ENGINE_DESC& EngineDesc, ComPtr<I
 	if (NULL_TRUE(m_pSound_Manager))
 			return E_FAIL;
 
+	m_pFont_Manager = CFont_Manager::Create(pOutDevice, pOutContext);
+	if (NULL_TRUE(m_pFont_Manager))
+		return E_FAIL;
+
+
+	m_pUI_Manager = CUIManager::Create(EngineDesc.iNumLevels);
+	if (NULL_TRUE(m_pFont_Manager))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -124,11 +135,15 @@ HRESULT	CGameInstance::Update_Engine(_float fTimeDelta)
 	m_pLevel_Manager->Priority_Update(fTimeDelta);
 	m_pObject_Manager->Priority_Update(fTimeDelta);
 	m_pParticle_Manager->Priority_Update_Particle(fTimeDelta);
-	 
+	m_pUI_Manager->Priority_Update(fTimeDelta);
+
 	m_pObject_Manager->Update(fTimeDelta);
 	m_pParticle_Manager->Update_Particle(fTimeDelta);
+	m_pUI_Manager->Update(fTimeDelta);
+
 	m_pObject_Manager->Late_Update(fTimeDelta);
 	m_pParticle_Manager->Late_Update_Particle(fTimeDelta);
+	m_pUI_Manager->Late_Update(fTimeDelta);
 	m_pLevel_Manager->Update(fTimeDelta);
 	
 
@@ -159,6 +174,8 @@ void CGameInstance::Clear_Resources(uint32_t iClearLevelIndex)
 	m_pLight_Manager->Clear(iClearLevelIndex);
 
 	m_pParticle_Manager->Clear(iClearLevelIndex);
+	
+	m_pUI_Manager->Clear(iClearLevelIndex);
 }
 #pragma region RENDERER
 
@@ -227,7 +244,16 @@ vector<uint32_t>* CGameInstance::Get_MeshIndicesLists(uint32_t index)
 	return m_pAssimp_Manager->Get_MeshIndicesLists(index);
 }
 #pragma endregion
-
+#pragma region FONT_MANAGER
+HRESULT CGameInstance::Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath)
+{
+	return m_pFont_Manager->Add_Font(strFontTag, pFontFilePath);
+}
+void CGameInstance::Draw_Text(const _wstring& strFontTag, const _tchar* pText, const _float2& vPosition, float fScale, _fvector vColor,  _float fRotation , const _float2& vOrigin )
+{
+	m_pFont_Manager->Draw(strFontTag, pText, vPosition, fScale, vColor, fRotation, vOrigin);
+}
+#pragma endregion
 #pragma region LIGHT_MANAGER
 
 
@@ -669,6 +695,10 @@ void	  CGameInstance::Save_ParticleData(uint32_t iNumLevel, const _wstring& path
 	m_pParticle_Manager->Save_ParticleData(iNumLevel, path, strJsonKeyName);
 }
 
+void	 CGameInstance::Add_UI(uint32_t iLevelIndex, shared_ptr<class CUIObject> pUI)
+{
+	m_pUI_Manager->Add_UI(iLevelIndex, pUI);
+}
 #pragma SOUND_MANAGER
 
 HRESULT	    CGameInstance::Play_Sound_Once(CONST TCHAR* _FilePath, CHANNELID _SoundChannel, _float Volume)
@@ -718,6 +748,8 @@ void CGameInstance::Release_Engine()
 	m_pSound_Manager.reset();
 	m_pInstancing.reset();
 
+	m_pFont_Manager.reset();
+	m_pUI_Manager.reset();
 	m_pTarget_Manager.reset();
 
 	m_pNavi_Manager.reset();

@@ -89,7 +89,7 @@ void CWorldParticle::Late_Update(_float fTimeDelta)
 	if (m_eParticleEmitType != PARTICLE::FOG_CONTROLLER)
 	{
 		if (m_eParticleEmitType != PARTICLE::SPARK)
-			CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONLIGHT, SHARED_THIS(CWorldParticle));
+			CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLEND, SHARED_THIS(CWorldParticle));
 		else
 			CGameInstance::Get().Add_RenderObject(RENDERGROUP::BLOOM_BEFORE, SHARED_THIS(CWorldParticle));
 	}
@@ -116,20 +116,20 @@ HRESULT CWorldParticle::Render()
 	m_pVIBufferCom->Render();
 	
 	
-	if (m_bBoxColor)
-		fColor = { 1.f,0.f,0.f,1.f };
-	m_pBoxShader->Bind_Matrix("g_World", &matWorld);
-	m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
-	m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
-	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
-	m_pBoxShader->Begin(0);
-	
-	m_pBoxMesh->Bind_Resource();
-	m_pBoxMesh->Render();
-
-
-	fColor = { 0.f,0.f,0.f,0.f };
-	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	//if (m_bBoxColor)
+	//	fColor = { 1.f,0.f,0.f,1.f };
+	//m_pBoxShader->Bind_Matrix("g_World", &matWorld);
+	//m_pBoxShader->Bind_Matrix("g_View", CGameInstance::Get().Get_Transform(D3DTS::VIEW));
+	//m_pBoxShader->Bind_Matrix("g_Projection", CGameInstance::Get().Get_Transform(D3DTS::PROJ));
+	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
+	//m_pBoxShader->Begin(0);
+	//
+	//m_pBoxMesh->Bind_Resource();
+	//m_pBoxMesh->Render();
+	//
+	//
+	//fColor = { 0.f,0.f,0.f,0.f };
+	//m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof(fColor));
 
 	return S_OK;
 }
@@ -186,6 +186,9 @@ void CWorldParticle::OnNotify(const EVENT& eEvent)
 	case WORLD_EVENT::BOSS_SPAWN:
 		m_bStart = true;
 		break;
+	case WORLD_EVENT::BOSS_LIGHT_OFF:
+		m_bReset = true;
+		break;
 	}
 }
 HRESULT CWorldParticle::Render_Bloom()
@@ -236,25 +239,48 @@ HRESULT CWorldParticle::Ready_Component()
 
 void CWorldParticle::Fog_Controller(const _float& fTimeDelta)
 {
+	if (m_bReset)
+	{
+		m_fTick += fTimeDelta;
+		_float t = min(m_fTick / 15.f, 1.f);
+		LIGHT_DESC Desc = *CGameInstance::Get().Find_LightMtrl(LIGHT::DIRECTIONAL);
+		
+		_float4 vAmbient = {};
+		XMStoreFloat4(&Desc.vAmbient,XMVectorLerp(XMLoadFloat4(&m_fLightAmbient), XMVectorSet(0.1, 0.1, 0.1, 0.f), t));
+		
+		CGameInstance::Get().Set_LightDesc(Desc);
+		XMStoreFloat4(&m_vFog, XMVectorLerp(XMVectorSet(0.45f, 0.01f, 0.01f, 0.f), XMVectorSet(0, 0, 0, 0) , t));
+		m_fFogDistance = m_fCurFogDistance + (2000 - m_fCurFogDistance) * t;
+		
+		if (t >= 1.f)
+		{
+			m_fTick = 0.f;
+			m_bReset = false;
+		}
+	}
+
 	if (!m_bStart)
 		return;
 	m_fTick += fTimeDelta;
 
-	_float t = min(m_fTick / 10.f,1.f);
+	_float t = min(m_fTick / 4.f,1.f);
 	
 	
 	XMStoreFloat4(&m_vFog, XMVectorLerp(XMVectorSet(0, 0, 0, 0), XMVectorSet(0.45f, 0.01f, 0.01f, 0.f),t));
-	m_fFogDistance = 1000 - (200 + 1000) * t;
+	m_fFogDistance = 2000 - (350 + 2000) * t;
 	
 	if (t >= 1.f)
 	{
-		m_bStart = true;
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_LIGHT_OFF, SHARED_THIS(CWorldParticle));
+		m_fTick = 0.f;
+		m_bStart = false;
+		m_fCurFogDistance = m_fFogDistance = 350;
+		LIGHT_DESC Desc = *CGameInstance::Get().Find_LightMtrl(LIGHT::DIRECTIONAL);
+		m_fLightAmbient = Desc.vAmbient;
 	}
-	if (m_fFogDistance <= 3500)
-	{
-		m_fFogDistance = 350;
-	}
-		
+
+	if (m_fFogDistance <= 350.f)
+		m_fFogDistance = 350.f;
 }
 
 void CWorldParticle::Load_Data(void* pDesc, const json& j)

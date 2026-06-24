@@ -264,6 +264,9 @@
     <ClInclude Include="..\public\RightHand_Effect_Particle.h">
       <Filter>02.GameObject\02.Player</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\WorldUI.h">
+      <Filter>02.GameObject\20.WorldObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -419,6 +422,9 @@
     </ClCompile>
     <ClCompile Include="..\private\RightHand_Effect_Particle.cpp">
       <Filter>02.GameObject\02.Player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\WorldUI.cpp">
+      <Filter>02.GameObject\20.WorldObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

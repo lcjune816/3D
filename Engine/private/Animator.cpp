@@ -147,7 +147,7 @@ void CAnimator::Update(_float fTimeDelta)
 			else
 			{
 				m_fLerpTick += fTimeDelta;
-				_float t = min(1.f,m_fLerpTick / 2.2f);
+				_float t = min(1.f,m_fLerpTick / 1.4f);
 				m_fNoLoopTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t;
 				m_fCurrentTime = 0 + (m_pCurrentAnimation->Get_Duration(m_iAnimationNumber) - 0) * t;
 			}

@@ -59,6 +59,7 @@ private:
 	HRESULT Render_DownSample();
 	HRESULT Render_DownSampleBlur();
 	HRESULT Render_UpSampleBlur();
+
 	//HRESULT Render_UpSample();
 
 	HRESULT Render_UI();

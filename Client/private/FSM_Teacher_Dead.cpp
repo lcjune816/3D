@@ -22,7 +22,6 @@ void CFSM_Teacher_Daed::Enter_State()
 	auto Boss = m_pBoss.lock();
 	if (NULL_TRUE(Boss)) return;
 	//Boss->GetAnimator()->Set_RootNode(false);
-	Boss->Change_Animation(TEACHER_ANIME::DEAD_FAST,false);
 	Boss->GetAnimator()->Set_RootNode(false);
 	m_eAction = FSM_ACTION::ACTION;
 	PLAY_SOUND(TEACHER_DEADTH, CHANNELID::SOUND_BOSS, 0.7f);
@@ -71,8 +70,6 @@ void CFSM_Teacher_Daed::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr
 		pBoss->GetAnimator()->Stop_Animation(true);
 		m_eAction = FSM_ACTION::RETURN;
 	}
-		
-
 }
 
 void CFSM_Teacher_Daed::Change_Dead(shared_ptr<CBoss_Teacher> pBoss, const _float& fTimeDelta)

@@ -29,7 +29,7 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 		return E_FAIL;
 
 	Engine::IMPORTMODEL_DESC importModel;
-	importModel.pFile = "../Resource/Character/Player/PlayerCable2.fbx";
+	importModel.pFile = "../Resource/Character/Player/PlayerCable.fbx";
 	importModel.bAllModel = 1;
 	importModel.eType = MESH_TYPE::NONANIME;
 
@@ -43,13 +43,13 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 
 	CGameInstance::Get().ImportModel_NonAnime(importModel, m_pTransform, m_MeshNameList);
 
-	m_ArmMatrix.Matrix.resize(100);
+	m_ArmMatrix.Matrix.resize(800);
 	XMStoreFloat4x4(&m_matOffset, XMMatrixIdentity());
 	CGameInstance::Get().Add_Decal_Texture("../../Resource/Character/Effect/T_Noise_6.dds");
 	m_iTextureId = CGameInstance::Get().Find_TextueId("../../Resource/Character/Effect/T_Noise_6.dds");
 
 	_float4 vOffsetPos = _float4(0, 0.5, 0.1,1.f);
-	_matrix OffsetMatrix = XMMatrixRotationZ(180.f) * XMMatrixTranslation(0, 0.5, 0.1);
+	_matrix OffsetMatrix = XMMatrixIdentity();// *XMMatrixTranslation(0, 0.5, 0.1);
 	
 	XMStoreFloat4x4(&m_matOffset, OffsetMatrix);
 

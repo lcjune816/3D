@@ -11,7 +11,7 @@
 #include "CWorldParticle.h"
 #include "GuiObject.h"
 #include "WorldLight.h"
-
+#include "WorldUI.h"
 
 ///////////플레이어/////////
 #include "Player.h"

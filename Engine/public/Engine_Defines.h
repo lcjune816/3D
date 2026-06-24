@@ -6,6 +6,11 @@
 #include "d3dcompiler.h"
 
 #include "DirectXTK-main/DDSTextureLoader.h"
+#include "DirectXTK-main/WICTextureLoader.h"
+
+#include "DirectXTK-main/SpriteFont.h"
+#include "DirectXTK-main/SpriteBatch.h"
+#include "DirectXTK-main/PrimitiveBatch.h"
 
 #include "DirectXCollision.h"
 #include "imgui.h"

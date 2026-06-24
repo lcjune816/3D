@@ -7,7 +7,6 @@ class CShader;
 class CMeshNonAnime;
 NS_END
 
-enum class TEXTUREID {DIFFUSE, NOISE, END};
 NS_BEGIN(Client)
 class CRightHand_Effect_Particle :public CPLayer_RightHand
 {

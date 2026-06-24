@@ -175,7 +175,10 @@ public:
 	vector<VERTEX_NOANIME>* Get_MeshVetexesLists(uint32_t index);
 	vector<uint32_t>* Get_MeshIndicesLists(uint32_t index);
 #pragma endregion
-
+#pragma region FONT_MANAGER
+	HRESULT Add_Font(const _wstring& strFontTag, const _tchar* pFontFilePath);
+	void Draw_Text(const _wstring& strFontTag, const _tchar* pText, const _float2& vPosition, float fScale = 1.f, _fvector vColor = XMVectorSet(1.f, 1.f, 1.f, 1.f), _float fRotation = 0.f, const _float2& vOrigin = { 0.f, 0.f });
+#pragma endregion
 #pragma region IMGUI
 	_bool					WinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	const string&			Find_Path(const string& strFileName);
@@ -196,6 +199,10 @@ public:
 	HRESULT Ready_RT_Debug(const _wstring& strTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
 	HRESULT Debug_RT_Render(const _wstring& strMRTTag, shared_ptr<class CShader> pShader, const _char* pConstantName, shared_ptr<class CRect> pVIBuffer);
 #endif
+#pragma endregion
+#pragma UI_MANAGER
+	void								 Add_UI(uint32_t iLevelIndex, shared_ptr<class CUIObject> pUI);
+	
 #pragma endregion
 #pragma SOUND_MANAGER
 public:
@@ -237,7 +244,9 @@ private:
 	unique_ptr<class CTarget_Manager>			m_pTarget_Manager = { nullptr };
 	unique_ptr<class CAssimp_Manager>			m_pAssimp_Manager = { nullptr };
 	unique_ptr<class CImGuiManager>				m_pGui_Manager	  = { nullptr };
+	unique_ptr<class CFont_Manager>				m_pFont_Manager = { nullptr };
 	unique_ptr<class SoundManager>				m_pSound_Manager = { nullptr };
+	unique_ptr<class CUIManager>				m_pUI_Manager = { nullptr };
 	
 public:
 	void Release_Engine();

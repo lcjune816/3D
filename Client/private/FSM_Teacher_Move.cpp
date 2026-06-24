@@ -18,6 +18,10 @@ HRESULT CFSM_Teacher_Move::Initialize(void* pArg)
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_TP, SHARED_THIS(CFSM_Teacher_Move));
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT1, SHARED_THIS(CFSM_Teacher_Move));
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT2, SHARED_THIS(CFSM_Teacher_Move));
+	m_SoundsName[0] = { TEACHER_WALK1 };
+	m_SoundsName[1] = { TEACHER_WALK2 };
+	m_SoundsName[2] = { TEACHER_WALK3 };
+
 	return S_OK;
 }
 void CFSM_Teacher_Move::Enter_State()
@@ -105,6 +109,10 @@ void CFSM_Teacher_Move::OnNotify(const EVENT& eEvent)
 
 	}else if(eEvent.eEvent == WORLD_EVENT::BOSS_DEAD)
 	{
+
+		IS_PLAYSOUND(TEACHER_WALK1, CHANNELID::SOUND_BOSS, 0.5f);
+		pBoss->Change_Animation(TEACHER_ANIME::DEAD_FAST, false);
+		m_eAction = FSM_ACTION::END;
 		pMachine->Change_State(FSM::DEAD);
 
 	}
@@ -145,9 +153,12 @@ void CFSM_Teacher_Move::Action_Chase(shared_ptr<CBoss_Teacher> pBoss, shared_ptr
 	auto pNavi = static_pointer_cast<CNavigation>(pBoss->Find_Component(L"Com_Navigation"));
 	pTransform->MoveToAstar(pNavi, ETOUI(LEVEL::GAMEPLAY), L"Layer_Player", "Player", fTimeDelta);
 	_float fDis = XMVectorGetX(XMVector3Length(pPlayerTransform->Get_State(STATE::POS) - pTransform->Get_State(STATE::POS)));
-	IS_PLAYSOUND(TEACHER_WALK, CHANNELID::SOUND_BOSS, min(1.f - (1.f - 150.f / fDis),0.5f));
+	float volume = 1.f - (fDis / 200.f);
+	
+	uint32_t iRand = rand() % 3;
+	IS_PLAYSOUND(m_SoundsName[iRand], CHANNELID::SOUND_BOSS, clamp(volume, 0.f, 1.f));
 
-	SOUND_SPEED(CHANNELID::SOUND_BOSS, 2.f);
+	SOUND_SPEED(CHANNELID::SOUND_BOSS, 1.5f);
 	if (pBoss->Get_Animation_State() != TEACHER_ANIME::OVERSHOOTWALK)
 		pBoss->Change_Animation(TEACHER_ANIME::OVERSHOOTWALK, true);
 }
@@ -210,15 +221,18 @@ void CFSM_Teacher_Move::Boss_DoorKick(shared_ptr<CBoss_Teacher> pBoss, shared_pt
 		m_fTick = 0;
 	}
 
-	if (m_fTimeCnt >= 3)
+	if (m_fTimeCnt >= 3 && m_bOneSound == false)
 	{
 		EVENT eEvent{};
 		eEvent.eEvent = WORLD_EVENT::DOOR;
 		CGameInstance::Get().Notify(WORLD_EVENT::DOOR, eEvent);
+
+		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_OBJECT, 0.5f);
+
+		m_bOneSound = true;
 	}
 	if (m_fTimeCnt == 4 && m_bOneSound == false)
 	{
-		PLAY_SOUND(TEACHER_BREAKDOOR, CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
 		m_bOneSound = true;
 	}
 }

@@ -47,15 +47,28 @@ HRESULT CTexture_Manager::Add_Decal_Texture(const string filePath)
 	auto iter = m_TextueMapID.find(filePath);
 	if (iter == m_TextueMapID.end())
 	{
+		size_t i = filePath.find(".dds");
+		size_t j = filePath.find(".png");
 		uint32_t id = m_TextureLists.size();
 		ComPtr<ID3D11ShaderResourceView> pTexture;
+		if (i != filePath.npos)
+		{
+			size_t iSize = MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), NULL, 0);
+			_wstring TriggerName(iSize, 0);
+			MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), TriggerName.data(), iSize);
 
-		size_t iSize = MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), NULL, 0);
-		_wstring TriggerName(iSize, 0);
-		MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), TriggerName.data(), iSize);
+			if (FAILED(CreateDDSTextureFromFile(m_pDevice.Get(), TriggerName.c_str(), nullptr, &pTexture)))
+				return E_FAIL;
+		}
+		else if(j != filePath.npos)
+		{
+			size_t iSize = MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), NULL, 0);
+			_wstring TriggerName(iSize, 0);
+			MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), ETOUI(filePath.size()), TriggerName.data(), iSize);
 
-		if (FAILED(CreateDDSTextureFromFile(m_pDevice.Get(), TriggerName.c_str(), nullptr, &pTexture)))
-			return E_FAIL;
+			if (FAILED(CreateWICTextureFromFile(m_pDevice.Get(), TriggerName.c_str(), nullptr, &pTexture)))
+				return E_FAIL;
+		}
 
 		m_TextueMapID.try_emplace(filePath, id);
 		m_TextureLists.emplace_back(pTexture);

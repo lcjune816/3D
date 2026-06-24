@@ -201,7 +201,7 @@ void CRollupDoor::Down_DeadDoor(const _float& fTimeDelta)
 	m_fFrameTick += fTimeDelta;
 	 
 	
-	m_fWorldTime = min(1.f, m_fFrameTick / 1.4f);
+	m_fWorldTime = min(1.f, m_fFrameTick / 0.8f);
 	_vector vPosLerp = XMVectorLerp(XMLoadFloat3(&m_fDestPos), vSrcPos, m_fWorldTime);
 	_float Height = m_fCurHeight + ( 1- m_fCurHeight) * m_fWorldTime;
 		

@@ -34,6 +34,7 @@ private:
 	_bool			m_bOneSound{ false };
 	_bool			m_bStop{ true }, m_bOneAnimation{false};
 
+	const _tchar*						m_SoundsName[3];
 	weak_ptr		<class CTransform> m_pPlayerTransform;
 public:
 	static unique_ptr<CFSM_Teacher_Move> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

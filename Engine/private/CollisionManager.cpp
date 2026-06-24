@@ -371,7 +371,8 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 	
 	if (fDisMax == FLT_MAX)
 	{
-		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > 0)
+		_float fDot = XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir));
+		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > -0.3)
 			return false;
 	}
 	else
@@ -388,7 +389,7 @@ _bool CCollisionManager::RayCast(const uint32_t endLayerIndex, const _wstring& s
 			//if (iCnt > 6)
 			//	return true;
 		}
-		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > 0)
+		if (XMVectorGetX(XMVector3Dot(vPlayerDestLook, vTargetDir)) > -0.3)
 			return false;
 	}
 

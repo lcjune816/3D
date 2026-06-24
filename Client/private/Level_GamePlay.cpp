@@ -54,6 +54,10 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (NULL_TRUE(m_pLoadingScreen)) return E_FAIL;
 
 	PLAY_SOUND(TEACHER_BGM_SOUND1, CHANNELID::SOUND_BGM01, 0.0f);
+
+	if (FAILED(CGameInstance::Get().Add_Font(TEXT("Font_Default"), TEXT("../../Fonts/160ex.spritefont"))))
+		return E_FAIL;
+
 	return S_OK;
 }
 void CLevel_GamePlay::Priority_Update(_float fTimeDelta)
@@ -174,6 +178,17 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _wstring& strLayerTag)
 	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_Terrian"),
 		ETOUI(LEVEL::GAMEPLAY), strLayerTag,&objDesc)))
 		return E_FAIL;
+
+
+
+	CWorldUI::WORLDUI Desc;
+	Desc.iLevel = ETOUI(LEVEL::GAMEPLAY);
+	Desc.eType = NOTICE::SPEECH1;
+	auto UI = static_pointer_cast<CUIObject>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_UI"),
+		&Desc));
+	if (NULL_TRUE(UI)) return E_FAIL;
+
+	CGameInstance::Get().Add_UI(Desc.iLevel, UI);
 
 	return S_OK;
 }

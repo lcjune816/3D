@@ -223,6 +223,9 @@
     <Filter Include="96.SoundManager">
       <UniqueIdentifier>{cd938450-a064-481f-aaca-157e5a158150}</UniqueIdentifier>
     </Filter>
+    <Filter Include="05.GameObject\UI\Fonts">
+      <UniqueIdentifier>{35d0cdbc-a403-4940-807c-aebe8a194f78}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\public\Engine_Function.h">
@@ -465,6 +468,15 @@
     </ClInclude>
     <ClInclude Include="..\public\SoundManager.h">
       <Filter>96.SoundManager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\UIManager.h">
+      <Filter>05.GameObject\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\CustomFont.h">
+      <Filter>05.GameObject\UI\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Font_Manager.h">
+      <Filter>05.GameObject\UI\Fonts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -719,6 +731,15 @@
     </ClCompile>
     <ClCompile Include="..\private\SoundManager.cpp">
       <Filter>96.SoundManager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UIManager.cpp">
+      <Filter>05.GameObject\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\CustomFont.cpp">
+      <Filter>05.GameObject\UI\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Font_Manager.cpp">
+      <Filter>05.GameObject\UI\Fonts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

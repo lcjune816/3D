@@ -271,6 +271,10 @@ HRESULT CLoader::Loading_For_GamePlay()
 		CNavigation::Create(m_pDevice, m_pContext, L"../../Navi.json", "Navi"))))
 		return E_FAIL;
 
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GAMEPLAY), TEXT("OBJ_UI"), 
+		CWorldUI::Create(m_pDevice,m_pContext))))
+		return E_FAIL;
+
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC), TEXT("OBJ_Player_RightHand_Effect"),
 		CPlayer_RightHand_Effect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;

@@ -198,7 +198,7 @@ HRESULT CDecalObject::Ready_Component()
 HRESULT CDecalObject::Create_Component()
 {
 	
-	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_NonAnime"), TEXT("Com_Shader"), m_pShaderCom)))
+	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Rect"), TEXT("Com_Shader"), m_pShaderCom)))
 
 		return E_FAIL;
 	if (FAILED(__super::Add_Component(ETOUI(LEVEL::STATIC), TEXT("Component_Box"), TEXT("Com_BoxShader"), m_pBoxShader)))

@@ -55,10 +55,11 @@ private:
 
 	 uint32_t									m_iPassIndex;
 	 uint32_t									m_iTickCnt{};
-	 _bool										m_bStart{ false };
+	 _bool										m_bStart{ false }, m_bReset{ false };
 	 _float									    m_fTick{ 0 };
 	 _float4									m_vFog{};
-	 _float										m_fFogDistance{ 10000 };
+	 _float										m_fFogDistance{ 10000 }, m_fCurFogDistance{};
+	 _float4									m_fLightAmbient{};
 public:
 	static unique_ptr<CWorldParticle> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg) override;

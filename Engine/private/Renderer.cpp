@@ -170,22 +170,22 @@ HRESULT CRenderer::Draw()
 {
     iRanderCall = 0;
 
-    if (CGameInstance::Get().Get_DIKeyState(DIK_0) & 0x80)
-        iDebuhRender = 0;
-
-    if (CGameInstance::Get().Get_DIKeyState(DIK_1) & 0x80)
-        iDebuhRender = 1;
-  
-    if (CGameInstance::Get().Get_DIKeyState(DIK_2) & 0x80)
-        iDebuhRender = 2;
-    if (CGameInstance::Get().Get_DIKeyState(DIK_3) & 0x80)
-        iDebuhRender = 3;
-    if (CGameInstance::Get().Get_DIKeyState(DIK_4) & 0x80)
-        iDebuhRender = 4;
-    if (CGameInstance::Get().Get_DIKeyState(DIK_5) & 0x80)
-        iDebuhRender = 5;
-    if (CGameInstance::Get().Get_DIKeyState(DIK_6) & 0x80)
-        iDebuhRender = 6;
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_0) & 0x80)
+  //     iDebuhRender = 0;
+  //
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_1) & 0x80)
+  //     iDebuhRender = 1;
+  //
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_2) & 0x80)
+  //     iDebuhRender = 2;
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_3) & 0x80)
+  //     iDebuhRender = 3;
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_4) & 0x80)
+  //     iDebuhRender = 4;
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_5) & 0x80)
+  //     iDebuhRender = 5;
+  // if (CGameInstance::Get().Get_DIKeyState(DIK_6) & 0x80)
+  //     iDebuhRender = 6;
     if (FAILED(Render_Priority()))
         return E_FAIL;
 

@@ -1,6 +1,7 @@
 #include "Engine_Shader_Defines.hlsli"
 float4x4 g_World, g_View , g_Projection;
 Texture2D g_Diffuse;
+Texture2D g_NoiseTexture;
 float g_Time;
 float4 g_vColor;
 float4 g_TexCoord;
@@ -89,7 +90,39 @@ PS_OUT PS_MAIN_FADEOUT(PS_IN In)
     Out.textureColor = vColor;
     return Out;
 }
-
+PS_OUT PS_MAIN_NOTICE_FADEIN(PS_IN In)
+{
+    PS_OUT Out;
+    //xy 좌표에 있는 색상 rgb 값을 가지고와라
+    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+    vector vNoise = g_NoiseTexture.Sample(DefaultSampler, In.texcoord);
+    
+    float Time = saturate(g_Time / 3.f);
+    
+  
+    if (vNoise.r > Time)
+        discard;
+    
+    Out.textureColor = textureColor;
+    
+    return Out;
+}
+PS_OUT PS_MAIN_NOTICE_FADEOUT(PS_IN In)
+{
+    PS_OUT Out;
+    //xy 좌표에 있는 색상 rgb 값을 가지고와라
+    float4 textureColor = g_Diffuse.Sample(DefaultSampler, In.texcoord);
+    vector vNoise = g_NoiseTexture.Sample(DefaultSampler, In.texcoord);
+    
+    float Time = saturate(g_Time / 3.f);
+    
+    if (vNoise.r > 1.f - Time)
+        discard;
+    
+    Out.textureColor = textureColor;
+    
+    return Out;
+}
 PS_OUT PS_MAIN_LOADING(PS_IN In)
 {
     PS_OUT Out;
@@ -174,6 +207,31 @@ technique11 DefaultTechnique
         VertexShader = compile vs_5_0 VS_MAIN();
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_BLACK();
+
+    }
+
+    pass NoticeFadeIn
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_NOTICE_FADEIN();
+
+    }
+    pass NoticeFadeOut
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_NOTICE_FADEOUT();
 
     }
 }

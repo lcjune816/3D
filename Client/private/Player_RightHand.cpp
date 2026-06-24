@@ -167,7 +167,7 @@ void CPLayer_RightHand::Update(_float fTimeDelta)
 	else
 		m_pLight->Set_LightState(LIGHT_STATE::LIGHT_OFF);
 		
-	Set_Flag(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT), FLAGVALUE::ENABLE);
+	//Set_Flag(ETOUI(PLAYER_FLAG::ELECTRIC_SHORT), FLAGVALUE::ENABLE);
 	m_pLight->Update(fTimeDelta);
 
 	for(auto& iter : m_pRHandEffect)
