@@ -23,8 +23,11 @@ HRESULT CUILoadingScreen::Initialize(void* pArg)
 	auto pDesc = static_cast<LOADING_SCREEN_DESC*>(pArg);
 
 	if (pDesc->iLevel == ETOUI(LEVEL::GASZONE))
+	{
+		CGameInstance::Get().Add_Observers(WORLD_EVENT::PLAYER_DEAD, SHARED_THIS(CUILoadingScreen));
 		CGameInstance::Get().Add_Observers(WORLD_EVENT::END, SHARED_THIS(CUILoadingScreen));
-
+	}
+		
 	m_eType = pDesc->eType;
 	
 	m_pVIBufferCom = static_pointer_cast<CRect>(CGameInstance::Get().Clone_Prototype(ETOUI(LEVEL::STATIC), L"Prototype_Rect", nullptr));
@@ -65,15 +68,19 @@ HRESULT CUILoadingScreen::Initialize(void* pArg)
 	if (m_eType != SCREEN::BLACK)
 	{
 		CGameInstance::Get().Add_Decal_Texture(pName);
-		m_iTextureID = CGameInstance::Get().Find_TextueId(pName);
+		m_iTextureID[ETOUI(TEXTUREID::DIFFUSE)] = CGameInstance::Get().Find_TextueId(pName);
 
-		if (m_iTextureID == -1)
+		
+		if (m_iTextureID[ETOUI(TEXTUREID::DIFFUSE)] == -1)
 			return E_FAIL;
 	}
 	
+	CGameInstance::Get().Add_Decal_Texture("../../UI/T_maskframe_thicker_256.png");
+	m_iTextureID[ETOUI(TEXTUREID::DIFFUSE2)] = CGameInstance::Get().Find_TextueId("../../UI/T_maskframe_thicker_256.png");
 	
 	__super::Initialize(&Desc);
 
+	m_eTextureType = TEXTUREID::DIFFUSE;
 	m_fTimeTick = {}, m_fTimeRange = {};
 	m_fTexCoord.x = 1.f;
 	return S_OK;
@@ -112,7 +119,7 @@ HRESULT CUILoadingScreen::Render()
 		m_pShaderCom->Bind_RawValue("g_Time", &m_fTimeRange, sizeof m_fTimeRange);
 	
 	if(m_eType != SCREEN::BLACK)
-		m_pShaderCom->Bind_SRV("g_Diffuse", CGameInstance::Get().Find_Decal_Texture(m_iTextureID));
+		m_pShaderCom->Bind_SRV("g_Diffuse", CGameInstance::Get().Find_Decal_Texture(m_iTextureID[ETOUI(m_eTextureType)]));
 	
 	m_pTransform->Bind_Matrix(m_pShaderCom, "g_World");
 	m_pShaderCom->Bind_Matrix("g_View", &m_ViewMatrix);
@@ -127,7 +134,16 @@ HRESULT CUILoadingScreen::Render()
 void CUILoadingScreen::OnNotify(const EVENT& eEvent)
 {
 	m_bStop = false;
-	m_eType = SCREEN::BLACK;
+	if (eEvent.eEvent == WORLD_EVENT::END)
+	{
+		m_eTextureType = TEXTUREID::DIFFUSE;
+		m_eType = SCREEN::BLACK;
+	}
+	else if (eEvent.eEvent == WORLD_EVENT::PLAYER_DEAD)
+	{
+		m_eTextureType = TEXTUREID::DIFFUSE2;
+		m_eType = SCREEN::DEADSCREEN;
+	}
 }
 
 void CUILoadingScreen::FadeIn(const _float& fTimeDelta)

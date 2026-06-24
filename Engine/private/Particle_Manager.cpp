@@ -28,10 +28,10 @@ void    CParticle_Manager::Priority_Update_Particle(_float fTimeDelta)
 		{
 			pair->Priority_Update(fTimeDelta);
 		}
-		for (auto& Pool : m_ParticlesPool[i])
-		{
-			Pool->Priority_Update(fTimeDelta);
-		}
+		//for (auto& Pool : m_ParticlesPool[i])
+		//{
+		//	Pool->Priority_Update(fTimeDelta);
+		//}
 	}
 
 }

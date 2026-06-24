@@ -46,7 +46,6 @@ public:
 	virtual HRESULT			Render();
 
 public:
-	string					Model_Animation(const vector<string>& pNames);
 	const MOVE&				Get_State() { return m_eState; }
 	PLAYER_ANIME			Get_Animation_State() { return m_eAnimeState; }
 	PLAYER_STATE&			Get_AnimeState() { return m_ePlayer; }   //이걸로 fsm에서 bool값 조정하기

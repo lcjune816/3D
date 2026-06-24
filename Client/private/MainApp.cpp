@@ -140,10 +140,10 @@ HRESULT Client::CMainApp::Ready_Prototype()
 		CRect::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	
-	//if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
-	//	TEXT("OBJ_Gui"),
-	//	CGuiObject::Create(m_pDevice, m_pContext))))
-	//	return E_FAIL;
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
+		TEXT("OBJ_Gui"),
+		CGuiObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	
 	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::STATIC),
 		TEXT("Prototype_UILoadingScreen"),

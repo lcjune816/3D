@@ -21,7 +21,6 @@ HRESULT CFSM_Cat_Nightmare::Initialize(void* pArg)
 	CGameInstance::Get().Add_Observers(WORLD_EVENT::BOSS_EVENT3, SHARED_THIS(CFSM_Cat_Nightmare));
 	m_SoundName[0] = CAT_WALK1;
 	m_SoundName[1] = CAT_WALK2;
-	m_SoundName[2] = CAT_WALK3;
 	m_eAction = FSM_ACTION::IDLE;
 	return S_OK;
 }
@@ -68,8 +67,8 @@ void CFSM_Cat_Nightmare::Update_State(_float fTimeDelta)
 			m_eAction = FSM_ACTION::END;
 		}
 
+		SOUND_SPEED(CHANNELID::SOUND_BOSS, 0.945f);
 		IS_PLAYSOUND(CAT_ELEVATOR, CHANNELID::SOUND_BOSS, 0.6f);
-		SOUND_SPEED(CHANNELID::SOUND_BOSS, 0.91f);
 		break;
 	case FSM_ACTION::DEAD:
 		break;
@@ -112,9 +111,9 @@ void CFSM_Cat_Nightmare::Action(shared_ptr<CTransform> pTransform, shared_ptr<CB
 	_vector vLinearPos = XMVectorLerp(XMLoadFloat3(&m_fCurrentPos), vDestPos, fTime);
 	pTransform->Set_State(STATE::POS, XMVectorSetW(vLinearPos,1.f));
 
-	uint32_t iRand = rand() % 3;
+	uint32_t iRand = rand() % 2;
 	IS_PLAYSOUND(m_SoundName[iRand], CHANNELID::SOUND_BOSS, 0.7f);
-	SOUND_SPEED(CHANNELID::SOUND_BOSS, 3.f);
+	SOUND_SPEED(CHANNELID::SOUND_BOSS, 2.f);
 	if (fTime >= 1.f)
 	{
 		m_fTick = 0.f;
@@ -128,7 +127,6 @@ void CFSM_Cat_Nightmare::Action_Return(shared_ptr<CTransform> pTransform, shared
 {
 	m_fTick += fTimeDelta;
 	_float fTime = min(1.f, m_fTick / 0.8f);
-
 
 	_vector vLinearLook = XMVectorLerp(XMLoadFloat3(&m_fCurretLook), XMLoadFloat3(&m_fPreLook), fTime);
 
@@ -146,6 +144,8 @@ void CFSM_Cat_Nightmare::Action_Return(shared_ptr<CTransform> pTransform, shared
 		auto pAnimator = static_pointer_cast<CAnimator>(pBoss->Find_Component(L"Com_Animator_Nightmare"));
 		pAnimator->Set_Double_Speed(1.0f);
 		pBoss->Change_Animation_Nightmare(CAT_ANIME_NIGHTMARE::ELEVEATOR, false, false);
+
+		IS_PLAYSOUND(CAT_ELEVATOR, CHANNELID::SOUND_BOSS, 0.6f);
 		m_eAction = FSM_ACTION::EVENT;
 	}
 }
@@ -183,6 +183,7 @@ void CFSM_Cat_Nightmare::OnNotify(const EVENT& eEvent)
 	}
 	else if(eEvent.eEvent == WORLD_EVENT::BOSS_EVENT3)
 	{
+		PLAY_SOUND(CAT_JUMPSCARE, CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
 		Kill_Player(pTransform, pBoss, 1);
 	}
 
@@ -193,7 +194,7 @@ unique_ptr<CFSM_Cat_Nightmare>		CFSM_Cat_Nightmare::Create(ComPtr<ID3D11Device>	
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX("Create Failed CShader");
+		MSG_BOX("Create Failed Nightmare");
 		return nullptr;
 	}
 
@@ -206,7 +207,7 @@ shared_ptr<CPrototype> CFSM_Cat_Nightmare::Clone(void* pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX("Create Failed CShader Clone");
+		MSG_BOX("Create Failed Nightmare Clone");
 		return nullptr;
 	}
 

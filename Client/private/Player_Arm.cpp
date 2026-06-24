@@ -49,7 +49,7 @@ HRESULT CPlayer_Arm::Initialize(void* pArg)
 	m_iTextureId = CGameInstance::Get().Find_TextueId("../../Resource/Character/Effect/T_Noise_6.dds");
 
 	_float4 vOffsetPos = _float4(0, 0.5, 0.1,1.f);
-	_matrix OffsetMatrix = XMMatrixIdentity();// *XMMatrixTranslation(0, 0.5, 0.1);
+	_matrix OffsetMatrix = XMMatrixIdentity() *XMMatrixTranslation(0, 0.5, 0.1);
 	
 	XMStoreFloat4x4(&m_matOffset, OffsetMatrix);
 

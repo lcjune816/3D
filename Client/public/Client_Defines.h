@@ -24,7 +24,7 @@ namespace Client
 
 	enum class  INIT_TYPE{OBJECT,END};
 
-	enum class TEXTUREID { DIFFUSE, NOISE, END };
+	enum class TEXTUREID { DIFFUSE,DIFFUSE2, NOISE, END };
 }
 
 extern HWND			g_hWnd;

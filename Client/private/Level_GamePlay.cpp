@@ -235,11 +235,11 @@ HRESULT CLevel_GamePlay::Ready_ProtoType()
 }
 HRESULT CLevel_GamePlay::Ready_Layer_Gui(const _wstring& strLayerTag)
 {
-	CGameObject::GAMEOBJECT_DESC objDesc;
-	objDesc.iLevel = ETOUI(LEVEL::GAMEPLAY);
-	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
-		ETOUI(LEVEL::GAMEPLAY), strLayerTag, &objDesc)))
-		return E_FAIL;
+	//CGameObject::GAMEOBJECT_DESC objDesc;
+	//objDesc.iLevel = ETOUI(LEVEL::GAMEPLAY);
+	//if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
+	//	ETOUI(LEVEL::GAMEPLAY), strLayerTag, &objDesc)))
+	//	return E_FAIL;
 
 	return S_OK;
 }

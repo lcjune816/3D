@@ -38,12 +38,12 @@ public:
 	CBone*										Find_Bone(const uint32_t index,uint32_t i);
 	_float										Get_Duration(uint32_t i) 
 	{ 
-		if (i == m_AniTime.size())
+		if (i >= m_AniTime.size())
 			return 0.f;
 
 		return m_AniTime[i].m_Duration; }
 	_float										Get_Tick(uint32_t i) { 
-		if (i == m_AniTime.size())
+		if (i >= m_AniTime.size())
 			return 0.f;
 
 		return m_AniTime[i].m_iTicksPerSecond; }

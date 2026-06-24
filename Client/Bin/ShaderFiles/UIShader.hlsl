@@ -145,7 +145,20 @@ PS_OUT PS_MAIN_BLACK(PS_IN In)
     PS_OUT Out;
     Out.textureColor = float4(0, 0, 0, 0);
     return Out;
- }
+}
+PS_OUT PS_MAIN_DEADSCREEN(PS_IN In)
+{   
+    PS_OUT Out;
+    float vDiffuse = g_Diffuse.Sample(DefaultSampler, In.texcoord).r;
+    vDiffuse = 1.f - vDiffuse;
+    vector Color = float4(0.61, 0.013, 0.042, 1.f);
+   vector vLast = Color * vDiffuse * 0.5f;
+    if (vLast.r < 0.1)
+        discard;
+    Out.textureColor = vLast;
+    
+    return Out;
+}
 technique11 DefaultTechnique
 {
         
@@ -208,6 +221,18 @@ technique11 DefaultTechnique
         GeometryShader = NULL;
         PixelShader = compile ps_5_0 PS_MAIN_BLACK();
 
+    }
+
+    pass DeadScreen
+    {
+        SetRasterizerState(RS_Default);
+        SetDepthStencilState(DSS_ZDisable, 0);
+        SetBlendState(BS_Default, float4(0.f, 0.f, 0.f, 0.f), 0xffffffff);
+
+        //vsMain에있는거를 컴파일 해라
+        VertexShader = compile vs_5_0 VS_MAIN();
+        GeometryShader = NULL;
+        PixelShader = compile ps_5_0 PS_MAIN_DEADSCREEN();
     }
 
     pass NoticeFadeIn

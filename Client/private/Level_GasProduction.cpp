@@ -161,11 +161,11 @@ HRESULT CLevel_GasProduction::Ready_Layer_TriggerObject(const _wstring& strLayer
 }
 HRESULT CLevel_GasProduction::Ready_Layer_Gui(const _wstring& strLayerTag)
 {
-	CGameObject::GAMEOBJECT_DESC objDesc;
-	objDesc.iLevel = ETOUI(LEVEL::GASZONE);
-	if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
-		ETOUI(LEVEL::GASZONE), strLayerTag, &objDesc)))
-		return E_FAIL;
+	//CGameObject::GAMEOBJECT_DESC objDesc;
+	//objDesc.iLevel = ETOUI(LEVEL::GASZONE);
+	//if (FAILED(CGameInstance::Get().Add_GameObject_toLayer(ETOUI(LEVEL::STATIC), TEXT("OBJ_Gui"),
+	//	ETOUI(LEVEL::GASZONE), strLayerTag, &objDesc)))
+	//	return E_FAIL;
 
 	return S_OK;
 }

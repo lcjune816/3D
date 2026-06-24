@@ -37,7 +37,7 @@ private:
 
 	_bool			m_bKill{ false };
 
-	const _tchar* m_SoundName[3];
+	const _tchar* m_SoundName[2];
 public:
 	static unique_ptr<CFSM_Cat_Nightmare> Create(ComPtr<ID3D11Device>pDevice, ComPtr<ID3D11DeviceContext> pContext);
 	virtual shared_ptr<CPrototype> Clone(void* pArg);

@@ -37,7 +37,6 @@ public:
 	virtual HRESULT			Render();
 
 public:
-	string					Model_Animation(const vector<string>& pNames);
 
 	const MOVE& Get_State() { return m_eState; }
 	TEACHER_ANIME			Get_Animation_State() { return m_eAnimeState; }

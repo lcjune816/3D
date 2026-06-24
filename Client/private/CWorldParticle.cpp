@@ -246,7 +246,7 @@ void CWorldParticle::Fog_Controller(const _float& fTimeDelta)
 		LIGHT_DESC Desc = *CGameInstance::Get().Find_LightMtrl(LIGHT::DIRECTIONAL);
 		
 		_float4 vAmbient = {};
-		XMStoreFloat4(&Desc.vAmbient,XMVectorLerp(XMLoadFloat4(&m_fLightAmbient), XMVectorSet(0.1, 0.1, 0.1, 0.f), t));
+		XMStoreFloat4(&Desc.vAmbient,XMVectorLerp(XMLoadFloat4(&m_fLightAmbient), XMVectorSet(0.18, 0.18, 0.18, 0.f), t));
 		
 		CGameInstance::Get().Set_LightDesc(Desc);
 		XMStoreFloat4(&m_vFog, XMVectorLerp(XMVectorSet(0.45f, 0.01f, 0.01f, 0.f), XMVectorSet(0, 0, 0, 0) , t));

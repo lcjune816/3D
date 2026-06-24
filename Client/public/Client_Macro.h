@@ -27,9 +27,9 @@ namespace Client
 #define CAT_NIGHTMAREBGM    L"SW_Uphill_Climb_Music_02.wav"
 #define CAT_JUMPSCARE		L"SW_NightmareCatNap_Jumpscare.wav"
 #define CAT_GAS				L"SW_CatNap_SpewingGas_LOOP.wav"
-#define CAT_ELEVATOR		L"SW_CatNap_Fence_Footstep_01.wav"
-#define CAT_WALK1			L"SW_Nightmare_Catnap_Footstep_04.wav"
-#define CAT_WALK2			L"SW_Nightmare_Catnap_Footstep_05.wav"
-#define CAT_WALK3			L"SW_Nightmare_Catnap_Footstep_06.wav"
+#define CAT_ELEVATOR		L"SW_CatNap_Fence_Footstep_04.wav"
+#define CAT_WALK1			L"SW_Nightmare_Catnap_Footstep_01_Speed.wav"
+#define CAT_WALK2			L"SW_Nightmare_Catnap_Footstep_02_Speed.wav"
+#define CAT_WALK3			L"SW_Nightmare_Catnap_Footstep_01.wav"
 	 
 }

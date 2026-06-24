@@ -82,7 +82,7 @@ void CWorldUI::Priority_Update(_float fTimeDelta)
 	if (CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80)
 	{
 		m_fTimeTick = 0.f;
-		m_iFade = 5;
+		m_iFade =6;
 	}
 
 	if (CGameInstance::Get().Get_DIKeyState(DIK_1) & 0x80)
@@ -115,14 +115,14 @@ void CWorldUI::Update(_float fTimeDelta)
 	{
 
 		m_fTimeTick += fTimeDelta;
-		if (m_iFade == 5)
+		if (m_iFade == 6)
 		{
 			_float fTime = min(m_fTimeTick / 8.f, 1.f);
 			m_fAlpha = 0 + (0.8 - 0) * fTime;
 			if (fTime >= 1.f)
 			{
 				m_fTimeTick = 0.f;
-				m_iFade = 6;
+				m_iFade = 7;
 			}
 		}
 		else
@@ -184,6 +184,8 @@ HRESULT CWorldUI::Render()
 		break;
 
 	case NOTICE::SPEECH5:
+		CGameInstance::Get().Draw_Text(TEXT("Font_Default"), TEXT("ø§∏Æ∫£¿Ã≈Õ∑Œ ≈ª√‚«œ±‚"), _float2(530, 85)
+			, 1.f, XMVectorSet(m_fAlpha/4.f, m_fAlpha , m_fAlpha / 4.f, 0));
 		break;
 
 	case NOTICE::SPEECH6:

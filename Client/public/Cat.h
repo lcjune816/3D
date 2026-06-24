@@ -33,7 +33,6 @@ public:
 	virtual HRESULT			Render();
 
 public:
-	string					Model_Animation(const vector<string>& pNames);
 
 	_float4x4*				 Get_OtherMatrixPtr() { return m_pOtherMatrix; }
 	void					Set_ActionState(_bool	bAction) { m_bOnlyActionState = bAction; }

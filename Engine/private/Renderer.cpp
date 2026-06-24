@@ -201,8 +201,6 @@ HRESULT CRenderer::Draw()
     if (FAILED(Render_Combined()))
         return E_FAIL;
     
-    CGameInstance::Get().Render_Debug_Lights();
-
     if (FAILED(Render_NonLights()))
         return E_FAIL;
 
@@ -231,7 +229,9 @@ HRESULT CRenderer::Draw()
 
     if (FAILED(Render_Blend()))
         return E_FAIL;
-  
+
+   // CGameInstance::Get().Render_Debug_Lights();
+
     if (FAILED(Render_UI()))
         return E_FAIL;
  

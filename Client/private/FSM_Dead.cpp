@@ -52,7 +52,6 @@ void CFSM_Dead::Enter_State()
 	m_fFrameTickDead = 0.f;
 	m_fRotation = _float3(0,1,1) ;
 
-	PLAY_SOUND(CAT_JUMPSCARE, CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
 }
 
 void CFSM_Dead::Update_State(_float fTimeDelta)

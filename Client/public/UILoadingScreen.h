@@ -8,7 +8,7 @@ class CRect;
 NS_END
 
 
-enum class SCREEN{FADEIN = 1, FADEOUT = 2, LOADING = 3, BLACK, END};
+enum class SCREEN{FADEIN = 1, FADEOUT = 2, LOADING = 3, BLACK, DEADSCREEN, END};
 NS_BEGIN(Client)
 class CUILoadingScreen : public CUIObject, public CObserver
 {
@@ -50,7 +50,8 @@ private:
 private:
 	_bool							m_bStop = false;
 
-	int32_t							m_iTextureID = { -1 };
+	int32_t							m_iTextureID[ETOUI(TEXTUREID::END)] = {-1};
+	TEXTUREID						m_eTextureType = {};
 	SCREEN							m_eType = {};
 
 	_bool							m_bEnd{ false };
