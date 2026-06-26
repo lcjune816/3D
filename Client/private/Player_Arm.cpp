@@ -119,29 +119,29 @@ HRESULT CPlayer_Arm::Render()
 
 	}
 
-	for (auto& iter : m_ArmMatrix.CollisionIndex)
-	{
-		fColor = { 1,0,0,1 };
-		_matrix mat = XMLoadFloat4x4(&m_ArmMatrix.Matrix[iter]);
-
-		for (uint32_t i = 0; i < 3; ++i)
-		{
-			_float fScale;
-			if (i == 1)
-				fScale = 1.5f;
-			else fScale = 3.f;
-			mat.r[i] = XMVector3Normalize(mat.r[i]) * fScale;
-
-		}
-			
-		_float4x4 Combinemat{};
-		XMStoreFloat4x4(&Combinemat, mat);
-		m_pBoxShader->Bind_Matrix("g_World", &Combinemat);
-		m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
-		m_pBoxShader->Begin(0);
-		m_pBoxMesh->Bind_Resource();
-		m_pBoxMesh->Render();
-	}
+	//for (auto& iter : m_ArmMatrix.CollisionIndex)
+	//{
+	//	fColor = { 1,0,0,1 };
+	//	_matrix mat = XMLoadFloat4x4(&m_ArmMatrix.Matrix[iter]);
+	//
+	//	for (uint32_t i = 0; i < 3; ++i)
+	//	{
+	//		_float fScale;
+	//		if (i == 1)
+	//			fScale = 1.5f;
+	//		else fScale = 3.f;
+	//		mat.r[i] = XMVector3Normalize(mat.r[i]) * fScale;
+	//
+	//	}
+	//		
+	//	_float4x4 Combinemat{};
+	//	XMStoreFloat4x4(&Combinemat, mat);
+	//	m_pBoxShader->Bind_Matrix("g_World", &Combinemat);
+	//	m_pBoxShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+	//	m_pBoxShader->Begin(0);
+	//	m_pBoxMesh->Bind_Resource();
+	//	m_pBoxMesh->Render();
+	//}
 	
 	return S_OK;
 }

@@ -152,7 +152,7 @@ PS_OUT PS_MAIN_DEADSCREEN(PS_IN In)
     float vDiffuse = g_Diffuse.Sample(DefaultSampler, In.texcoord).r;
     vDiffuse = 1.f - vDiffuse;
     vector Color = float4(0.61, 0.013, 0.042, 1.f);
-   vector vLast = Color * vDiffuse * 0.5f;
+   vector vLast = Color * vDiffuse * 0.7f;
     if (vLast.r < 0.1)
         discard;
     Out.textureColor = vLast;

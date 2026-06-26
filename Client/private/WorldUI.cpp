@@ -102,8 +102,11 @@ void CWorldUI::Priority_Update(_float fTimeDelta)
 
 	if (CGameInstance::Get().Get_DIKeyState(DIK_6) & 0x80)
 		m_eType = NOTICE::SPEECH6;
-	if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::A))
+	if (CGameInstance::Get().Get_DIKeyOneState(DIMKEYINPUT::F5))
+	{
 		m_bEnd = !m_bEnd;
+		m_iFade = 6;
+	}
 	__super::Priority_Update(fTimeDelta);
 }
 

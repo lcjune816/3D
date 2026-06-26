@@ -2,6 +2,7 @@
 #include "GameObject.h"
 #include "Client_Defines.h"
 #include "GameInstance.h"
+#include "Observer.h"
 namespace Engine
 {
 	class CAnimator;
@@ -17,7 +18,7 @@ enum class CAT_ANIME_NIGHTMARE
 {
 	ELEVEATOR,WALK,WALKGROUND,JUMPSCALE,lDLEBREACHING,END
 };
-class CBoss_Cat final : public CGameObject
+class CBoss_Cat final : public CGameObject, public CObserver
 {
 private:
 	CBoss_Cat(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);
@@ -32,6 +33,8 @@ public:
 	virtual void			Late_Update(_float fTimeDelta) override;
 	virtual HRESULT			Render();
 
+
+	virtual void            OnNotify(const EVENT& eEvent)override;
 public:
 
 	_float4x4*				 Get_OtherMatrixPtr() { return m_pOtherMatrix; }
@@ -58,7 +61,7 @@ private:
 	_float4x4							m_bones[BONE_MATRIX];
 
 	CATFORM								m_eFormType = {CATFORM::NORMAL};
-	_bool								m_bOnlyActionState = { false };
+	_bool								m_bOnlyActionState = { false }, m_bStop{ false };
 	MOVE								m_eState = { MOVE::END };
 public:
 	static unique_ptr<CBoss_Cat> Create(ComPtr<ID3D11Device> pDevice, ComPtr<ID3D11DeviceContext> pContext);

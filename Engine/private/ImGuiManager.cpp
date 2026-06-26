@@ -44,7 +44,7 @@ HRESULT CImGuiManager::Update()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame(); 
-	ImGuizmo::BeginFrame();
+	//ImGuizmo::BeginFrame();
 	
 	//ImGui::ShowDemoWindow(&test);
 	//ImPlot3D::ShowDemoWindow(&test);

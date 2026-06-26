@@ -31,8 +31,8 @@ HRESULT CPlayerAim::Initialize(void* pArg)
 {
 	PLAYERAIM_DESC pDesc = {};
 
-	pDesc.fSizeX = 30.f;
-	pDesc.fSizeY = 30.f;
+	pDesc.fSizeX = 40.f;
+	pDesc.fSizeY = 40.f;
 
 	pDesc.fX = g_iWinSizeX * 0.5f;
 	pDesc.fY = g_iWinSizeY * 0.5f;

@@ -55,7 +55,7 @@ private:
 	SCREEN							m_eType = {};
 
 	_bool							m_bEnd{ false };
-	_float							m_fLoadingTick{}, m_fTimeTick = {}, m_fTimeRange = {};
+	_float							m_fLoadingTick{}, m_fTimeTick = {}, m_fTimeRange = {}, m_fTimeTick2{};
 	_float4							m_fTexCoord = {};
 	shared_ptr<Engine::CShader>		m_pShaderCom = { nullptr };
 	shared_ptr<Engine::CRect>		m_pVIBufferCom = { nullptr };

@@ -404,7 +404,8 @@ HRESULT CNavigation::Load_Navi(const _wstring& FilePath, const _char* pName)
        //eNavi.m_vPlane = { iter["Plane"][0],iter["Plane"][1],iter["Plane"][2],iter["Plane"][3]};
         eNavi.iIndex = iter["MyIndex"];
         int32_t iEvent = iter["Event"];
-
+        if (m_Cells.size() == 263)
+            int a = 0;
           eEvent = static_cast<CELL_EVENT>(iEvent);
           auto Cell = CCell::Create(m_pDevice, m_pContext, {}, eEvent, m_Cells.size(), fPos);
         m_Cells.push_back(Cell);
@@ -557,28 +558,28 @@ const _vector CNavigation::Get_CurrentCell_Info(int32_t* iDestIndex)
 #ifdef _DEBUG
 HRESULT CNavigation::Render()
 {
-    _float4x4       WorldMatrix = {};
-    XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
-   
-    if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
-        return E_FAIL;
-    if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW))))
-        return E_FAIL;
-    if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ))))
-        return E_FAIL;
-   
-    m_pShader->Begin(0);
-   
-    for (auto& pCell : m_Cells)
-    {
-        if (nullptr != pCell)
-            pCell->Render(m_pShader.get());
-    }
-   
-   _float4 fColor = { 1,1,1,1 };
-   m_pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
-   
-   m_pShader->Begin(0);
+  // _float4x4       WorldMatrix = {};
+  // XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
+  //
+  // if (FAILED(m_pShader->Bind_Matrix("g_WorldMatrix", &WorldMatrix)))
+  //     return E_FAIL;
+  // if (FAILED(m_pShader->Bind_Matrix("g_ViewMatrix", CGameInstance::Get().Get_Transform(D3DTS::VIEW))))
+  //     return E_FAIL;
+  // if (FAILED(m_pShader->Bind_Matrix("g_ProjMatrix", CGameInstance::Get().Get_Transform(D3DTS::PROJ))))
+  //     return E_FAIL;
+  //
+  // m_pShader->Begin(0);
+  //
+  // for (auto& pCell : m_Cells)
+  // {
+  //     if (nullptr != pCell)
+  //         pCell->Render(m_pShader.get());
+  // }
+  //
+  //_float4 fColor = { 1,1,1,1 };
+  //m_pShader->Bind_RawValue("g_Color", &fColor, sizeof _float4);
+  //
+  //m_pShader->Begin(0);
 
     return S_OK;
 }

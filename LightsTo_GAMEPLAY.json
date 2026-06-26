@@ -9,9 +9,9 @@
             ],
             "LightAngleRagne": 0.0,
             "LightDiffuse": [
-                0.23999999463558197,
-                0.23999999463558197,
-                0.23999999463558197,
+                0.25,
+                0.23000000417232513,
+                0.30000001192092896,
                 1.0
             ],
             "LightDir": [
@@ -31,56 +31,15 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 0,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 14
-        },
-        {
-            "LightAmbient": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "LightAngleRagne": 0.0,
-            "LightDiffuse": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "LightDir": [
-                0.0,
-                -1.0,
-                0.0,
-                0.0
-            ],
-            "LightPos": [
-                533.2697143554688,
-                62.6081657409668,
-                98.0974349975586,
-                1.0
-            ],
-            "LightRangeF2": [
-                10.0,
-                0.0
-            ],
-            "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
-                1.0
-            ],
-            "LightType": 1,
-            "LocalEvent": 0,
-            "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -244,7 +203,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -277,15 +236,15 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -326,7 +285,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -441,15 +400,15 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 1,
             "LocalEvent": 2,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -490,7 +449,7 @@
             "LightType": 2,
             "LocalEvent": 0,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -654,7 +613,7 @@
             "LightType": 1,
             "LocalEvent": 4,
             "UseType": 0,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -1056,15 +1015,15 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 2,
             "LocalEvent": 4,
             "UseType": 1,
-            "WorldEvent": 14
+            "WorldEvent": 12
         },
         {
             "LightAmbient": [
@@ -1097,9 +1056,9 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 2,
@@ -1134,7 +1093,7 @@
                 1.0
             ],
             "LightRangeF2": [
-               100.0,
+                100.0,
                 0.0
             ],
             "LightSpecular": [
@@ -1179,15 +1138,15 @@
                 0.0
             ],
             "LightSpecular": [
-                1.0,
-                1.0,
-                1.0,
+                0.20000000298023224,
+                0.20000000298023224,
+                0.20000000298023224,
                 1.0
             ],
             "LightType": 2,
             "LocalEvent": 4,
             "UseType": 1,
-            "WorldEvent": 14
+            "WorldEvent": 12
         }
     ]
 }

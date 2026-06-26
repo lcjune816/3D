@@ -100,7 +100,7 @@ void CElevator::Action_Trigger(const _float& fTimeDelta)
 	_vector SrcPos = pSrcTransform->Get_State(STATE::POS);
 	_float SrcHeight = XMVectorGetY(SrcPos);
 	
-	SrcHeight +=18.f * fTimeDelta;
+	SrcHeight +=17.f * fTimeDelta;
 	
 	pSrcTransform->Set_State(STATE::POS,XMVectorSetY(SrcPos,SrcHeight));
 	IS_PLAYSOUND(ELEVATOR_LOOP, CHANNELID::SOUND_OBJECT, 0.7f);

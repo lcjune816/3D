@@ -441,7 +441,9 @@ HRESULT CLoader::Loading_For_GasProduction()
 	//Load_Data(LEVEL::GASZONE, L"../../GasZone_Decal.json", L"Layer_Decal", L"OBJ_Decal", "GasZone_Decal");
 	//CGameInstance::Get().Move_Tol_AllLayer(ETOUI(LEVEL::GASZONE), L"Layer_Decal", m_Objects);
 	//m_Objects.clear();
-
+	if (FAILED(CGameInstance::Get().Add_Prototype(ETOUI(LEVEL::GASZONE), TEXT("OBJ_UI"),
+		CWorldUI::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	Load_LightsData(LEVEL::GASZONE, TEXT("OBJ_Light"), ETOUI(LEVEL::GASZONE), TEXT("../../LightsTo_GASZONE.json"), "Lights");
 	m_isFinished = true;
 

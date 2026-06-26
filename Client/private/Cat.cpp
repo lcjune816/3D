@@ -102,7 +102,9 @@ void CBoss_Cat::Update(_float fTimeDelta)
 	m_pStateMachine->Update_Machine(fTimeDelta);
 	m_bFinished = m_pAnimator[ETOUI(m_eFormType)]->Animation_End();
 	m_pFogEffect->Update(fTimeDelta);
+	if(m_bStop)
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 1.f));
+	
 	CGameInstance::Get().Add_RenderObject(RENDERGROUP::NONBLEND, SHARED_THIS(CBoss_Cat));
 
 
@@ -130,6 +132,13 @@ HRESULT CBoss_Cat::Render()
 	//m_pNavigation->Render();
 	return S_OK;
 }
+
+void CBoss_Cat::OnNotify(const EVENT& eEvent)
+{
+	if (eEvent.eEvent == WORLD_EVENT::PLAYER_DEAD)
+		m_bStop = true;
+}
+
 
 void CBoss_Cat::Change_Animation(CAT_ANIME eAnime, _bool bLoop, _bool bForce)
 {

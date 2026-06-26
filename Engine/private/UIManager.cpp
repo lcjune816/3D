@@ -51,7 +51,7 @@ void CUIManager::Late_Update(_float fTimeDelta)
 
 void CUIManager::Clear(uint32_t iLevelIndex)
 {
-	m_UIObjectss[iLevelIndex].clear();
+	//m_UIObjectss[iLevelIndex].clear();
 }
 unique_ptr<CUIManager> CUIManager::Create(uint32_t iLevelIndex)
 {

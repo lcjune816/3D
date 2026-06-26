@@ -39,13 +39,14 @@ public:
 	_float										Get_Duration(uint32_t i) 
 	{ 
 		if (i >= m_AniTime.size())
-			return 0.f;
+			return 0;
+		m_fCurDuration = m_AniTime[i].m_Duration;
 
 		return m_AniTime[i].m_Duration; }
 	_float										Get_Tick(uint32_t i) { 
 		if (i >= m_AniTime.size())
-			return 0.f;
-
+			return 0;
+		m_fTickPerSecond = m_AniTime[i].m_iTicksPerSecond;
 		return m_AniTime[i].m_iTicksPerSecond; }
 	AssimpNodeData&								Get_RootNode() { return m_RootNode; }
 	vector<Bone>&								Get_BoneInfo() { return m_BoneInfo; }
@@ -55,7 +56,8 @@ public:
 
 private:
 
-
+	_float										m_fCurDuration{}, m_fTickPerSecond{};
+	
 	vector<ANITIME>								m_AniTime;
 	vector<string>								m_AnimantionName;
 	vector<Bone>								m_BoneInfo;

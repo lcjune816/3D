@@ -99,7 +99,12 @@ void CUILoadingScreen::Update(_float fTimeDelta)
 		FadeOut(fTimeDelta);
 	else if (m_eType == SCREEN::LOADING)
 		Loading(fTimeDelta);
-	
+	else if (m_eType == SCREEN::DEADSCREEN)
+	{
+		m_fTimeTick2 += fTimeDelta;
+		if (m_fTimeTick2 > 0.1f)
+			m_bStop = false;
+	}
 	__super::Update(fTimeDelta);
 }
 
@@ -133,14 +138,15 @@ HRESULT CUILoadingScreen::Render()
 
 void CUILoadingScreen::OnNotify(const EVENT& eEvent)
 {
-	m_bStop = false;
 	if (eEvent.eEvent == WORLD_EVENT::END)
 	{
+		m_bStop = false;
 		m_eTextureType = TEXTUREID::DIFFUSE;
 		m_eType = SCREEN::BLACK;
 	}
 	else if (eEvent.eEvent == WORLD_EVENT::PLAYER_DEAD)
 	{
+		m_bStop = true;
 		m_eTextureType = TEXTUREID::DIFFUSE2;
 		m_eType = SCREEN::DEADSCREEN;
 	}

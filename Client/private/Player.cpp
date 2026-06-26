@@ -29,7 +29,7 @@ HRESULT CPlayer::Ready_Component(void* pArg)
 	CNavigation::NAVIGATION_DESC NaviDesc;
 	NaviDesc.eOwner = OWNER::PLAYER;
 	if(objDesc->iLevel == ETOUI(LEVEL::GAMEPLAY))
-		NaviDesc.iIndex = 27;
+		NaviDesc.iIndex = 264;
 	else if (objDesc->iLevel == ETOUI(LEVEL::GASZONE))
 		NaviDesc.iIndex = 31;
 	m_iLevel = objDesc->iLevel;
@@ -188,17 +188,22 @@ void CPlayer::Update(_float fTimeDelta)
 	m_pTransform->Set_State(STATE::POS, m_pNavigation->SetUp_OnNavigation(m_pTransform->Get_State(STATE::POS), 20.f + m_fOffsetY));
 
 	auto pObj = CGameInstance::Get().Get_ObjectPtr(m_iLevel, TEXT("Layer_TriggerObject"), "OBJ_Elevator");
-	if (NULL_FALSE(pObj))
+	if (m_bTurn)
 	{
-		if (CGameInstance::Get().Only_AABB_Collision(m_pTransform, pObj->Get_Transform()))
+		if (NULL_FALSE(pObj))
 		{
-			static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
-			_float fHeight = XMVectorGetY(static_cast<CTriggerObject*>(pObj)->Get_TransformPtr()->Get_State(STATE::POS));
-			m_pTransform->Set_State(STATE::POS, XMVectorSetY(m_pTransform->Get_State(STATE::POS), fHeight + 23.f + m_fOffsetY));
-		}else
-			static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(nullptr);
+			if (CGameInstance::Get().Only_AABB_Collision(m_pTransform, pObj->Get_Transform()))
+			{
+				static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(m_pTransform);
+				_float fHeight = XMVectorGetY(static_cast<CTriggerObject*>(pObj)->Get_TransformPtr()->Get_State(STATE::POS));
+				m_pTransform->Set_State(STATE::POS, XMVectorSetY(m_pTransform->Get_State(STATE::POS), fHeight + 23.f + m_fOffsetY));
+			}
+			else
+				static_cast<CTriggerObject*>(pObj)->Get_TriggerPtr()->Set_DstTransform(nullptr);
 
+		}
 	}
+
 
 	m_pPlayerLHand->Update(fTimeDelta);
 	Hnad_State_Check();

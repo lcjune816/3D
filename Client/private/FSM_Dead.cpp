@@ -23,44 +23,54 @@ void CFSM_Dead::Enter_State()
 	auto Player = m_pPlayer.lock();
 	if (NULL_TRUE(Player)) return;
 	//hard coding..
-	auto pTransform = Player->Get_TransformPtr();
-	_vector vSrcPos = pTransform->Get_State(STATE::POS) - XMVectorSet(-8, 33, 15, 0);
-	_vector Offset = XMVectorSet(9.45, 28.7, 2, 1);
-	XMStoreFloat3(&m_vTargetLook, XMVector3Normalize(XMVectorSet(1.9, 37, -4.4, 0) - Offset));
-
-	_float3 fScale = pTransform->Get_Scaled();
-	_vector vRight = XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMLoadFloat3(&m_vTargetLook)));
-	_vector vUp = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&m_vTargetLook), vRight));
-	_vector vLook = XMVector3Normalize(XMVector3Cross(vRight, vUp));
-
-	pTransform->Set_State(STATE::RIGHT, vRight * fScale.x);
-	pTransform->Set_State(STATE::UP, vUp * fScale.y);
-	pTransform->Set_State(STATE::LOOK, vLook * fScale.z);
-
-	pTransform->Apply_Rotation(XMVectorSet(0, 1, 0, 0), 30.f);
-
-	pTransform->Apply_Rotation(XMVectorSet(1, 0, 0, 0), 10.f);
-
-	pTransform->Apply_Rotation(XMVectorSet(0, 0, 1, 0), 5.f);
-	pTransform->Set_State(STATE::POS, Offset);
-
-	Player->GetAnimator()->Stop_Animation(true);
-	XMStoreFloat3(&m_vOriginLook, XMVector3Normalize(Player->Get_TransformPtr()->Get_State(STATE::LOOK)));
-	m_eAction = FSM_ACTION::IDLE;
-	m_fTimeOffset = 0.03f;
-	m_fAngleOffset = 2.3f;
-	m_fFrameTickDead = 0.f;
-	m_fRotation = _float3(0,1,1) ;
+	
 
 }
 
 void CFSM_Dead::Update_State(_float fTimeDelta)
 {
+	m_fTiming += fTimeDelta;
+	if (m_fTiming < 0.1f)
+		return;
+	else m_bTiming = true;
 
 	auto Player = m_pPlayer.lock();
 	auto pTransform = Player->Get_Transform().lock();
 	if (NULL_TRUE(Player)) return;
 	if (NULL_TRUE(pTransform)) return;
+
+	if (m_bTiming && m_bTiming2 == false)
+	{
+		m_bTiming2 = true;
+		auto pTransform = Player->Get_TransformPtr();
+		_vector vSrcPos = pTransform->Get_State(STATE::POS) - XMVectorSet(-8, 33, 15, 0);
+		_vector Offset = XMVectorSet(9.0, 30.7, 2, 1);
+		XMStoreFloat3(&m_vTargetLook, XMVector3Normalize(XMVectorSet(1.9, 37, -4.4, 0) - Offset));
+
+		_float3 fScale = pTransform->Get_Scaled();
+		_vector vRight = XMVector3Normalize(XMVector3Cross(XMVectorSet(0, 1, 0, 0), XMLoadFloat3(&m_vTargetLook)));
+		_vector vUp = XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&m_vTargetLook), vRight));
+		_vector vLook = XMVector3Normalize(XMVector3Cross(vRight, vUp));
+
+		pTransform->Set_State(STATE::RIGHT, vRight * fScale.x);
+		pTransform->Set_State(STATE::UP, vUp * fScale.y);
+		pTransform->Set_State(STATE::LOOK, vLook * fScale.z);
+
+		pTransform->Apply_Rotation(XMVectorSet(0, 1, 0, 0), 30.f);
+
+		pTransform->Apply_Rotation(XMVectorSet(1, 0, 0, 0), 10.f);
+
+		pTransform->Apply_Rotation(XMVectorSet(0, 0, 1, 0), 5.f);
+		pTransform->Set_State(STATE::POS, XMVectorSetY(Offset, -15.f));
+
+		Player->GetAnimator()->Stop_Animation(true);
+		XMStoreFloat3(&m_vOriginLook, XMVector3Normalize(Player->Get_TransformPtr()->Get_State(STATE::LOOK)));
+		m_eAction = FSM_ACTION::IDLE;
+		m_fTimeOffset = 0.03f;
+		m_fAngleOffset = 2.3f;
+		m_fFrameTickDead = 0.f;
+		m_fRotation = _float3(0, 1, 1);
+	}
 
 	m_fFrameTickDead += fTimeDelta;
 
@@ -109,8 +119,13 @@ void CFSM_Dead::OnNotify(const EVENT& eEvent)
 void CFSM_Dead::OffsetTime(const _float& fTimeDelta)
 {
 	m_fTimerTick += fTimeDelta;
-	
-	if (m_fTimerTick > 0.8f)
+
+	if (m_fTimerTick > 0.3f && !m_bStop)
+	{
+		PLAY_SOUND(CAT_JUMPSCARE, CHANNELID::SOUND_BOSS_EFFECT, 0.5f);
+		m_bStop = true;
+	}
+	if (m_fTimerTick > 0.6f)
 	{
 		m_fTimerTick = 0.f;
 		m_eAction = FSM_ACTION::ACTION;
@@ -179,6 +194,9 @@ void CFSM_Dead::ShakingCam3(shared_ptr<CTransform> pTransform, const _float& fTi
 void CFSM_Dead::GoingHead(shared_ptr<CTransform> pTransform, const _float& fTimeDelta)
 {
 	pTransform->Go_Straight(fTimeDelta, nullptr);
+	//_vector vPos = pTransform->Get_State(STATE::POS);
+	//pTransform->Set_State(STATE::POS, vPos + XMLoadFloat3(&m_vOriginLook) * fTimeDelta * 10.f);
+	
 }
 
 unique_ptr<CFSM_Dead>		CFSM_Dead::Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext)

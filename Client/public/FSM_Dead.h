@@ -27,11 +27,11 @@ private:
 
 	void	GoingHead(shared_ptr<CTransform> pTransform, const _float& fTimeDelta);
 private:
-	_float			m_fFrameTick{}, m_fAngle{ 5.f }, m_fTimeOffset{}, m_fAngleOffset{}, m_fFrameTickDead{};
+	_float			m_fFrameTick{}, m_fAngle{ 5.f }, m_fTimeOffset{}, m_fAngleOffset{}, m_fFrameTickDead{}, m_fTiming{};
 	_float3			m_vTargetLook{};
 	_float3			m_vOriginLook{};
 	_float3			m_fRotation{};
-	_bool			m_bShaking{ false };
+	_bool			m_bShaking{ false }, m_bStop{ false }, m_bTiming{ false }, m_bTiming2{ false };
 	
 public:
 	static unique_ptr<CFSM_Dead> Create(ComPtr<ID3D11Device>	pDevice, ComPtr<ID3D11DeviceContext> pContext);

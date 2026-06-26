@@ -40,7 +40,7 @@ void CFSM_Idle::Update_State(_float fTimeDelta)
 		Player->Set_Flag(ETOUI(PLAYER_FLAG::JUMP), FLAGVALUE::ENABLE);
 	}
 
-	if ((CGameInstance::Get().Get_DIKeyState(DIK_LEFT) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_RIGHT) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_UP) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_DOWN) & 0x80))
+	if ((CGameInstance::Get().Get_DIKeyState(DIK_A) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_D) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_W) & 0x80) || (CGameInstance::Get().Get_DIKeyState(DIK_S) & 0x80))
 	{
 		m_pMachine.lock()->Change_State(FSM::MOVE);
 		Player->Set_Flag(ETOUI(PLAYER_FLAG::MOVE), FLAGVALUE::ENABLE);

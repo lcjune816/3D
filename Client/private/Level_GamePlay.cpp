@@ -69,7 +69,7 @@ void CLevel_GamePlay::Priority_Update(_float fTimeDelta)
 
 	}
 
-	if ((CGameInstance::Get().Get_DIKeyState(DIK_Q) & 0x80) && (CGameInstance::Get().Get_DIKeyState(DIK_F1) & 0x80))
+	if ((CGameInstance::Get().Get_DIKeyState(DIK_Q) & 0x80) && (CGameInstance::Get().Get_DIKeyState(DIK_Z) & 0x80))
 	{
 		LeveL_Change();
 	}
