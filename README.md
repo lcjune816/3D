@@ -1,4 +1,4 @@
-# Poppy Playtime Clone — GrabPack Interaction
+# Poppy Playtime
 
 > DirectX 11 기반으로 제작한 3D 공포 퍼즐 장르의 1인 개인 프로젝트입니다.  
 > GrabPack을 이용한 상호작용, 전기 연결 퍼즐, 맵 리소스 최적화 및 보스 추적 AI를 구현했습니다.
